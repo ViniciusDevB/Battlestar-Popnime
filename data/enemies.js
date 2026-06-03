@@ -371,42 +371,85 @@ const ENEMY_DEFS = {
   // ═══════════════════════════════════════════════
   //  MUNDO 2 — ONE PIECE
   // ═══════════════════════════════════════════════
-  pirata_fraco: {
-    id:'pirata_fraco', name:'Pirata Novato',
-    hp:350, speed:72, gold:15,
-    ptype:'normal', req:0, size:18, col:'#f39c12'
+  // Fase 1
+  op_bandido: {
+    id:'op_bandido', name:'Bandido', hp:400, speed:72, gold:15, ptype:'normal', req:0, size:18, col:'#f39c12'
   },
-  pirata_medio: {
-    id:'pirata_medio', name:'Pirata Saqueador',
-    hp:600, speed:68, gold:25,
-    ptype:'normal', req:0, size:20, col:'#d35400'
+  op_bandido_veterano: {
+    id:'op_bandido_veterano', name:'Bandido Chefe', hp:800, speed:65, gold:35, ptype:'powerful1', req:1, size:20, col:'#d35400'
   },
-  pirata_forte: {
-    id:'pirata_forte', name:'Pirata Veterano',
-    hp:1100, speed:65, gold:45,
-    ptype:'powerful1', req:1, size:22, col:'#c0392b'
+  capitao_morgan: {
+    id:'capitao_morgan', name:'Capitão Morgan', hp:3000, speed:55, gold:150, ptype:'powerful1', req:1, size:32, col:'#e67e22', is_miniboss:true
   },
-  pirata_boss1: {
-    id:'pirata_boss1', name:'Capitão Pirata',
-    hp:3000, speed:55, gold:150,
-    ptype:'powerful2', req:2, size:30, col:'#8e44ad',
-    is_miniboss:true
+
+  // Fase 2
+  op_pirata_comum: {
+    id:'op_pirata_comum', name:'Pirata Comum', hp:700, speed:68, gold:25, ptype:'normal', req:0, size:20, col:'#d35400'
   },
-  marinha_soldado: {
-    id:'marinha_soldado', name:'Soldado da Marinha',
-    hp:800, speed:85, gold:35,
-    ptype:'speed', req:0, size:19, col:'#2980b9'
+  op_pirata_veterano: {
+    id:'op_pirata_veterano', name:'Pirata Veterano', hp:1200, speed:65, gold:45, ptype:'powerful1', req:1, size:22, col:'#c0392b'
   },
-  marinha_capitao: {
-    id:'marinha_capitao', name:'Capitão da Marinha',
-    hp:2500, speed:80, gold:80,
-    ptype:'powerful2', req:2, size:24, col:'#1abc9c'
+  don_krieg: {
+    id:'don_krieg', name:'Don Krieg', hp:5000, speed:52, gold:250, ptype:'powerful1', req:1, size:34, col:'#7f8c8d', is_miniboss:true
   },
-  almirante_boss: {
-    id:'almirante_boss', name:'Almirante (Boss)',
-    hp:40000, speed:40, gold:2000,
-    ptype:'powerful3', req:3, size:48, col:'#f1c40f',
-    is_boss:true
+
+  // Fase 3
+  op_homem_peixe: {
+    id:'op_homem_peixe', name:'Homem-Peixe', hp:1100, speed:65, gold:45, ptype:'normal', req:0, size:20, col:'#2980b9'
+  },
+  op_hp_guerreiro: {
+    id:'op_hp_guerreiro', name:'Homem-Peixe Guerreiro', hp:2200, speed:60, gold:80, ptype:'powerful1', req:1, size:24, col:'#2471a3'
+  },
+  arlong: {
+    id:'arlong', name:'Arlong', hp:8000, speed:50, gold:400, ptype:'powerful1', req:1, size:36, col:'#154360', is_miniboss:true
+  },
+
+  // Fase 4
+  op_agente_bw: {
+    id:'op_agente_bw', name:'Agente Baroque Works', hp:1800, speed:70, gold:60, ptype:'normal', req:0, size:20, col:'#8e44ad'
+  },
+  op_bw_speed: {
+    id:'op_bw_speed', name:'Millions Rápido', hp:1000, speed:140, gold:80, ptype:'speed', req:0, size:16, col:'#9b59b6'
+  },
+  op_bw_oficial: {
+    id:'op_bw_oficial', name:'Oficial Baroque Works', hp:3200, speed:65, gold:100, ptype:'powerful1', req:1, size:22, col:'#732d91'
+  },
+  op_bw_elite: {
+    id:'op_bw_elite', name:'Elite Baroque Works', hp:5500, speed:62, gold:160, ptype:'powerful2', req:2, size:24, col:'#5b2c6f'
+  },
+  mr_1: {
+    id:'mr_1', name:'Mr. 1', hp:14000, speed:46, gold:600, ptype:'powerful2', req:2, size:34, col:'#34495e', is_miniboss:true
+  },
+
+  // Fase 5
+  op_agente_cp9: {
+    id:'op_agente_cp9', name:'Agente CP9', hp:2500, speed:85, gold:80, ptype:'normal', req:0, size:20, col:'#2c3e50'
+  },
+  op_cp9_speed: {
+    id:'op_cp9_speed', name:'Agente Soru', hp:1500, speed:160, gold:110, ptype:'speed', req:0, size:16, col:'#34495e'
+  },
+  op_cp9_oficial: {
+    id:'op_cp9_oficial', name:'Mestre Rokushiki', hp:4500, speed:80, gold:130, ptype:'powerful1', req:1, size:22, col:'#212f3d'
+  },
+  op_cp9_elite: {
+    id:'op_cp9_elite', name:'Assassino CP9', hp:8000, speed:75, gold:200, ptype:'powerful2', req:2, size:24, col:'#17202a'
+  },
+  rob_lucci: {
+    id:'rob_lucci', name:'Rob Lucci', hp:22000, speed:55, gold:900, ptype:'powerful2', req:2, size:36, col:'#b03a2e', is_miniboss:true
+  },
+
+  // Fase 6
+  op_marinheiro: {
+    id:'op_marinheiro', name:'Marinheiro', hp:3500, speed:75, gold:100, ptype:'normal', req:0, size:20, col:'#bdc3c7'
+  },
+  op_marinha_capitao: {
+    id:'op_marinha_capitao', name:'Capitão da Marinha', hp:6000, speed:70, gold:160, ptype:'powerful1', req:1, size:22, col:'#7f8c8d'
+  },
+  op_marinha_elite: {
+    id:'op_marinha_elite', name:'Vice-Almirante', hp:10000, speed:65, gold:250, ptype:'powerful2', req:2, size:24, col:'#34495e'
+  },
+  akainu: {
+    id:'akainu', name:'Akainu', hp:50000, speed:40, gold:2500, ptype:'powerful3', req:3, size:48, col:'#c0392b', is_boss:true, special:'explosion', explosionRadius:150, explosionStun:2
   }
 };
 

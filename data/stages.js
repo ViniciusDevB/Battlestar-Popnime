@@ -367,96 +367,96 @@ const STAGES = [
     id: 'op_fase1', name: 'Início na Grand Line', world: 'onepiece',
     drops: [{ id: 'pirata_generico_1', chance: 70 }, { id: 'pirata_generico_2', chance: 20 }],
     waves: [
-      buildWave([{type:'pirata_fraco',count:6,gap:1.5}]),
-      buildWave([{type:'pirata_fraco',count:7,gap:1.4}]),
-      buildWave([{type:'pirata_fraco',count:8,gap:1.3}]),
-      buildWave([{type:'pirata_fraco',count:9,gap:1.2}]),
-      buildWave([{type:'pirata_fraco',count:10,gap:1.4}]),
-      buildWave([{type:'pirata_fraco',count:12,gap:1.2}]),
-      buildWave([{type:'pirata_fraco',count:14,gap:1.0}]),
-      buildWave([{type:'pirata_fraco',count:15,gap:0.9}]),
-      buildWave([{type:'pirata_fraco',count:18,gap:0.8}]),
-      buildWave([{type:'pirata_boss1',count:1,gap:0}])
+      buildWave([{type:'op_bandido',count:6,gap:1.5}]),
+      buildWave([{type:'op_bandido',count:7,gap:1.4}]),
+      buildWave([{type:'op_bandido',count:8,gap:1.3}]),
+      buildWave([{type:'op_bandido',count:9,gap:1.2}]),
+      buildWave([{type:'op_bandido',count:10,gap:1.4}]),
+      buildWave([{type:'op_bandido',count:12,gap:1.2}]),
+      buildWave([{type:'op_bandido',count:10,gap:1.2}, {type:'op_bandido_veterano',count:2,gap:2.0}]),
+      buildWave([{type:'op_bandido',count:12,gap:1.0}, {type:'op_bandido_veterano',count:3,gap:1.8}]),
+      buildWave([{type:'op_bandido',count:14,gap:1.0}, {type:'op_bandido_veterano',count:4,gap:1.5}]),
+      buildWave([{type:'op_bandido',count:5,gap:1.0}, {type:'op_bandido_veterano',count:2,gap:1.0}, {type:'capitao_morgan',count:1,gap:0}])
     ]
   },
   {
     id: 'op_fase2', name: 'Emboscada Pirata', world: 'onepiece',
     drops: [{ id: 'pirata_generico_1', chance: 50 }, { id: 'pirata_generico_2', chance: 30 }, { id: 'pirata_generico_3', chance: 5 }],
     waves: [
-      buildWave([{type:'pirata_fraco',count:8,gap:1.5}]),
-      buildWave([{type:'pirata_fraco',count:5,gap:1.0}, {type:'pirata_medio',count:3,gap:1.5}]),
-      buildWave([{type:'pirata_medio',count:6,gap:1.3}]),
-      buildWave([{type:'pirata_fraco',count:5,gap:1.0}, {type:'pirata_medio',count:5,gap:1.5}]),
-      buildWave([{type:'pirata_boss1',count:1,gap:0}]),
-      buildWave([{type:'pirata_medio',count:10,gap:1.0}]),
-      buildWave([{type:'pirata_fraco',count:8,gap:0.8}, {type:'pirata_medio',count:6,gap:1.0}]),
-      buildWave([{type:'pirata_medio',count:12,gap:0.9}]),
-      buildWave([{type:'pirata_medio',count:15,gap:0.8}]),
-      buildWave([{type:'pirata_boss1',count:2,gap:2.0}])
+      buildWave([{type:'op_pirata_comum',count:8,gap:1.5}]),
+      buildWave([{type:'op_pirata_comum',count:10,gap:1.4}]),
+      buildWave([{type:'op_pirata_comum',count:12,gap:1.3}]),
+      buildWave([{type:'op_pirata_comum',count:14,gap:1.2}]),
+      buildWave([{type:'op_pirata_comum',count:16,gap:1.1}]),
+      buildWave([{type:'op_pirata_comum',count:12,gap:1.1}, {type:'op_pirata_veterano',count:2,gap:2.0}]),
+      buildWave([{type:'op_pirata_comum',count:12,gap:1.0}, {type:'op_pirata_veterano',count:3,gap:2.0}]),
+      buildWave([{type:'op_pirata_comum',count:12,gap:1.0}, {type:'op_pirata_veterano',count:4,gap:1.5}]),
+      buildWave([{type:'op_pirata_comum',count:10,gap:1.0}, {type:'op_pirata_veterano',count:6,gap:1.0}]),
+      buildWave([{type:'op_pirata_comum',count:5,gap:1.0}, {type:'op_pirata_veterano',count:2,gap:1.0}, {type:'don_krieg',count:1,gap:0}])
     ]
   },
   {
     id: 'op_fase3', name: 'Ataque Marítimo', world: 'onepiece',
     drops: [{ id: 'pirata_generico_1', chance: 30 }, { id: 'pirata_generico_2', chance: 50 }, { id: 'pirata_generico_3', chance: 15 }],
     waves: [
-      buildWave([{type:'pirata_medio',count:8,gap:1.5}]),
-      buildWave([{type:'pirata_medio',count:10,gap:1.4}]),
-      buildWave([{type:'pirata_forte',count:4,gap:2.0}]),
-      buildWave([{type:'pirata_medio',count:6,gap:1.0}, {type:'pirata_forte',count:3,gap:1.5}]),
-      buildWave([{type:'pirata_boss1',count:1,gap:0}, {type:'pirata_forte',count:2,gap:1.0}]),
-      buildWave([{type:'pirata_forte',count:8,gap:1.2}]),
-      buildWave([{type:'pirata_medio',count:10,gap:0.8}, {type:'pirata_forte',count:5,gap:1.0}]),
-      buildWave([{type:'pirata_forte',count:12,gap:1.0}]),
-      buildWave([{type:'pirata_forte',count:15,gap:0.8}]),
-      buildWave([{type:'pirata_boss1',count:3,gap:2.0}])
+      buildWave([{type:'op_homem_peixe',count:8,gap:1.5}]),
+      buildWave([{type:'op_homem_peixe',count:10,gap:1.4}]),
+      buildWave([{type:'op_homem_peixe',count:12,gap:1.3}]),
+      buildWave([{type:'op_homem_peixe',count:14,gap:1.2}]),
+      buildWave([{type:'op_homem_peixe',count:10,gap:1.2}, {type:'op_hp_guerreiro',count:2,gap:2.0}]),
+      buildWave([{type:'op_homem_peixe',count:10,gap:1.1}, {type:'op_hp_guerreiro',count:3,gap:2.0}]),
+      buildWave([{type:'op_homem_peixe',count:10,gap:1.0}, {type:'op_hp_guerreiro',count:4,gap:2.0}]),
+      buildWave([{type:'op_homem_peixe',count:10,gap:1.0}, {type:'op_hp_guerreiro',count:5,gap:1.5}]),
+      buildWave([{type:'op_homem_peixe',count:8,gap:1.0}, {type:'op_hp_guerreiro',count:7,gap:1.0}]),
+      buildWave([{type:'op_homem_peixe',count:5,gap:1.0}, {type:'op_hp_guerreiro',count:3,gap:1.0}, {type:'arlong',count:1,gap:0}])
     ]
   },
   {
-    id: 'op_fase4', name: 'Forças da Marinha', world: 'onepiece',
+    id: 'op_fase4', name: 'Baroque Works', world: 'onepiece',
     drops: [{ id: 'pirata_generico_2', chance: 40 }, { id: 'pirata_generico_3', chance: 20 }],
     waves: [
-      buildWave([{type:'marinha_soldado',count:10,gap:1.5}]),
-      buildWave([{type:'marinha_soldado',count:15,gap:1.2}]),
-      buildWave([{type:'marinha_soldado',count:12,gap:1.0}, {type:'marinha_capitao',count:2,gap:2.0}]),
-      buildWave([{type:'marinha_capitao',count:4,gap:1.5}]),
-      buildWave([{type:'pirata_boss1',count:1,gap:0}, {type:'marinha_soldado',count:5,gap:1.0}]),
-      buildWave([{type:'marinha_soldado',count:20,gap:0.8}]),
-      buildWave([{type:'marinha_capitao',count:6,gap:1.2}]),
-      buildWave([{type:'marinha_soldado',count:15,gap:0.8}, {type:'marinha_capitao',count:4,gap:1.0}]),
-      buildWave([{type:'marinha_capitao',count:10,gap:1.0}]),
-      buildWave([{type:'pirata_boss1',count:4,gap:2.0}])
+      buildWave([{type:'op_agente_bw',count:10,gap:1.5}]),
+      buildWave([{type:'op_agente_bw',count:12,gap:1.4}]),
+      buildWave([{type:'op_agente_bw',count:14,gap:1.3}]),
+      buildWave([{type:'op_agente_bw',count:10,gap:1.2}, {type:'op_bw_oficial',count:2,gap:2.0}]),
+      buildWave([{type:'op_agente_bw',count:12,gap:1.1}, {type:'op_bw_oficial',count:3,gap:1.8}]),
+      buildWave([{type:'op_agente_bw',count:10,gap:1.1}, {type:'op_bw_speed',count:3,gap:1.2}, {type:'op_bw_oficial',count:4,gap:1.5}]),
+      buildWave([{type:'op_agente_bw',count:10,gap:1.0}, {type:'op_bw_speed',count:4,gap:1.0}, {type:'op_bw_oficial',count:5,gap:1.2}]),
+      buildWave([{type:'op_agente_bw',count:8,gap:1.0}, {type:'op_bw_speed',count:4,gap:1.0}, {type:'op_bw_oficial',count:5,gap:1.0}, {type:'op_bw_elite',count:2,gap:2.0}]),
+      buildWave([{type:'op_agente_bw',count:6,gap:1.0}, {type:'op_bw_speed',count:5,gap:1.0}, {type:'op_bw_oficial',count:4,gap:1.0}, {type:'op_bw_elite',count:4,gap:1.5}]),
+      buildWave([{type:'op_bw_oficial',count:4,gap:1.0}, {type:'op_bw_elite',count:3,gap:1.0}, {type:'mr_1',count:1,gap:0}])
     ]
   },
   {
-    id: 'op_fase5', name: 'Cerco Implacável', world: 'onepiece',
+    id: 'op_fase5', name: 'Justiça Sombria', world: 'onepiece',
     drops: [{ id: 'pirata_generico_2', chance: 20 }, { id: 'pirata_generico_3', chance: 40 }],
     waves: [
-      buildWave([{type:'marinha_soldado',count:15,gap:1.0}]),
-      buildWave([{type:'marinha_capitao',count:8,gap:1.2}]),
-      buildWave([{type:'pirata_forte',count:10,gap:1.0}]),
-      buildWave([{type:'marinha_capitao',count:5,gap:1.0}, {type:'pirata_forte',count:5,gap:1.0}]),
-      buildWave([{type:'pirata_boss1',count:2,gap:2.0}]),
-      buildWave([{type:'marinha_soldado',count:25,gap:0.6}]),
-      buildWave([{type:'marinha_capitao',count:12,gap:1.0}]),
-      buildWave([{type:'pirata_forte',count:15,gap:0.8}]),
-      buildWave([{type:'marinha_capitao',count:10,gap:0.8}, {type:'pirata_forte',count:10,gap:0.8}]),
-      buildWave([{type:'pirata_boss1',count:5,gap:1.5}])
+      buildWave([{type:'op_agente_cp9',count:10,gap:1.5}]),
+      buildWave([{type:'op_agente_cp9',count:12,gap:1.4}]),
+      buildWave([{type:'op_agente_cp9',count:14,gap:1.3}]),
+      buildWave([{type:'op_agente_cp9',count:10,gap:1.2}, {type:'op_cp9_oficial',count:2,gap:2.0}]),
+      buildWave([{type:'op_agente_cp9',count:10,gap:1.1}, {type:'op_cp9_speed',count:3,gap:1.2}, {type:'op_cp9_oficial',count:3,gap:1.8}]),
+      buildWave([{type:'op_agente_cp9',count:10,gap:1.0}, {type:'op_cp9_speed',count:4,gap:1.2}, {type:'op_cp9_oficial',count:4,gap:1.5}]),
+      buildWave([{type:'op_agente_cp9',count:10,gap:1.0}, {type:'op_cp9_speed',count:5,gap:1.0}, {type:'op_cp9_oficial',count:5,gap:1.2}]),
+      buildWave([{type:'op_agente_cp9',count:8,gap:1.0}, {type:'op_cp9_speed',count:5,gap:1.0}, {type:'op_cp9_oficial',count:4,gap:1.0}, {type:'op_cp9_elite',count:2,gap:2.0}]),
+      buildWave([{type:'op_agente_cp9',count:6,gap:1.0}, {type:'op_cp9_speed',count:6,gap:1.0}, {type:'op_cp9_oficial',count:4,gap:1.0}, {type:'op_cp9_elite',count:4,gap:1.5}]),
+      buildWave([{type:'op_cp9_oficial',count:4,gap:1.0}, {type:'op_cp9_elite',count:3,gap:1.0}, {type:'rob_lucci',count:1,gap:0}])
     ]
   },
   {
-    id: 'op_fase6', name: 'O Almirante', world: 'onepiece', isBoss: true,
+    id: 'op_fase6', name: 'Guerra dos Melhores', world: 'onepiece', isBoss: true,
     drops: [{ id: 'pirata_generico_3', chance: 60 }, { id: 'barbabranca_5', chance: 0.1, pity: 200 }],
     waves: [
-      buildWave([{type:'marinha_capitao',count:10,gap:1.0}]),
-      buildWave([{type:'pirata_forte',count:15,gap:0.8}]),
-      buildWave([{type:'marinha_capitao',count:12,gap:0.8}, {type:'pirata_forte',count:8,gap:1.0}]),
-      buildWave([{type:'pirata_boss1',count:3,gap:1.5}]),
-      buildWave([{type:'marinha_soldado',count:30,gap:0.5}]),
-      buildWave([{type:'marinha_capitao',count:15,gap:0.8}]),
-      buildWave([{type:'pirata_forte',count:20,gap:0.7}]),
-      buildWave([{type:'marinha_capitao',count:10,gap:0.5}, {type:'pirata_forte',count:15,gap:0.5}]),
-      buildWave([{type:'pirata_boss1',count:5,gap:1.0}]),
-      buildWave([{type:'almirante_boss',count:1,gap:0}])
+      buildWave([{type:'op_marinheiro',count:12,gap:1.4}]),
+      buildWave([{type:'op_marinheiro',count:15,gap:1.3}]),
+      buildWave([{type:'op_marinheiro',count:18,gap:1.2}]),
+      buildWave([{type:'op_marinheiro',count:12,gap:1.1}, {type:'op_marinha_capitao',count:3,gap:2.0}]),
+      buildWave([{type:'op_marinheiro',count:14,gap:1.0}, {type:'op_marinha_capitao',count:4,gap:1.8}]),
+      buildWave([{type:'op_marinheiro',count:16,gap:0.9}, {type:'op_marinha_capitao',count:5,gap:1.5}]),
+      buildWave([{type:'op_marinheiro',count:12,gap:0.8}, {type:'op_marinha_capitao',count:6,gap:1.2}]),
+      buildWave([{type:'op_marinheiro',count:10,gap:0.8}, {type:'op_marinha_capitao',count:5,gap:1.0}, {type:'op_marinha_elite',count:3,gap:2.0}]),
+      buildWave([{type:'op_marinheiro',count:8,gap:0.8}, {type:'op_marinha_capitao',count:5,gap:1.0}, {type:'op_marinha_elite',count:5,gap:1.5}]),
+      buildWave([{type:'op_marinha_capitao',count:6,gap:1.0}, {type:'op_marinha_elite',count:4,gap:1.0}, {type:'akainu',count:1,gap:0}])
     ]
   }
 ];
