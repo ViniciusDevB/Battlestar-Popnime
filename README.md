@@ -48,6 +48,16 @@ O código-fonte é separado de forma lógica entre a lógica base, definições 
 - **CSS3** (com variáveis CSS e animações para uma UI rica).
 - **Vanilla JavaScript** (Sem frameworks, focando em controle total e leveza).
 
+## 📈 Atualizações (Patch Notes)
+
+### Update 0: Fundação Ninja e Sociedade das Almas
+- **Foco:** Criação do loop principal de gameplay, sistema de defesa de torres, evolução de personagens, Gacha e Save.
+- **Conteúdo:** Implementação do mundo de Naruto e primeiros heróis baseados em Bleach, Jujutsu Kaisen, Dragon Ball e Hunter x Hunter. Inimigos iniciais (Ninjas, Cobras e Pain).
+
+### Update 1: Qualidade de Vida (QoL)
+- **Foco:** Melhorias na experiência do jogador e fluidez.
+- **Conteúdo:** Adição de atalhos de teclado (Espaço para pausar, 1 a 6 para unidades, S para Skip de Waves e Esc para cancelar). Criação da funcionalidade "Combinar Tudo" no inventário e botão de "Antecipar Wave", permitindo acelerar as fases antecipando até 2 ondas de inimigos para um desafio maior.
+
 ## 👨‍💻 Créditos
 
 Projeto criado e mantido por [ViniciusDevB](https://github.com/ViniciusDevB).

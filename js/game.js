@@ -10,6 +10,7 @@ const Game = (() => {
   let lives, gold, wave, totalWaves;
   let enemies, towers, projectiles, effects, tsunamis;
   let waveActive, spawnQueue, betweenWaves, betweenTimer, waveElapsed;
+  let activeWavesCount = 1;
   let selectedTowerIdx, deployingCharId;
   let shinraTenseiActive, shinraTenseiTimer;
   let stage, team;
@@ -539,6 +540,7 @@ const Game = (() => {
     gold = 300;
     wave = 0;
     totalWaves = stage.waves.length;
+    activeWavesCount = 1;
     enemies = [];
     towers = [];
     projectiles = [];
@@ -636,10 +638,39 @@ const Game = (() => {
 
   function startWave() {
     wave++;
+    activeWavesCount = 1;
     spawnQueue = [...stage.waves[wave - 1]];
     waveElapsed = 0;
     waveActive = true;
     updateHUD();
+  }
+
+  function skipWave() {
+    if (betweenWaves) {
+      betweenTimer = 0;
+      return;
+    }
+    if (!waveActive || wave >= totalWaves) return;
+    if (activeWavesCount >= 3) {
+      UI.toast('⚠️ Limite de 2 waves extras atingido!');
+      return;
+    }
+
+    const bonus = wave * 11;
+    gold += bonus;
+    towers.forEach(t => PASSIVE_SYSTEM.onWaveEnd(t));
+
+    wave++;
+    activeWavesCount++;
+
+    const newEnemies = stage.waves[wave - 1];
+    const currentElapsed = waveElapsed;
+    const adjusted = newEnemies.map(e => ({...e, delay: e.delay + currentElapsed}));
+    spawnQueue.push(...adjusted);
+    spawnQueue.sort((a, b) => a.delay - b.delay);
+
+    updateHUD();
+    UI.toast(`⏭️ Wave ${wave} chamada! +${bonus}💰`);
   }
 
   function updateSpawn(dt) {
@@ -2114,6 +2145,6 @@ const Game = (() => {
 
   return {
     init, startGame, togglePause, toggleSpeed, sellTower,
-    deselectTower, retryStage, useAbility
+    deselectTower, retryStage, useAbility, skipWave
   };
 })();

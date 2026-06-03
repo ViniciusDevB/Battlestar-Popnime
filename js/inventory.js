@@ -117,6 +117,13 @@ const Inventory = (() => {
           onclick="Inventory.combineMaterial('${matId}')">
           🔨 Combinar ${cost}× → 1× ${nextChar.name}
         </button>
+        ${canMake > 1 ? `
+        <button class="btn btn-mat-combine"
+          style="margin-top: 8px; background: #6c3483;"
+          onclick="Inventory.combineMaxMaterial('${matId}')">
+          🔨 Combinar Tudo (${canMake}×)
+        </button>
+        ` : ''}
       </div>` : `
       <div class="mat-combine-section">
         <div class="mat-comb-max">✦ Tier máximo — não pode ser combinado</div>
@@ -149,6 +156,25 @@ const Inventory = (() => {
 
     const nextChar = getCharById(char.upgrades_to);
     UI.toast(`✅ ${nextChar.name} obtido!`);
+
+    renderGrid();
+    openMaterialDetail(matId); // atualiza painel com novas qtds
+  }
+
+  function combineMaxMaterial(matId) {
+    const char = getCharById(matId);
+    if (!char || !char.upgrades_to) return;
+    const cost = char.upgrade_cost || 3;
+    const qty = Save.getMaterialQty(matId);
+    const canMake = Math.floor(qty / cost);
+    if (canMake < 1) { UI.toast('Materiais insuficientes!'); return; }
+
+    Save.removeMaterial(matId, canMake * cost);
+    Save.addMaterial(char.upgrades_to, canMake);
+    Missions.check();
+
+    const nextChar = getCharById(char.upgrades_to);
+    UI.toast(`✅ ${canMake}x ${nextChar.name} obtido!`);
 
     renderGrid();
     openMaterialDetail(matId); // atualiza painel com novas qtds
@@ -534,7 +560,7 @@ const Inventory = (() => {
     showTab, applyFilters, openDetail, closeDetail,
     openEvolution, closeEvolution, confirmEvolution,
     openFeed, closeFeed, confirmFeed, removeFeedSelected,
-    openMaterialDetail, combineMaterial,
+    openMaterialDetail, combineMaterial, combineMaxMaterial,
     renderGrid
   };
 })();

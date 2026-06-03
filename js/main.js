@@ -53,8 +53,36 @@ window.addEventListener('DOMContentLoaded', () => {
     toggleSpeed: () => Game.toggleSpeed(),
     sellTower:   () => Game.sellTower(),
     retryStage:  () => Game.retryStage(),
-    useAbility:  (idx) => Game.useAbility(idx)
+    useAbility:  (idx) => Game.useAbility(idx),
+    deselectTower: () => Game.deselectTower(),
+    skipWave:    () => Game.skipWave()
   };
+
+  // Keyboard Shortcuts (Hotkeys)
+  window.addEventListener('keydown', (e) => {
+    // Only apply if the game screen is active
+    if (!document.getElementById('screen-game').classList.contains('active')) return;
+    
+    // Ignore if typing in an input (just in case)
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    if (e.code === 'Space') {
+      GameController.togglePause();
+      e.preventDefault();
+    } else if (e.code === 'Escape') {
+      GameController.deselectTower();
+      e.preventDefault();
+    } else if (e.code === 'KeyS') {
+      GameController.skipWave();
+      e.preventDefault();
+    } else if (['Digit1','Digit2','Digit3','Digit4','Digit5','Digit6'].includes(e.code)) {
+      const idx = parseInt(e.key) - 1;
+      const panel = document.getElementById('team-panel');
+      if (panel && panel.children[idx]) {
+        panel.children[idx].click();
+      }
+    }
+  });
 
   console.log('Battlestar Popnime loaded!');
 });
