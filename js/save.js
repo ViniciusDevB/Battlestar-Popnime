@@ -1,0 +1,194 @@
+const Save = (() => {
+  const KEY = 'astd_save_v1';
+
+  function generateUid() {
+    return Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
+  }
+
+  function defaultSave() {
+    return {
+      inventario: {
+        unidades: [],   // {uid, id, nivel, xp_atual}
+        materiais: []   // {id, quantidade}
+      },
+      gemas: 500,
+      tickets: 3,
+      pity_contador: 0,
+      fases_completas: {},
+      time_salvo: [],
+      stats: {
+        dano_total_causado: 0,
+        inimigos_derrotados: 0,
+        torres_colocadas: 0,
+        fases_completas: 0,
+        fases_naruto_completas: 0,
+        pulls_realizados: 0,
+        feeds_realizados: 0,
+        evolucoes_realizadas: 0,
+        minibosses_derrotados: 0,
+        boss_pain_derrotado: 0,
+        unidades_4estrelas_obtidas: 0,
+        unidades_5estrelas_obtidas: 0
+      },
+      missoes_ativas: [],
+      missoes_completas: []
+    };
+  }
+
+  let _data = null;
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) {
+        _data = Object.assign(defaultSave(), JSON.parse(raw));
+        _data.inventario = _data.inventario || { unidades:[], materiais:[] };
+        _data.stats = Object.assign(defaultSave().stats, _data.stats || {});
+
+        // Migrate stacked format {id, quantidade} → individual instances {uid, id}
+        const newUnidades = [];
+        (_data.inventario.unidades || []).forEach(u => {
+          if (u.quantidade !== undefined) {
+            for (let i = 0; i < (u.quantidade || 1); i++) {
+              newUnidades.push({
+                uid: generateUid(),
+                id: u.id,
+                nivel: u.nivel || 1,
+                xp_atual: i === 0 ? (u.xp_atual || 0) : 0
+              });
+            }
+          } else {
+            if (!u.uid) u.uid = generateUid();
+            newUnidades.push(u);
+          }
+        });
+        _data.inventario.unidades = newUnidades;
+      } else {
+        _data = defaultSave();
+      }
+    } catch(e) {
+      _data = defaultSave();
+    }
+    return _data;
+  }
+
+  function save() {
+    if (!_data) return;
+    try {
+      localStorage.setItem(KEY, JSON.stringify(_data));
+    } catch(e) { console.warn('Save failed:', e); }
+  }
+
+  function get() { return _data || load(); }
+
+  function reset() {
+    _data = defaultSave();
+    save();
+    return _data;
+  }
+
+  // Inventory helpers
+  function addUnit(id, nivel = 1, xp_atual = 0) {
+    const d = get();
+    const uid = generateUid();
+    d.inventario.unidades.push({ uid, id, nivel, xp_atual });
+    save();
+    return uid;
+  }
+
+  function addMaterial(id, qty = 1) {
+    const d = get();
+    const existing = d.inventario.materiais.find(m => m.id === id);
+    if (existing) existing.quantidade += qty;
+    else d.inventario.materiais.push({ id, quantidade: qty });
+    save();
+  }
+
+  // Remove first N instances of a character by id (used by evolution)
+  function removeUnit(id, qty = 1) {
+    const d = get();
+    let removed = 0;
+    d.inventario.unidades = d.inventario.unidades.filter(u => {
+      if (u.id === id && removed < qty) { removed++; return false; }
+      return true;
+    });
+    save();
+    return removed;
+  }
+
+  // Remove a specific unit instance by uid (used by feed)
+  function removeUnitByUid(uid) {
+    const d = get();
+    d.inventario.unidades = d.inventario.unidades.filter(u => u.uid !== uid);
+    save();
+  }
+
+  function removeMaterial(id, qty = 1) {
+    const d = get();
+    const existing = d.inventario.materiais.find(m => m.id === id);
+    if (!existing || existing.quantidade < qty) return false;
+    existing.quantidade -= qty;
+    if (existing.quantidade <= 0)
+      d.inventario.materiais = d.inventario.materiais.filter(m => m.id !== id);
+    save();
+    return true;
+  }
+
+  function getUnitData(id) {
+    return get().inventario.unidades.find(u => u.id === id) || null;
+  }
+
+  function getBestUnitData(id) {
+    const units = get().inventario.unidades.filter(u => u.id === id);
+    if (units.length === 0) return null;
+    return units.reduce((best, u) => u.nivel > best.nivel ? u : best, units[0]);
+  }
+
+  function getUnitByUid(uid) {
+    return get().inventario.unidades.find(u => u.uid === uid) || null;
+  }
+
+  function getMaterialQty(id) {
+    const m = get().inventario.materiais.find(m => m.id === id);
+    return m ? m.quantidade : 0;
+  }
+
+  function getUnitQty(id) {
+    return get().inventario.unidades.filter(u => u.id === id).length;
+  }
+
+  function addGems(n) { get().gemas += n; save(); }
+  function spendGems(n) { const d=get(); if(d.gemas<n) return false; d.gemas-=n; save(); return true; }
+  function addTickets(n) { get().tickets += n; save(); }
+  function spendTickets(n) { const d=get(); if(d.tickets<n) return false; d.tickets-=n; save(); return true; }
+
+  function incStat(stat, val = 1) {
+    const d = get();
+    if (d.stats[stat] === undefined) d.stats[stat] = 0;
+    d.stats[stat] += val;
+    save();
+  }
+
+  function setStat(stat, val) {
+    const d = get();
+    d.stats[stat] = val;
+    save();
+  }
+
+  function markStageComplete(stageId, diff) {
+    const d = get();
+    if (!d.fases_completas[stageId]) d.fases_completas[stageId] = {};
+    d.fases_completas[stageId][diff] = true;
+    save();
+  }
+
+  function isStageComplete(stageId, diff) {
+    const d = get();
+    return !!(d.fases_completas[stageId] && d.fases_completas[stageId][diff]);
+  }
+
+  return { load, save, get, reset, addUnit, addMaterial, removeUnit, removeUnitByUid,
+           removeMaterial, getUnitData, getBestUnitData, getUnitByUid, getMaterialQty, getUnitQty,
+           addGems, spendGems, addTickets, spendTickets, incStat, setStat,
+           markStageComplete, isStageComplete };
+})();

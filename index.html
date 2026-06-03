@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Battlestar Popnime</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══════════ HUB ══════════ -->
+<div id="screen-hub" class="screen">
+
+  <div class="hub-topbar">
+    <div class="hub-logo">
+      <span class="hub-logo-star">⭐</span>
+      <span class="hub-logo-text">BATTLESTAR POPNIME</span>
+      <button class="btn-missions-toggle" onclick="document.getElementById('hub-missions-panel').classList.toggle('show')" title="Ver Missões">📋 Missões</button>
+    </div>
+    <div class="hub-topbar-right">
+      <div class="hub-currencies">
+        <span class="currency gem">💎 <span id="hub-gems">0</span></span>
+        <span class="currency ticket">🎫 <span id="hub-tickets">0</span></span>
+      </div>
+      <button class="btn-reset-save" onclick="UI.confirmReset()" title="Resetar progresso">⚙</button>
+    </div>
+  </div>
+
+  <div class="hub-hero">
+    <div class="hub-banner-card">
+      <div class="hub-banner-tag">✦ BANNER ATIVO ✦</div>
+      <div id="hub-banner-chars" class="hub-banner-chars"><!-- preenchido pelo JS --></div>
+      <div class="hub-banner-note">🌟 Zoro Ashura (5⭐) disponível via Evolução</div>
+      <div id="banner-timer" class="hub-banner-timer"></div>
+      <button class="btn hub-btn-gacha" onclick="UI.showGacha()">⚡ INVOCAR AGORA</button>
+    </div>
+  </div>
+
+  <div class="hub-actions">
+    <button class="hab hab--play" onclick="UI.showWorldSelect()">
+      <span class="hab-icon">🗺️</span>
+      <span class="hab-label">JOGAR</span>
+      <span class="hab-sub">Mundos e Fases</span>
+    </button>
+    <button class="hab hab--gacha" onclick="UI.showGacha()">
+      <span class="hab-icon">⚡</span>
+      <span class="hab-label">GACHA</span>
+      <span class="hab-sub">Invocar Personagens</span>
+    </button>
+    <button class="hab hab--inv" onclick="UI.showInventory('units')">
+      <span class="hab-icon">📦</span>
+      <span class="hab-label">UNIDADES</span>
+      <span class="hab-sub">Gerenciar Time</span>
+    </button>
+    <button class="hab hab--evo" onclick="UI.showInventory('evolution')">
+      <span class="hab-icon">🔮</span>
+      <span class="hab-label">EVOLUÇÃO</span>
+      <span class="hab-sub">Evoluir Unidades</span>
+    </button>
+  </div>
+
+  <div id="hub-missions-panel" class="hub-missions-wrap">
+    <div class="hub-missions-hd">📋 Missões Ativas</div>
+    <div id="missions-list"></div>
+  </div>
+
+</div>
+
+<!-- ══════════ WORLD SELECT ══════════ -->
+<div id="screen-world-select" class="screen">
+  <div class="screen-header">
+    <button class="btn-back" onclick="UI.showHub()">← Voltar</button>
+    <h2>Selecionar Mundo</h2>
+  </div>
+  <div id="world-grid" class="world-grid"></div>
+</div>
+
+<!-- ══════════ STAGE SELECT ══════════ -->
+<div id="screen-stage-select" class="screen">
+  <div class="screen-header">
+    <button class="btn-back" onclick="UI.showWorldSelect()">← Voltar</button>
+    <h2 id="stage-select-world-name">Mundo</h2>
+  </div>
+  <div id="stage-grid" class="stage-grid"></div>
+</div>
+
+<!-- ══════════ PRE-BATTLE ══════════ -->
+<div id="screen-prebattle" class="screen">
+  <div class="screen-header">
+    <button class="btn-back" onclick="UI.showStageSelect()">← Voltar</button>
+    <h2 id="prebattle-stage-name">Fase</h2>
+  </div>
+  <div class="prebattle-body">
+    <div class="prebattle-left">
+      <div class="pb-section-header">Prêmios Possíveis</div>
+      <div id="pb-rewards" class="pb-rewards-grid" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;"></div>
+      <div class="pb-section-header">Time <span class="pb-hint">— clique para remover</span></div>
+      <div id="team-slots" class="team-slots"></div>
+    </div>
+    <div class="prebattle-right">
+      <div class="pb-section-header">Unidades Disponíveis</div>
+      <div id="available-units" class="avail-grid"></div>
+    </div>
+  </div>
+  <div class="prebattle-footer">
+    <div class="diff-select">
+      <span>Dificuldade:</span>
+      <button class="diff-btn active" data-diff="normal"   onclick="UI.setDifficulty('normal')">Normal +50💎</button>
+      <button class="diff-btn"        data-diff="dificil"  onclick="UI.setDifficulty('dificil')">Difícil +80💎</button>
+      <button class="diff-btn"        data-diff="lendario" onclick="UI.setDifficulty('lendario')">Lendário +120💎</button>
+    </div>
+    <button class="btn btn-start" onclick="GameController.startGame()">▶ INICIAR BATALHA</button>
+  </div>
+</div>
+
+<!-- ══════════ GAME ══════════ -->
+<div id="screen-game" class="screen game-screen">
+  <div class="game-hud">
+    <div class="hud-stats">
+      <div class="hud-badge hud-lives">
+        <span class="hud-badge-icon">❤️</span>
+        <span class="hud-badge-val" id="hud-lives">20</span>
+      </div>
+      <div class="hud-badge hud-gold">
+        <span class="hud-badge-icon">💰</span>
+        <span class="hud-badge-val" id="hud-gold">200</span>
+      </div>
+    </div>
+    <div class="hud-center">
+      <div class="hud-phase-name" id="hud-phase-name"></div>
+      <div class="hud-wave-wrap">
+        <span class="hud-wave-label">Onda <b id="hud-wave">0</b> / <span id="hud-total-waves">10</span></span>
+        <div class="hud-wave-bar"><div class="hud-wave-fill" id="hud-wave-fill"></div></div>
+      </div>
+    </div>
+    <div class="hud-controls">
+      <button class="btn-hud" id="btn-pause" onclick="GameController.togglePause()">⏸</button>
+      <button class="btn-hud btn-speed" onclick="GameController.toggleSpeed()">⏩ <span id="speed-indicator">1×</span></button>
+    </div>
+  </div>
+  <div class="game-main">
+    <canvas id="game-canvas"></canvas>
+    <div class="game-side">
+      <div class="side-title">🗡️ Time</div>
+      <div id="team-panel"></div>
+      <div class="side-hint">Clique em uma unidade, depois em um slot amarelo</div>
+    </div>
+  </div>
+  <div class="upgrade-panel" id="upgrade-panel" style="display:none">
+    <div class="upg-header">
+      <span id="upgrade-unit-name"></span>
+      <button class="upg-close" onclick="UI.closeUpgradePanel()">✕</button>
+    </div>
+    <div id="upgrade-options" class="upg-options"></div>
+    <button class="btn btn-sell" onclick="GameController.sellTower()">Vender</button>
+  </div>
+</div>
+
+<!-- ══════════ POST-BATTLE ══════════ -->
+<div id="screen-postbattle" class="screen">
+  <div class="postbattle-wrap">
+    <div id="result-banner" class="result-banner"></div>
+    <div class="result-section">
+      <h3>🎁 Recompensas</h3>
+      <div id="result-rewards-list" class="result-rewards"></div>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-secondary" onclick="GameController.retryStage()">🔄 Tentar Novamente</button>
+      <button class="btn btn-primary"   onclick="UI.showStageSelect()">🗺️ Mapa</button>
+      <button class="btn btn-secondary" onclick="UI.showHub()">🏠 Hub</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ GACHA ══════════ -->
+<div id="screen-gacha" class="screen">
+  <div class="screen-header">
+    <button class="btn-back" onclick="UI.showHub()">← Voltar</button>
+    <h2>⚡ Invocação</h2>
+  </div>
+  <div class="gacha-body">
+    <div class="gacha-banner-art">
+      <div id="gacha-banner-art-chars"><!-- preenchido pelo JS --></div>
+      <div class="gacha-pity">Pity: <b><span id="pity-counter">0</span>/150</b></div>
+    </div>
+    <div class="gacha-info">
+      <div class="gacha-info-section">
+        <div class="gacha-currencies">
+          <span class="currency gem">💎 <span id="gacha-gems">0</span></span>
+          <span class="currency ticket">🎫 <span id="gacha-tickets">0</span></span>
+        </div>
+        <div class="gacha-rates">
+          <span class="rate star3-col">3⭐ 65%</span>
+          <span class="rate star4-col">4⭐ 30%</span>
+          <span class="rate star5-col">5⭐ 5%</span>
+        </div>
+      </div>
+      <div class="gacha-info-section">
+        <div class="gacha-section-title">Com Gemas</div>
+        <div class="gacha-btn-group">
+          <button class="btn btn-pull" onclick="Gacha.pull(1,'gems')">x1 Pull — 100 💎</button>
+          <button class="btn btn-pull" onclick="Gacha.pull(10,'gems')">x10 Pull — 950 💎</button>
+        </div>
+      </div>
+      <div class="gacha-info-section">
+        <div class="gacha-section-title">Com Tickets</div>
+        <div class="gacha-btn-group">
+          <button class="btn btn-pull-ticket" onclick="Gacha.pull(1,'tickets')">x1 Pull — 1 🎫</button>
+          <button class="btn btn-pull-ticket" onclick="Gacha.pull(10,'tickets')">x10 Pull — 10 🎫</button>
+        </div>
+      </div>
+      <div class="gacha-pool-note">🌟 Banner rotativo a cada 30min · Zoro Ashura (5⭐) via Evolução</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ INVENTORY ══════════ -->
+<div id="screen-inventory" class="screen">
+  <div class="screen-header">
+    <button class="btn-back" onclick="UI.showHub()">← Voltar</button>
+    <h2>📦 Inventário</h2>
+  </div>
+  <div class="inv-tabs">
+    <button class="tab-btn active" data-tab="units"     onclick="Inventory.showTab('units')">Unidades</button>
+    <button class="tab-btn"        data-tab="materials" onclick="Inventory.showTab('materials')">Materiais</button>
+    <button class="tab-btn tab-btn--evo" data-tab="evolution" onclick="Inventory.showTab('evolution')">🔮 Evolução</button>
+  </div>
+  <div class="inv-filters" id="inv-filters">
+    <select id="filter-rarity" onchange="Inventory.applyFilters()">
+      <option value="">Todas raridades</option>
+      <option value="3">3⭐</option>
+      <option value="4">4⭐</option>
+      <option value="5">5⭐</option>
+    </select>
+    <select id="filter-series" onchange="Inventory.applyFilters()">
+      <option value="">Todas séries</option>
+      <option value="naruto">Naruto</option>
+      <option value="bleach">Bleach</option>
+      <option value="dragonball">Dragon Ball</option>
+      <option value="deathnote">Death Note</option>
+      <option value="marvel">Marvel</option>
+      <option value="onepiece">One Piece</option>
+      <option value="hxh">Hunter × Hunter</option>
+      <option value="kimetsu">Demon Slayer</option>
+      <option value="snk">Attack on Titan</option>
+      <option value="nanatsu">Seven Deadly Sins</option>
+      <option value="jjk">Jujutsu Kaisen</option>
+    </select>
+  </div>
+  <div class="inv-content">
+    <div id="inventory-grid" class="inv-grid"></div>
+    <div id="evolution-content" class="evo-content" style="display:none"></div>
+    <div id="unit-detail-panel" class="unit-detail-panel" style="display:none">
+      <button class="panel-close" onclick="Inventory.closeDetail()">✕</button>
+      <div id="unit-detail-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ GACHA RESULT MODAL ══════════ -->
+<div id="gacha-result-modal" class="modal-overlay" style="display:none">
+  <div class="modal-box gacha-result-box">
+    <h3>Resultado da Invocação</h3>
+    <div id="gacha-results-grid" class="gacha-results-grid"></div>
+    <button class="btn btn-primary" onclick="Gacha.closeResult()">Confirmar</button>
+  </div>
+</div>
+
+<!-- ══════════ FEED MODAL ══════════ -->
+<div id="feed-modal" class="modal-overlay" style="display:none">
+  <div class="modal-box feed-box">
+    <div class="modal-header">
+      <h3>🍖 Alimentar Unidade</h3>
+      <button class="modal-close" onclick="Inventory.closeFeed()">✕</button>
+    </div>
+    <div id="feed-target-info"></div>
+    <div class="feed-xp-row">XP a ganhar: <b id="feed-xp-total">0</b></div>
+    <div class="feed-selected-wrap">
+      <div class="feed-sel-title">Selecionados:</div>
+      <div id="feed-selected-list" class="feed-selected-list"></div>
+    </div>
+    <div class="feed-mat-title">Materiais disponíveis:</div>
+    <div id="feed-materials-grid" class="feed-mat-grid"></div>
+    <button class="btn btn-primary" onclick="Inventory.confirmFeed()">✅ Confirmar Feed</button>
+  </div>
+</div>
+
+<!-- ══════════ EVOLUTION MODAL ══════════ -->
+<div id="evolution-modal" class="modal-overlay" style="display:none">
+  <div class="modal-box evo-box">
+    <div class="modal-header">
+      <h3>🔮 Confirmar Evolução</h3>
+      <button class="modal-close" onclick="Inventory.closeEvolution()">✕</button>
+    </div>
+    <div id="evolution-recipe"></div>
+    <button class="btn btn-evolve" id="btn-evolve-confirm" onclick="Inventory.confirmEvolution()">⚡ Evoluir!</button>
+  </div>
+</div>
+
+<!-- Data -->
+<script src="data/characters.js"></script>
+<script src="js/banner.js"></script>
+<script src="data/enemies.js"></script>
+<script src="data/stages.js"></script>
+<script src="data/missions_data.js"></script>
+<script src="data/world.js"></script>
+<!-- Systems -->
+<script src="js/save.js"></script>
+<script src="js/missions.js"></script>
+<script src="js/gacha.js"></script>
+<script src="js/inventory.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
