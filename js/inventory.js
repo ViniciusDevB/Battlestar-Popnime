@@ -529,7 +529,8 @@ const Inventory = (() => {
 
     [
       { id:'ninja_generico_1' }, { id:'ninja_generico_2' }, { id:'ninja_generico_3' },
-      { id:'pirata_generico_1' }, { id:'pirata_generico_2' }, { id:'pirata_generico_3' }
+      { id:'pirata_generico_1' }, { id:'pirata_generico_2' }, { id:'pirata_generico_3' },
+      { id:'star_exp_1' }, { id:'star_exp_2' }, { id:'star_exp_3' }, { id:'star_exp_4' }, { id:'star_exp_5' }
     ].forEach(mat => {
       const qty = Save.getMaterialQty(mat.id);
       const selectedCount = feedSelected.filter(s => s.type === 'material' && s.id === mat.id).length;
@@ -570,7 +571,7 @@ const Inventory = (() => {
     const matChar = getCharById(materialId);
     if (!matChar) return 0;
     const xpTable = { 0:50, 1:150, 2:400, 3:1000, 4:3000, 5:8000 };
-    let xp = xpTable[matChar.rarity] || 0;
+    let xp = matChar.xp_value ?? xpTable[matChar.rarity] ?? 0;
     if (matChar.series === targetChar?.series) xp = Math.floor(xp * 1.5);
     return xp;
   }

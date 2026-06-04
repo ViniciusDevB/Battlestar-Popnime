@@ -3,7 +3,7 @@ const Gacha = (() => {
     const d = Save.get();
     let pool, rates;
     if (useTickets) {
-      rates = { s3: 0.50, s4: 0.45, s5: 0.05 };
+      rates = { s3: 0.54, s4: 0.45, s5: 0.01 };
     } else {
       rates = { s3: 0.70, s4: 0.29, s5: 0.01 };
     }

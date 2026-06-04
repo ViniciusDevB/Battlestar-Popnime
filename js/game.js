@@ -17,6 +17,8 @@ const Game = (() => {
   let difficulty;
   let _gojoBuffedSet = new Set();
   let isInfiniteMode = false;
+  let infiniteSessionDrops = {};   // { star_exp_1: qty, ... }
+  let infiniteSessionGems   = 0;
 
   // Stats tracking per session
   let sessionDmg = 0, sessionKills = 0, sessionTowersPlaced = 0;
@@ -939,34 +941,43 @@ const Game = (() => {
     return queue;
   }
 
+  // Chamado a cada 5 waves: dá gemas + rola Star Experience
   function giveInfiniteReward(waveNum) {
-    // Registra recorde
     const best = Save.get().stats.melhor_onda_infinita || 0;
     if (waveNum > best) Save.setStat('melhor_onda_infinita', waveNum);
 
-    // Gems por milestone (a cada 5 waves)
+    // Gemas baseadas no tier
     const tierIdx = getInfiniteTierIdx(waveNum);
     const gemTable = [15, 25, 40, 60, 85, 115, 150, 200];
     const gems = gemTable[Math.min(tierIdx, 7)];
     Save.addGems(gems);
+    infiniteSessionGems += gems;
     UI.updateCurrencyDisplay();
-    UI.toast(`🏆 Milestone Wave ${waveNum}! +${gems}💎`, 3500);
+
+    // Rolagem de Star Experience com chances baseadas na wave
+    const dropped = rollInfiniteStarExp(waveNum);
+
+    // Toast único combinando gemas + SE
+    const seLabel = dropped.length > 0 ? `  ✨ ${dropped.map(lv => `SE Nv${lv}`).join(' + ')}` : '';
+    UI.toast(`🏆 Wave ${waveNum}! +${gems}💎${seLabel}`, 3500);
   }
 
-  // Drop independente de Star Experience por wave — cada nível tem chance própria
-  // Fórmula: chance_i(wave) = min(100, wave / 30 × base_i)
-  // Na wave 30: SE1=10%, SE2=5%, SE3=2%, SE4=1%, SE5=0.5%
+  // Rola chances de Star Experience — retorna array dos níveis que droparam
+  // Fórmula: chance_i(wave) = min(100, wave/30 × base_i)%
+  // Wave 30: SE1=10%, SE2=5%, SE3=2%, SE4=1%, SE5=0.5%
   function rollInfiniteStarExp(waveNum) {
-    const BASE_AT_30 = [10, 5, 2, 1, 0.5]; // % para cada nível na wave 30
+    const BASE_AT_30 = [10, 5, 2, 1, 0.5];
     const dropped = [];
     BASE_AT_30.forEach((base, i) => {
       const chance = Math.min(100, (waveNum / 30) * base);
       if (Math.random() * 100 < chance) dropped.push(i + 1);
     });
-    if (dropped.length === 0) return;
-    dropped.forEach(lv => Save.addMaterial(`star_exp_${lv}`, 1));
-    const label = dropped.map(lv => `SE Nv${lv}`).join(' + ');
-    UI.toast(`✨ Star Experience: ${label}`, 2500);
+    dropped.forEach(lv => {
+      const key = `star_exp_${lv}`;
+      Save.addMaterial(key, 1);
+      infiniteSessionDrops[key] = (infiniteSessionDrops[key] || 0) + 1;
+    });
+    return dropped;
   }
 
   // Retorna o valor mais recente de um campo de passive_override nos upgrades comprados
@@ -1068,6 +1079,8 @@ const Game = (() => {
     sessionDmg = 0; sessionKills = 0; sessionTowersPlaced = 0;
     sessionMinibosses = 0; sessionBossKilled = false;
     _gojoBuffedSet = new Set();
+    infiniteSessionDrops = {};
+    infiniteSessionGems  = 0;
 
     // Free placement (no slots)
 
@@ -1571,9 +1584,7 @@ const Game = (() => {
       towers.forEach(t => PASSIVE_SYSTEM.onWaveEnd(t));
 
       if (isInfiniteMode) {
-        // Drop independente de Star Experience toda wave
-        rollInfiniteStarExp(wave);
-        // Gems milestone a cada 5 waves
+        // A cada 5 waves: gemas + rolagem de Star Experience
         if (wave % 5 === 0) giveInfiniteReward(wave);
         betweenWaves = true;
         betweenTimer = 3;
@@ -1602,7 +1613,12 @@ const Game = (() => {
         Save.incStat('ondas_infinito', wave);
       }
       Missions.check();
-      UI.showPostBattle({ victory: false, infiniteWave: isInfiniteMode ? wave : 0 });
+      UI.showPostBattle({
+        victory: false,
+        infiniteWave:    isInfiniteMode ? wave : 0,
+        infiniteDrops:   isInfiniteMode ? { ...infiniteSessionDrops } : null,
+        infiniteGems:    isInfiniteMode ? infiniteSessionGems : 0
+      });
       return;
     }
     if (isInfiniteMode) return; // modo infinito não tem vitória, apenas derrota

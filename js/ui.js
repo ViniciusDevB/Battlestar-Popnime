@@ -265,34 +265,77 @@ const UI = (() => {
     const banner = document.getElementById('result-banner');
     const rewards = document.getElementById('result-rewards-list');
     banner.className = 'result-banner ' + (result.victory ? 'victory' : 'defeat');
-    if (result.infiniteWave > 0) {
-      const best = typeof Save !== 'undefined' ? (Save.get().stats.melhor_onda_infinita || 0) : result.infiniteWave;
-      banner.innerHTML = `♾ MODO INFINITO<br><span style="font-size:22px;color:#a78bfa">Wave ${result.infiniteWave}</span><br><span style="font-size:12px;opacity:0.65">Recorde: Wave ${best}</span>`;
-    } else {
-      banner.innerHTML = result.victory ? '🏆 VITÓRIA!' : '💀 DERROTA!';
-    }
-
     rewards.innerHTML = '';
-    if (result.gems) {
-      const li = document.createElement('div');
-      li.className = 'reward-item';
-      li.innerHTML = `<span>💎 Gemas</span><span>+${result.gems}</span>`;
-      rewards.appendChild(li);
-    }
-    if (result.materials && result.materials.length > 0) {
-      result.materials.forEach(matId => {
-        const char = getCharById(matId);
+
+    if (result.infiniteWave > 0) {
+      // ── Modo Infinito: banner + resumo completo da sessão ──────────────────
+      const best = typeof Save !== 'undefined' ? (Save.get().stats.melhor_onda_infinita || 0) : result.infiniteWave;
+      const isRecord = result.infiniteWave >= best;
+      banner.innerHTML = `
+        ♾ MODO INFINITO
+        <br><span style="font-size:26px;color:#a78bfa;font-weight:900">Wave ${result.infiniteWave}</span>
+        <br><span style="font-size:12px;opacity:0.65">${isRecord ? '🏆 Novo Recorde!' : `Recorde: Wave ${best}`}</span>`;
+
+      // Gemas ganhas na sessão
+      if (result.infiniteGems > 0) {
         const li = document.createElement('div');
         li.className = 'reward-item';
-        li.innerHTML = `<span style="background:${RARITY_COLORS[char?.rarity||0]}; overflow: hidden;" class="reward-mat">${charIconInner(char)}</span><span>${char?.name || matId}</span>`;
+        li.innerHTML = `<span>💎 Gemas ganhas</span><span style="color:#fbbf24;font-weight:700">+${result.infiniteGems}</span>`;
         rewards.appendChild(li);
-      });
-    }
-    if (result.bonusGems) {
-      const li = document.createElement('div');
-      li.className = 'reward-item bonus';
-      li.innerHTML = `<span>💎 Bônus Primeira Vez</span><span>+${result.bonusGems}</span>`;
-      rewards.appendChild(li);
+      }
+
+      // Star Experience por nível
+      const drops = result.infiniteDrops || {};
+      const SE_COLORS = { 1:'#9b59b6', 2:'#e67e22', 3:'#f1c40f', 4:'#e74c3c', 5:'#c0392b' };
+      let hasAnySE = false;
+      for (let lv = 1; lv <= 5; lv++) {
+        const qty = drops[`star_exp_${lv}`] || 0;
+        if (qty === 0) continue;
+        hasAnySE = true;
+        const char = typeof getCharById !== 'undefined' ? getCharById(`star_exp_${lv}`) : null;
+        const li = document.createElement('div');
+        li.className = 'reward-item';
+        li.innerHTML = `
+          <span style="display:flex;align-items:center;gap:6px">
+            <span style="background:${SE_COLORS[lv]};width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff">${lv}</span>
+            <span>${char?.name || `Star Experience Nv${lv}`}</span>
+          </span>
+          <span style="color:#fbbf24;font-weight:700">×${qty}</span>`;
+        rewards.appendChild(li);
+      }
+
+      if (!hasAnySE && result.infiniteGems === 0) {
+        const li = document.createElement('div');
+        li.className = 'reward-item';
+        li.style.opacity = '0.5';
+        li.innerHTML = `<span>Nenhuma recompensa coletada</span><span>—</span>`;
+        rewards.appendChild(li);
+      }
+
+    } else {
+      // ── Partida normal ──────────────────────────────────────────────────────
+      banner.innerHTML = result.victory ? '🏆 VITÓRIA!' : '💀 DERROTA!';
+      if (result.gems) {
+        const li = document.createElement('div');
+        li.className = 'reward-item';
+        li.innerHTML = `<span>💎 Gemas</span><span>+${result.gems}</span>`;
+        rewards.appendChild(li);
+      }
+      if (result.materials && result.materials.length > 0) {
+        result.materials.forEach(matId => {
+          const char = getCharById(matId);
+          const li = document.createElement('div');
+          li.className = 'reward-item';
+          li.innerHTML = `<span style="background:${RARITY_COLORS[char?.rarity||0]};overflow:hidden" class="reward-mat">${charIconInner(char)}</span><span>${char?.name || matId}</span>`;
+          rewards.appendChild(li);
+        });
+      }
+      if (result.bonusGems) {
+        const li = document.createElement('div');
+        li.className = 'reward-item bonus';
+        li.innerHTML = `<span>💎 Bônus Primeira Vez</span><span>+${result.bonusGems}</span>`;
+        rewards.appendChild(li);
+      }
     }
   }
 

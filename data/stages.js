@@ -543,13 +543,7 @@ const STAGES = [
     world: 'infinito',
     isInfinite: true,
     base_hp: 20,
-    drops: [
-      { id: 'star_exp_1', chance: 55 },
-      { id: 'star_exp_2', chance: 28 },
-      { id: 'star_exp_3', chance: 12 },
-      { id: 'star_exp_4', chance: 4 },
-      { id: 'star_exp_5', chance: 1 }
-    ],
+    drops: [],
     waves: []
   }
 ];

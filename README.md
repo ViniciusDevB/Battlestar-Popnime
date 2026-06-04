@@ -28,14 +28,14 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 ## ✨ Funcionalidades
 
 - **Tower Defense Dinâmico**: Posicione unidades estrategicamente para defender sua base. Cada personagem possui tipo de ataque único (Single, Linha, Cone, AOE, Pierce, Scatter), sistema de passivas e upgrades exclusivos.
-- **Sistema de Gacha ⚡**: Invoque personagens (3⭐ a 5⭐) com sistema de *pity* (garantia no 150º pull) e banners rotativos a cada 30 minutos.
+- **Sistema de Gacha ⚡**: Invoque personagens (3⭐ a 5⭐) com sistema de *pity* (garantia no 150º pull) e banners rotativos a cada 30 minutos. Chance de 5⭐: **1%** em ambos os banners.
 - **Gerenciamento e Evolução 🔮**: Suba de nível unidades via Feed e evolua-as para formas superiores com materiais dropados nas fases.
 - **Sistema de Prestígio ✦**: Ao atingir o nível máximo, transmute uma unidade para Prestígio (máx P10). Cada nível de Prestígio concede +20% de dano e +6% de alcance permanentes, além de desbloquear passivas exclusivas nos níveis P1, P5 e P10.
 - **Missões 📋**: Sistema de missões progressivas com recompensas em Gemas e Tickets.
 - **Sagas de Eventos 🌟**: Capítulos narrativos com modificadores únicos e personagens exclusivos.
 - **Mundos e Fases 🗺️**: Fases por mundos temáticos com três dificuldades (Normal, Difícil, Lendário).
 - **♾ Modo Infinito**: Waves sem fim com dificuldade escalável (Fácil → Lendário → Além do Limite). Farm de **Star Experience** e Gemas. Limite de 3 cópias por torre por partida.
-- **Star Experience ✨**: Materiais exclusivos do Modo Infinito (Nv1–5) com XP massivo. Nv1 = XP equivalente a um personagem 4⭐. Chance de drop por wave que cresce com o número da wave.
+- **Star Experience ✨**: Materiais exclusivos do Modo Infinito (Nv1–5) com XP massivo. Podem ser usados diretamente no **Feed** de qualquer personagem. Chance de drop que cresce com o número da wave.
 - **Sistema de Salvamento 💾**: Progresso salvo automaticamente no LocalStorage.
 
 ---
@@ -97,10 +97,13 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 **Star Experience ✨:**
 - Materiais exclusivos do Modo Infinito, Nv1 a Nv5.
 - XP: Nv1=3.000 · Nv2=7.000 · Nv3=16.000 · Nv4=38.000 · Nv5=90.000.
-- Drop por wave com chance independente por nível: na wave 30 → SE1=10%, SE2=5%, SE3=2%, SE4=1%, SE5=0.5%.
+- Drop a cada 5 waves com chance independente por nível: na wave 30 → SE1=10%, SE2=5%, SE3=2%, SE4=1%, SE5=0.5%.
 - Fórmula: `chance = min(100%, wave/30 × base)` — escala linearmente, garantindo SE1 na wave ~300.
+- **Usáveis no Feed**: aparecem na grade de materiais do feed de qualquer personagem, aplicando o XP exato de cada nível.
 
 **Qualidade de Vida e Balanceamento:**
+- **Gacha**: chance de 5⭐ reduzida para **1%** em ambos os banners (Gemas e Tickets). 4⭐ redistribuído para manter 100%.
+- **Star Experience no Feed**: SE Nv1–5 agora disponíveis na grade de materiais ao alimentar qualquer personagem.
 - Stun no mapa 3 do evento nerfado: duração aleatória (1–5s) por torre, imunidade de 5s.
 - Pain (Nagato) invoca escudo de Rinnegan aleatório (4.000–6.000 HP) que bloqueia todo o dano.
 - Overlay "Próxima Wave" mostra bônus de ouro e atalho `[S]`.
