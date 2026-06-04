@@ -16,14 +16,15 @@ const EVENTS_DATA = [
     id: 'evento_1',
     name: 'A Anomalia de Konoha',
     flyer: 'assets/events/evento1_flyer.png',
-    desc: 'Um meteoro misterioso caiu nas florestas do País do Fogo, trazendo criaturas de outra dimensão. O começo de uma colisão multiversal.',
+    desc: 'Um meteoro misterioso caiu nas florestas do País do Fogo, trazendo um viajante de outro mundo e despertando uma ameaça que transcende o chakra. O começo de uma colisão multiversal.',
     stages: [
       {
         id: 'evt1_p1',
         name: 'Parte 1: O Meteoro Laranja',
         world: 'naruto',
         difficulty: 'normal',
-        description: 'Proteja o guerreiro inconsciente no centro! 5 Caminhos simultâneos. Se 5 inimigos passarem, você perde. Efeito: 15% de lentidão nas torres.',
+        story: 'Naruto e Sasuke investigam uma cratera fumegante nas florestas do Leste de Konoha. No centro, envolto em fumaça roxa que suprime o chakra de todos ao redor, jaz um desconhecido em trajes laranja — caído literalmente do céu junto com o meteoro. "Esse poder que emana dele não é chakra", percebe Sasuke. "Seja lá de onde ele veio, não vou deixar ninguém machucá-lo!", responde Naruto. Ninjas renegados com olhos completamente vazios surgem de todos os lados, controlados pela névoa. A batalha começa com chakra reduzido e cinco frentes simultâneas.',
+        description: '⚠️ 5 caminhos simultâneos até o centro. Torres com 15% de lentidão. Perca 5 vidas e é derrota.',
         bgm: 'battle_naruto',
         base_hp: 5,
         paths: [
@@ -43,25 +44,15 @@ const EVENTS_DATA = [
           evtWave([{ type: 'ninja_ambu', count: 15, gap: 1.0 }]),
           evtWave([{ type: 'ninja_comum', count: 25, gap: 0.8 }, { type: 'ninja_ambu', count: 10, gap: 0.8, delay: 5 }]),
           evtWave([{ type: 'ninja_ambu', count: 30, gap: 0.6 }])
-        ],
-        dialogues: {
-          start: [
-            { name: 'Naruto', text: 'Ei, Sasuke! Tem alguém ali no meio daquela cratera! Ele está usando laranja, que bom gosto!', side: 'left', leftImg: 'assets/towers/update0/Naruto.png' },
-            { name: 'Sasuke', text: 'Idiota, preste atenção. Essa fumaça roxa ao redor da cratera... está sugando nosso chakra. Sinto meus movimentos mais lentos.', side: 'right', rightImg: 'assets/towers/update0/Sasuke.png', leftImg: 'assets/towers/update0/Naruto.png' },
-            { name: 'Naruto', text: 'Tem ninjas renegados vindo! Eles parecem controlados pela fumaça... Vamos proteger o cara de laranja!', side: 'left', leftImg: 'assets/towers/update0/Naruto.png', rightImg: 'assets/towers/update0/Sasuke.png' }
-          ],
-          end: [
-            { name: 'Sasuke', text: 'Eles recuaram. Vamos ver quem é esse cara.', side: 'right', rightImg: 'assets/towers/update0/Sasuke.png' },
-            { name: '???', text: 'Ugh... meu corpo... Onde eu tô? Tem comida?', side: 'left', leftImg: 'assets/towers/update0/Goku.png', rightImg: 'assets/towers/update0/Sasuke.png' }
-          ]
-        }
+        ]
       },
       {
         id: 'evt1_p2',
         name: 'Parte 2: Bestas Sem Rosto',
         world: 'naruto',
         difficulty: 'normal',
-        description: 'A energia atrai bestas espirituais. O mapa está em Breu Total. Torres de dano Físico dão 30% menos dano.',
+        story: 'O guerreiro laranja acorda. Ele se chama Son Goku, veio de outro mundo através de um buraco dimensional acidental — e está com fome. Mas não há tempo: o céu escurece numa névoa negra sobrenatural, e criaturas sem ki, sem rosto e sem vontade própria emergem das sombras. Goku percebe que são marionetes controladas remotamente por alguém distante. Ataques físicos mal as afetam. Quando a batalha termina, uma voz fria emerge das trevas: Orochimaru esteve observando tudo. Ele avisa que as criaturas são corpos pilotados por um Rinnegan — e que quando o verdadeiro controlador aparecer pessoalmente, a situação será muito pior.',
+        description: '⚠️ Breu Total — torres iluminam apenas seu raio de alcance. Torres físicas causam 30% menos dano.',
         modifiers: {
           dark_mode: true,
           physical_damage_mult: 0.70
@@ -75,24 +66,15 @@ const EVENTS_DATA = [
           evtWave([{ type: 'caminho_animal', count: 8, gap: 1.5 }]),
           evtWave([{ type: 'caminho_animal', count: 12, gap: 1.2 }, { type: 'ninja_ambu', count: 15, gap: 0.8, delay: 5 }]),
           evtWave([{ type: 'caminho_humano', count: 15, gap: 1.0 }])
-        ],
-        dialogues: {
-          start: [
-            { name: 'Goku', text: 'Oi! Eu sou o Goku! Eu sinto energias estranhas vindo do céu... que escuro é esse de repente?', side: 'left', leftImg: 'assets/towers/update0/Goku.png' },
-            { name: 'Sasuke', text: 'O céu foi coberto por uma névoa negra. E o pior... tem monstros vindo.', side: 'right', rightImg: 'assets/towers/update0/Sasuke.png', leftImg: 'assets/towers/update0/Goku.png' },
-            { name: 'Naruto', text: 'Minhas kunais não causam tanto dano neles! Precisamos usar jutsus de fogo ou sangramento!', side: 'left', leftImg: 'assets/towers/update0/Naruto.png', rightImg: 'assets/towers/update0/Sasuke.png' }
-          ],
-          end: [
-            { name: 'Goku', text: 'Esses caras são fortes! Mas eu não entendo... por que eles vieram parar aqui?', side: 'left', leftImg: 'assets/towers/update0/Goku.png' }
-          ]
-        }
+        ]
       },
       {
         id: 'evt1_p3',
         name: 'Parte 3: O Experimento Sombrio',
         world: 'naruto',
         difficulty: 'hard',
-        description: 'A Batalha Final. A cada 20 segundos, Pain invoca Meteoros que atordoam áreas por 8s, e um Shinra Tensei global que empurra os inimigos para frente e atordoa o resto por 2.5s!',
+        story: 'Pain aparece, tendo absorvido a energia da anomalia pelos Seis Caminhos do Rinnegan. Ele revela que não agiu por conta própria: serve a um ser de um terceiro mundo — Aizen Sousuke — que está deliberadamente rasgando as fronteiras entre dimensões. A batalha é devastadora: meteoros caem sobre as posições defensivas e um Shinra Tensei global paralisa tudo no campo. Ao ser derrotado, Pain entrega um aviso final: "O que Aizen está construindo ultrapassa qualquer destruição que eu já causei. Quando ele terminar, não haverá mundo separado para ninguém fugir." A Equipe Popnime nasce aqui — com um nome, um inimigo e um objetivo.',
+        description: '⚠️ A cada 20s: Pain invoca meteoros (stun 8s nas torres atingidas) + Shinra Tensei global (empurra inimigos + stun 2.5s em todas as torres).',
         modifiers: {
           meteors_and_shinra: true
         },
@@ -106,22 +88,7 @@ const EVENTS_DATA = [
           evtWave([{ type: 'caminho_humano', count: 20, gap: 0.8 }]),
           evtWave([{ type: 'caminho_asura', count: 15, gap: 0.8 }]),
           evtWave([{ type: 'pain', count: 1, gap: 1 }])
-        ],
-        dialogues: {
-          start: [
-            { name: 'Pain', text: 'O mundo conhecerá a verdadeira dor...', side: 'right' },
-            { name: 'Sasuke', text: 'Pain! O que há de errado com o chakra dele?', side: 'left', leftImg: 'assets/towers/update0/Sasuke.png' },
-            { name: 'Pain', text: 'Eu absorvi a energia da anomalia.', side: 'right' }
-          ],
-          mid_boss: [
-            { name: 'Pain', text: 'Sintam a dor divina!', side: 'right' }
-          ],
-          end: [
-            { name: 'Pain', text: 'Impossível... Aizen-sama estava certo. O multiverso... está acordando...', side: 'right' },
-            { name: 'Goku', text: 'Aizen? Quem é esse cara? Acho que a gente precisa descobrir, Naruto!', side: 'left', leftImg: 'assets/towers/update0/Goku.png' },
-            { name: 'Naruto', text: 'Pode apostar, Goku! A Equipe Popnime acabou de nascer!', side: 'right', rightImg: 'assets/towers/update0/Naruto.png', leftImg: 'assets/towers/update0/Goku.png' }
-          ]
-        }
+        ]
       }
     ]
   }

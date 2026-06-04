@@ -11,7 +11,6 @@ const Game = (() => {
   let enemies, towers, projectiles, effects, tsunamis;
   let waveActive, spawnQueue, betweenWaves, betweenTimer, waveElapsed;
   let activeWavesCount = 1;
-  let endDialogPlayed = false;
   let selectedTowerIdx, deployingCharId;
   let shinraTenseiActive, shinraTenseiTimer, stageModifierTimer;
   let stage, team;
@@ -71,10 +70,14 @@ const Game = (() => {
     },
     onBeforeAttack(tower, stats) {
       let s = stats;
-      this._getPassives(tower).forEach(p => {
+      for (const p of this._getPassives(tower)) {
         const h = this[p.type];
-        if (h?.beforeAttack) s = h.beforeAttack(tower, p, s) ?? s;
-      });
+        if (h?.beforeAttack) {
+          const result = h.beforeAttack(tower, p, s);
+          if (result === null) return null;
+          s = result;
+        }
+      }
       return s;
     },
     onHit(tower, enemy, dmg) {
@@ -624,13 +627,6 @@ const Game = (() => {
     const speedEl = document.getElementById('speed-indicator');
     if (speedEl) speedEl.textContent = '1×';
     requestAnimationFrame(loop);
-
-    endDialogPlayed = false;
-    if (stage.dialogues && stage.dialogues.start) {
-      setTimeout(() => {
-        if (typeof Dialog !== 'undefined') Dialog.play(stage.dialogues.start);
-      }, 500);
-    }
   }
 
   function loop(ts) {
@@ -638,7 +634,7 @@ const Game = (() => {
     if (lastTime === 0) lastTime = ts;
     const rawDt = Math.min((ts - lastTime) / 1000, 0.1);
     lastTime = ts;
-    const dt = (paused || dialogPaused) ? 0 : rawDt * gameSpeed;
+    const dt = paused ? 0 : rawDt * gameSpeed;
 
     update(dt, rawDt);
     render();
@@ -1062,16 +1058,8 @@ const Game = (() => {
       towers.forEach(t => PASSIVE_SYSTEM.onWaveEnd(t));
 
       if (wave >= totalWaves) {
-        if (stage.dialogues && stage.dialogues.end && !endDialogPlayed) {
-          endDialogPlayed = true;
-          if (typeof Dialog !== 'undefined') Dialog.play(stage.dialogues.end, () => endGame(true));
-        } else {
-          endGame(true);
-        }
+        endGame(true);
       } else {
-        if (stage.dialogues && stage.dialogues.mid_boss && wave === Math.floor(totalWaves / 2)) {
-          if (typeof Dialog !== 'undefined') Dialog.play(stage.dialogues.mid_boss);
-        }
         betweenWaves = true;
         betweenTimer = 3;
       }
@@ -1249,9 +1237,8 @@ const Game = (() => {
 
     const char = getCharById(tower.charId);
     const stats = getTowerStats(tower);
-    const passiveHtml = char?.passive
-      ? `<div class="upg-passive">⚡ ${char.passive.label}</div>`
-      : '';
+    const passives = char?.passive ? (Array.isArray(char.passive) ? char.passive : [char.passive]) : [];
+    const passiveHtml = passives.map(p => `<div class="upg-passive">⚡ ${p.label}</div>`).join('');
     nameEl.innerHTML = `<span style="background:${RARITY_COLORS[tower.rarity]}" class="tower-badge">${tower.initials}</span> ${char?.name} | Lv${tower.level}`;
     const existingPassive = panel.querySelector('.upg-passive');
     if (existingPassive) existingPassive.remove();
@@ -1296,7 +1283,7 @@ const Game = (() => {
     });
 
     // Sell button value
-    const hasEconomy = char?.passive?.some(p => p.type === 'edo_tensei_economy');
+    const hasEconomy = passives.some(p => p.type === 'edo_tensei_economy');
     let totalInvested = char?.deploy_cost || 0;
     for(let i=0; i<tower.upgradeLevel; i++){
       if(char?.upgrades[i]) totalInvested += char.upgrades[i].cost;
@@ -1330,8 +1317,9 @@ const Game = (() => {
     const tower = towers[selectedTowerIdx];
     if (!tower) return;
     const char = getCharById(tower.charId);
-    
-    const hasEconomy = char?.passive?.some(p => p.type === 'edo_tensei_economy');
+
+    const _passives = char?.passive ? (Array.isArray(char.passive) ? char.passive : [char.passive]) : [];
+    const hasEconomy = _passives.some(p => p.type === 'edo_tensei_economy');
     let totalInvested = char?.deploy_cost || 0;
     for(let i=0; i<tower.upgradeLevel; i++){
       if(char?.upgrades[i]) totalInvested += char.upgrades[i].cost;
@@ -1453,7 +1441,6 @@ const Game = (() => {
 
     drawBackground();
     drawPath();
-    drawEffects();
     drawTowerRangePreview();
     drawPlacementPreview();
     drawTowers();
@@ -2318,8 +2305,8 @@ const Game = (() => {
   }
 
   function useAbility(slotIdx) {
-    if (slotIdx < 0 || !slots[slotIdx]?.tower) return;
-    const tower = slots[slotIdx].tower;
+    if (slotIdx < 0 || !towers[slotIdx]) return;
+    const tower = towers[slotIdx];
     const aa = tower.charData?.active_ability;
     if (!aa) return;
     if ((tower.abilityTimer || 0) > 0) {
@@ -2368,14 +2355,9 @@ const Game = (() => {
     return towers;
   }
 
-  let dialogPaused = false;
-  function setDialogPause(p) {
-    dialogPaused = p;
-  }
-
   return {
     init, startGame, togglePause, toggleSpeed, sellTower, buyNextUpgrade,
     retryStage, handleClick, getTowers, deployTower, selectTower,
-    useAbility, deselectTower, skipWave, setDialogPause
+    useAbility, deselectTower, skipWave
   };
 })();

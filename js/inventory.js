@@ -308,9 +308,8 @@ const Inventory = (() => {
     const xpNeeded = xpForNextLevel(unitData.nivel);
     const xpPct = unitData.nivel >= 50 ? 100 : Math.round((unitData.xp_atual / xpNeeded) * 100);
     const totalCopies = Save.getUnitQty(char.id);
-    const passiveHtml = char.passive
-      ? `<div class="passive-tag">⚡ ${char.passive.label}</div>`
-      : '';
+    const passives = char.passive ? (Array.isArray(char.passive) ? char.passive : [char.passive]) : [];
+    const passiveHtml = passives.map(p => `<div class="passive-tag">⚡ ${p.label}</div>`).join('');
 
     const headerHtml = `
       <div class="detail-header">
@@ -486,7 +485,10 @@ const Inventory = (() => {
     const targetUnitData = Save.getUnitByUid(targetUid);
     const targetChar = targetUnitData ? getCharById(targetUnitData.id) : null;
 
-    [{ id:'ninja_generico_1' }, { id:'ninja_generico_2' }, { id:'ninja_generico_3' }].forEach(mat => {
+    [
+      { id:'ninja_generico_1' }, { id:'ninja_generico_2' }, { id:'ninja_generico_3' },
+      { id:'pirata_generico_1' }, { id:'pirata_generico_2' }, { id:'pirata_generico_3' }
+    ].forEach(mat => {
       const qty = Save.getMaterialQty(mat.id);
       const selectedCount = feedSelected.filter(s => s.type === 'material' && s.id === mat.id).length;
       const available = qty - selectedCount;

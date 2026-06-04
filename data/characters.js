@@ -396,7 +396,7 @@ const CHARACTERS = {
   // ──────────────────────────────────────────────────────────────────────────
   orochimaru_base: {
     id:'orochimaru_base', name:'Orochimaru', rarity:4, series:'naruto', playable:true, xp_value:4000, initials:'OR',
-    image: 'assets/towers/update1/Orochimaru.png',
+    image: 'assets/towers/events/Orochimaru.png',
     passive:[
       { type:'status_on_hit', status:'sangramento', dps:20, duration:3, label:'Marca da Maldição: Aplica DoT venenoso' },
       { type:'edo_tensei_economy', label:'Imortalidade: Vende por 100% do ouro investido' }
@@ -410,7 +410,7 @@ const CHARACTERS = {
   },
   pain_base: {
     id:'pain_base', name:'Pain (Seis Caminhos)', rarity:5, series:'naruto', playable:true, xp_value:10000, initials:'PN',
-    image: 'assets/towers/update1/Pain.png',
+    image: 'assets/towers/events/Pain.png',
     passive:[
       { type:'sharingan', label:'Rinnegan: Ignora qualquer imunidade do inimigo (Bypass)' },
       { type:'bansho_tenin', attacks_required:4, push_dist:35, label:'Bansho Ten\'in: A cada 4 ataques, puxa os inimigos para trás' }

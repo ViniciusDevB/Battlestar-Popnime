@@ -54,14 +54,19 @@ const UI = (() => {
               const isDone = Save.isStageComplete(st.id, 'normal');
               const isLocked = i > 0 && !Save.isStageComplete(evt.stages[i-1].id, 'normal');
               return `
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; ${isLocked ? 'opacity: 0.5; pointer-events: none;' : ''}">
-                  <div>
-                    <div style="font-weight: bold; font-size: 16px;">${st.name}</div>
-                    <div style="font-size: 12px; color: var(--t3); margin-top: 5px;">${st.description}</div>
+                <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; ${isLocked ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+                    <div style="flex: 1;">
+                      <div style="font-weight: bold; font-size: 16px; margin-bottom: 8px;">${st.name}</div>
+                      ${st.story ? `<div style="font-style: italic; font-size: 12px; color: #ccc; line-height: 1.6; margin-bottom: 8px;">${st.story}</div>` : ''}
+                      <div style="font-size: 11px; color: rgba(255,200,70,0.6); line-height: 1.4;">${st.description}</div>
+                    </div>
+                    <div style="flex-shrink: 0;">
+                      <button class="btn btn-primary" onclick="UI.showPreBattle('${st.id}')" ${isLocked ? 'disabled' : ''}>
+                        ${isLocked ? '🔒 Bloqueado' : isDone ? '⭐ Concluído' : 'Jogar Capítulo'}
+                      </button>
+                    </div>
                   </div>
-                  <button class="btn btn-primary" onclick="UI.showPreBattle('${st.id}')" ${isLocked ? 'disabled' : ''}>
-                    ${isLocked ? '🔒 Bloqueado' : isDone ? '⭐ Concluído' : 'Jogar Capítulo'}
-                  </button>
                 </div>
               `;
             }).join('')}
@@ -312,7 +317,8 @@ const UI = (() => {
     const dmg = c.base_stats?.damage || 0;
     const rng = c.base_stats?.range || 0;
     const spd = c.base_stats?.attack_speed ? c.base_stats.attack_speed.toFixed(2) : '0';
-    const passiveDesc = c.passive?.label || 'Nenhuma habilidade passiva.';
+    const _passives = c.passive ? (Array.isArray(c.passive) ? c.passive : [c.passive]) : [];
+    const passiveDesc = _passives.length > 0 ? _passives.map(p => p.label).join(' | ') : 'Nenhuma habilidade passiva.';
 
     return `
       <div class="banner-featured-card">
