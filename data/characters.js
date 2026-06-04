@@ -1,4 +1,12 @@
 const CHARACTERS = {
+  // ── Star Experience (drop exclusivo do Modo Infinito) ─────────────────────
+  // Nv1 = XP equivalente a um personagem 4⭐. Cada nível superior multiplica.
+  star_exp_1: { id:'star_exp_1', name:'Star Experience Nv1', rarity:3, series:'infinito', playable:false, xp_value:3000,  initials:'SE1', image:'assets/ingredients/infinito/StarExp1.png' },
+  star_exp_2: { id:'star_exp_2', name:'Star Experience Nv2', rarity:4, series:'infinito', playable:false, xp_value:7000,  initials:'SE2', image:'assets/ingredients/infinito/StarExp2.png' },
+  star_exp_3: { id:'star_exp_3', name:'Star Experience Nv3', rarity:5, series:'infinito', playable:false, xp_value:16000, initials:'SE3', image:'assets/ingredients/infinito/StarExp3.png' },
+  star_exp_4: { id:'star_exp_4', name:'Star Experience Nv4', rarity:5, series:'infinito', playable:false, xp_value:38000, initials:'SE4', image:'assets/ingredients/infinito/StarExp4.png' },
+  star_exp_5: { id:'star_exp_5', name:'Star Experience Nv5', rarity:5, series:'infinito', playable:false, xp_value:90000, initials:'SE5', image:'assets/ingredients/infinito/StarExp5.png' },
+
   // ── Materials ─────────────────────────────────────────────────────────────
   ninja_generico_1: { id:'ninja_generico_1', name:'Ninja Genérico I',   rarity:0, series:'naruto', playable:false, xp_value:50,  initials:'NG1', image: 'assets/ingredients/world1/Ninja 1.png', upgrades_to:'ninja_generico_2', upgrade_cost:3 },
   ninja_generico_2: { id:'ninja_generico_2', name:'Ninja Genérico II',  rarity:1, series:'naruto', playable:false, xp_value:150, initials:'NG2', image: 'assets/ingredients/world1/Ninja 2.png', upgrades_to:'ninja_generico_3', upgrade_cost:3 },
@@ -18,6 +26,11 @@ const CHARACTERS = {
       label:'Espírito Feroz: cada acerto causa sangramento (10 DPS/3s, acumula)' },
     base_stats:{ damage:83, range:91, attack_speed:1.54, type:'single_target' },
     deploy_cost:150, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',      chain_r:65, chain_mult:0.50, chains:1,             label:'Zanpakutō Ressonante: cortes encadeiam para 1 inimigo próximo (50% dano)' },
+      5:  { type:'spirit_surge',   trigger_at:5, mult:3.5,                            label:'Getsuga Acumulado: cada 5º ataque dispara um Getsuga (3.5× dano)' },
+      10: { type:'phantom_strike', trigger_at:7, phantom_mult:1.6,                    label:'Eco do Bankai: cada 7º ataque cria um corte fantasma em toda a área' }
+    },
     upgrades:[
       { name:'Getsugatensho',    desc:'Tipo → Linha | Dano ×1.3',                        type:'linha', damage_mult:1.3,                                      cost:170 },
       { name:'Bankai Parcial',   desc:'Alcance ×1.2 | Vel ×1.2',                          range_mult:1.28, speed_mult:1.2,                                      cost:340 },
@@ -37,6 +50,11 @@ const CHARACTERS = {
       label:'Ki Oculto: 20% de chance de acerto crítico (2.5× dano)' },
     base_stats:{ damage:99, range:94, attack_speed:1.21, type:'single_target' },
     deploy_cost:150, max_level:50,
+    prestige_passives: {
+      1:  { type:'crit_splash',  crit_chance:0.20, crit_mult:2.0, splash_r:55, splash_mult:0.40, label:'Ki Explosivo: críticos liberam onda de ki (40% dano em área)' },
+      5:  { type:'battle_rage',  per_enemy:0.025, max_bonus:0.50,                                label:'Kaio-Ken Adaptativo: +2.5% dano por inimigo vivo (máx 50%)' },
+      10: { type:'spirit_surge', trigger_at:6, mult:5.0,                                        label:'Genkidama: cada 6º ataque concentra toda a energia (5× dano)' }
+    },
     upgrades:[
       { name:'Kamehameha',      desc:'Tipo → Linha | Dano ×1.4',                          type:'linha', damage_mult:1.4,                                       cost:170 },
       { name:'Kaio-Ken',        desc:'Vel ×1.4 | Dano ×0.85',                             speed_mult:1.4, damage_mult:0.85,                                    cost:340 },
@@ -57,6 +75,11 @@ const CHARACTERS = {
       label:'Análise Dedutiva: gera ouro ao fim de cada wave (escala com nível e upgrades)' },
     base_stats:{ damage:0, range:136, attack_speed:0, type:'none' },
     deploy_cost:150, max_level:50,
+    prestige_passives: {
+      1:  { type:'gold_detector',    bonus:8,                    label:'Análise Criminal: +8 ouro extra quando torres aliadas matam no alcance de L' },
+      5:  { type:'field_commander',  bonus:0.12,                 label:'Estratégia Mestre: presença de L concede +12% de dano a todas as torres' },
+      10: { type:'field_commander',  bonus:0.20,                 label:'Identificação Final: +20% de dano a todas as torres (acumula com P5)' }
+    },
     upgrades:[
       { name:'Planejamento',         desc:'+30 ouro/wave | Alcance ×1.2',                  gold_bonus:30, range_mult:1.28,                                       cost:160 },
       { name:'Rede de Espionagem',   desc:'+40 ouro/wave | +5 ouro por kill na área',       gold_bonus:40, kill_gold:5,                                          cost:300 },
@@ -74,6 +97,11 @@ const CHARACTERS = {
       label:'Radar Tático: desacelera passivamente todos os inimigos na área em 30%' },
     base_stats:{ damage:75, range:84, attack_speed:1.54, type:'single_target' },
     deploy_cost:150, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',      chain_r:60, chain_mult:0.48, chains:1,             label:'Dupla Morte: bastão encadeia para 1 inimigo próximo (48% dano)' },
+      5:  { type:'kill_frenzy',    duration:2.5, speed_mult:2.5,                      label:'Fúria Cega: ao matar, vel. de ataque 2.5× por 2.5s' },
+      10: { type:'phantom_strike', trigger_at:8, phantom_mult:1.4,                    label:'Radar Ofensivo: cada 8º ataque emite pulso de radar em toda a área' }
+    },
     upgrades:[
       { name:'Sentidos Aguçados', desc:'Alcance ×1.35 | Slow → 35%',                       range_mult:1.38, passive_override:{ slow_pct:0.35 },                 cost:165 },
       { name:'Fúria',             desc:'Vel ×1.3 | Dano ×1.2',                              speed_mult:1.3, damage_mult:1.2,                                     cost:350 },
@@ -92,6 +120,11 @@ const CHARACTERS = {
       label:'Sharingan: ignora o requisito de upgrade de todos os inimigos' },
     base_stats:{ damage:77, range:104, attack_speed:0.99, type:'single_target' },
     deploy_cost:150, max_level:50,
+    prestige_passives: {
+      1:  { type:'spirit_surge',  trigger_at:4, mult:3.0,                                                  label:'Chidori Carregado: cada 4º ataque dispara um Chidori (3× dano)' },
+      5:  { type:'status_on_hit', status:'burn', dps:25, duration:4,                                      label:'Amaterasu: todos os acertos incendeiam (25 DPS/4s)' },
+      10: { type:'phantom_strike', trigger_at:6, phantom_mult:1.8,                                        label:'Susanoo: cada 6º ataque invoca braço do Susanoo em toda a área' }
+    },
     upgrades:[
       { name:'Chidori',          desc:'Tipo → Linha | Dano ×1.5',                          type:'linha', damage_mult:1.5,                                       cost:180 },
       { name:'Susanoo Parcial',  desc:'Alcance ×1.2 | Dano ×1.3',                          range_mult:1.28, damage_mult:1.3,                                     cost:370 },
@@ -110,6 +143,11 @@ const CHARACTERS = {
       label:'Velocidade Divina: 25% de chance de atacar duas vezes no mesmo ciclo' },
     base_stats:{ damage:66, range:78, attack_speed:2.2, type:'single_target' },
     deploy_cost:150, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',    chain_r:75, chain_mult:0.55, chains:1,    label:'Descarga Residual: relâmpago encadeia para 1 inimigo próximo (55% dano)' },
+      5:  { type:'kill_frenzy', duration:3.0, speed_mult:3.5,              label:'Godspeed: ao matar, vel. de ataque 3.5× por 3s' },
+      10: { type:'spirit_surge', trigger_at:5, mult:4.5,                   label:'Descarga Total: cada 5º ataque libera toda a eletricidade (4.5× dano)' }
+    },
     upgrades:[
       { name:'Narukami',          desc:'Vel ×1.2 | Dano ×1.2',                             speed_mult:1.2, damage_mult:1.2,                                     cost:160 },
       { name:'Modo Assassino',    desc:'Paralisia 0.5s por acerto',                         status_effect:{ type:'paralisia', duration:0.5 },                    cost:330 },
@@ -129,6 +167,11 @@ const CHARACTERS = {
       label:'Respiração Total: causa 2× de dano em inimigos que estão queimando' },
     base_stats:{ damage:86, range:91, attack_speed:1.21, type:'single_target' },
     deploy_cost:150, max_level:50,
+    prestige_passives: {
+      1:  { type:'status_on_hit', status:'burn', dps:15, duration:3,       label:'Respiração Solar: cada acerto aplica chama solar (15 DPS/3s)' },
+      5:  { type:'spirit_surge',  trigger_at:5, mult:4.0,                  label:'Hinokami Kagura: cada 5º ataque é a dança do Deus do Fogo (4× dano)' },
+      10: { type:'phantom_strike', trigger_at:6, phantom_mult:1.7,          label:'Dança do Deus do Fogo: cada 6º ataque irradia em toda a área' }
+    },
     upgrades:[
       { name:'Dança da Lareira',  desc:'Vel ×1.2 | Burn 15 DPS / 2s por acerto',          speed_mult:1.2, status_effect:{ type:'burn', dps:15, duration:2 },    cost:175 },
       { name:'Respiração Solar',  desc:'Dano ×1.5 | Alcance ×1.1',                         damage_mult:1.5, range_mult:1.21,                                      cost:360 },
@@ -152,6 +195,11 @@ const CHARACTERS = {
       label:'Kage Bunshin: ao matar, próximo ataque vem com 80% do cooldown reduzido' },
     base_stats:{ damage:163, range:113, attack_speed:1.43, type:'aoe' },
     deploy_cost:300, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',      chain_r:80, chain_mult:0.60, chains:2,       label:'Rasengan Duplo: chakra encadeia para 2 inimigos em sequência (60% dano)' },
+      5:  { type:'phantom_strike', trigger_at:5, phantom_mult:1.8,              label:'Kage Bunshin em Combate: cada 5º ataque clones acertam toda a área' },
+      10: { type:'battle_rage',    per_enemy:0.040, max_bonus:0.80,             label:'Modo Sábio: senjutsu escala massivamente (+4% dano/inimigo, máx 80%)' }
+    },
     upgrades:[
       { name:'Rasengan',          desc:'Dano ×1.5',                                         damage_mult:1.5,                                                    cost:200 },
       { name:'Modo Clone',        desc:'Vel ×1.3 | Alcance ×0.9',                           speed_mult:1.3, range_mult:0.94,                                      cost:400 },
@@ -172,6 +220,11 @@ const CHARACTERS = {
       label:'Chacina: cada kill empilha +20% de dano (máx 5 stacks, reseta 4s sem matar)' },
     base_stats:{ damage:141, range:104, attack_speed:1.87, type:'single_target' },
     deploy_cost:300, max_level:50,
+    prestige_passives: {
+      1:  { type:'kill_frenzy',  duration:3.0, speed_mult:3.0,               label:'ODM Veloz: ao matar, vel. de ataque 3× por 3s' },
+      5:  { type:'spirit_surge', trigger_at:4, mult:4.5,                     label:'Golpe Decisivo: cada 4º golpe é o ataque do Capitão (4.5× dano)' },
+      10: { type:'arc_chain',    chain_r:90, chain_mult:0.70, chains:2,      label:'Estilo Ackerman: cada ataque encadeia 2 inimigos via ODM' }
+    },
     upgrades:[
       { name:'Equipamento ODM',     desc:'Vel ×1.3 | Dano ×1.25',                          speed_mult:1.3, damage_mult:1.25,                                    cost:195 },
       { name:'Reflexos',            desc:'Dano ×1.2 | Máx stacks → 7',                     damage_mult:1.2, passive_override:{ max_stacks:7 },                  cost:390 },
@@ -192,6 +245,11 @@ const CHARACTERS = {
       label:'Dragão Pecado da Ira: todo acerto causa Burn (14 DPS) + Bleed (7 DPS) simultâneos' },
     base_stats:{ damage:152, range:104, attack_speed:1.38, type:'single_target' },
     deploy_cost:300, max_level:50,
+    prestige_passives: {
+      1:  { type:'crit_splash',  crit_chance:0.25, crit_mult:2.0, splash_r:65, splash_mult:0.52, label:'Daihāzan: críticos explodem em demonic slash (52% dano em área)' },
+      5:  { type:'echo_strike',  chance:0.30, dmg_mult:2.0,                                     label:'Fullcounter Passivo: 30% de chance de refletir o dano (2× dano)' },
+      10: { type:'spirit_surge', trigger_at:4, mult:5.5,                                        label:'Revenge Counter: cada 4º ataque é um Revenge Counter (5.5× dano!)' }
+    },
     upgrades:[
       { name:'Contra',            desc:'Tipo → Cone | Dano ×1.3',                          type:'cone', damage_mult:1.3,                                        cost:190 },
       { name:'Escudo de Liz',     desc:'Vel ×1.3 | Dano ×1.2',                             speed_mult:1.3, damage_mult:1.2,                                     cost:380 },
@@ -215,6 +273,11 @@ const CHARACTERS = {
       label:'Senjutsu: 15% de chance por ataque de invocar um clone por 60s (máx 5, cada clone ataca independentemente)' },
     base_stats:{ damage:308, range:130, attack_speed:2.42, type:'single_target' },
     deploy_cost:500, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',      chain_r:100, chain_mult:0.72, chains:2,    label:'Modo Sábio Aprimorado: chakra da natureza encadeia 2 inimigos (72% dano)' },
+      5:  { type:'spirit_surge',   trigger_at:3, mult:6.0,                    label:'Rasenshuriken: cada 3º ataque é um Rasenshuriken (6× dano!)' },
+      10: { type:'phantom_strike', trigger_at:4, phantom_mult:2.8,            label:'Modo Seis Caminhos: cada 4º ataque os seis caminhos varrem toda a área' }
+    },
     upgrades:[
       { name:'Senjutsu',            desc:'Dano ×1.35 | Alcance ×1.1 | Clone chance → 20%',  damage_mult:1.35, range_mult:1.21, passive_override:{ chance:0.20 },          cost:400 },
       { name:'Modo Sábio',          desc:'Vel ×1.2 | Clone duração → 75s',                   speed_mult:1.2, passive_override:{ duration:75 },                            cost:700 },
@@ -239,6 +302,11 @@ const CHARACTERS = {
     active_ability:{ type:'domain_expansion', stun_duration:3, cooldown:35, label:'Domínio Expandido' },
     base_stats:{ damage:407, range:123, attack_speed:1.87, type:'aoe_full' },
     deploy_cost:500, max_level:50,
+    prestige_passives: {
+      1:  { type:'crit_splash',    crit_chance:0.32, crit_mult:2.5, splash_r:90, splash_mult:0.70, label:'Cursed Energy Overflow: críticos colapsam o infinito em área (70% dano)' },
+      5:  { type:'spirit_surge',   trigger_at:3, mult:7.0,                                        label:'Purple — Hollow Purple: cada 3º ataque é a técnica Roxa (7× dano!)' },
+      10: { type:'phantom_strike', trigger_at:4, phantom_mult:3.0,                               label:'Expansão do Território: cada 4º ataque expande o domínio por toda a área' }
+    },
     upgrades:[
       { name:'Infinito',        desc:'Dano ×1.25 | Alcance ×1.15',                        damage_mult:1.25, range_mult:1.25,                                   cost:420 },
       { name:'Vermelho Maldito',desc:'Vel ×1.2 | Dano ×1.2',                               speed_mult:1.2, damage_mult:1.2,                                     cost:750 },
@@ -252,6 +320,228 @@ const CHARACTERS = {
   pirata_generico_2: { id:'pirata_generico_2', name:'Pirata Saqueador',  rarity:1, series:'onepiece', playable:false, xp_value:180, initials:'P2', image: 'assets/ingredients/world2/Pirata 2.png', upgrades_to:'pirata_generico_3', upgrade_cost:3 },
   pirata_generico_3: { id:'pirata_generico_3', name:'Pirata Veterano', rarity:2, series:'onepiece', playable:false, xp_value:500, initials:'P3', image: 'assets/ingredients/world2/Pirata 3.png' },
 
+  // ── Materiais Bleach ───────────────────────────────────────────────────────
+  shinigami_generico_1: {
+    id:'shinigami_generico_1', name:'Shinigami Genérico', rarity:0, series:'bleach',
+    playable:false, xp_value:100, initials:'SG',
+    upgrades_to:'shinigami_generico_2', upgrade_cost:3
+  },
+  shinigami_generico_2: {
+    id:'shinigami_generico_2', name:'Shinigami Patrulha', rarity:1, series:'bleach',
+    playable:false, xp_value:300, initials:'SP',
+    upgrades_to:'shinigami_generico_3', upgrade_cost:3
+  },
+  shinigami_generico_3: {
+    id:'shinigami_generico_3', name:'Shinigami Elite', rarity:2, series:'bleach',
+    playable:false, xp_value:800, initials:'SE'
+  },
+
+  // ── 3⭐ Bleach ──────────────────────────────────────────────────────────────
+  rukia_kuchiki: {
+    id:'rukia_kuchiki', name:'Rukia Kuchiki', rarity:3, series:'bleach',
+    playable:true, xp_value:1000, initials:'RK',
+    image:'assets/towers/bleach/Rukia.png',
+    passive:{ type:'freeze_on_hit', chance:0.28, duration:2.0,
+      label:'Sode no Shirayuki: 28% de chance de congelar o alvo por 2s a cada acerto' },
+    base_stats:{ damage:88, range:145, attack_speed:1.25, type:'single' },
+    deploy_cost:225, max_level:50,
+    prestige_passives: {
+      1:  { type:'spirit_surge',   trigger_at:5, mult:3.2,                      label:'Dança Segunda Aprimorada: cada 5º ataque é uma dança de gelo (3.2× dano)' },
+      5:  { type:'arc_chain',      chain_r:75, chain_mult:0.52, chains:1,       label:'Shirafune Perfurante: lâmina de gelo encadeia para 1 inimigo (52% dano)' },
+      10: { type:'phantom_strike', trigger_at:7, phantom_mult:1.5,              label:'Dança da Morte Gélida: cada 7º ataque fragmenta gelo em toda a área' }
+    },
+    upgrades:[
+      { name:'Dança Primeira', desc:'Dano ×1.3 | Freeze dura 3s', damage_mult:1.3, cost:350 },
+      { name:'Dança Segunda', desc:'Alcance ×1.2 | Vel ×1.15', range_mult:1.2, speed_mult:1.15, cost:600 },
+      { name:'Dança Terceira: Shirafune', desc:'Dano ×1.5 | Tipo: linha (corte gelo)', damage_mult:1.5, type:'linha', cost:1000 }
+    ]
+  },
+  renji_abarai: {
+    id:'renji_abarai', name:'Renji Abarai', rarity:3, series:'bleach',
+    playable:true, xp_value:1000, initials:'RA',
+    image:'assets/towers/bleach/Renji.png',
+    passive:{ type:'snake_venom', stacks:5, burstMult:4.5,
+      label:'Zabimaru: a cada 5 acertos no mesmo inimigo, explode causando 4.5× dano' },
+    base_stats:{ damage:110, range:115, attack_speed:1.05, type:'single' },
+    deploy_cost:240, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',    chain_r:90, chain_mult:0.45, chains:1,    label:'Serpente Extensível: Zabimaru encadeia para 1 inimigo distante (45% dano)' },
+      5:  { type:'kill_frenzy', duration:2.5, speed_mult:3.0,              label:'Fúria Zabimaru: ao matar, vel. de ataque 3× por 2.5s' },
+      10: { type:'spirit_surge', trigger_at:5, mult:4.0,                   label:'Bankai — Tiro Final: cada 5º ataque é a descarga total do Bankai (4× dano)' }
+    },
+    upgrades:[
+      { name:'Garra Alongada', desc:'Alcance ×1.25 | Dano ×1.2', range_mult:1.25, damage_mult:1.2, cost:380 },
+      { name:'Forma Serpente', desc:'Vel ×1.3 | Stacks explodem em 4', speed_mult:1.3, cost:650 },
+      { name:'Bankai: Hihiō Zabimaru', desc:'Dano ×2 | AOE ao explodir os stacks', damage_mult:2.0, type:'aoe', cost:1100 }
+    ]
+  },
+  uryu_ishida: {
+    id:'uryu_ishida', name:'Uryu Ishida', rarity:3, series:'bleach',
+    playable:true, xp_value:1000, initials:'UI',
+    image:'assets/towers/bleach/Uryu.png',
+    passive:{ type:'quincy_pierce', label:'Letzt Stil: flechas perfuram até 3 inimigos em linha' },
+    base_stats:{ damage:80, range:200, attack_speed:1.35, type:'pierce' },
+    deploy_cost:230, max_level:50,
+    prestige_passives: {
+      1:  { type:'crit_splash',   crit_chance:0.22, crit_mult:2.0, splash_r:55, splash_mult:0.42, label:'Flecha Explosiva: críticos explodem em energia Quincy (42% dano)' },
+      5:  { type:'spirit_surge',  trigger_at:5, mult:3.5,                                        label:'Letzt Stil Aprimorado: cada 5º tiro é o golpe supremo Quincy (3.5× dano)' },
+      10: { type:'phantom_strike', trigger_at:6, phantom_mult:1.5,                               label:'Chuva Final de Reishi: cada 6º ataque cobre toda a área de flechas' }
+    },
+    upgrades:[
+      { name:'Reishi Avançado', desc:'Dano ×1.3 | Alcance ×1.1', damage_mult:1.3, range_mult:1.1, cost:340 },
+      { name:'Blut Vene', desc:'Vel ×1.2 | Dano ×1.2', speed_mult:1.2, damage_mult:1.2, cost:580 },
+      { name:'Vollständig', desc:'Dano ×1.6 | Perfura 5 inimigos', damage_mult:1.6, cost:950 }
+    ]
+  },
+  orihime_inoue: {
+    id:'orihime_inoue', name:'Orihime Inoue', rarity:3, series:'bleach',
+    playable:true, xp_value:1000, initials:'OI',
+    image:'assets/towers/bleach/Orihime.png',
+    passive:{ type:'santen_kesshun', radius:145,
+      label:'Santen Kesshun: torres no alcance de Orihime ficam imunes a stun continuamente' },
+    base_stats:{ damage:75, range:145, attack_speed:0.85, type:'aoe' },
+    deploy_cost:210, max_level:50,
+    prestige_passives: {
+      1:  { type:'gold_detector',   bonus:6,           label:'Cura de Campo: +6 ouro extra quando torres aliadas matam no alcance de Orihime' },
+      5:  { type:'damage_pulse',    interval:5.5, dmg_mult:0.35, label:'Barreira Ofensiva: campo de rejeição pulsa dano a cada 5.5s em área' },
+      10: { type:'field_commander', bonus:0.10,         label:'Sōten Kisshun: presença de Orihime protege o time, +10% de dano a todas as torres' }
+    },
+    upgrades:[
+      { name:'Koten Zanshun', desc:'Dano ×1.35 | Alcance do escudo ×1.2', damage_mult:1.35, cost:320 },
+      { name:'Sōten Kisshun', desc:'Vel ×1.2 | Raio de proteção +40px', speed_mult:1.2, cost:550 },
+      { name:'Tsubaki Pleno', desc:'Dano ×1.5 | Tipo: AOE full (não requer upgrade de torre)', damage_mult:1.5, type:'aoe_full', cost:900 }
+    ]
+  },
+  chad_yasutora: {
+    id:'chad_yasutora', name:'Chad Yasutora', rarity:3, series:'bleach',
+    playable:true, xp_value:1000, initials:'CY',
+    image:'assets/towers/bleach/Chad.png',
+    passive:{ type:'boss_slayer', mult:2.2,
+      label:'Brazo Derecho: causa 2.2× dano a minibosses e bosses' },
+    base_stats:{ damage:185, range:85, attack_speed:0.72, type:'aoe' },
+    deploy_cost:260, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',    chain_r:65, chain_mult:0.50, chains:1,    label:'Impacto Ressoa: onda de choque encadeia para 1 inimigo próximo (50% dano)' },
+      5:  { type:'battle_rage',  per_enemy:0.030, max_bonus:0.55,          label:'Raiva Crescente: +3% dano por inimigo vivo (máx 55%)' },
+      10: { type:'spirit_surge', trigger_at:5, mult:4.0,                   label:'El Directo Final: cada 5º ataque é um soco definitivo (4× dano)' }
+    },
+    upgrades:[
+      { name:'Brazo Izquierda', desc:'Dano ×1.4 | Alcance ×1.2', damage_mult:1.4, range_mult:1.2, cost:420 },
+      { name:'Armadura Completa', desc:'Dano vs Boss ×3× (acumula)', damage_mult:1.2, cost:700 },
+      { name:'El Directo', desc:'Dano ×1.8 | Tipo: cone (esmaga à frente)', damage_mult:1.8, type:'cone', cost:1200 }
+    ]
+  },
+
+  // ── 4⭐ Bleach ──────────────────────────────────────────────────────────────
+  byakuya_kuchiki: {
+    id:'byakuya_kuchiki', name:'Byakuya Kuchiki', rarity:4, series:'bleach',
+    playable:true, xp_value:4000, initials:'BK',
+    image:'assets/towers/bleach/Byakuya.png',
+    passive:{ type:'petal_mark', splashRadius:95, splashMult:1.3,
+      label:'Senbonzakura: ao matar, pétalas explodem causando 1.3× dano em área' },
+    base_stats:{ damage:105, range:160, attack_speed:0.95, type:'scatter' },
+    deploy_cost:380, max_level:50,
+    prestige_passives: {
+      1:  { type:'spirit_surge',   trigger_at:4, mult:4.0,                label:'Senbonzakura Dupla: cada 4º ataque desencadeia rajada de pétalas (4× dano)' },
+      5:  { type:'phantom_strike', trigger_at:5, phantom_mult:2.0,        label:'Kageyoshi Fantasma: cada 5º ataque dispersa pétalas em toda a área' },
+      10: { type:'arc_chain',      chain_r:90, chain_mult:0.68, chains:2, label:'Bankai Final: cada ataque encadeia 2 inimigos com cortes de pétala' }
+    },
+    upgrades:[
+      { name:'Senbonzakura Ativo', desc:'Dano ×1.4 | Explosão de kill ×1.6×', damage_mult:1.4, cost:550 },
+      { name:'Kageyoshi', desc:'Alcance ×1.2 | Vel ×1.15', range_mult:1.2, speed_mult:1.15, cost:900 },
+      { name:'Bankai: Senbonzakura Kageyoshi', desc:'Dano ×1.8 | Tipo: scatter full (todo o mapa)', damage_mult:1.8, type:'scatter', cost:1600 }
+    ]
+  },
+  toshiro_hitsugaya: {
+    id:'toshiro_hitsugaya', name:'Toshiro Hitsugaya', rarity:4, series:'bleach',
+    playable:true, xp_value:4000, initials:'TH',
+    image:'assets/towers/bleach/Hitsugaya.png',
+    passive:{ type:'freeze_on_hit', chance:0.45, duration:3.0,
+      label:'Hyōrinmaru: 45% de chance de congelar o alvo por 3s a cada ataque' },
+    base_stats:{ damage:145, range:148, attack_speed:0.88, type:'aoe' },
+    deploy_cost:400, max_level:50,
+    prestige_passives: {
+      1:  { type:'damage_pulse',   interval:4.0, dmg_mult:0.55,          label:'Tempestade de Gelo: blizzard pulsa a cada 4s em toda a área' },
+      5:  { type:'spirit_surge',   trigger_at:4, mult:4.5,               label:'Ryūsenka Aprimorado: cada 4º ataque é a mordida do dragão de gelo (4.5×)' },
+      10: { type:'phantom_strike', trigger_at:5, phantom_mult:2.2,       label:'Dragão de Gelo: cada 5º ataque o dragão varre toda a área' }
+    },
+    upgrades:[
+      { name:'Tensō Jūrin', desc:'Dano ×1.3 | Freeze dura 4s', damage_mult:1.3, cost:580 },
+      { name:'Ryūsenka', desc:'Freeze aplica a todos no AOE', damage_mult:1.2, status_effect:{type:'freeze',duration:2.5}, cost:950 },
+      { name:'Bankai: Daiguren Hyōrinmaru', desc:'Dano ×1.7 | Alcance ×1.3 | Freeze 5s', damage_mult:1.7, range_mult:1.3, cost:1700 }
+    ]
+  },
+  kenpachi_zaraki: {
+    id:'kenpachi_zaraki', name:'Kenpachi Zaraki', rarity:4, series:'bleach',
+    playable:true, xp_value:4000, initials:'KZ',
+    image:'assets/towers/bleach/Kenpachi.png',
+    passive:{ type:'berserker', maxStacks:40, dmgPerStack:0.06,
+      label:'Sede de Batalha: cada kill aumenta dano permanentemente (+6% por kill, máx 40 stacks)' },
+    base_stats:{ damage:230, range:85, attack_speed:0.68, type:'single' },
+    deploy_cost:420, max_level:50,
+    prestige_passives: {
+      1:  { type:'kill_frenzy',  duration:4.0, speed_mult:3.5,           label:'Sede de Sangue: ao matar, vel. de ataque 3.5× por 4s' },
+      5:  { type:'spirit_surge', trigger_at:3, mult:5.5,                 label:'Nozarashi: cada 3º ataque é o golpe do Nozarashi (5.5× dano!)' },
+      10: { type:'battle_rage',  per_enemy:0.045, max_bonus:0.90,        label:'Frenesi Absoluto: +4.5% dano por inimigo vivo (máx 90%)' }
+    },
+    upgrades:[
+      { name:'Eyepatch Removido', desc:'Vel ×1.5 | Dano ×1.3', speed_mult:1.5, damage_mult:1.3, cost:600 },
+      { name:'Kenpachi Liberado', desc:'Alcance ×1.3 | Dano ×1.4', range_mult:1.3, damage_mult:1.4, cost:1000 },
+      { name:'Bankai: Unnamed', desc:'Dano ×2 | Tipo: cone | Stacks máx: 60', damage_mult:2.0, type:'cone', cost:1800 }
+    ]
+  },
+
+  // ── 5⭐ Gacha ───────────────────────────────────────────────────────────────
+  ichigo_bankai: {
+    id:'ichigo_bankai', name:'Ichigo (Bankai)', rarity:5, series:'bleach',
+    playable:true, xp_value:10000, initials:'IB',
+    image:'assets/towers/bleach/Ichigo Bankai.png',
+    passive:{ type:'bankai_pressure', mult:1.55,
+      label:'Pressão do Bankai: inimigos no alcance de Ichigo recebem 1.55× de dano de todas as torres' },
+    base_stats:{ damage:450, range:135, attack_speed:0.75, type:'single' },
+    deploy_cost:600, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',      chain_r:100, chain_mult:0.72, chains:2,    label:'Getsuga Expansivo: Getsuga encadeia 2 inimigos em sequência (72% dano)' },
+      5:  { type:'spirit_surge',   trigger_at:3, mult:8.0,                    label:'Mugetsu: cada 3º ataque é o Mugetsu — o poder mais absoluto (8× dano!)' },
+      10: { type:'phantom_strike', trigger_at:4, phantom_mult:2.8,            label:'Colapso do Bankai: cada 4º ataque colapsa o Bankai por toda a área' }
+    },
+    upgrades:[
+      { name:'Getsuga Tensho', desc:'Dano ×1.4 | Tipo: linha (corte de alcance total)', damage_mult:1.4, type:'linha', cost:750 },
+      { name:'Tensão Máxima', desc:'Aura de pressão ×1.8×', damage_mult:1.2, cost:1300 },
+      { name:'Bankai Completo', desc:'Dano ×1.6 | Alcance ×1.25', damage_mult:1.6, range_mult:1.25, cost:2200 }
+    ]
+  },
+
+  // ── 5⭐ Evolução ────────────────────────────────────────────────────────────
+  ichigo_vizard: {
+    id:'ichigo_vizard', name:'Ichigo (Vizard)', rarity:5, series:'bleach',
+    playable:true, xp_value:10000, initials:'IV',
+    image:'assets/towers/bleach/Ichigo Vizard.png',
+    evolution: {
+      source: 'ichigo_bankai',
+      requires: [
+        { id: 'ichigo_bankai',        quantity: 3 },
+        { id: 'ichigo_base',          quantity: 5 },
+        { id: 'shinigami_generico_3', quantity: 5 },
+        { id: 'pirata_generico_3',    quantity: 3 }
+      ]
+    },
+    passive:{ type:'hollow_sync',
+      label:'Sincronização Hollow: cada 3º ataque vira AOE; torre é imune a stun' },
+    base_stats:{ damage:580, range:140, attack_speed:0.82, type:'single' },
+    deploy_cost:700, max_level:50,
+    prestige_passives: {
+      1:  { type:'kill_frenzy',  duration:5.0, speed_mult:4.0,                                      label:'Descarga do Hollow: ao matar, máscara acelera 4× por 5s' },
+      5:  { type:'crit_splash',  crit_chance:0.30, crit_mult:2.5, splash_r:85, splash_mult:0.72,   label:'Cero: críticos disparam um Cero Hollow em área (72% dano)' },
+      10: { type:'spirit_surge', trigger_at:3, mult:7.5,                                            label:'Forma Final Hollow: cada 3º ataque é o Hollow Final (7.5×!)' }
+    },
+    upgrades:[
+      { name:'Máscara Estabilizada', desc:'Dano ×1.5 | Vel ×1.2', damage_mult:1.5, speed_mult:1.2, cost:850 },
+      { name:'Getsuga Jūjishō', desc:'Tipo: cone | AOE ativa com 1/2 ataques', damage_mult:1.3, type:'cone', cost:1400 },
+      { name:'Hollow Pleno', desc:'Dano ×1.8 | Alcance ×1.2 | AOE a cada 2 ataques', damage_mult:1.8, range_mult:1.2, cost:2400 }
+    ]
+  },
+
   // ── 3⭐ ──
   luffy_3: {
     id:'luffy_3', name:'Luffy (East Blue)', rarity:3, series:'onepiece', playable:true, xp_value:1000, initials:'LF',
@@ -260,6 +550,11 @@ const CHARACTERS = {
       label:'Borracha Elástica: Luffy sempre ataca duas vezes no mesmo ciclo' },
     base_stats:{ damage:119, range:70, attack_speed:1.76, type:'single_target' },
     deploy_cost:120, max_level:50,
+    prestige_passives: {
+      1:  { type:'kill_frenzy',  duration:2.0, speed_mult:2.5,                         label:'Gum-Gum Jet: ao matar, vel. 2.5× por 2s (Gear 2!)' },
+      5:  { type:'battle_rage',  per_enemy:0.028, max_bonus:0.55,                      label:'Gear 2 Completo: +2.8% dano por inimigo vivo (máx 55%)' },
+      10: { type:'arc_chain',    chain_r:80, chain_mult:0.55, chains:2,               label:'Gum-Gum Gatling: ataque encadeia 2 inimigos em sequência' }
+    },
     upgrades:[
       { name:'Gomu Gomu no Pistol', desc:'Dano ×1.5', damage_mult:1.5, cost:150 },
       { name:'Gomu Gomu no Gatling', desc:'Vel ×1.4 | Dano ×1.2', speed_mult:1.4, damage_mult:1.2, cost:300 }
@@ -272,6 +567,11 @@ const CHARACTERS = {
       label:'Corte Debilitante: inimigos na área de Zoro ficam enfraquecidos (−15% velocidade)' },
     base_stats:{ damage:158, range:60, attack_speed:1.32, type:'cone' },
     deploy_cost:140, max_level:50,
+    prestige_passives: {
+      1:  { type:'crit_splash',   crit_chance:0.22, crit_mult:2.0, splash_r:50, splash_mult:0.40, label:'Três Espadas: críticos explodem em corte triplo (40% dano em área)' },
+      5:  { type:'spirit_surge',  trigger_at:5, mult:3.8,                                        label:'Oni Giri: cada 5º ataque é um Oni Giri (3.8× dano)' },
+      10: { type:'arc_chain',     chain_r:70, chain_mult:0.60, chains:2,                         label:'Tris Cortes: cada ataque encadeia 2 inimigos adicionais' }
+    },
     upgrades:[
       { name:'Oni Giri', desc:'Dano ×1.5', damage_mult:1.5, cost:200 },
       { name:'Tatsumaki', desc:'Alcance ×1.2 | Dano ×1.3', range_mult:1.35, damage_mult:1.3, cost:400 }
@@ -283,6 +583,11 @@ const CHARACTERS = {
     passive:{ type:'ladra', chance:0.05, label:'Gatuna: 5% de chance de gerar +1 Ouro ao atacar' },
     base_stats:{ damage:79, range:90, attack_speed:1.1, type:'cone' },
     deploy_cost:150, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',             chain_r:90, chain_mult:0.45, chains:1,             label:'Climatact Elétrico: relâmpago encadeia para 1 inimigo (45% dano)' },
+      5:  { type:'status_on_hit_chance',  chance:0.35, status:'freeze', duration:2.0,        label:'Clima-Tact Tático: 35% de chance de congelar ao acertar' },
+      10: { type:'damage_pulse',          interval:4.5, dmg_mult:0.45,                       label:'Perfil Meteorológico: tempestade causa dano a cada 4.5s em área' }
+    },
     upgrades:[
       { name:'Thunderbolt Tempo', desc:'Dano ×1.5', damage_mult:1.5, cost:200 },
       { name:'Tornado Tempo', desc:'Vel ×1.3', speed_mult:1.3, cost:350 }
@@ -294,6 +599,11 @@ const CHARACTERS = {
     passive:{ type:'status_on_hit_chance', chance:0.10, status:'paralisia', duration:0.5, label:'Bala de Chumbo: 10% chance de Stun (0.5s)' },
     base_stats:{ damage:92, range:200, attack_speed:0.88, type:'single_target' },
     deploy_cost:160, max_level:50,
+    prestige_passives: {
+      1:  { type:'crit_splash',   crit_chance:0.20, crit_mult:2.0, splash_r:60, splash_mult:0.38, label:'Munição Explosiva: críticos explodem (38% dano em área)' },
+      5:  { type:'spirit_surge',  trigger_at:5, mult:4.2,                                        label:'Tiro Perfeito: cada 5º tiro é o golpe do Rei Sniper (4.2× dano)' },
+      10: { type:'phantom_strike', trigger_at:7, phantom_mult:1.5,                               label:'Chuva de Estrelas: cada 7º ataque dispara salva em toda a área' }
+    },
     upgrades:[
       { name:'Estilingue Kabuto', desc:'Dano ×1.4', damage_mult:1.4, cost:200 },
       { name:'Firebird Star', desc:'Dano ×1.5 | Alcance ×1.1', damage_mult:1.5, range_mult:1.25, cost:400 }
@@ -305,6 +615,11 @@ const CHARACTERS = {
     passive:{ type:'status_on_hit', status:'freeze', duration:1.5, label:'Soul Solid: Lentidão severa' },
     base_stats:{ damage:66, range:120, attack_speed:1.65, type:'linha' },
     deploy_cost:180, max_level:50,
+    prestige_passives: {
+      1:  { type:'status_on_hit', status:'freeze', slow_pct:0.5, duration:1.5,   label:'Gelo Espiritual: cada acerto aplica frio da alma (1.5s slow 50%)' },
+      5:  { type:'arc_chain',     chain_r:85, chain_mult:0.50, chains:1,         label:'Melodia da Alma: música encadeia para 1 inimigo próximo (50% dano)' },
+      10: { type:'phantom_strike', trigger_at:6, phantom_mult:1.6,               label:'Pulso da Morte: cada 6º ataque propaga energia espiritual em área' }
+    },
     upgrades:[
       { name:'Yahazu Giri', desc:'Vel ×1.4', speed_mult:1.4, cost:220 },
       { name:'Nemuri Uta', desc:'Dano ×1.5', damage_mult:1.5, cost:400 }
@@ -318,6 +633,11 @@ const CHARACTERS = {
     passive:{ type:'status_on_hit', status:'burn', dps:30, duration:3, label:'Diable Jambe: Causa Burn' },
     base_stats:{ damage:238, range:65, attack_speed:1.98, type:'single_target' },
     deploy_cost:250, max_level:50,
+    prestige_passives: {
+      1:  { type:'status_on_hit', status:'burn', dps:20, duration:3,     label:'Diable Jambe: cada chute incendeia o alvo (20 DPS/3s)' },
+      5:  { type:'kill_frenzy',  duration:3.5, speed_mult:3.0,           label:'Ifrit Jambe: ao matar, vel. de ataque 3× por 3.5s' },
+      10: { type:'spirit_surge', trigger_at:4, mult:5.0,                 label:'Hell Memories: cada 4º ataque é o Hell Memories (5× dano!)' }
+    },
     upgrades:[
       { name:'Flambage Shot', desc:'Dano ×1.4', damage_mult:1.4, cost:300 },
       { name:'Hell Memories', desc:'Vel ×1.3 | Burn → 50 DPS', speed_mult:1.3, passive_override:{dps:50}, cost:600 }
@@ -329,6 +649,11 @@ const CHARACTERS = {
     passive:{ type:'status_on_hit_chance', chance:0.20, status:'paralisia', duration:1.0, label:'Mil Fleurs: 20% chance de Stun (1s)' },
     base_stats:{ damage:185, range:100, attack_speed:0.99, type:'aoe_full' },
     deploy_cost:300, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',             chain_r:85, chain_mult:0.62, chains:2,         label:'Fleurs de Grapple: flores brotam em 2 inimigos próximos (62% dano)' },
+      5:  { type:'status_on_hit_chance',  chance:0.35, status:'paralisia', duration:2.0, label:'Clutch: 35% de paralisar completamente o alvo por 2s' },
+      10: { type:'phantom_strike',        trigger_at:5, phantom_mult:2.0,               label:'Mil Flores: cada 5º ataque faz mil flores brotarem em toda a área' }
+    },
     upgrades:[
       { name:'Clutch', desc:'Dano ×1.5', damage_mult:1.5, cost:350 },
       { name:'Gigantesco Mano', desc:'Alcance ×1.2 | Dano ×1.4', range_mult:1.35, damage_mult:1.4, cost:700 }
@@ -340,6 +665,11 @@ const CHARACTERS = {
     passive:{ type:'status_on_hit', status:'burn', dps:60, duration:4, label:'Mera Mera: Dano em chamas massivo' },
     base_stats:{ damage:290, range:110, attack_speed:1.1, type:'cone' },
     deploy_cost:320, max_level:50,
+    prestige_passives: {
+      1:  { type:'status_on_hit', status:'burn', dps:25, duration:4,     label:'Chama Residual: cada acerto queima profundamente (25 DPS/4s)' },
+      5:  { type:'spirit_surge',  trigger_at:4, mult:4.5,                label:'Hiken: cada 4º ataque é o Fire Fist Ace (4.5× dano!)' },
+      10: { type:'crit_splash',   crit_chance:0.30, crit_mult:2.5, splash_r:80, splash_mult:0.65, label:'Entidade de Fogo: críticos provocam explosão de chamas (65% dano em área)' }
+    },
     upgrades:[
       { name:'Hiken', desc:'Dano ×1.5', damage_mult:1.5, cost:400 },
       { name:'Entei', desc:'Dano ×1.6 | Burn → 100 DPS', damage_mult:1.6, passive_override:{dps:100}, cost:800 }
@@ -363,6 +693,11 @@ const CHARACTERS = {
     passive:{ type:'zoro_burst', label:'Foco Ashura: 3x Dano Base, ataca 3 vezes e descansa 3' },
     base_stats:{ damage:594, range:130, attack_speed:1.32, type:'linha' },
     deploy_cost:600, max_level:50,
+    prestige_passives: {
+      1:  { type:'crit_splash',    crit_chance:0.30, crit_mult:2.5, splash_r:80, splash_mult:0.65, label:'Espírito do Rei das Espadas: críticos causam explosão de corte (65% dano)' },
+      5:  { type:'spirit_surge',   trigger_at:3, mult:6.5,                                        label:'Ashura — Ichibugin: cada 3º ataque é o golpe titânico Ichibugin (6.5×!)' },
+      10: { type:'phantom_strike', trigger_at:4, phantom_mult:3.0,                               label:'Rei do Inferno: cada 4º ataque o Rei do Inferno varre toda a área' }
+    },
     upgrades:[
       { name:'Kiki Kyutoryu', desc:'Dano ×1.4', damage_mult:1.4, cost:700 },
       { name:'Ichidai Sanzen', desc:'Alcance ×1.15 | Dano ×1.5', range_mult:1.30, damage_mult:1.5, cost:1500 }
@@ -374,6 +709,11 @@ const CHARACTERS = {
     passive:{ type:'silence_buffs', chance:0.3, label:'Haki: 30% chance no 1º hit de anular o buff inimigo' },
     base_stats:{ damage:660, range:100, attack_speed:1.54, type:'aoe' },
     deploy_cost:650, max_level:50,
+    prestige_passives: {
+      1:  { type:'battle_rage',  per_enemy:0.050, max_bonus:1.0,              label:'Haki do Rei: Haki do Conquistador escala com inimigos (+5%/inimigo, máx 100%!)' },
+      5:  { type:'arc_chain',    chain_r:100, chain_mult:0.75, chains:2,      label:'Kong Gatling: soco do Gear 4 encadeia 2 inimigos em sequência (75% dano)' },
+      10: { type:'spirit_surge', trigger_at:3, mult:7.0,                      label:'Gear 5: cada 3º ataque é o Gear 5 distorcendo a realidade (7× dano!)' }
+    },
     upgrades:[
       { name:'Kong Gun', desc:'Dano ×1.4', damage_mult:1.4, cost:800 },
       { name:'King Kong Gun', desc:'Dano ×1.6 | Alcance ×1.1', damage_mult:1.6, range_mult:1.25, cost:1600 }
@@ -385,6 +725,11 @@ const CHARACTERS = {
     passive:{ type:'tsunami', interval:15, hp:5000, label:'Tsunami: Invoca onda reversa na base a cada 15s (HP 5000)' },
     base_stats:{ damage:554, range:150, attack_speed:0.88, type:'linha' },
     deploy_cost:700, max_level:50,
+    prestige_passives: {
+      1:  { type:'crit_splash',    crit_chance:0.28, crit_mult:2.5, splash_r:100, splash_mult:0.65, label:'Tremor de Terra: críticos provocam terremoto maciço (65% dano em área)' },
+      5:  { type:'spirit_surge',   trigger_at:3, mult:6.0,                                         label:'Punho de Terremoto: cada 3º ataque é o Punho de Terremoto (6× dano)' },
+      10: { type:'phantom_strike', trigger_at:4, phantom_mult:2.8,                                label:'Fim do Mundo: cada 4º ataque o terremoto abala toda a área' }
+    },
     upgrades:[
       { name:'Gura Gura', desc:'Dano ×1.4 | Tsunami HP 8000', damage_mult:1.4, passive_override:{hp:8000}, cost:900 },
       { name:'Terremoto', desc:'Dano ×1.5 | Tsunami HP 15000', damage_mult:1.5, passive_override:{hp:15000}, cost:1800 }
@@ -403,6 +748,11 @@ const CHARACTERS = {
     ],
     base_stats:{ damage:115, range:120, attack_speed:1.1, type:'cone' },
     deploy_cost:450, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',     chain_r:85, chain_mult:0.58, chains:2,              label:'Serpente Multiplicada: cobras encadeiam 2 inimigos em sequência (58% dano)' },
+      5:  { type:'status_on_hit', status:'sangramento', dps:30, duration:5,           label:'Veneno Hebisuji: cada acerto injeta veneno tóxico (30 DPS/5s)' },
+      10: { type:'spirit_surge',  trigger_at:4, mult:5.0,                             label:'Imortalidade: cada 4º ataque é o golpe da serpente imortal (5× dano)' }
+    },
     upgrades:[
       { name:'Serpente Branca', desc:'Dano ×1.3 | Veneno 35 DPS', damage_mult:1.3, passive_override:{dps:35, duration:3}, cost:500 },
       { name:'Kusanagi',        desc:'Tipo → AOE | Dano ×1.5 | Veneno 60 DPS', type:'aoe', damage_mult:1.5, passive_override:{dps:60, duration:4}, cost:950 }
@@ -417,6 +767,11 @@ const CHARACTERS = {
     ],
     base_stats:{ damage:210, range:150, attack_speed:0.85, type:'aoe' },
     deploy_cost:800, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain',    chain_r:110, chain_mult:0.70, chains:2,    label:'Gravitação: força gravitacional do Rinnegan encadeia 2 inimigos (70% dano)' },
+      5:  { type:'battle_rage',  per_enemy:0.050, max_bonus:1.0,            label:'Caminho do Humano: absorve a força de cada alma — +5%/inimigo (máx 100%)' },
+      10: { type:'spirit_surge', trigger_at:3, mult:7.5,                    label:'Shinra Tensei Pleno: cada 3º ataque é o Shinra Tensei absoluto (7.5×!)' }
+    },
     upgrades:[
       { name:'Puxão Sombrio', desc:'Dano ×1.4 | Puxa mais forte (50px)', damage_mult:1.4, passive_override:{attacks_required:4, push_dist:50}, cost:1100 },
       { name:'Devastação',   desc:'Dano ×1.8 | Alcance ×1.2', damage_mult:1.8, range_mult:1.2, cost:2500 }
@@ -426,9 +781,9 @@ const CHARACTERS = {
 
 // Full pool — usado pelo BannerSystem
 const ALL_CHARACTERS_POOL = {
-  star3: ['ichigo_base','goku_base','l_deathnote','demolidor','sasuke_uchiha','killua_zoldyck','tanjiro_kamado','zoro_3','luffy_3','nami_3','usopp_3','brook_3'],
-  star4: ['naruto_shippuden','levi_ackerman','meliodas_base','sanji_4','robin_4','ace_4'],
-  star5: ['gojo_satoru','zoro_5','luffy_5']
+  star3: ['ichigo_base','goku_base','l_deathnote','demolidor','sasuke_uchiha','killua_zoldyck','tanjiro_kamado','zoro_3','luffy_3','nami_3','usopp_3','brook_3','rukia_kuchiki','renji_abarai','uryu_ishida','orihime_inoue','chad_yasutora'],
+  star4: ['naruto_shippuden','levi_ackerman','meliodas_base','sanji_4','robin_4','ace_4','byakuya_kuchiki','toshiro_hitsugaya','kenpachi_zaraki'],
+  star5: ['gojo_satoru','luffy_5','ichigo_bankai']
 };
 
 // Populado em runtime por BannerSystem.init()

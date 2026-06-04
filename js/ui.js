@@ -265,7 +265,12 @@ const UI = (() => {
     const banner = document.getElementById('result-banner');
     const rewards = document.getElementById('result-rewards-list');
     banner.className = 'result-banner ' + (result.victory ? 'victory' : 'defeat');
-    banner.innerHTML = result.victory ? '🏆 VITÓRIA!' : '💀 DERROTA!';
+    if (result.infiniteWave > 0) {
+      const best = typeof Save !== 'undefined' ? (Save.get().stats.melhor_onda_infinita || 0) : result.infiniteWave;
+      banner.innerHTML = `♾ MODO INFINITO<br><span style="font-size:22px;color:#a78bfa">Wave ${result.infiniteWave}</span><br><span style="font-size:12px;opacity:0.65">Recorde: Wave ${best}</span>`;
+    } else {
+      banner.innerHTML = result.victory ? '🏆 VITÓRIA!' : '💀 DERROTA!';
+    }
 
     rewards.innerHTML = '';
     if (result.gems) {

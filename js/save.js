@@ -28,7 +28,8 @@ const Save = (() => {
         minibosses_derrotados: 0,
         boss_pain_derrotado: 0,
         unidades_4estrelas_obtidas: 0,
-        unidades_5estrelas_obtidas: 0
+        unidades_5estrelas_obtidas: 0,
+        prestígios_realizados: 0
       },
       missoes_ativas: [],
       missoes_completas: []
@@ -217,8 +218,37 @@ const Save = (() => {
     save();
   }
 
+  function getPrestige(charId) {
+    const units = get().inventario.unidades.filter(u => u.id === charId);
+    if (units.length === 0) return 0;
+    return Math.max(...units.map(u => u.prestige || 0));
+  }
+
+  function canPrestige(uid) {
+    const u = getUnitByUid(uid);
+    if (!u) return false;
+    if ((u.prestige || 0) >= 10) return false;
+    const char = typeof getCharById !== 'undefined' ? getCharById(u.id) : null;
+    const maxLevel = char?.max_level || 50;
+    return u.nivel >= maxLevel;
+  }
+
+  function doPrestige(uid) {
+    const d = get();
+    const u = d.inventario.unidades.find(x => x.uid === uid);
+    if (!u) return false;
+    if ((u.prestige || 0) >= 10) return false;
+    u.prestige = (u.prestige || 0) + 1;
+    u.nivel = 1;
+    u.xp_atual = 0;
+    if (d.stats) d.stats.prestígios_realizados = (d.stats.prestígios_realizados || 0) + 1;
+    save();
+    return true;
+  }
+
   return { load, save, get, reset, addUnit, addMaterial, removeUnit, removeUnitByUid,
            removeMaterial, getUnitData, getBestUnitData, getUnitByUid, getMaterialQty, getUnitQty,
            addGems, spendGems, addTickets, spendTickets, incStat, setStat,
-           markStageComplete, isStageComplete, getTeam, setTeam };
+           markStageComplete, isStageComplete, getTeam, setTeam,
+           getPrestige, canPrestige, doPrestige };
 })();

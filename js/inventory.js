@@ -309,7 +309,13 @@ const Inventory = (() => {
     const xpPct = unitData.nivel >= 50 ? 100 : Math.round((unitData.xp_atual / xpNeeded) * 100);
     const totalCopies = Save.getUnitQty(char.id);
     const passives = char.passive ? (Array.isArray(char.passive) ? char.passive : [char.passive]) : [];
-    const passiveHtml = passives.map(p => `<div class="passive-tag">⚡ ${p.label}</div>`).join('');
+    const prestigeLevel = unitData.prestige || 0;
+    const pp = char.prestige_passives;
+    const prestigeActiveHtml = pp ? [1,5,10].filter(t => prestigeLevel >= t && pp[t])
+      .map(t => `<div class="passive-tag" style="border-left:3px solid #fbbf24;padding-left:6px">✦ ${pp[t].label}</div>`).join('') : '';
+    const prestigeFutureHtml = pp ? [1,5,10].filter(t => prestigeLevel < t && pp[t])
+      .map(t => `<div class="passive-tag" style="opacity:0.38;border-left:3px solid rgba(251,191,36,0.4);padding-left:6px">🔒 P${t === 1 ? 'I' : t === 5 ? 'V' : 'X'}: ${pp[t].label}</div>`).join('') : '';
+    const passiveHtml = passives.map(p => `<div class="passive-tag">⚡ ${p.label}</div>`).join('') + prestigeActiveHtml + prestigeFutureHtml;
 
     const headerHtml = `
       <div class="detail-header">
@@ -349,20 +355,56 @@ const Inventory = (() => {
           <button class="btn btn-feed" onclick="Inventory.openFeed('${uid}')">🍖 Alimentar</button>
         </div>`;
     } else {
+      const prestigeLevel = unitData.prestige || 0;
+      const canPrestige   = unitData.nivel >= (char.max_level || 50) && prestigeLevel < 10;
+      const prestigeHtml  = `
+        <div class="prestige-section" style="margin-top:10px;padding:10px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,${canPrestige?'0.35':'0.12'});border-radius:8px;">
+          <div style="font-size:11px;font-weight:700;color:${canPrestige?'#fbbf24':'rgba(255,215,0,0.4)'};letter-spacing:0.06em;margin-bottom:6px;">
+            ✦ PRESTÍGIO ${prestigeLevel > 0 ? `— Nível ${prestigeLevel}` : ''}
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:8px;">
+            ${prestigeLevel >= 10
+              ? '✦ Prestígio máximo atingido. Poder absoluto!'
+              : canPrestige
+                ? 'Unidade no nível máximo! Transmutar reseta para Lv1 e concede +20% dano e +6% alcance permanentes.'
+                : `Requer nível máximo (${char.max_level||50}). Atual: ${unitData.nivel}.`}
+          </div>
+          <button class="btn" style="width:100%;font-size:11px;background:${canPrestige?'rgba(255,215,0,0.18)':'rgba(255,255,255,0.05)'};color:${canPrestige?'#fbbf24':'rgba(255,255,255,0.25)'};border:1px solid ${canPrestige?'rgba(255,215,0,0.4)':'rgba(255,255,255,0.1)'};"
+            ${canPrestige?'':'disabled'}
+            onclick="Inventory.doPrestigeUnit('${uid}')">
+            ✦ Transmutar ${canPrestige?'(confirmar)':'(bloqueado)'}
+          </button>
+        </div>`;
+
       content.innerHTML = `${headerHtml}
         <div class="detail-stats">
           ${xpRowHtml}
+          ${prestigeLevel > 0 ? `<div class="stat-row" style="color:#fbbf24"><span>Prestígio</span><span>✦ ${prestigeLevel} (+${prestigeLevel*20}% dano)</span></div>` : ''}
           <div class="stat-row"><span>Dano</span><span>${Math.round(stats.damage)}</span></div>
           <div class="stat-row"><span>Alcance</span><span>${Math.round(stats.range)}</span></div>
           <div class="stat-row"><span>Vel. Ataque</span><span>${stats.attack_speed.toFixed(2)}/s</span></div>
           <div class="stat-row"><span>Tipo</span><span>${stats.type}</span></div>
           <div class="stat-row"><span>Custo Deploy</span><span>${char.deploy_cost} 💰</span></div>
         </div>
+        ${prestigeHtml}
         <div class="detail-actions">
           ${equipBtn}
           <button class="btn btn-feed" onclick="Inventory.openFeed('${uid}')">🍖 Alimentar</button>
         </div>`;
     }
+  }
+
+  function doPrestigeUnit(uid) {
+    if (!Save.canPrestige(uid)) { UI.toast('Unidade precisa estar no nível máximo!'); return; }
+    const u = Save.getUnitByUid(uid);
+    if (!u) return;
+    const char = getCharById(u.id);
+    const currentPrestige = u.prestige || 0;
+    if (!confirm(`Transmutar ${char?.name}?\n\nIsso irá:\n• Resetar para Lv1\n• Conceder Prestígio ${currentPrestige+1}\n• +${(currentPrestige+1)*20}% dano permanente\n\nEssa ação não pode ser desfeita.`)) return;
+    Save.doPrestige(uid);
+    UI.toast(`✦ ${char?.name} transmutado! Prestígio ${currentPrestige+1} ativo.`, 3500);
+    renderGrid();
+    openDetail(uid);
   }
 
   function closeDetail() {
@@ -622,6 +664,7 @@ const Inventory = (() => {
     openEvolution, closeEvolution, confirmEvolution,
     openFeed, closeFeed, confirmFeed, removeFeedSelected,
     openMaterialDetail, combineMaterial, combineMaxMaterial,
-    renderGrid, toggleTeam, renderTeamBar
+    renderGrid, toggleTeam, renderTeamBar,
+    doPrestigeUnit
   };
 })();

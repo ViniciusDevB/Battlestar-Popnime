@@ -27,6 +27,33 @@ const PATH_POINTS_W2 = [
   {x: 1044, y: 150}
 ];
 
+const PATH_POINTS_W3 = [
+  {x: -20,  y: 480},
+  {x: 140,  y: 480},
+  {x: 140,  y: 320},
+  {x: 340,  y: 320},
+  {x: 340,  y: 140},
+  {x: 580,  y: 140},
+  {x: 580,  y: 380},
+  {x: 800,  y: 380},
+  {x: 800,  y: 200},
+  {x: 1044, y: 200}
+];
+
+// Caminho especial do Modo Infinito — curva em S com 3 viradas
+const PATH_POINTS_INF = [
+  {x: -20,  y: 300},
+  {x: 170,  y: 300},
+  {x: 170,  y: 110},
+  {x: 430,  y: 110},
+  {x: 430,  y: 490},
+  {x: 660,  y: 490},
+  {x: 660,  y: 200},
+  {x: 870,  y: 200},
+  {x: 870,  y: 420},
+  {x: 1044, y: 420}
+];
+
 let PATH_POINTS = PATH_POINTS_W1;
 let PATH_LENGTH = 0;
 
@@ -48,6 +75,24 @@ const WORLDS = [
     description: 'Navegue pelos mares perigosos e enfrente piratas terríveis!',
     color: '#3498db',
     path: PATH_POINTS_W2
+  }
+  ,{
+    id: 'bleach', name: 'Soul Society',
+    unlocked: true,
+    completionStat: 'fases_bleach_completas',
+    stages: ['bl_fase1','bl_fase2','bl_fase3','bl_fase4'],
+    description: 'Adentre o mundo dos Shinigami. Enfrente Hollows, Arrancar e os temidos Menos!',
+    color: '#2980b9',
+    path: PATH_POINTS_W3
+  },
+  {
+    id: 'infinito', name: '♾ Modo Infinito',
+    unlocked: true,
+    completionStat: 'ondas_infinito',
+    stages: ['infinito_partida'],
+    description: 'Ondas sem fim. Dificuldade escala a cada tier. Farm de Star Experience e materiais raros. Máx 3 cópias por torre.',
+    color: '#8b5cf6',
+    path: PATH_POINTS_INF
   }
 ];
 

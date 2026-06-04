@@ -165,7 +165,6 @@ const ENEMY_SPECIAL_HANDLERS = {
   },
 
   // ── Shinra Tensei ─────────────────────────────────────────────────────────
-  // Template: habilidade periódica de boss — ativa efeito global em intervalo fixo.
   shinra_tensei: {
     init(enemy, def) {
       enemy.specialTimer    = def.specialInterval || 30;
@@ -176,6 +175,33 @@ const ENEMY_SPECIAL_HANDLERS = {
       if (enemy.specialTimer <= 0) {
         enemy.specialTimer = enemy.specialInterval;
         ctx.activateShinraTensei();
+      }
+    }
+  },
+
+  // ── Pain Boss (Shinra Tensei + Escudo de Rinnegan) ────────────────────────
+  pain_boss: {
+    init(enemy, def) {
+      enemy.specialTimer    = def.specialInterval || 30;
+      enemy.specialInterval = def.specialInterval || 30;
+      enemy.shieldHp        = 0;
+      enemy.maxShieldHp     = 0;
+      enemy.shieldCooldown  = 10 + Math.random() * 10;
+    },
+    onUpdate(enemy, dt, ctx) {
+      enemy.specialTimer -= dt;
+      if (enemy.specialTimer <= 0) {
+        enemy.specialTimer = enemy.specialInterval;
+        ctx.activateShinraTensei();
+      }
+      if (enemy.shieldHp <= 0) {
+        enemy.shieldCooldown -= dt;
+        if (enemy.shieldCooldown <= 0) {
+          enemy.maxShieldHp    = 4000 + Math.floor(Math.random() * 2000);
+          enemy.shieldHp       = enemy.maxShieldHp;
+          enemy.shieldCooldown = 15 + Math.random() * 15;
+          ctx.toast('🛡 Pain invocou um escudo de Rinnegan!', 3000);
+        }
       }
     }
   },
@@ -364,7 +390,7 @@ const ENEMY_DEFS = {
     hp:20000, speed:38, gold:1260,
     ptype:'powerful3', req:3, size:44, col:'#922b21', image: 'assets/inimigos/world1/Pain.png',
     is_boss:true,
-    special:'shinra_tensei', specialInterval:30,
+    special:'pain_boss', specialInterval:30,
     on_death:{ type:'caminho_animal', count:3 }
   },
 
@@ -450,7 +476,45 @@ const ENEMY_DEFS = {
   },
   akainu: {
     id:'akainu', name:'Akainu', hp:50000, speed:40, gold:2500, ptype:'powerful3', req:3, size:48, col:'#c0392b', is_boss:true, special:'explosion', explosionRadius:150, explosionStun:2, image:'assets/inimigos/world2/Akainu.png'
-  }
+  },
+
+  // ═══════════════════════════════════════════════
+  //  MUNDO 3 — BLEACH
+  // ═══════════════════════════════════════════════
+  hollow_pequeno: {
+    id:'hollow_pequeno', name:'Hollow Pequeno',
+    hp:900, speed:95, gold:38,
+    ptype:'normal', req:0, size:18, col:'#78909c', image:'assets/inimigos/world3/Hollow Pequeno.png'
+  },
+  hollow_grande: {
+    id:'hollow_grande', name:'Hollow Grande',
+    hp:1800, speed:70, gold:80,
+    ptype:'normal', req:0, size:26, col:'#546e7a', image:'assets/inimigos/world3/Hollow Grande.png'
+  },
+  hollow_mascara: {
+    id:'hollow_mascara', name:'Hollow Mascarado',
+    hp:3200, speed:58, gold:140,
+    ptype:'powerful1', req:1, size:30, col:'#37474f', image:'assets/inimigos/world3/Hollow Mascarado.png'
+  },
+  arrancar: {
+    id:'arrancar', name:'Arrancar',
+    hp:2800, speed:82, gold:120,
+    ptype:'powerful1', req:1, size:24, col:'#b0bec5', image:'assets/inimigos/world3/Arrancar.png'
+  },
+  espada_decima: {
+    id:'espada_decima', name:'Espada Décima',
+    hp:10000, speed:45, gold:520,
+    ptype:'powerful2', req:2, size:36, col:'#607d8b', image:'assets/inimigos/world3/Espada.png',
+    is_miniboss:true,
+    on_death:{ type:'hollow_pequeno', count:4 }
+  },
+  menos_grande: {
+    id:'menos_grande', name:'Menos Grande',
+    hp:28000, speed:32, gold:1600,
+    ptype:'powerful3', req:3, size:50, col:'#1c2833', image:'assets/inimigos/world3/Menos Grande.png',
+    is_boss:true,
+    special:'explosion', explosionRadius:180, explosionStun:3
+  },
 };
 
 let _enemyCounter = 0;

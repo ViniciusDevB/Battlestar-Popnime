@@ -459,9 +459,102 @@ const STAGES = [
       buildWave([{type:'op_marinha_capitao',count:6,gap:1.0}, {type:'op_marinha_elite',count:4,gap:1.0}, {type:'akainu',count:1,gap:0}])
     ]
   }
+  ,{
+    id: 'bl_fase1', name: 'Karakura Town', world: 'bleach',
+    drops: [
+      { id: 'shinigami_generico_1', chance: 70 },
+      { id: 'shinigami_generico_2', chance: 20 },
+      { id: 'shinigami_generico_3', chance: 8 }
+    ],
+    waves: [
+      buildWave([{type:'hollow_pequeno',count:6,gap:1.6}]),
+      buildWave([{type:'hollow_pequeno',count:8,gap:1.5}]),
+      buildWave([{type:'hollow_pequeno',count:9,gap:1.4}]),
+      buildWave([{type:'hollow_pequeno',count:10,gap:1.3}]),
+      buildWave([{type:'hollow_pequeno',count:12,gap:1.2}]),
+      buildWave([{type:'hollow_pequeno',count:10,gap:1.2},{type:'hollow_grande',count:2,gap:3.0}]),
+      buildWave([{type:'hollow_pequeno',count:10,gap:1.1},{type:'hollow_grande',count:3,gap:2.8}]),
+      buildWave([{type:'hollow_pequeno',count:8,gap:1.0},{type:'hollow_grande',count:4,gap:2.5}]),
+      buildWave([{type:'hollow_pequeno',count:6,gap:1.0},{type:'hollow_grande',count:6,gap:2.2}]),
+      buildWave([{type:'hollow_pequeno',count:4,gap:1.0},{type:'hollow_grande',count:4,gap:2.0},{type:'espada_decima',count:1,gap:0}])
+    ]
+  },
+  {
+    id: 'bl_fase2', name: 'Portão da Seireitei', world: 'bleach',
+    drops: [
+      { id: 'shinigami_generico_1', chance: 50 },
+      { id: 'shinigami_generico_2', chance: 30 },
+      { id: 'shinigami_generico_3', chance: 15 }
+    ],
+    waves: [
+      buildWave([{type:'hollow_grande',count:6,gap:1.6}]),
+      buildWave([{type:'hollow_grande',count:8,gap:1.5}]),
+      buildWave([{type:'hollow_grande',count:9,gap:1.4}]),
+      buildWave([{type:'hollow_grande',count:10,gap:1.3}]),
+      buildWave([{type:'hollow_grande',count:8,gap:1.3},{type:'hollow_mascara',count:2,gap:3.2}]),
+      buildWave([{type:'hollow_grande',count:8,gap:1.2},{type:'hollow_mascara',count:3,gap:3.0}]),
+      buildWave([{type:'hollow_grande',count:6,gap:1.1},{type:'hollow_mascara',count:4,gap:2.8}]),
+      buildWave([{type:'hollow_grande',count:6,gap:1.0},{type:'hollow_mascara',count:4,gap:2.5},{type:'arrancar',count:2,gap:2.0}]),
+      buildWave([{type:'hollow_grande',count:4,gap:1.0},{type:'hollow_mascara',count:4,gap:2.2},{type:'arrancar',count:4,gap:1.8}]),
+      buildWave([{type:'hollow_mascara',count:3,gap:1.2},{type:'arrancar',count:3,gap:1.8},{type:'espada_decima',count:1,gap:0}])
+    ]
+  },
+  {
+    id: 'bl_fase3', name: 'Las Noches', world: 'bleach',
+    drops: [
+      { id: 'shinigami_generico_2', chance: 30 },
+      { id: 'shinigami_generico_3', chance: 40 }
+    ],
+    waves: [
+      buildWave([{type:'hollow_mascara',count:8,gap:1.5}]),
+      buildWave([{type:'hollow_mascara',count:10,gap:1.4}]),
+      buildWave([{type:'hollow_mascara',count:8,gap:1.3},{type:'arrancar',count:3,gap:2.0}]),
+      buildWave([{type:'hollow_mascara',count:8,gap:1.2},{type:'arrancar',count:4,gap:1.8}]),
+      buildWave([{type:'hollow_mascara',count:6,gap:1.2},{type:'arrancar',count:5,gap:1.6}]),
+      buildWave([{type:'hollow_mascara',count:6,gap:1.1},{type:'arrancar',count:6,gap:1.4}]),
+      buildWave([{type:'arrancar',count:8,gap:1.3},{type:'espada_decima',count:2,gap:0}]),
+      buildWave([{type:'hollow_mascara',count:4,gap:1.0},{type:'arrancar',count:8,gap:1.2}]),
+      buildWave([{type:'arrancar',count:6,gap:1.1},{type:'espada_decima',count:2,gap:4.0},{type:'arrancar',count:4,gap:1.1}]),
+      buildWave([{type:'arrancar',count:5,gap:1.0},{type:'espada_decima',count:2,gap:3.5},{type:'menos_grande',count:1,gap:0}])
+    ]
+  },
+  {
+    id: 'bl_fase4', name: 'O Vazio', world: 'bleach', isBoss: true,
+    drops: [
+      { id: 'shinigami_generico_3', chance: 60 },
+      { id: 'rukia_kuchiki', chance: 0.15, pity: 200 }
+    ],
+    waves: [
+      buildWave([{type:'hollow_mascara',count:10,gap:1.4},{type:'arrancar',count:4,gap:1.8}]),
+      buildWave([{type:'hollow_mascara',count:12,gap:1.3},{type:'arrancar',count:5,gap:1.6}]),
+      buildWave([{type:'hollow_mascara',count:10,gap:1.2},{type:'arrancar',count:6,gap:1.5}]),
+      buildWave([{type:'hollow_mascara',count:8,gap:1.1},{type:'arrancar',count:8,gap:1.3}]),
+      buildWave([{type:'arrancar',count:10,gap:1.2},{type:'espada_decima',count:2,gap:4.0}]),
+      buildWave([{type:'arrancar',count:12,gap:1.0},{type:'espada_decima',count:2,gap:3.5}]),
+      buildWave([{type:'arrancar',count:8,gap:1.0},{type:'espada_decima',count:3,gap:3.0}]),
+      buildWave([{type:'arrancar',count:6,gap:1.0},{type:'espada_decima',count:3,gap:2.8},{type:'menos_grande',count:1,gap:0}]),
+      buildWave([{type:'arrancar',count:8,gap:1.0},{type:'espada_decima',count:4,gap:2.5}]),
+      buildWave([{type:'espada_decima',count:3,gap:3.0},{type:'arrancar',count:5,gap:1.0},{type:'menos_grande',count:2,gap:0}])
+    ]
+  },
+  {
+    id: 'infinito_partida',
+    name: '♾ Modo Infinito',
+    world: 'infinito',
+    isInfinite: true,
+    base_hp: 20,
+    drops: [
+      { id: 'star_exp_1', chance: 55 },
+      { id: 'star_exp_2', chance: 28 },
+      { id: 'star_exp_3', chance: 12 },
+      { id: 'star_exp_4', chance: 4 },
+      { id: 'star_exp_5', chance: 1 }
+    ],
+    waves: []
+  }
 ];
 
-function getStage(id) { 
+function getStage(id) {
   let s = STAGES.find(s => s.id === id);
   if (s) return s;
   if (typeof EVENTS_DATA !== 'undefined') {

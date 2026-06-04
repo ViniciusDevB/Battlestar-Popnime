@@ -74,7 +74,7 @@ const EVENTS_DATA = [
         world: 'naruto',
         difficulty: 'hard',
         story: 'Pain aparece, tendo absorvido a energia da anomalia pelos Seis Caminhos do Rinnegan. Ele revela que não agiu por conta própria: serve a um ser de um terceiro mundo — Aizen Sousuke — que está deliberadamente rasgando as fronteiras entre dimensões. A batalha é devastadora: meteoros caem sobre as posições defensivas e um Shinra Tensei global paralisa tudo no campo. Ao ser derrotado, Pain entrega um aviso final: "O que Aizen está construindo ultrapassa qualquer destruição que eu já causei. Quando ele terminar, não haverá mundo separado para ninguém fugir." A Equipe Popnime nasce aqui — com um nome, um inimigo e um objetivo.',
-        description: '⚠️ A cada 20s: Pain invoca meteoros (stun 8s nas torres atingidas) + Shinra Tensei global (empurra inimigos + stun 2.5s em todas as torres).',
+        description: '⚠️ A cada 20s: meteoros (stun 1-5s aleatório por torre) + Shinra Tensei (stun 1-5s por torre, empurra inimigos). Torres têm 5s de imunidade após serem stunadas. Pain invoca escudos de Rinnegan aleatoriamente — destrua-os para atingir sua vida!',
         modifiers: {
           meteors_and_shinra: true
         },

@@ -15,6 +15,8 @@ const Game = (() => {
   let shinraTenseiActive, shinraTenseiTimer, stageModifierTimer;
   let stage, team;
   let difficulty;
+  let _gojoBuffedSet = new Set();
+  let isInfiniteMode = false;
 
   // Stats tracking per session
   let sessionDmg = 0, sessionKills = 0, sessionTowersPlaced = 0;
@@ -61,9 +63,12 @@ const Game = (() => {
     // ── Dispatchers ────────────────────────────────────────────────────────
     _getPassives(tower) {
       const p = tower.charData?.passive;
-      if (!p) return [];
-      if (Array.isArray(p)) return p;
-      return [p];
+      const base = !p ? [] : (Array.isArray(p) ? [...p] : [p]);
+      const pp = tower.charData?.prestige_passives;
+      if (pp && (tower.prestige || 0) > 0) {
+        [1, 5, 10].forEach(t => { if (tower.prestige >= t && pp[t]) base.push(pp[t]); });
+      }
+      return base;
     },
     onUpdate(tower, dt) {
       this._getPassives(tower).forEach(p => this[p.type]?.update?.(tower, p, dt));
@@ -115,7 +120,7 @@ const Game = (() => {
         if (t === attackingTower || t.disabled) return;
         this._getPassives(t).forEach(p => {
           const h = this[p.type];
-          if (h?.isAura && h.auraEffect) d = h.auraEffect(t, p, attackingTower, d);
+          if (h?.isAura && h.auraEffect) d = h.auraEffect(t, p, attackingTower, d, enemy);
         });
       });
       return d;
@@ -371,6 +376,318 @@ const Game = (() => {
       }
     },
 
+    // ── Bleach: Passivas Novas ──────────────────────────────────────────────
+
+    // Rukia / Toshiro — chance de congelar o alvo a cada acerto
+    freeze_on_hit: {
+      onHit(tower, p, enemy, dmg) {
+        const chance = getPassiveValue(tower, 'chance', p.chance || 0.25);
+        const dur    = getPassiveValue(tower, 'duration', p.duration || 2);
+        if (Math.random() < chance) {
+          applyStatus(enemy, 'freeze', { duration: dur, slow_pct: 0.6 });
+          addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:22, color:'#7dd3fc', timer:0.3, maxTimer:0.3, r:0 });
+        }
+        return dmg;
+      }
+    },
+
+    // Renji — stacks de veneno, estoura a cada N acertos no mesmo inimigo
+    snake_venom: {
+      onHit(tower, p, enemy, dmg) {
+        enemy._venomStacks = (enemy._venomStacks || 0) + 1;
+        const thresh = getPassiveValue(tower, 'stacks', p.stacks || 5);
+        if (enemy._venomStacks >= thresh) {
+          enemy._venomStacks = 0;
+          const burst = getTowerStats(tower).damage * (p.burstMult || 4.5);
+          addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:28, color:'#7c3aed', timer:0.35, maxTimer:0.35, r:0 });
+          return dmg + burst;
+        }
+        return dmg;
+      }
+    },
+
+    // Chad — dano multiplicado contra bosses e minibosses
+    boss_slayer: {
+      onHit(tower, p, enemy, dmg) {
+        if (enemy.is_boss || enemy.is_miniboss) return dmg * (p.mult || 2.2);
+        return dmg;
+      }
+    },
+
+    // Orihime — aura que mantém stunCooldown alto em torres vizinhas (imunidade passiva)
+    santen_kesshun: {
+      isAura: false,
+      update(tower, p, dt) {
+        if (tower.disabled) return;
+        const radius = p.radius || 145;
+        towers.forEach(t => {
+          if (t === tower) return;
+          if (dist2d(t.x, t.y, tower.x, tower.y) <= radius && (t.miniStunTimer || 0) <= 0) {
+            t.stunCooldown = Math.max(t.stunCooldown || 0, 8);
+          }
+        });
+      }
+    },
+
+    // Byakuya — ao matar, pétalas causam dano em área ao redor do inimigo morto
+    petal_mark: {
+      onKill(tower, p, enemy) {
+        const r    = p.splashRadius || 95;
+        const dmg  = getTowerStats(tower).damage * (p.splashMult || 1.3);
+        enemies.forEach(e => {
+          if (!e.dead && !e.reached_end && e !== enemy && dist2d(e.x, e.y, enemy.x, enemy.y) <= r) {
+            dealDamage(tower, e, dmg);
+          }
+        });
+        addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:r, color:'#f48fb1', timer:0.4, maxTimer:0.4, r:0 });
+      }
+    },
+
+    // Kenpachi — cada kill adiciona stack permanente de dano (até maxStacks)
+    berserker: {
+      onHit(tower, p, enemy, dmg) {
+        const stacks = tower.berserkerStacks || 0;
+        return stacks > 0 ? dmg * (1 + stacks * (p.dmgPerStack || 0.06)) : dmg;
+      },
+      onKill(tower, p, enemy) {
+        const max = p.maxStacks || 40;
+        tower.berserkerStacks = Math.min((tower.berserkerStacks || 0) + 1, max);
+      },
+      renderBadge(tower, p) {
+        const stacks = tower.berserkerStacks || 0;
+        if (stacks === 0) return null;
+        const max = p.maxStacks || 40;
+        return { text: `${stacks}/${max}`, color: `rgba(239,68,68,${0.55 + (stacks/max)*0.45})` };
+      }
+    },
+
+    // Ichigo Bankai — aura que amplifica dano de todas as torres em inimigos no seu alcance
+    bankai_pressure: {
+      isAura: true,
+      auraEffect(auraTower, p, attackingTower, dmg, enemy) {
+        if (!enemy || auraTower.disabled) return dmg;
+        const range = getTowerStats(auraTower).range;
+        if (dist2d(enemy.x, enemy.y, auraTower.x, auraTower.y) <= range) {
+          return dmg * (p.mult || 1.55);
+        }
+        return dmg;
+      }
+    },
+
+    // Ichigo Vizard — cada 3º ataque vira AOE; imunidade total a stun
+    hollow_sync: {
+      update(tower, p, dt) {
+        // Imunidade permanente a stun
+        tower.stunCooldown = Math.max(tower.stunCooldown || 0, 5);
+        if ((tower.miniStunTimer || 0) > 0) {
+          tower.miniStunTimer = 0;
+          if (!shinraTenseiActive) tower.disabled = false;
+        }
+      },
+      beforeAttack(tower, p, stats) {
+        tower._hollowSyncCount = ((tower._hollowSyncCount || 0) + 1);
+        if (tower._hollowSyncCount >= 3) {
+          tower._hollowSyncCount = 0;
+          addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:stats.range * 0.6, color:'#fb923c', timer:0.25, maxTimer:0.25, r:0 });
+          return { ...stats, type: 'aoe' };
+        }
+        return stats;
+      }
+    },
+
+    // ── Passivas de Prestígio ───────────────────────────────────────────────
+
+    // Ataque encadeia para 1-2 inimigos próximos (relâmpago, serpente, etc.)
+    arc_chain: {
+      afterAttack(tower, p, hitEnemies, attackType, stats) {
+        if (hitEnemies.length === 0) return;
+        const r   = p.chain_r   || 75;
+        const dmg = stats.damage * (p.chain_mult || 0.5);
+        const max = p.chains    || 1;
+        const hit = new Set(hitEnemies.map(e => e.uid));
+        let last = hitEnemies[0];
+        for (let i = 0; i < max; i++) {
+          const next = enemies.find(e => !e.dead && !e.reached_end && !hit.has(e.uid)
+            && dist2d(e.x, e.y, last.x, last.y) <= r && effectiveCanDamage(tower, e));
+          if (!next) break;
+          hit.add(next.uid);
+          dealDamage(tower, next, dmg);
+          addEffect({ type:'line', x:last.x, y:last.y, tx:next.x, ty:next.y,
+            color:RARITY_COLORS[tower.rarity], timer:0.18, maxTimer:0.18 });
+          last = next;
+        }
+      }
+    },
+
+    // Chance de crítico explosivo — acerto dá dano extra + splash em área
+    crit_splash: {
+      onHit(tower, p, enemy, dmg) {
+        if (Math.random() < (p.crit_chance || 0.20)) {
+          const r = p.splash_r || 60;
+          enemies.forEach(e => {
+            if (e !== enemy && !e.dead && !e.reached_end
+                && dist2d(e.x, e.y, enemy.x, enemy.y) <= r && effectiveCanDamage(tower, e)) {
+              dealDamage(tower, e, dmg * (p.splash_mult || 0.45));
+            }
+          });
+          addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:r,
+            color:RARITY_COLORS[tower.rarity], timer:0.3, maxTimer:0.3, r:0 });
+          return dmg * (p.crit_mult || 2.0);
+        }
+        return dmg;
+      }
+    },
+
+    // Acumula ataques; no Nº ataque dispara super-golpe multiplicado
+    spirit_surge: {
+      beforeAttack(tower, p, stats) {
+        tower._surgeCount = (tower._surgeCount || 0) + 1;
+        if (tower._surgeCount >= (p.trigger_at || 5)) {
+          tower._surgeCount = 0;
+          addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:stats.range * 0.55,
+            color:RARITY_COLORS[tower.rarity], timer:0.28, maxTimer:0.28, r:0 });
+          return { ...stats, damage: stats.damage * (p.mult || 3.5) };
+        }
+        return stats;
+      },
+      renderBadge(tower, p) {
+        const c = tower._surgeCount || 0;
+        const t = p.trigger_at || 5;
+        if (c === 0) return null;
+        return { text: `${c}/${t}▲`, color: `rgba(251,191,36,${0.4 + c/t * 0.6})` };
+      }
+    },
+
+    // Nº ataque acerta TODOS os inimigos no alcance (ataque fantasma)
+    phantom_strike: {
+      afterAttack(tower, p, hitEnemies, attackType, stats) {
+        tower._phantomCount = (tower._phantomCount || 0) + 1;
+        if (tower._phantomCount >= (p.trigger_at || 7)) {
+          tower._phantomCount = 0;
+          const range = getTowerStats(tower).range;
+          const pdmg  = stats.damage * (p.phantom_mult || 1.5);
+          enemies.forEach(e => {
+            if (!e.dead && !e.reached_end && dist2d(e.x, e.y, tower.x, tower.y) <= range
+                && effectiveCanDamage(tower, e)) {
+              dealDamage(tower, e, pdmg);
+            }
+          });
+          addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:range,
+            color:'rgba(200,180,255,0.85)', timer:0.38, maxTimer:0.38, r:0 });
+        }
+      },
+      renderBadge(tower, p) {
+        const c = tower._phantomCount || 0;
+        const t = p.trigger_at || 7;
+        if (c === 0) return null;
+        return { text: `${c}/${t}◆`, color: 'rgba(167,139,250,0.85)' };
+      }
+    },
+
+    // Kill → triplica velocidade de ataque por alguns segundos
+    kill_frenzy: {
+      onKill(tower, p, enemy) {
+        tower._frenzyTimer = p.duration  || 3;
+        tower._frenzyMult  = p.speed_mult || 2.5;
+        tower.attackTimer  = Math.min(tower.attackTimer || 9999, 0.12);
+      },
+      update(tower, p, dt) {
+        if ((tower._frenzyTimer || 0) > 0)
+          tower._frenzyTimer = Math.max(0, tower._frenzyTimer - dt);
+      },
+      renderBadge(tower, p) {
+        if ((tower._frenzyTimer || 0) <= 0) return null;
+        return { text: `${tower._frenzyMult||2.5}× SPD`, color: 'rgba(239,68,68,0.88)' };
+      }
+    },
+
+    // Dano escala com a quantidade de inimigos vivos no campo
+    battle_rage: {
+      beforeAttack(tower, p, stats) {
+        const n    = enemies.filter(e => !e.dead && !e.reached_end).length;
+        const mult = 1 + Math.min(n * (p.per_enemy || 0.025), p.max_bonus || 0.5);
+        return { ...stats, damage: stats.damage * mult };
+      },
+      renderBadge(tower, p) {
+        const n = enemies.filter(e => !e.dead && !e.reached_end).length;
+        if (n === 0) return null;
+        const pct = Math.round(Math.min(n * (p.per_enemy||0.025), p.max_bonus||0.5) * 100);
+        return { text: `+${pct}% RAGE`, color: 'rgba(251,113,133,0.85)' };
+      }
+    },
+
+    // Qualquer kill de aliado no alcance dá ouro bônus (suporte)
+    gold_detector: {
+      onAnyKill(tower, p, deadEnemy) {
+        if (tower.isClone || tower.disabled) return;
+        if (dist2d(tower.x, tower.y, deadEnemy.x, deadEnemy.y) <= getTowerStats(tower).range) {
+          gold += p.bonus || 8;
+          updateHUD();
+        }
+      }
+    },
+
+    // Aura global: todas as torres causam X% mais dano
+    field_commander: {
+      isAura: true,
+      auraEffect(auraTower, p, attackingTower, dmg, enemy) {
+        if (auraTower.disabled) return dmg;
+        return dmg * (1 + (p.bonus || 0.12));
+      }
+    },
+
+    // Chance de acertar o mesmo alvo uma segunda vez (menor dano)
+    echo_strike: {
+      afterAttack(tower, p, hitEnemies, attackType, stats) {
+        if (hitEnemies.length === 0 || Math.random() >= (p.chance || 0.12)) return;
+        const target = hitEnemies[0];
+        if (!target.dead && !target.reached_end && effectiveCanDamage(tower, target)) {
+          dealDamage(tower, target, stats.damage * (p.dmg_mult || 0.5));
+          addEffect({ type:'ring', x:target.x, y:target.y, maxR:14, color:RARITY_COLORS[tower.rarity], timer:0.18, maxTimer:0.18, r:0 });
+        }
+      }
+    },
+
+    // Dano multiplicado contra inimigos com HP abaixo do limiar
+    execute: {
+      onHit(tower, p, enemy, dmg) {
+        if (enemy.hp / enemy.maxHp <= (p.threshold || 0.25)) {
+          addEffect({ type:'crit', x:enemy.x, y:enemy.y, color:'#ef4444', timer:0.3, maxTimer:0.3 });
+          return dmg * (p.mult || 1.7);
+        }
+        return dmg;
+      }
+    },
+
+    // Pulso periódico de dano em área ao redor da torre
+    damage_pulse: {
+      update(tower, p, dt) {
+        if (tower.disabled) return;
+        tower._pulseTimer = (tower._pulseTimer || 0) + dt;
+        if (tower._pulseTimer >= (p.interval || 5)) {
+          tower._pulseTimer = 0;
+          const stats = getTowerStats(tower);
+          const dmg   = stats.damage * (p.dmg_mult || 0.35);
+          const range = stats.range   * 0.85;
+          enemies.forEach(e => {
+            if (!e.dead && !e.reached_end && dist2d(e.x, e.y, tower.x, tower.y) <= range) {
+              dealDamage(tower, e, dmg);
+            }
+          });
+          addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:range, color:RARITY_COLORS[tower.rarity], timer:0.32, maxTimer:0.32, r:0 });
+        }
+      }
+    },
+
+    // Ouro fixo por wave (exclusivo de unidades farm no prestígio)
+    prestige_gold: {
+      onWaveEnd(tower, p) {
+        if (tower.isClone) return;
+        const bonus = p.bonus || 0;
+        if (bonus > 0) { gold += bonus; updateHUD(); }
+      }
+    },
+
     none: {}
   };
 
@@ -488,6 +805,42 @@ const Game = (() => {
       }
     },
 
+    // Alias: single é equivalente a single_target (compatibilidade de dados)
+    single: {
+      execute(tower, stats, inRange) { return ATTACK_TYPE_HANDLERS.single_target.execute(tower, stats, inRange); },
+      effect(tower, stats, hitEnemies) { return ATTACK_TYPE_HANDLERS.single_target.effect(tower, stats, hitEnemies); }
+    },
+
+    // Pierce (Uryu) — ataca os 3 inimigos mais próximos com flechas independentes
+    pierce: {
+      execute(tower, stats, inRange) {
+        const sorted = [...inRange].sort((a, b) => dist2d(tower.x, tower.y, a.x, a.y) - dist2d(tower.x, tower.y, b.x, b.y));
+        const targets = sorted.slice(0, 3).filter(e => effectiveCanDamage(tower, e));
+        targets.forEach(e => dealDamage(tower, e, stats.damage));
+        return targets;
+      },
+      effect(tower, stats, hitEnemies) {
+        hitEnemies.forEach(e => {
+          addEffect({ type:'line', x:tower.x, y:tower.y, tx:e.x, ty:e.y, color:'#93c5fd', timer:0.18, maxTimer:0.18 });
+        });
+      }
+    },
+
+    // Scatter (Byakuya) — atinge todos os inimigos no alcance com 65% de dano
+    scatter: {
+      execute(tower, stats, inRange) {
+        const hits = [];
+        inRange.forEach(e => {
+          if (effectiveCanDamage(tower, e)) { dealDamage(tower, e, stats.damage * 0.65); hits.push(e); }
+        });
+        return hits;
+      },
+      effect(tower, stats, hitEnemies) {
+        if (hitEnemies.length === 0) return;
+        addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:stats.range * 0.85, color:'#f9a8d4', timer:0.28, maxTimer:0.28, r:0 });
+      }
+    },
+
     // Template: AOE sem restrição de req (versão premium do aoe).
     aoe_full: {
       execute(tower, stats, inRange) {
@@ -508,9 +861,112 @@ const Game = (() => {
   let hoverX = 0, hoverY = 0;
 
   function getDifficultyMults() {
+    if (isInfiniteMode) return getInfiniteWaveMults(wave);
     if (difficulty === 'dificil')  return { hp: 1.5, gold: 1.2 };
     if (difficulty === 'lendario') return { hp: 2.2, gold: 1.4 };
     return { hp: 1.0, gold: 1.0 };
+  }
+
+  // ── Modo Infinito ──────────────────────────────────────────────────────────
+
+  const INFINITE_TIERS = [
+    { name:'Fácil',          minWave:1,  maxWave:20,  color:'#4ade80', hp:1.0,  gold:1.0 },
+    { name:'Médio',          minWave:21, maxWave:30,  color:'#facc15', hp:1.8,  gold:1.2 },
+    { name:'Difícil',        minWave:31, maxWave:40,  color:'#f97316', hp:3.2,  gold:1.4 },
+    { name:'Muito Difícil',  minWave:41, maxWave:50,  color:'#ef4444', hp:5.5,  gold:1.6 },
+    { name:'Extremo',        minWave:51, maxWave:60,  color:'#dc2626', hp:9.0,  gold:1.8 },
+    { name:'Brutal',         minWave:61, maxWave:70,  color:'#9333ea', hp:15.0, gold:2.0 },
+    { name:'Lendário',       minWave:71, maxWave:80,  color:'#c084fc', hp:25.0, gold:2.3 },
+    { name:'Além do Limite', minWave:81, maxWave:Infinity, color:'#f0abfc', hp:40.0, gold:2.6 }
+  ];
+
+  function getInfiniteTierIdx(waveNum) {
+    if (waveNum <= 20) return 0;
+    if (waveNum <= 30) return 1;
+    if (waveNum <= 40) return 2;
+    if (waveNum <= 50) return 3;
+    if (waveNum <= 60) return 4;
+    if (waveNum <= 70) return 5;
+    if (waveNum <= 80) return 6;
+    return 7;
+  }
+
+  function getInfiniteWaveMults(waveNum) {
+    const idx = getInfiniteTierIdx(waveNum);
+    const tier = INFINITE_TIERS[idx];
+    // Tier 7+ continua escalando a cada 10 waves
+    let hp = tier.hp;
+    if (idx === 7 && waveNum > 80) hp = 40 + Math.floor((waveNum - 81) / 10) * 8;
+    return { hp, gold: tier.gold };
+  }
+
+  function generateInfiniteWave(waveNum) {
+    const POOLS = [
+      ['ninja_comum','ninja_comum','ninja_ambu','serpente'],
+      ['ninja_ambu','agente_ambu','op_bandido','op_pirata_comum','serpente'],
+      ['agente_ambu','op_pirata_veterano','hollow_pequeno','hollow_grande','boa_constritora'],
+      ['op_homem_peixe','hollow_mascara','arrancar','caminho_animal','ninja_chuva'],
+      ['caminho_humano','op_cp9_oficial','hollow_mascara','arrancar','ninja_chuva'],
+      ['caminho_asura','op_marinha_capitao','espada_decima','akatsuki_chuva','ninja_chuva_veloz'],
+      ['op_marinha_elite','espada_decima','caminho_asura','menos_grande'],
+      ['op_marinha_elite','espada_decima','menos_grande','caminho_deus_animal']
+    ];
+    const tierIdx = Math.min(getInfiniteTierIdx(waveNum), 7);
+    const cur  = POOLS[tierIdx];
+    const prev = tierIdx > 0 ? POOLS[tierIdx - 1] : cur;
+    const pool = [...cur, ...prev.slice(0, 2)];
+
+    const count = Math.floor(10 + waveNum * 0.85);
+    const gap   = Math.max(0.35, 1.6 - tierIdx * 0.18 - (waveNum % 10) * 0.015);
+
+    const queue = [];
+    let t = 0;
+    for (let i = 0; i < count; i++) {
+      queue.push({ type: pool[Math.floor(Math.random() * pool.length)], delay: t });
+      t += gap;
+    }
+
+    // Miniboss a cada 10 waves
+    if (waveNum % 10 === 0) {
+      const MB = ['deidara','itachi_uchiha','sasuke_taka','konan','caminho_deus_animal','espada_decima','menos_grande'];
+      queue.push({ type: MB[Math.min(Math.floor(waveNum / 10) - 1, MB.length - 1)], delay: t + 2 });
+    }
+    // Boss a cada 30 waves
+    if (waveNum % 30 === 0) {
+      const BS = ['pain','akainu','menos_grande'];
+      queue.push({ type: BS[Math.min(Math.floor(waveNum / 30) - 1, BS.length - 1)], delay: t + 5 });
+    }
+    return queue;
+  }
+
+  function giveInfiniteReward(waveNum) {
+    // Registra recorde
+    const best = Save.get().stats.melhor_onda_infinita || 0;
+    if (waveNum > best) Save.setStat('melhor_onda_infinita', waveNum);
+
+    // Gems por milestone (a cada 5 waves)
+    const tierIdx = getInfiniteTierIdx(waveNum);
+    const gemTable = [15, 25, 40, 60, 85, 115, 150, 200];
+    const gems = gemTable[Math.min(tierIdx, 7)];
+    Save.addGems(gems);
+    UI.updateCurrencyDisplay();
+    UI.toast(`🏆 Milestone Wave ${waveNum}! +${gems}💎`, 3500);
+  }
+
+  // Drop independente de Star Experience por wave — cada nível tem chance própria
+  // Fórmula: chance_i(wave) = min(100, wave / 30 × base_i)
+  // Na wave 30: SE1=10%, SE2=5%, SE3=2%, SE4=1%, SE5=0.5%
+  function rollInfiniteStarExp(waveNum) {
+    const BASE_AT_30 = [10, 5, 2, 1, 0.5]; // % para cada nível na wave 30
+    const dropped = [];
+    BASE_AT_30.forEach((base, i) => {
+      const chance = Math.min(100, (waveNum / 30) * base);
+      if (Math.random() * 100 < chance) dropped.push(i + 1);
+    });
+    if (dropped.length === 0) return;
+    dropped.forEach(lv => Save.addMaterial(`star_exp_${lv}`, 1));
+    const label = dropped.map(lv => `SE Nv${lv}`).join(' + ');
+    UI.toast(`✨ Star Experience: ${label}`, 2500);
   }
 
   // Retorna o valor mais recente de um campo de passive_override nos upgrades comprados
@@ -587,10 +1043,11 @@ const Game = (() => {
     }
 
     // Reset state
+    isInfiniteMode = !!(stage.isInfinite);
     lives = stage.base_hp || 20;
-    gold = 300;
+    gold = isInfiniteMode ? 400 : 300;
     wave = 0;
-    totalWaves = stage.waves.length;
+    totalWaves = isInfiniteMode ? Infinity : stage.waves.length;
     activeWavesCount = 1;
     enemies = [];
     towers = [];
@@ -610,6 +1067,7 @@ const Game = (() => {
     waveElapsed = 0;
     sessionDmg = 0; sessionKills = 0; sessionTowersPlaced = 0;
     sessionMinibosses = 0; sessionBossKilled = false;
+    _gojoBuffedSet = new Set();
 
     // Free placement (no slots)
 
@@ -711,45 +1169,58 @@ const Game = (() => {
       targets.push({x: CANVAS_W/2, y: CANVAS_H/2});
     }
 
-    // Aplica os meteoros e stuns pesados
+    // Aplica os meteoros — stun aleatório 1-5s por torre, respeitando imunidade
     targets.forEach(pt => {
       addEffect({ type: 'meteor_strike', x: pt.x, y: pt.y, maxR: 90, color: '#f56565', timer: 1.0, maxTimer: 1.0, r: 0 });
       towers.forEach(t => {
-        if (dist2d(t.x, t.y, pt.x, pt.y) <= 90) {
-          t.miniStunTimer = Math.max((t.miniStunTimer || 0), 8); // 8s de stun pesado
+        if (dist2d(t.x, t.y, pt.x, pt.y) <= 90 && (t.stunCooldown || 0) <= 0) {
+          const stun = 1 + Math.random() * 4;
+          t.miniStunTimer = Math.max((t.miniStunTimer || 0), stun);
+          t.stunCooldown = stun + 5;
           t.disabled = true;
         }
       });
     });
 
-    // 2. Onda de Choque Shinra Tensei e empurrão
-    shinraTenseiActive = true;
-    shinraTenseiTimer = 2.5;
-    addEffect({ type:'shockwave', x: CANVAS_W/2, y: CANVAS_H/2, maxR: 800, color: '#e74c3c', timer: 0.8, maxTimer: 0.8, r: 0 });
-    
-    enemies.forEach(e => {
-      if (e.dead || e.reached_end) return;
-      e.dist += 40; // Empurra os inimigos 40px para frente
-      const pos = getPosOnPath(e.dist, e.pathArr);
-      e.x = pos.x; e.y = pos.y;
+    // 2. Onda de Choque Shinra Tensei — stun aleatório 1-5s por torre
+    let maxStun = 1;
+    towers.forEach(t => {
+      if ((t.stunCooldown || 0) <= 0) {
+        const stun = 1 + Math.random() * 4;
+        t.miniStunTimer = Math.max((t.miniStunTimer || 0), stun);
+        t.stunCooldown = stun + 5;
+        t.disabled = true;
+        if (stun > maxStun) maxStun = stun;
+      }
     });
 
-    // Mini-stun em torres que não foram pegas pelo meteoro
-    towers.forEach(t => {
-      if ((t.miniStunTimer || 0) < 2.5) {
-        t.miniStunTimer = 2.5;
-        t.disabled = true;
-      }
+    shinraTenseiActive = true;
+    shinraTenseiTimer = maxStun;
+    addEffect({ type:'shockwave', x: CANVAS_W/2, y: CANVAS_H/2, maxR: 800, color: '#e74c3c', timer: 0.8, maxTimer: 0.8, r: 0 });
+
+    enemies.forEach(e => {
+      if (e.dead || e.reached_end) return;
+      e.dist += 40;
+      const pos = getPosOnPath(e.dist, e.pathArr);
+      e.x = pos.x; e.y = pos.y;
     });
   }
 
   function startWave() {
     wave++;
     activeWavesCount = 1;
-    spawnQueue = [...stage.waves[wave - 1]];
+    spawnQueue = isInfiniteMode ? generateInfiniteWave(wave) : [...stage.waves[wave - 1]];
     waveElapsed = 0;
     waveActive = true;
     updateHUD();
+    // Notifica troca de tier no Modo Infinito
+    if (isInfiniteMode) {
+      const tier = INFINITE_TIERS[getInfiniteTierIdx(wave)];
+      const prev = INFINITE_TIERS[getInfiniteTierIdx(wave - 1)];
+      if (wave > 1 && tier !== prev) {
+        UI.toast(`⚡ NOVO NÍVEL: ${tier.name.toUpperCase()}`, 4000);
+      }
+    }
   }
 
   function skipWave() {
@@ -810,7 +1281,18 @@ const Game = (() => {
       // Status DoT
       const dot = updateEnemyStatus(e, dt);
       if (dot > 0) {
-        e.hp -= dot;
+        let remaining = dot;
+        if ((e.shieldHp || 0) > 0) {
+          const absorbed = Math.min(e.shieldHp, remaining);
+          e.shieldHp -= absorbed;
+          remaining -= absorbed;
+          if (e.shieldHp <= 0) {
+            e.shieldHp = 0;
+            addEffect({ type:'ring', x:e.x, y:e.y, maxR:60, color:'#60a5fa', timer:0.55, maxTimer:0.55, r:0 });
+            UI.toast('💥 O escudo de Pain foi destruído!', 2500);
+          }
+        }
+        e.hp -= remaining;
         if (e.hp <= 0) { killEnemy(e); toRemove.push(e); return; }
       }
 
@@ -859,16 +1341,26 @@ const Game = (() => {
           t.disabled = true;
         }
       }
+      if ((t.stunCooldown || 0) > 0) t.stunCooldown = Math.max(0, t.stunCooldown - dt);
       if (t.disabled) return;
       t.attackTimer -= dt;
       if (t.attackTimer <= 0) {
         const stats = getTowerStats(t);
         if (stats.type === 'none' || stats.attack_speed <= 0) { t.attackTimer = 9999; return; }
-        t.attackTimer = 1 / stats.attack_speed;
+        const frenzyMult = (t._frenzyTimer || 0) > 0 ? (t._frenzyMult || 1) : 1;
+        t.attackTimer = 1 / (stats.attack_speed * frenzyMult);
         tryAttack(t, stats);
       }
     });
     if (expired.length) towers = towers.filter(t => !expired.includes(t));
+    // Atualiza set de torres buffadas pela aura do Gojo (uma vez por tick, não por frame)
+    _gojoBuffedSet.clear();
+    towers.forEach(gt => {
+      const gp = gt.charData?.passive;
+      if (gp?.type !== 'damage_aura' || gt.disabled) return;
+      const gr = getTowerStats(gt).range;
+      towers.forEach(t => { if (t !== gt && dist2d(gt.x, gt.y, t.x, t.y) <= gr) _gojoBuffedSet.add(t); });
+    });
   }
 
   function effectiveCanDamage(tower, enemy) {
@@ -951,6 +1443,18 @@ const Game = (() => {
     // Auras de torres aliadas próximas
     dmg = PASSIVE_SYSTEM.applyAuras(tower, enemy, dmg);
 
+    if ((enemy.shieldHp || 0) > 0) {
+      const absorbed = Math.min(enemy.shieldHp, dmg);
+      enemy.shieldHp -= absorbed;
+      dmg -= absorbed;
+      if (enemy.shieldHp <= 0) {
+        enemy.shieldHp = 0;
+        addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:60, color:'#60a5fa', timer:0.55, maxTimer:0.55, r:0 });
+        UI.toast('💥 O escudo de Pain foi destruído!', 2500);
+      }
+      if (dmg <= 0) { enemy.hitFlash = 0.1; return; }
+    }
+
     enemy.hp -= dmg;
     enemy.hitFlash = 0.1;
     sessionDmg += dmg;
@@ -1027,11 +1531,20 @@ const Game = (() => {
   }
 
   function activateShinraTensei() {
+    let maxStun = 1;
+    towers.forEach(t => {
+      if ((t.stunCooldown || 0) <= 0) {
+        const stun = 1 + Math.random() * 4;
+        t.miniStunTimer = Math.max((t.miniStunTimer || 0), stun);
+        t.stunCooldown = stun + 5;
+        t.disabled = true;
+        if (stun > maxStun) maxStun = stun;
+      }
+    });
     shinraTenseiActive = true;
-    shinraTenseiTimer = 5;
-    towers.forEach(t => { t.disabled = true; });
+    shinraTenseiTimer = maxStun;
     addEffect({ type:'shockwave', x:400, y:240, maxR:600, color:'#e74c3c', timer:1.0, r:0 });
-    UI.toast('⚡ SHINRA TENSEI! Torres desativadas por 5s!', 5000);
+    UI.toast('⚡ SHINRA TENSEI! Torres stunadas aleatoriamente!', 4000);
   }
 
   function updateShinraTensei(dt) {
@@ -1057,7 +1570,14 @@ const Game = (() => {
       // Passiva onWaveEnd de cada torre (wave_gold, etc.)
       towers.forEach(t => PASSIVE_SYSTEM.onWaveEnd(t));
 
-      if (wave >= totalWaves) {
+      if (isInfiniteMode) {
+        // Drop independente de Star Experience toda wave
+        rollInfiniteStarExp(wave);
+        // Gems milestone a cada 5 waves
+        if (wave % 5 === 0) giveInfiniteReward(wave);
+        betweenWaves = true;
+        betweenTimer = 3;
+      } else if (wave >= totalWaves) {
         endGame(true);
       } else {
         betweenWaves = true;
@@ -1076,10 +1596,16 @@ const Game = (() => {
     if (sessionBossKilled) { Save.setStat('boss_pain_derrotado', 1); }
 
     if (!victory) {
+      if (isInfiniteMode) {
+        const best = Save.get().stats.melhor_onda_infinita || 0;
+        if (wave > best) Save.setStat('melhor_onda_infinita', wave);
+        Save.incStat('ondas_infinito', wave);
+      }
       Missions.check();
-      UI.showPostBattle({ victory: false });
+      UI.showPostBattle({ victory: false, infiniteWave: isInfiniteMode ? wave : 0 });
       return;
     }
+    if (isInfiniteMode) return; // modo infinito não tem vitória, apenas derrota
 
     // Victory rewards
     const gemMap = { normal:50, dificil:80, lendario:120 };
@@ -1202,6 +1728,9 @@ const Game = (() => {
     const unitData = Save.getBestUnitData(charId);
     if (!char || !unitData) return;
     if (gold < char.deploy_cost) { UI.toast('Ouro insuficiente!'); return; }
+    // Limite de 3 cópias da mesma unidade por partida
+    const copies = towers.filter(t => t.charId === charId && !t.isClone).length;
+    if (copies >= 3) { UI.toast(`Máximo de 3 cópias de ${char.name} no campo!`, 2000); return; }
 
     gold -= char.deploy_cost;
     sessionTowersPlaced++;
@@ -1212,7 +1741,8 @@ const Game = (() => {
       rarity: char.rarity, initials: char.initials,
       charData: char, level: unitData.nivel,
       upgradeLevel: 0, disabled: shinraTenseiActive,
-      attackTimer: 0, statusEffect: null, currentType: stats.type
+      attackTimer: 0, statusEffect: null, currentType: stats.type,
+      prestige: unitData.prestige || 0
     };
     towers.push(newTower);
     updateHUD();
@@ -1245,6 +1775,27 @@ const Game = (() => {
     if (passiveHtml) nameEl.insertAdjacentHTML('afterend', passiveHtml);
 
     optsEl.innerHTML = '';
+
+    // ── Status atuais da torre ─────────────────────────────────────────────
+    const typeLabels = {
+      single_target:'Alvo único', single:'Alvo único', linha:'Linha',
+      cone:'Cone', aoe:'Área', aoe_full:'Área total', pierce:'Perfura 3',
+      scatter:'Dispersão', none:'Sem ataque'
+    };
+    const frenzyMult   = (tower._frenzyTimer   || 0) > 0 ? ` ×${tower._frenzyMult||1} FRENZY` : '';
+    const surgeCount   = tower._surgeCount   != null ? ` (${tower._surgeCount}/${char?.prestige_passives?.[1]?.trigger_at || char?.prestige_passives?.[5]?.trigger_at || '?'})` : '';
+    const prestigeRow  = (tower.prestige || 0) > 0
+      ? `<div class="upg-stat-row" style="color:#fbbf24">✦ Prestígio ${tower.prestige} <span style="opacity:0.7">(+${tower.prestige*20}% dano, +${tower.prestige*6}% alc.)</span></div>`
+      : '';
+    const statsEl = document.createElement('div');
+    statsEl.className = 'upg-stats-block';
+    statsEl.innerHTML = `
+      <div class="upg-stat-row"><span>⚔ Dano</span><span>${Math.round(stats.damage)}</span></div>
+      <div class="upg-stat-row"><span>🎯 Alcance</span><span>${Math.round(stats.range)}px</span></div>
+      <div class="upg-stat-row"><span>⚡ Vel. Ataque</span><span>${stats.attack_speed.toFixed(2)}/s${frenzyMult}</span></div>
+      <div class="upg-stat-row"><span>🗡 Tipo</span><span>${typeLabels[stats.type] || stats.type}</span></div>
+      ${prestigeRow}`;
+    optsEl.appendChild(statsEl);
 
     // Active ability button (Gojo)
     if (char?.active_ability) {
@@ -1282,6 +1833,15 @@ const Game = (() => {
       optsEl.appendChild(div);
     });
 
+    // Indicador de MAX (todas as melhorias compradas)
+    const totalUpgrades = char?.upgrades?.length || 0;
+    if (totalUpgrades > 0 && tower.upgradeLevel >= totalUpgrades) {
+      const maxDiv = document.createElement('div');
+      maxDiv.style.cssText = 'text-align:center;padding:8px 0;color:#fbbf24;font-size:11px;font-weight:700;letter-spacing:0.08em;opacity:0.85';
+      maxDiv.textContent = '✦ MAXIMIZADO ✦';
+      optsEl.appendChild(maxDiv);
+    }
+
     // Sell button value
     const hasEconomy = passives.some(p => p.type === 'edo_tensei_economy');
     let totalInvested = char?.deploy_cost || 0;
@@ -1305,6 +1865,7 @@ const Game = (() => {
 
     gold -= upg.cost;
     tower.upgradeLevel++;
+    tower._statsCache = null;
     if (upg.status_effect) tower.statusEffect = upg.status_effect;
     if (upg.type) tower.currentType = upg.type;
     updateHUD();
@@ -1351,6 +1912,7 @@ const Game = (() => {
   }
 
   function getTowerStats(tower) {
+    if (tower._statsCache) return tower._statsCache;
     const stats = getCurrentStats(tower.charData, tower.level);
     for (let i = 0; i < tower.upgradeLevel; i++) {
       const upg = tower.charData.upgrades[i];
@@ -1359,6 +1921,11 @@ const Game = (() => {
       if (upg.speed_mult) stats.attack_speed *= upg.speed_mult;
       if (upg.type) stats.type = upg.type;
     }
+    if ((tower.prestige || 0) > 0) {
+      stats.damage *= 1 + tower.prestige * 0.20;
+      stats.range  *= 1 + tower.prestige * 0.06;
+    }
+    tower._statsCache = stats;
     return stats;
   }
 
@@ -1369,7 +1936,11 @@ const Game = (() => {
 
   function toggleSpeed() {
     gameSpeed = gameSpeed === 1 ? 2 : gameSpeed === 2 ? 3 : 1;
-    document.getElementById('speed-indicator').textContent = gameSpeed + '×';
+    const ind = document.getElementById('speed-indicator');
+    if (ind) {
+      ind.textContent = gameSpeed + '×';
+      ind.style.color = gameSpeed === 1 ? '' : gameSpeed === 2 ? '#fbbf24' : '#f87171';
+    }
   }
 
   function retryStage() { startGame(); }
@@ -1379,10 +1950,29 @@ const Game = (() => {
     if (el('hud-lives')) el('hud-lives').textContent = lives;
     if (el('hud-gold')) el('hud-gold').textContent = gold;
     if (el('hud-wave')) el('hud-wave').textContent = wave;
-    if (el('hud-total-waves')) el('hud-total-waves').textContent = totalWaves || 10;
-    if (el('hud-wave-fill')) el('hud-wave-fill').style.width = `${Math.min(100, Math.round((wave / (totalWaves || 10)) * 100))}%`;
+    if (isInfiniteMode) {
+      if (el('hud-total-waves')) el('hud-total-waves').textContent = '∞';
+      if (el('hud-wave-fill')) {
+        const tier = INFINITE_TIERS[getInfiniteTierIdx(wave)];
+        const waveInTier = wave - tier.minWave + 1;
+        const tierLen = tier.maxWave === Infinity ? 10 : tier.maxWave - tier.minWave + 1;
+        el('hud-wave-fill').style.width = `${Math.min(100, Math.round((waveInTier / tierLen) * 100))}%`;
+        el('hud-wave-fill').style.background = tier.color;
+      }
+    } else {
+      if (el('hud-total-waves')) el('hud-total-waves').textContent = totalWaves || 10;
+      if (el('hud-wave-fill')) el('hud-wave-fill').style.width = `${Math.min(100, Math.round((wave / (totalWaves || 10)) * 100))}%`;
+    }
     if (el('hud-phase-name')) el('hud-phase-name').textContent = stage?.name || '';
-    
+    const skipBtn = el('btn-skip');
+    if (skipBtn) {
+      if (waveActive && wave < (totalWaves || 10)) {
+        skipBtn.title = `Antecipar próxima wave: +${wave * 11}\u{1F4B0} (S)`;
+      } else {
+        skipBtn.title = 'Antecipar Wave (S)';
+      }
+    }
+
     const panel = el('team-panel');
     if (panel) {
       Array.from(panel.children).forEach(u => {
@@ -1409,13 +1999,16 @@ const Game = (() => {
       const unitData = Save.getBestUnitData(charId);
       if (!char) return;
       const cost = char.deploy_cost;
+      const copies = towers.filter(t => t.charId === charId && !t.isClone).length;
+      const atLimit = copies >= 3;
       const div = document.createElement('div');
-      div.className = `tp-unit${deployingCharId === charId ? ' deploying' : ''}${gold < cost ? ' cant-afford' : ''}`;
+      div.className = `tp-unit${deployingCharId === charId ? ' deploying' : ''}${(gold < cost || atLimit) ? ' cant-afford' : ''}`;
       div.dataset.charId = charId;
+      const copyLabel = copies > 0 ? ` <span style="color:${atLimit?'#f87171':'#fbbf24'};font-size:9px">${copies}/3</span>` : '';
       div.innerHTML = `
         <div class="tp-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
-        <div class="tp-name">${char.name}</div>
-        <div class="tp-cost">${cost}💰 Lv${unitData?.nivel||1}</div>`;
+        <div class="tp-name">${char.name}${copyLabel}</div>
+        <div class="tp-cost">${atLimit ? '🚫 Máximo' : `${cost}💰 Lv${unitData?.nivel||1}`}</div>`;
       div.addEventListener('click', () => {
         if (gold < cost) { UI.toast('Ouro insuficiente!'); return; }
         deployingCharId = deployingCharId === charId ? null : charId;
@@ -1679,15 +2272,6 @@ const Game = (() => {
   }
 
   function drawTowers() {
-    // Pré-computar torres buffadas pela aura do Gojo
-    const gojoBuffed = new Set();
-    towers.forEach(gt => {
-      const gp = gt.charData?.passive;
-      if (gp?.type !== 'damage_aura' || gt.disabled) return;
-      const gr = getTowerStats(gt).range;
-      towers.forEach(t => { if (t !== gt && dist2d(gt.x, gt.y, t.x, t.y) <= gr) gojoBuffed.add(t); });
-    });
-
     towers.forEach(t => {
       const disabled = t.disabled || shinraTenseiActive;
       ctx.globalAlpha = disabled ? 0.35 : (t.isClone ? 0.72 : 1);
@@ -1759,7 +2343,7 @@ const Game = (() => {
         }
       }
       // Gojo aura buff — anel dourado nas torres dentro do alcance
-      if (gojoBuffed.has(t)) {
+      if (_gojoBuffedSet.has(t)) {
         const gPulse = (Math.sin(Date.now() / 700) + 1) / 2;
         ctx.beginPath(); ctx.arc(t.x, t.y, 23, 0, Math.PI*2);
         ctx.strokeStyle = `rgba(255,200,70,${0.35 + gPulse * 0.25})`;
@@ -1776,6 +2360,15 @@ const Game = (() => {
         ctx.fillStyle = '#f56565'; ctx.font = 'bold 8px Inter,sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(`${Math.ceil(t.miniStunTimer)}s`, t.x, t.y - 30);
+      }
+      // Badge de imunidade a stun (cooldown após ser stunada)
+      if ((t.stunCooldown || 0) > 0 && (t.miniStunTimer || 0) <= 0) {
+        ctx.beginPath(); ctx.arc(t.x - 16, t.y - 16, 7, 0, Math.PI*2);
+        ctx.fillStyle = '#1d4ed8'; ctx.fill();
+        ctx.fillStyle = '#93c5fd'; ctx.font = 'bold 6px Inter,sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(`${Math.ceil(t.stunCooldown)}s`, t.x - 16, t.y - 16);
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
       }
 
       // Badge de passiva (kill streak, combo counter, etc.) — data-driven via PASSIVE_SYSTEM.renderBadge
@@ -1803,6 +2396,18 @@ const Game = (() => {
         }
       }
 
+      // Anel de prestígio — borda dourada pulsante
+      if ((t.prestige || 0) > 0) {
+        const pPulse = (Math.sin(Date.now() / 600) + 1) / 2;
+        ctx.beginPath(); ctx.arc(t.x, t.y, 22 + pPulse * 2, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,215,0,${0.5 + pPulse * 0.45})`;
+        ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#ffd700';
+        ctx.font = 'bold 7px Inter,sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(`P${t.prestige}`, t.x, t.y + 28);
+      }
+
       ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
       ctx.globalAlpha = 1;
     });
@@ -1821,7 +2426,8 @@ const Game = (() => {
       explosion:     { t:'BOOM', bg:'#e74c3c', fg:'#fff' },
       base_drain:    { t:'DRN',  bg:'#1f618d', fg:'#fff' },
       genjutsu:      { t:'GNJ',  bg:'#1c2833', fg:'#fff' },
-      shinra_tensei: { t:'ST',   bg:'#922b21', fg:'#fff' }
+      shinra_tensei: { t:'ST',   bg:'#922b21', fg:'#fff' },
+      pain_boss:     { t:'ST+S', bg:'#922b21', fg:'#fff' }
     }
   };
 
@@ -1923,6 +2529,22 @@ const Game = (() => {
         }
       }
 
+      // Anel de escudo de Pain
+      if ((e.shieldHp || 0) > 0) {
+        const sPulse = (Math.sin(Date.now() / 200) + 1) / 2;
+        ctx.save();
+        ctx.globalAlpha = 0.9;
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, s * 0.6 + 8 + sPulse * 5, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(96,165,250,${0.6 + sPulse * 0.35})`;
+        ctx.lineWidth = 3.5 + sPulse * 2.5;
+        ctx.shadowBlur = 14 + sPulse * 10;
+        ctx.shadowColor = '#3b82f6';
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.restore();
+      }
+
       // Barra de HP
       const hpPct = e.hp / e.maxHp;
       const bw = s + 10, bh = 3, bx = e.x - bw/2, by = e.y - s/2 - 7;
@@ -1930,6 +2552,16 @@ const Game = (() => {
       ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 2); ctx.fill();
       ctx.fillStyle = hpPct > 0.55 ? '#3ecf8e' : hpPct > 0.28 ? '#fbbf24' : '#f56565';
       ctx.beginPath(); ctx.roundRect(bx, by, bw * hpPct, bh, 2); ctx.fill();
+
+      // Barra de escudo (Pain)
+      if ((e.shieldHp || 0) > 0 && e.maxShieldHp > 0) {
+        const shPct = e.shieldHp / e.maxShieldHp;
+        const shby = by - 5;
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.beginPath(); ctx.roundRect(bx, shby, bw, bh, 2); ctx.fill();
+        ctx.fillStyle = '#60a5fa';
+        ctx.beginPath(); ctx.roundRect(bx, shby, bw * shPct, bh, 2); ctx.fill();
+      }
 
       // ── TAGS (tipo + special) — acima da barra de HP ──────────────────
       const tags = [];
@@ -1990,201 +2622,9 @@ const Game = (() => {
   }
 
   function drawProjectile(p) {
-    const id = p.charId || '';
-    const now = Date.now();
     ctx.save();
     ctx.translate(p.x, p.y);
-
-    switch (id) {
-      case 'ichigo_base': {
-        // Orange crescent blade
-        ctx.rotate(p.angle + Math.PI * 0.5);
-        ctx.shadowBlur = 10; ctx.shadowColor = '#ff6b00';
-        ctx.beginPath();
-        ctx.arc(0, 0, 7, -Math.PI * 0.65, Math.PI * 0.65);
-        ctx.arc(-2, 0, 5, Math.PI * 0.65, -Math.PI * 0.65, true);
-        ctx.closePath();
-        ctx.fillStyle = '#ff6b00'; ctx.fill();
-        ctx.beginPath();
-        ctx.arc(0, 0, 3.5, -Math.PI * 0.4, Math.PI * 0.4);
-        ctx.arc(-1, 0, 2, Math.PI * 0.4, -Math.PI * 0.4, true);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(255,220,100,0.75)'; ctx.fill();
-        break;
-      }
-      case 'goku_base': {
-        // Blue ki orb with orbiting ring
-        ctx.shadowBlur = 14; ctx.shadowColor = '#4fc3f7';
-        ctx.beginPath(); ctx.arc(0, 0, 5.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#4fc3f7'; ctx.fill();
-        ctx.beginPath(); ctx.ellipse(0, 0, 9, 2.5, now * 0.005, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(129,212,250,0.75)'; ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.beginPath(); ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff'; ctx.fill();
-        break;
-      }
-      case 'l_deathnote': {
-        // White rotating diamond — analytical precision
-        ctx.rotate(Math.PI / 4 + now * 0.003);
-        ctx.shadowBlur = 6; ctx.shadowColor = '#e0e0e0';
-        ctx.beginPath(); ctx.rect(-4.5, -4.5, 9, 9);
-        ctx.fillStyle = '#757575'; ctx.fill();
-        ctx.strokeStyle = '#eeeeee'; ctx.lineWidth = 1.2; ctx.stroke();
-        ctx.beginPath(); ctx.rect(-1.5, -1.5, 3, 3);
-        ctx.fillStyle = '#fff'; ctx.fill();
-        break;
-      }
-      case 'demolidor': {
-        // Red billy club
-        ctx.rotate(p.angle);
-        ctx.shadowBlur = 8; ctx.shadowColor = '#e53935';
-        ctx.beginPath(); ctx.ellipse(0, 0, 9, 3.5, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#c62828'; ctx.fill();
-        ctx.beginPath(); ctx.ellipse(0, 0, 5.5, 1.8, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#ef9a9a'; ctx.fill();
-        break;
-      }
-      case 'sasuke_uchiha': {
-        // Purple lightning bolt
-        ctx.rotate(p.angle);
-        ctx.shadowBlur = 12; ctx.shadowColor = '#5c6bc0';
-        ctx.beginPath();
-        ctx.moveTo(-6, 2); ctx.lineTo(-1, -4); ctx.lineTo(1, -1);
-        ctx.lineTo(6, -4); ctx.lineTo(2, 5); ctx.lineTo(0, 1); ctx.closePath();
-        ctx.fillStyle = '#7986cb'; ctx.fill();
-        break;
-      }
-      case 'killua_zoldyck': {
-        // White electric ball with sparks
-        ctx.shadowBlur = 16; ctx.shadowColor = '#fff';
-        ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#e8eaf6'; ctx.fill();
-        const t = now * 0.012;
-        for (let i = 0; i < 4; i++) {
-          const a = t + i * Math.PI / 2;
-          ctx.beginPath();
-          ctx.moveTo(Math.cos(a) * 5, Math.sin(a) * 5);
-          ctx.lineTo(Math.cos(a + 0.45) * 10, Math.sin(a + 0.45) * 10);
-          ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1.2; ctx.stroke();
-        }
-        ctx.beginPath(); ctx.arc(0, 0, 2, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff'; ctx.fill();
-        break;
-      }
-      case 'tanjiro_kamado': {
-        // Red-gold flame teardrop
-        ctx.rotate(p.angle + Math.PI / 2);
-        ctx.shadowBlur = 10; ctx.shadowColor = '#ef5350';
-        ctx.beginPath();
-        ctx.moveTo(0, -8);
-        ctx.bezierCurveTo(5, -3, 5, 3, 0, 6);
-        ctx.bezierCurveTo(-5, 3, -5, -3, 0, -8);
-        ctx.fillStyle = '#ef5350'; ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(0, -5);
-        ctx.bezierCurveTo(2.5, -1, 2.5, 2, 0, 3.5);
-        ctx.bezierCurveTo(-2.5, 2, -2.5, -1, 0, -5);
-        ctx.fillStyle = '#ffd740'; ctx.fill();
-        break;
-      }
-      case 'zoro_3': {
-        // Green X sword slash
-        ctx.rotate(p.angle + Math.PI / 4);
-        ctx.shadowBlur = 8; ctx.shadowColor = '#43a047';
-        ctx.strokeStyle = '#66bb6a'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(-7, -7); ctx.lineTo(7, 7); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(7, -7); ctx.lineTo(-7, 7); ctx.stroke();
-        break;
-      }
-      case 'naruto_shippuden': {
-        // Orange spinning Rasengan
-        ctx.shadowBlur = 14; ctx.shadowColor = '#ff8c00';
-        ctx.beginPath(); ctx.arc(0, 0, 7, 0, Math.PI * 2);
-        ctx.fillStyle = '#ff8c00'; ctx.fill();
-        const spin = now * 0.009;
-        for (let i = 0; i < 3; i++) {
-          const a = spin + i * Math.PI * 2 / 3;
-          ctx.beginPath();
-          ctx.arc(Math.cos(a) * 4, Math.sin(a) * 4, 2.2, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255,214,0,0.85)'; ctx.fill();
-        }
-        ctx.beginPath(); ctx.arc(0, 0, 2, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff'; ctx.fill();
-        break;
-      }
-      case 'luffy_3': {
-        // Red elongated rubber fist
-        ctx.rotate(p.angle);
-        ctx.shadowBlur = 8; ctx.shadowColor = '#ef5350';
-        ctx.beginPath(); ctx.ellipse(0, 0, 9, 4.5, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#ef5350'; ctx.fill();
-        ctx.beginPath(); ctx.arc(6, 0, 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#ff8a65'; ctx.fill();
-        ctx.beginPath(); ctx.arc(6, 0, 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff'; ctx.fill();
-        break;
-      }
-      case 'levi_ackerman': {
-        // Steel ODM blade
-        ctx.rotate(p.angle);
-        ctx.shadowBlur = 6; ctx.shadowColor = '#eceff1';
-        ctx.beginPath();
-        ctx.moveTo(9, 0); ctx.lineTo(-6, -2.5); ctx.lineTo(-7, 0); ctx.lineTo(-6, 2.5);
-        ctx.closePath();
-        ctx.fillStyle = '#cfd8dc'; ctx.fill();
-        ctx.strokeStyle = '#eceff1'; ctx.lineWidth = 0.8; ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(9, 0); ctx.lineTo(2, -1);
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
-        break;
-      }
-      case 'meliodas_base': {
-        // Spinning dark purple demon star
-        ctx.rotate(now * 0.004);
-        ctx.shadowBlur = 14; ctx.shadowColor = '#7b1fa2';
-        ctx.beginPath();
-        for (let i = 0; i < 10; i++) {
-          const r = i % 2 === 0 ? 7.5 : 3.5;
-          const a = (i * Math.PI) / 5 - Math.PI / 2;
-          if (i === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
-          else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
-        }
-        ctx.closePath();
-        ctx.fillStyle = '#6a0dad'; ctx.fill();
-        ctx.strokeStyle = '#ce93d8'; ctx.lineWidth = 1; ctx.stroke();
-        break;
-      }
-      case 'naruto_sage': {
-        // Large nature-energy sage orb with orbit ring
-        ctx.shadowBlur = 20; ctx.shadowColor = '#ff9800';
-        ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2);
-        const gr = ctx.createRadialGradient(0, 0, 1, 0, 0, 8);
-        gr.addColorStop(0, '#fff3e0'); gr.addColorStop(1, '#ff9800');
-        ctx.fillStyle = gr; ctx.fill();
-        ctx.beginPath(); ctx.ellipse(0, 0, 13, 3.5, now * 0.005, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(139,195,74,0.65)'; ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff'; ctx.fill();
-        break;
-      }
-      case 'gojo_satoru': {
-        // Hollow white Limitless circle
-        ctx.shadowBlur = 20; ctx.shadowColor = '#fff';
-        ctx.beginPath(); ctx.arc(0, 0, 7.5, 0, Math.PI * 2);
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(121,134,203,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
-        ctx.beginPath(); ctx.arc(0, 0, 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fill();
-        break;
-      }
-      default: {
-        ctx.beginPath(); ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
-        ctx.fillStyle = p.color; ctx.fill();
-        ctx.beginPath(); ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill();
-      }
-    }
-
+    drawProjectileShape(ctx, p.charId || '', p.angle, p.color, Date.now());
     ctx.restore();
   }
 
@@ -2280,17 +2720,33 @@ const Game = (() => {
       // Card
       const cx = CANVAS_W/2, cy = CANVAS_H/2;
       ctx.fillStyle = 'rgba(10,10,26,0.9)';
-      ctx.beginPath(); ctx.roundRect(cx-130, cy-38, 260, 76, 14); ctx.fill();
+      ctx.beginPath(); ctx.roundRect(cx-145, cy-44, 290, 92, 14); ctx.fill();
       ctx.strokeStyle = 'rgba(255,200,70,0.2)';
       ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.roundRect(cx-130, cy-38, 260, 76, 14); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(cx-145, cy-44, 290, 92, 14); ctx.stroke();
       ctx.fillStyle = 'rgba(238,240,255,0.45)';
       ctx.font = '500 12px Inter,sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('PRÓXIMA WAVE', cx, cy - 15);
+      ctx.fillText('PRÓXIMA WAVE', cx, cy - 20);
       ctx.fillStyle = '#ffc846';
-      ctx.font = 'bold 28px Inter,sans-serif';
-      ctx.fillText(`Wave ${wave + 1}  —  ${Math.ceil(betweenTimer)}s`, cx, cy + 14);
+      ctx.font = 'bold 26px Inter,sans-serif';
+      ctx.fillText(`Wave ${wave + 1}  —  ${Math.ceil(betweenTimer)}s`, cx, cy + 7);
+      if (isInfiniteMode) {
+        const tier = INFINITE_TIERS[getInfiniteTierIdx(wave + 1)];
+        ctx.fillStyle = tier.color;
+        ctx.font = 'bold 11px Inter,sans-serif';
+        ctx.fillText(`⚡ ${tier.name.toUpperCase()}  •  [S] pular`, cx, cy + 28);
+        const best = Save.get().stats.melhor_onda_infinita || 0;
+        if (best > 0) {
+          ctx.fillStyle = 'rgba(251,191,36,0.55)';
+          ctx.font = '500 9px Inter,sans-serif';
+          ctx.fillText(`Recorde: Wave ${best}`, cx, cy + 42);
+        }
+      } else {
+        ctx.fillStyle = 'rgba(74,222,128,0.75)';
+        ctx.font = '500 10px Inter,sans-serif';
+        ctx.fillText(`+${(wave + 1) * 11}\u{1F4B0} ao completar  •  [S] pular`, cx, cy + 28);
+      }
       ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
     }
     if (shinraTenseiActive) {
