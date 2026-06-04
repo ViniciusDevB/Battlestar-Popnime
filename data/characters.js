@@ -389,6 +389,38 @@ const CHARACTERS = {
       { name:'Gura Gura', desc:'Dano ×1.4 | Tsunami HP 8000', damage_mult:1.4, passive_override:{hp:8000}, cost:900 },
       { name:'Terremoto', desc:'Dano ×1.5 | Tsunami HP 15000', damage_mult:1.5, passive_override:{hp:15000}, cost:1800 }
     ]
+  },
+  
+  // ──────────────────────────────────────────────────────────────────────────
+  // UNIDADES DE EVENTO EXCLUSIVAS
+  // ──────────────────────────────────────────────────────────────────────────
+  orochimaru_base: {
+    id:'orochimaru_base', name:'Orochimaru', rarity:4, series:'naruto', playable:true, xp_value:4000, initials:'OR',
+    image: 'assets/towers/update1/Orochimaru.png',
+    passive:[
+      { type:'status_on_hit', status:'sangramento', dps:20, duration:3, label:'Marca da Maldição: Aplica DoT venenoso' },
+      { type:'edo_tensei_economy', label:'Imortalidade: Vende por 100% do ouro investido' }
+    ],
+    base_stats:{ damage:115, range:120, attack_speed:1.1, type:'cone' },
+    deploy_cost:450, max_level:50,
+    upgrades:[
+      { name:'Serpente Branca', desc:'Dano ×1.3 | Veneno 35 DPS', damage_mult:1.3, passive_override:{dps:35, duration:3}, cost:500 },
+      { name:'Kusanagi',        desc:'Tipo → AOE | Dano ×1.5 | Veneno 60 DPS', type:'aoe', damage_mult:1.5, passive_override:{dps:60, duration:4}, cost:950 }
+    ]
+  },
+  pain_base: {
+    id:'pain_base', name:'Pain (Seis Caminhos)', rarity:5, series:'naruto', playable:true, xp_value:10000, initials:'PN',
+    image: 'assets/towers/update1/Pain.png',
+    passive:[
+      { type:'sharingan', label:'Rinnegan: Ignora qualquer imunidade do inimigo (Bypass)' },
+      { type:'bansho_tenin', attacks_required:4, push_dist:35, label:'Bansho Ten\'in: A cada 4 ataques, puxa os inimigos para trás' }
+    ],
+    base_stats:{ damage:210, range:150, attack_speed:0.85, type:'aoe' },
+    deploy_cost:800, max_level:50,
+    upgrades:[
+      { name:'Puxão Sombrio', desc:'Dano ×1.4 | Puxa mais forte (50px)', damage_mult:1.4, passive_override:{attacks_required:4, push_dist:50}, cost:1100 },
+      { name:'Devastação',   desc:'Dano ×1.8 | Alcance ×1.2', damage_mult:1.8, range_mult:1.2, cost:2500 }
+    ]
   }
 };
 

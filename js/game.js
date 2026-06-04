@@ -13,7 +13,7 @@ const Game = (() => {
   let activeWavesCount = 1;
   let endDialogPlayed = false;
   let selectedTowerIdx, deployingCharId;
-  let shinraTenseiActive, shinraTenseiTimer;
+  let shinraTenseiActive, shinraTenseiTimer, stageModifierTimer;
   let stage, team;
   let difficulty;
 
@@ -60,53 +60,70 @@ const Game = (() => {
   const PASSIVE_SYSTEM = {
 
     // ── Dispatchers ────────────────────────────────────────────────────────
-    _get(tower) {
-      const t = tower.charData?.passive?.type;
-      return t ? this[t] : null;
+    _getPassives(tower) {
+      const p = tower.charData?.passive;
+      if (!p) return [];
+      if (Array.isArray(p)) return p;
+      return [p];
     },
     onUpdate(tower, dt) {
-      this._get(tower)?.update?.(tower, tower.charData.passive, dt);
+      this._getPassives(tower).forEach(p => this[p.type]?.update?.(tower, p, dt));
     },
     onBeforeAttack(tower, stats) {
-      const h = this._get(tower);
-      if (!h?.beforeAttack) return stats;
-      return h.beforeAttack(tower, tower.charData.passive, stats) ?? stats;
+      let s = stats;
+      this._getPassives(tower).forEach(p => {
+        const h = this[p.type];
+        if (h?.beforeAttack) s = h.beforeAttack(tower, p, s) ?? s;
+      });
+      return s;
     },
     onHit(tower, enemy, dmg) {
-      const h = this._get(tower);
-      if (!h?.onHit) return dmg;
-      return h.onHit(tower, tower.charData.passive, enemy, dmg) ?? dmg;
+      let d = dmg;
+      this._getPassives(tower).forEach(p => {
+        const h = this[p.type];
+        if (h?.onHit) d = h.onHit(tower, p, enemy, d) ?? d;
+      });
+      return d;
     },
     onAfterAttack(tower, hitEnemies, attackType, stats) {
-      this._get(tower)?.afterAttack?.(tower, tower.charData.passive, hitEnemies, attackType, stats);
+      this._getPassives(tower).forEach(p => this[p.type]?.afterAttack?.(tower, p, hitEnemies, attackType, stats));
     },
     onKill(tower, enemy) {
-      this._get(tower)?.onKill?.(tower, tower.charData.passive, enemy);
+      this._getPassives(tower).forEach(p => this[p.type]?.onKill?.(tower, p, enemy));
     },
     onAnyKill(tower, deadEnemy) {
-      this._get(tower)?.onAnyKill?.(tower, tower.charData.passive, deadEnemy);
+      this._getPassives(tower).forEach(p => this[p.type]?.onAnyKill?.(tower, p, deadEnemy));
     },
     onWaveEnd(tower) {
-      this._get(tower)?.onWaveEnd?.(tower, tower.charData.passive);
+      this._getPassives(tower).forEach(p => this[p.type]?.onWaveEnd?.(tower, p));
     },
     // Retorna { text, color } para exibir badge acima da torre, ou null.
     renderBadge(tower) {
-      const h = this._get(tower);
-      if (!h?.renderBadge) return null;
-      return h.renderBadge(tower, tower.charData.passive);
+      let badge = null;
+      this._getPassives(tower).forEach(p => {
+        const h = this[p.type];
+        if (h?.renderBadge) badge = h.renderBadge(tower, p) || badge;
+      });
+      return badge;
     },
     applyAuras(attackingTower, enemy, dmg) {
       let d = dmg;
       towers.forEach(t => {
         if (t === attackingTower || t.disabled) return;
-        const h = t.charData?.passive?.type ? this[t.charData.passive.type] : null;
-        if (h?.isAura && h.auraEffect) d = h.auraEffect(t, t.charData.passive, attackingTower, d);
+        this._getPassives(t).forEach(p => {
+          const h = this[p.type];
+          if (h?.isAura && h.auraEffect) d = h.auraEffect(t, p, attackingTower, d);
+        });
       });
       return d;
     },
     canDamageOverride(tower, enemy) {
-      const h = this._get(tower);
-      return h?.canDamageOverride ? h.canDamageOverride(tower, tower.charData.passive, enemy) : null;
+      let override = false;
+      this._getPassives(tower).forEach(p => {
+        const h = this[p.type];
+        if (h?.canDamageOverride && h.canDamageOverride(tower, p, enemy)) override = true;
+      });
+      return override ? true : null;
     },
 
     // ── Passivas ────────────────────────────────────────────────────────────
@@ -245,6 +262,24 @@ const Game = (() => {
         const dur = getPassiveValue(tower, 'duration', p.duration);
         applyStatus(enemy, p.status, { ...p, dps, duration: dur });
         return dmg;
+      }
+    },
+
+    // Bansho Ten'in: Puxa inimigos para trás a cada N ataques
+    bansho_tenin: {
+      afterAttack(tower, p, hitEnemies, attackType, stats) {
+        tower.banshoCount = (tower.banshoCount || 0) + 1;
+        const req = getPassiveValue(tower, 'attacks_required', p.attacks_required || 4);
+        if (tower.banshoCount >= req) {
+          tower.banshoCount = 0;
+          const pushDist = getPassiveValue(tower, 'push_dist', p.push_dist || 30);
+          hitEnemies.forEach(e => {
+            e.dist = Math.max(0, e.dist - pushDist);
+            const pos = getPosOnPath(e.dist, e.pathArr);
+            e.x = pos.x; e.y = pos.y;
+            addEffect({ type:'silenced', x: e.x, y: e.y, color:'#9b59b6', text:'Puxado!', timer:0.8, maxTimer:0.8 });
+          });
+        }
       }
     },
 
@@ -568,6 +603,7 @@ const Game = (() => {
     deployingCharId = null;
     shinraTenseiActive = false;
     shinraTenseiTimer = 0;
+    stageModifierTimer = 0;
     waveElapsed = 0;
     sessionDmg = 0; sessionKills = 0; sessionTowersPlaced = 0;
     sessionMinibosses = 0; sessionBossKilled = false;
@@ -628,6 +664,14 @@ const Game = (() => {
     updateTowersLoop(dt);
     updateProjectiles(dt);
     
+    if (stage && stage.modifiers && stage.modifiers.meteors_and_shinra) {
+      stageModifierTimer += dt;
+      if (stageModifierTimer >= 20) {
+        stageModifierTimer = 0;
+        triggerMeteorAndShinra();
+      }
+    }
+
     // Tsunami loop
     tsunamis.forEach(tsu => {
       tsu.dist -= tsu.speed * dt;
@@ -654,6 +698,53 @@ const Game = (() => {
     updateEffects(dt);
     updateShinraTensei(dt);
     checkWaveEnd();
+  }
+
+  function triggerMeteorAndShinra() {
+    UI.toast('⚠️ O PAIN USOU SHINRA TENSEI E QUEDA DE METEOROS! ⚠️', 4000);
+    
+    // 1. Escolhe alvos para os meteoros (foca torres)
+    const targets = [];
+    if (towers.length > 0) {
+      const numMeteors = Math.min(3, Math.ceil(towers.length / 3));
+      for(let i = 0; i < numMeteors; i++) {
+        const t = towers[Math.floor(Math.random() * towers.length)];
+        targets.push({x: t.x, y: t.y});
+      }
+    } else {
+      targets.push({x: CANVAS_W/2, y: CANVAS_H/2});
+    }
+
+    // Aplica os meteoros e stuns pesados
+    targets.forEach(pt => {
+      addEffect({ type: 'meteor_strike', x: pt.x, y: pt.y, maxR: 90, color: '#f56565', timer: 1.0, maxTimer: 1.0, r: 0 });
+      towers.forEach(t => {
+        if (dist2d(t.x, t.y, pt.x, pt.y) <= 90) {
+          t.miniStunTimer = Math.max((t.miniStunTimer || 0), 8); // 8s de stun pesado
+          t.disabled = true;
+        }
+      });
+    });
+
+    // 2. Onda de Choque Shinra Tensei e empurrão
+    shinraTenseiActive = true;
+    shinraTenseiTimer = 2.5;
+    addEffect({ type:'shockwave', x: CANVAS_W/2, y: CANVAS_H/2, maxR: 800, color: '#e74c3c', timer: 0.8, maxTimer: 0.8, r: 0 });
+    
+    enemies.forEach(e => {
+      if (e.dead || e.reached_end) return;
+      e.dist += 40; // Empurra os inimigos 40px para frente
+      const pos = getPosOnPath(e.dist, e.pathArr);
+      e.x = pos.x; e.y = pos.y;
+    });
+
+    // Mini-stun em torres que não foram pegas pelo meteoro
+    towers.forEach(t => {
+      if ((t.miniStunTimer || 0) < 2.5) {
+        t.miniStunTimer = 2.5;
+        t.disabled = true;
+      }
+    });
   }
 
   function startWave() {
@@ -1205,7 +1296,12 @@ const Game = (() => {
     });
 
     // Sell button value
-    const sellVal = Math.floor(char?.deploy_cost * 0.5 || 0);
+    const hasEconomy = char?.passive?.some(p => p.type === 'edo_tensei_economy');
+    let totalInvested = char?.deploy_cost || 0;
+    for(let i=0; i<tower.upgradeLevel; i++){
+      if(char?.upgrades[i]) totalInvested += char.upgrades[i].cost;
+    }
+    const sellVal = hasEconomy ? totalInvested : Math.floor(totalInvested * 0.5);
     const sellBtn = panel.querySelector('.btn-sell');
     if (sellBtn) sellBtn.textContent = `Vender (+${sellVal} 💰) [Del]`;
 
@@ -1234,7 +1330,14 @@ const Game = (() => {
     const tower = towers[selectedTowerIdx];
     if (!tower) return;
     const char = getCharById(tower.charId);
-    const val = Math.floor((char?.deploy_cost || 0) * 0.5);
+    
+    const hasEconomy = char?.passive?.some(p => p.type === 'edo_tensei_economy');
+    let totalInvested = char?.deploy_cost || 0;
+    for(let i=0; i<tower.upgradeLevel; i++){
+      if(char?.upgrades[i]) totalInvested += char.upgrades[i].cost;
+    }
+    const val = hasEconomy ? totalInvested : Math.floor(totalInvested * 0.5);
+    
     gold += val;
     towers.splice(selectedTowerIdx, 1);
     selectedTowerIdx = -1;
@@ -2163,10 +2266,10 @@ const Game = (() => {
         ctx.fillText('+', ef.x, ef.y - prog * 20);
       } else if (ef.type === 'silenced') {
         ctx.shadowBlur = 0;
-        ctx.fillStyle = '#9b59b6';
+        ctx.fillStyle = ef.color || '#9b59b6';
         ctx.font = 'bold 12px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Silenced!', ef.x, ef.y - (1-alpha)*20);
+        ctx.fillText(ef.text || 'Silenced!', ef.x, ef.y - (1-alpha)*20);
       } else if (ef.type === 'crit') {
         const prog = 1 - alpha;
         ctx.shadowBlur = 12; ctx.shadowColor = ef.color || '#ffc846';

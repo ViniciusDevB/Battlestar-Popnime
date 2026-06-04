@@ -36,10 +36,13 @@ const EVENTS_DATA = [
         modifiers: {
           tower_speed_mult: 0.85
         },
-        drops: [{ id: 'ninja_generico_1', chance: 100 }],
+        drops: [],
         waves: [
-          evtWave([{ type: 'ninja_comum', count: 15, gap: 0.8 }]),
-          evtWave([{ type: 'ninja_ambu', count: 20, gap: 0.6 }])
+          evtWave([{ type: 'ninja_comum', count: 12, gap: 1.5 }]),
+          evtWave([{ type: 'ninja_comum', count: 18, gap: 1.2 }]),
+          evtWave([{ type: 'ninja_ambu', count: 15, gap: 1.0 }]),
+          evtWave([{ type: 'ninja_comum', count: 25, gap: 0.8 }, { type: 'ninja_ambu', count: 10, gap: 0.8, delay: 5 }]),
+          evtWave([{ type: 'ninja_ambu', count: 30, gap: 0.6 }])
         ],
         dialogues: {
           start: [
@@ -63,10 +66,15 @@ const EVENTS_DATA = [
           dark_mode: true,
           physical_damage_mult: 0.70
         },
-        drops: [{ id: 'ninja_generico_2', chance: 100 }],
+        drops: [
+          { id: 'orochimaru_base', chance: 1 }
+        ],
         waves: [
-          evtWave([{ type: 'caminho_animal', count: 10, gap: 1.0 }]),
-          evtWave([{ type: 'caminho_humano', count: 15, gap: 0.9 }])
+          evtWave([{ type: 'ninja_comum', count: 15, gap: 1.2 }]),
+          evtWave([{ type: 'ninja_ambu', count: 12, gap: 1.0 }]),
+          evtWave([{ type: 'caminho_animal', count: 8, gap: 1.5 }]),
+          evtWave([{ type: 'caminho_animal', count: 12, gap: 1.2 }, { type: 'ninja_ambu', count: 15, gap: 0.8, delay: 5 }]),
+          evtWave([{ type: 'caminho_humano', count: 15, gap: 1.0 }])
         ],
         dialogues: {
           start: [
@@ -84,12 +92,19 @@ const EVENTS_DATA = [
         name: 'Parte 3: O Experimento Sombrio',
         world: 'naruto',
         difficulty: 'hard',
-        description: 'Enfrente Pain corrompido por poder espiritual. Ele atordoa torres.',
+        description: 'A Batalha Final. A cada 20 segundos, Pain invoca Meteoros que atordoam áreas por 8s, e um Shinra Tensei global que empurra os inimigos para frente e atordoa o resto por 2.5s!',
         modifiers: {
-          boss_stun_mechanic: true
+          meteors_and_shinra: true
         },
-        drops: [{ id: 'ninja_generico_3', chance: 100 }],
+        drops: [
+          { id: 'pain_base', chance: 0.5 }
+        ],
         waves: [
+          evtWave([{ type: 'ninja_comum', count: 15, gap: 1.2 }]),
+          evtWave([{ type: 'ninja_ambu', count: 20, gap: 1.0 }]),
+          evtWave([{ type: 'caminho_animal', count: 15, gap: 1.0 }]),
+          evtWave([{ type: 'caminho_humano', count: 20, gap: 0.8 }]),
+          evtWave([{ type: 'caminho_asura', count: 15, gap: 0.8 }]),
           evtWave([{ type: 'pain', count: 1, gap: 1 }])
         ],
         dialogues: {
