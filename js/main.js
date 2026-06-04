@@ -31,13 +31,20 @@ window.addEventListener('DOMContentLoaded', () => {
   const initBanner = BannerSystem.init();
 
   // Initialize systems
-  Missions.init();
-  Game.init();
-
-  // Start at hub
-  UI.showHub();
-  UI.updateCurrencyDisplay();
-  UI.updateBannerDisplay(initBanner);
+  try {
+    Missions.init();
+    Game.init();
+    
+    // Start at hub
+    UI.showHub();
+    UI.updateCurrencyDisplay();
+    UI.updateBannerDisplay(initBanner);
+  } catch (err) {
+    document.body.innerHTML = `<div style="color:red; background:black; padding:20px; font-family:monospace; font-size:20px; z-index:999999; position:absolute; top:0; left:0; right:0; bottom:0;">
+      <h2>CRITICAL ERROR</h2>
+      <pre>${err.stack || err.message || err}</pre>
+    </div>`;
+  }
 
   // Banner timer — update every second, check rotation every minute
   setInterval(() => UI.updateBannerTimer(), 1000);

@@ -11,6 +11,7 @@ const Game = (() => {
   let enemies, towers, projectiles, effects, tsunamis;
   let waveActive, spawnQueue, betweenWaves, betweenTimer, waveElapsed;
   let activeWavesCount = 1;
+  let endDialogPlayed = false;
   let selectedTowerIdx, deployingCharId;
   let shinraTenseiActive, shinraTenseiTimer;
   let stage, team;
@@ -536,12 +537,19 @@ const Game = (() => {
       canvasEl.className = ''; // Clear previous themes
       if (wdef) canvasEl.classList.add(`theme-${wdef.id}`);
     }
-    if (wdef && wdef.path) {
+    
+    if (stage.paths && stage.paths.length > 0) {
+      window.currentPaths = stage.paths;
+      updatePath(stage.paths[0]);
+    } else if (wdef && wdef.path) {
+      window.currentPaths = [wdef.path];
       updatePath(wdef.path);
+    } else {
+      window.currentPaths = [PATH_POINTS];
     }
 
     // Reset state
-    lives = 20;
+    lives = stage.base_hp || 20;
     gold = 300;
     wave = 0;
     totalWaves = stage.waves.length;
@@ -580,6 +588,13 @@ const Game = (() => {
     const speedEl = document.getElementById('speed-indicator');
     if (speedEl) speedEl.textContent = '1×';
     requestAnimationFrame(loop);
+
+    endDialogPlayed = false;
+    if (stage.dialogues && stage.dialogues.start) {
+      setTimeout(() => {
+        if (typeof Dialog !== 'undefined') Dialog.play(stage.dialogues.start);
+      }, 500);
+    }
   }
 
   function loop(ts) {
@@ -587,7 +602,7 @@ const Game = (() => {
     if (lastTime === 0) lastTime = ts;
     const rawDt = Math.min((ts - lastTime) / 1000, 0.1);
     lastTime = ts;
-    const dt = paused ? 0 : rawDt * gameSpeed;
+    const dt = (paused || dialogPaused) ? 0 : rawDt * gameSpeed;
 
     update(dt, rawDt);
     render();
@@ -689,6 +704,12 @@ const Game = (() => {
       if (_dm.hp !== 1.0)   { e.maxHp = Math.round(e.maxHp * _dm.hp); e.hp = e.maxHp; }
       if (_dm.gold !== 1.0) { e.gold  = Math.round(e.gold  * _dm.gold); }
       e.dist = 0;
+      if (window.currentPaths && window.currentPaths.length > 0) {
+        e.pathArr = window.currentPaths[Math.floor(Math.random() * window.currentPaths.length)];
+      } else {
+        e.pathArr = PATH_POINTS;
+      }
+      e.pathLen = getPathLength(e.pathArr);
       enemies.push(e);
       dispatchSpecialSpawn(e);
     }
@@ -712,11 +733,11 @@ const Game = (() => {
       // Movement
       const spd = getEffectiveSpeed(e) * dt;
       e.dist += spd;
-      const pos = getPosOnPath(e.dist);
+      const pos = getPosOnPath(e.dist, e.pathArr);
       e.x = pos.x;
       e.y = pos.y;
 
-      if (e.dist >= PATH_LENGTH) {
+      if (e.dist >= (e.pathLen || PATH_LENGTH)) {
         e.reached_end = true;
         lives = Math.max(0, lives - 1);
         updateHUD();
@@ -878,7 +899,9 @@ const Game = (() => {
           if (_dm.hp !== 1.0)   { spawned.maxHp = Math.round(spawned.maxHp * _dm.hp); spawned.hp = spawned.maxHp; }
           if (_dm.gold !== 1.0) { spawned.gold  = Math.round(spawned.gold  * _dm.gold); }
           spawned.dist = Math.max(0, enemy.dist - (i * 20));
-          const pos = getPosOnPath(spawned.dist);
+          spawned.pathArr = enemy.pathArr;
+          spawned.pathLen = enemy.pathLen;
+          const pos = getPosOnPath(spawned.dist, spawned.pathArr);
           spawned.x = pos.x; spawned.y = pos.y;
           enemies.push(spawned);
         }
@@ -948,8 +971,16 @@ const Game = (() => {
       towers.forEach(t => PASSIVE_SYSTEM.onWaveEnd(t));
 
       if (wave >= totalWaves) {
-        endGame(true);
+        if (stage.dialogues && stage.dialogues.end && !endDialogPlayed) {
+          endDialogPlayed = true;
+          if (typeof Dialog !== 'undefined') Dialog.play(stage.dialogues.end, () => endGame(true));
+        } else {
+          endGame(true);
+        }
       } else {
+        if (stage.dialogues && stage.dialogues.mid_boss && wave === Math.floor(totalWaves / 2)) {
+          if (typeof Dialog !== 'undefined') Dialog.play(stage.dialogues.mid_boss);
+        }
         betweenWaves = true;
         betweenTimer = 3;
       }
@@ -1347,6 +1378,51 @@ const Game = (() => {
     });
 
     drawEffects();
+    
+    // Dark Mode (Fog of War) logic
+    if (stage && stage.modifiers && stage.modifiers.dark_mode) {
+      if (!window.darkCanvas) {
+        window.darkCanvas = document.createElement('canvas');
+        window.darkCanvas.width = CANVAS_W;
+        window.darkCanvas.height = CANVAS_H;
+        window.darkCtx = window.darkCanvas.getContext('2d');
+      }
+      const dCtx = window.darkCtx;
+      dCtx.globalCompositeOperation = 'source-over';
+      dCtx.fillStyle = 'rgba(0,0,0,0.98)';
+      dCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      
+      dCtx.globalCompositeOperation = 'destination-out';
+      
+      // Illuminate ao redor das torres
+      towers.forEach(t => {
+        const rad = getTowerStats(t).range || 150;
+        const grad = dCtx.createRadialGradient(t.x, t.y, 0, t.x, t.y, rad);
+        grad.addColorStop(0, 'rgba(255,255,255,1)');
+        grad.addColorStop(0.5, 'rgba(255,255,255,0.8)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        dCtx.fillStyle = grad;
+        dCtx.beginPath();
+        dCtx.arc(t.x, t.y, rad, 0, Math.PI * 2);
+        dCtx.fill();
+      });
+
+      // Keep the path end (base) slightly visible
+      const pathsToDraw = window.currentPaths || [PATH_POINTS];
+      if (pathsToDraw && pathsToDraw[0] && pathsToDraw[0].length > 0) {
+        const endP = pathsToDraw[0][pathsToDraw[0].length - 1];
+        const grad = dCtx.createRadialGradient(endP.x, endP.y, 0, endP.x, endP.y, 100);
+        grad.addColorStop(0, 'rgba(255,255,255,0.6)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        dCtx.fillStyle = grad;
+        dCtx.beginPath();
+        dCtx.arc(endP.x, endP.y, 100, 0, Math.PI * 2);
+        dCtx.fill();
+      }
+      
+      ctx.drawImage(window.darkCanvas, 0, 0);
+    }
+
     drawOverlay();
 
     ctx.restore();
@@ -1392,58 +1468,66 @@ const Game = (() => {
     const isOP = stage?.world === 'onepiece';
     const isNaruto = stage?.world === 'naruto';
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    // Outer glow
-    ctx.strokeStyle = isOP ? 'rgba(52, 152, 219, 0.15)' : isNaruto ? 'rgba(230, 126, 34, 0.12)' : 'rgba(180,140,60,0.12)';
-    ctx.lineWidth = 46;
-    ctx.beginPath();
-    ctx.moveTo(PATH_POINTS[0].x, PATH_POINTS[0].y);
-    PATH_POINTS.forEach(p => ctx.lineTo(p.x, p.y));
-    ctx.stroke();
-    // Dark shadow / Base path
-    ctx.strokeStyle = isOP ? 'rgba(26, 82, 118, 0.6)' : isNaruto ? 'rgba(110, 44, 0, 0.6)' : 'rgba(0,0,0,0.6)';
-    ctx.lineWidth = 36;
-    ctx.beginPath();
-    ctx.moveTo(PATH_POINTS[0].x, PATH_POINTS[0].y);
-    PATH_POINTS.forEach(p => ctx.lineTo(p.x, p.y));
-    ctx.stroke();
-    // Inner track
-    ctx.strokeStyle = isOP ? '#2980b9' : isNaruto ? '#ba4a00' : '#3e2723';
-    ctx.lineWidth = 28;
-    ctx.beginPath();
-    ctx.moveTo(PATH_POINTS[0].x, PATH_POINTS[0].y);
-    PATH_POINTS.forEach(p => ctx.lineTo(p.x, p.y));
-    ctx.stroke();
-    // Center line
-    ctx.strokeStyle = isOP ? '#3498db' : isNaruto ? '#d35400' : '#4e342e';
-    ctx.lineWidth = 14;
-    ctx.beginPath();
-    ctx.moveTo(PATH_POINTS[0].x, PATH_POINTS[0].y);
-    PATH_POINTS.forEach(p => ctx.lineTo(p.x, p.y));
-    ctx.stroke();
-    // Center dashes
-    ctx.strokeStyle = isOP ? 'rgba(255,255,255,0.2)' : isNaruto ? 'rgba(255,200,70,0.2)' : 'rgba(255,200,70,0.12)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([10, 16]);
-    ctx.beginPath();
-    ctx.moveTo(PATH_POINTS[0].x, PATH_POINTS[0].y);
-    PATH_POINTS.forEach(p => ctx.lineTo(p.x, p.y));
-    ctx.stroke();
-    ctx.setLineDash([]);
-    // Spawn label
-    ctx.fillStyle = 'rgba(245,101,101,0.7)';
-    ctx.font = '600 10px Inter,sans-serif';
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('SPAWN', 4, 234);
-    // Base indicator
-    ctx.fillStyle = 'rgba(62,207,142,0.85)';
-    ctx.beginPath();
-    ctx.roundRect(CANVAS_W - 18, 148, 16, 24, 4);
-    ctx.fill();
-    ctx.fillStyle = 'rgba(62,207,142,0.7)';
-    ctx.font = '600 9px Inter,sans-serif';
-    ctx.textAlign = 'right';
-    ctx.fillText('BASE', CANVAS_W - 2, 143);
-    ctx.textAlign = 'left';
+    
+    const pathsToDraw = window.currentPaths || [PATH_POINTS];
+    
+    pathsToDraw.forEach(pArr => {
+      if (!pArr || pArr.length === 0) return;
+      // Outer glow
+      ctx.strokeStyle = isOP ? 'rgba(52, 152, 219, 0.15)' : isNaruto ? 'rgba(230, 126, 34, 0.12)' : 'rgba(180,140,60,0.12)';
+      ctx.lineWidth = 46;
+      ctx.beginPath();
+      ctx.moveTo(pArr[0].x, pArr[0].y);
+      pArr.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+      // Dark shadow / Base path
+      ctx.strokeStyle = isOP ? 'rgba(26, 82, 118, 0.6)' : isNaruto ? 'rgba(110, 44, 0, 0.6)' : 'rgba(0,0,0,0.6)';
+      ctx.lineWidth = 36;
+      ctx.beginPath();
+      ctx.moveTo(pArr[0].x, pArr[0].y);
+      pArr.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+      // Inner track
+      ctx.strokeStyle = isOP ? '#2980b9' : isNaruto ? '#ba4a00' : '#3e2723';
+      ctx.lineWidth = 28;
+      ctx.beginPath();
+      ctx.moveTo(pArr[0].x, pArr[0].y);
+      pArr.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+      // Center line
+      ctx.strokeStyle = isOP ? '#3498db' : isNaruto ? '#d35400' : '#4e342e';
+      ctx.lineWidth = 14;
+      ctx.beginPath();
+      ctx.moveTo(pArr[0].x, pArr[0].y);
+      pArr.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+      // Center dashes
+      ctx.strokeStyle = isOP ? 'rgba(255,255,255,0.2)' : isNaruto ? 'rgba(255,200,70,0.2)' : 'rgba(255,200,70,0.12)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([10, 16]);
+      ctx.beginPath();
+      ctx.moveTo(pArr[0].x, pArr[0].y);
+      pArr.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Spawn label
+      ctx.fillStyle = 'rgba(245,101,101,0.7)';
+      ctx.font = '600 10px Inter,sans-serif';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText('SPAWN', pArr[0].x + 4, pArr[0].y + 4);
+    });
+
+    if (pathsToDraw && pathsToDraw.length > 0 && pathsToDraw[0].length > 0) {
+      // Base indicator
+      const endP = pathsToDraw[0][pathsToDraw[0].length - 1];
+      ctx.fillStyle = 'rgba(62,207,142,0.85)';
+      ctx.beginPath();
+      ctx.roundRect(endP.x - 18, endP.y - 12, 36, 24, 4);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 9px Inter,sans-serif';
+      ctx.fillText('BASE', endP.x - 12, endP.y + 20);
+    }
   }
 
   function drawPlacementPreview() {
@@ -2163,9 +2247,13 @@ const Game = (() => {
 
   function isValidPlacement(x, y) {
     if (x < 20 || x > CANVAS_W - 20 || y < 20 || y > CANVAS_H - 20) return false;
-    for (let i = 1; i < PATH_POINTS.length; i++) {
-      const p1 = PATH_POINTS[i-1], p2 = PATH_POINTS[i];
-      if (distToSegment(x, y, p1.x, p1.y, p2.x, p2.y) < 35) return false;
+    const pathsToCheck = window.currentPaths || [PATH_POINTS];
+    for (const pArr of pathsToCheck) {
+      if (!pArr) continue;
+      for (let i = 1; i < pArr.length; i++) {
+        const p1 = pArr[i-1], p2 = pArr[i];
+        if (distToSegment(x, y, p1.x, p1.y, p2.x, p2.y) < 35) return false;
+      }
     }
     for (const t of towers) {
       if (dist2d(x, y, t.x, t.y) < 30) return false;
@@ -2173,9 +2261,18 @@ const Game = (() => {
     return true;
   }
 
+  function getTowers() {
+    return towers;
+  }
+
+  let dialogPaused = false;
+  function setDialogPause(p) {
+    dialogPaused = p;
+  }
+
   return {
     init, startGame, togglePause, toggleSpeed, sellTower, buyNextUpgrade,
     retryStage, handleClick, getTowers, deployTower, selectTower,
-    useAbility, deselectTower, skipWave
+    useAbility, deselectTower, skipWave, setDialogPause
   };
 })();

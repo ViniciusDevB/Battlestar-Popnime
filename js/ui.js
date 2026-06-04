@@ -19,6 +19,59 @@ const UI = (() => {
     Missions.renderMissions();
   }
 
+  function showEvents() {
+    showScreen('events');
+    renderEventsList();
+    const gems = document.getElementById('events-gems');
+    const tickets = document.getElementById('events-tickets');
+    const d = Save.get();
+    if (gems) gems.textContent = d.gemas;
+    if (tickets) tickets.textContent = d.tickets;
+  }
+
+  function renderEventsList() {
+    const grid = document.getElementById('events-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    EVENTS_DATA.forEach(evt => {
+      const card = document.createElement('div');
+      card.style.cssText = `
+        width: 100%; max-width: 800px; background: #1a1a1a; 
+        border: 2px solid var(--gold); border-radius: 12px; overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column;
+      `;
+      card.innerHTML = `
+        <div style="height: 250px; background-image: url('${evt.flyer}'); background-size: cover; background-position: center; position: relative;">
+          <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.9));">
+            <h3 style="color: var(--gold); font-size: 24px; margin: 0; font-family: 'Cinzel', serif;">${evt.name}</h3>
+          </div>
+        </div>
+        <div style="padding: 20px;">
+          <p style="color: #ccc; font-size: 14px; margin-bottom: 20px;">${evt.desc}</p>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            ${evt.stages.map((st, i) => {
+              const isDone = Save.isStageComplete(st.id, 'normal');
+              const isLocked = i > 0 && !Save.isStageComplete(evt.stages[i-1].id, 'normal');
+              return `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; ${isLocked ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                  <div>
+                    <div style="font-weight: bold; font-size: 16px;">${st.name}</div>
+                    <div style="font-size: 12px; color: var(--t3); margin-top: 5px;">${st.description}</div>
+                  </div>
+                  <button class="btn btn-primary" onclick="UI.showPreBattle('${st.id}')" ${isLocked ? 'disabled' : ''}>
+                    ${isLocked ? '🔒 Bloqueado' : isDone ? '⭐ Concluído' : 'Jogar Capítulo'}
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
   function showWorldSelect() {
     showScreen('world-select');
     renderWorldGrid();
@@ -435,8 +488,13 @@ const UI = (() => {
   function getSelectedDifficulty() { return selectedDifficulty; }
 
   return {
-    showHub, showWorldSelect, showStageSelect: (id) => showStageSelect(id || selectedWorld),
-    showPreBattle, showGacha, showInventory, showGame, showPostBattle,
+    showHub, showWorldSelect, showStageSelect: (id) => {
+      if (!id && typeof EVENTS_DATA !== 'undefined' && EVENTS_DATA.some(e => e.stages.some(s => s.id === selectedStage))) {
+        return showEvents();
+      }
+      showStageSelect(id || selectedWorld);
+    },
+    showPreBattle, showGacha, showInventory, showGame, showPostBattle, showEvents,
     setDifficulty, updateCurrencyDisplay, updateBannerDisplay, updateBannerTimer,
     confirmReset, closeUpgradePanel, toast,
     getSelectedTeam, getSelectedStage, getSelectedDifficulty

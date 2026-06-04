@@ -51,11 +51,11 @@ const WORLDS = [
   }
 ];
 
-function getPathLength() {
+function getPathLength(pathArr = PATH_POINTS) {
   let len = 0;
-  for (let i = 1; i < PATH_POINTS.length; i++) {
-    const dx = PATH_POINTS[i].x - PATH_POINTS[i-1].x;
-    const dy = PATH_POINTS[i].y - PATH_POINTS[i-1].y;
+  for (let i = 1; i < pathArr.length; i++) {
+    const dx = pathArr[i].x - pathArr[i-1].x;
+    const dy = pathArr[i].y - pathArr[i-1].y;
     len += Math.sqrt(dx*dx + dy*dy);
   }
   return len;
@@ -63,22 +63,22 @@ function getPathLength() {
 
 function updatePath(points) {
   PATH_POINTS = points;
-  PATH_LENGTH = getPathLength();
+  PATH_LENGTH = getPathLength(points);
 }
 
-function getPosOnPath(dist) {
+function getPosOnPath(dist, pathArr = PATH_POINTS) {
   let rem = dist;
-  for (let i = 1; i < PATH_POINTS.length; i++) {
-    const dx = PATH_POINTS[i].x - PATH_POINTS[i-1].x;
-    const dy = PATH_POINTS[i].y - PATH_POINTS[i-1].y;
+  for (let i = 1; i < pathArr.length; i++) {
+    const dx = pathArr[i].x - pathArr[i-1].x;
+    const dy = pathArr[i].y - pathArr[i-1].y;
     const seg = Math.sqrt(dx*dx + dy*dy);
     if (rem <= seg) {
       const t = rem / seg;
-      return { x: PATH_POINTS[i-1].x + dx*t, y: PATH_POINTS[i-1].y + dy*t };
+      return { x: pathArr[i-1].x + dx*t, y: pathArr[i-1].y + dy*t };
     }
     rem -= seg;
   }
-  return { x: PATH_POINTS[PATH_POINTS.length-1].x, y: PATH_POINTS[PATH_POINTS.length-1].y };
+  return { x: pathArr[pathArr.length-1].x, y: pathArr[pathArr.length-1].y };
 }
 
 updatePath(PATH_POINTS_W1);

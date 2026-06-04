@@ -59,6 +59,11 @@
       <span class="hab-label">EVOLUÇÃO</span>
       <span class="hab-sub">Evoluir Unidades</span>
     </button>
+    <button class="hab hab--events" onclick="UI.showEvents()" style="border-color: var(--gold); background: rgba(255, 215, 0, 0.05);">
+      <span class="hab-icon">🌟</span>
+      <span class="hab-label" style="color: var(--gold);">EVENTOS</span>
+      <span class="hab-sub">Sagas Especiais</span>
+    </button>
   </div>
 
   <div id="hub-missions-panel" class="hub-missions-wrap">
@@ -75,6 +80,17 @@
     <h2>Selecionar Mundo</h2>
   </div>
   <div id="world-grid" class="world-grid"></div>
+</div>
+
+<!-- ══════════ EVENTS SCREEN ══════════ -->
+<div id="screen-events" class="screen">
+  <div class="screen-header">
+    <button class="btn-back" onclick="UI.showHub()">← Voltar</button>
+    <h2>Sagas e Eventos Especiais</h2>
+  </div>
+  <div id="events-grid" class="events-grid" style="padding: 20px; overflow-y:auto; height:calc(100vh - 80px); display:flex; flex-direction:column; gap:30px; align-items: center;">
+    <!-- Filled by JS -->
+  </div>
 </div>
 
 <!-- ══════════ STAGE SELECT ══════════ -->
@@ -316,8 +332,20 @@
   </div>
 </div>
 
+<!-- ══════════ DIALOG SYSTEM OVERLAY ══════════ -->
+<div id="dialog-overlay" class="dialog-overlay" style="display:none;">
+  <div class="dialog-char-left" id="dialog-char-left"></div>
+  <div class="dialog-char-right" id="dialog-char-right"></div>
+  <div class="dialog-box">
+    <div class="dialog-name" id="dialog-name">Nome</div>
+    <div class="dialog-text" id="dialog-text">Texto</div>
+    <div class="dialog-hint">Clique na tela ou aperte ESPAÇO para continuar ➔</div>
+  </div>
+</div>
+
 <!-- Data -->
 <script src="data/characters.js"></script>
+<script src="data/events_data.js"></script>
 <script src="js/banner.js"></script>
 <script src="data/enemies.js"></script>
 <script src="data/stages.js"></script>
@@ -328,6 +356,7 @@
 <script src="js/missions.js"></script>
 <script src="js/gacha.js"></script>
 <script src="js/inventory.js"></script>
+<script src="js/dialog.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/game.js"></script>
 <script src="js/main.js"></script>

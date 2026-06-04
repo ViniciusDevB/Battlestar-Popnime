@@ -461,5 +461,15 @@ const STAGES = [
   }
 ];
 
-function getStage(id) { return STAGES.find(s => s.id === id) || null; }
+function getStage(id) { 
+  let s = STAGES.find(s => s.id === id);
+  if (s) return s;
+  if (typeof EVENTS_DATA !== 'undefined') {
+    for (const evt of EVENTS_DATA) {
+      const est = evt.stages.find(st => st.id === id);
+      if (est) return est;
+    }
+  }
+  return null;
+}
 function getStagesByWorld(worldId) { return STAGES.filter(s => s.world === worldId); }
