@@ -9,9 +9,60 @@ const Inventory = (() => {
     currentTab = tab;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
     const filters = document.getElementById('inv-filters');
+    const teamBar = document.getElementById('inv-team-bar');
     if (filters) filters.style.display = tab === 'evolution' ? 'none' : '';
+    if (teamBar) {
+      teamBar.style.display = tab === 'units' ? 'flex' : 'none';
+      if (tab === 'units') renderTeamBar();
+    }
     if (tab !== 'units') closeDetail();
     renderGrid();
+  }
+
+  function renderTeamBar() {
+    const container = document.getElementById('inv-team-slots');
+    if (!container) return;
+    container.innerHTML = '';
+    const team = Save.getTeam();
+    team.forEach((charId, i) => {
+      const slot = document.createElement('div');
+      slot.className = 'inv-team-slot' + (charId ? ' filled' : '');
+      if (charId) {
+        const char = getCharById(charId);
+        slot.innerHTML = `
+          <div class="ts-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
+          <div class="ts-remove">✕</div>
+        `;
+        slot.addEventListener('click', () => {
+          team[i] = null;
+          Save.setTeam(team);
+          renderTeamBar();
+          if (selectedUnit) openDetail(selectedUnit);
+        });
+      } else {
+        slot.innerHTML = '+';
+      }
+      container.appendChild(slot);
+    });
+  }
+
+  function toggleTeam(charId) {
+    const team = Save.getTeam();
+    const index = team.indexOf(charId);
+    if (index >= 0) {
+      team[index] = null;
+    } else {
+      const emptySlot = team.findIndex(s => !s);
+      if (emptySlot >= 0) {
+        team[emptySlot] = charId;
+      } else {
+        UI.toast('Seu time está cheio! Remova alguém primeiro.');
+        return;
+      }
+    }
+    Save.setTeam(team);
+    renderTeamBar();
+    if (selectedUnit) openDetail(selectedUnit);
   }
 
   function applyFilters() { renderGrid(); }
@@ -31,7 +82,8 @@ const Inventory = (() => {
     if (evoContent) evoContent.style.display = 'none';
     grid.innerHTML = '';
 
-    const rarityFilter = parseInt(document.getElementById('filter-rarity')?.value) || null;
+    const rarityVal = document.getElementById('filter-rarity')?.value;
+    const rarityFilter = (rarityVal !== '' && rarityVal !== undefined) ? parseInt(rarityVal) : null;
     const seriesFilter = document.getElementById('filter-series')?.value || '';
 
     if (currentTab === 'units') {
@@ -41,7 +93,7 @@ const Inventory = (() => {
       d.inventario.unidades.forEach(unit => {
         const char = getCharById(unit.id);
         if (!char || !char.playable) return;
-        if (rarityFilter && char.rarity !== rarityFilter) return;
+        if (rarityFilter !== null && char.rarity !== rarityFilter) return;
         if (seriesFilter && char.series !== seriesFilter) return;
         ownedIds.add(unit.id);
 
@@ -57,7 +109,7 @@ const Inventory = (() => {
 
       getPlayable().forEach(char => {
         if (ownedIds.has(char.id)) return;
-        if (rarityFilter && char.rarity !== rarityFilter) return;
+        if (rarityFilter !== null && char.rarity !== rarityFilter) return;
         if (seriesFilter && char.series !== seriesFilter) return;
         const card = document.createElement('div');
         card.className = `inv-card rarity-${char.rarity} inv-card--locked`;
@@ -71,6 +123,8 @@ const Inventory = (() => {
     } else {
       const materials = Object.values(CHARACTERS)
         .filter(c => !c.playable)
+        .filter(c => rarityFilter === null || c.rarity === rarityFilter)
+        .filter(c => !seriesFilter || c.series === seriesFilter)
         .sort((a, b) => a.rarity - b.rarity);
 
       materials.forEach(char => {
@@ -277,6 +331,9 @@ const Inventory = (() => {
         <span>${unitData.nivel >= 50 ? 'MAX' : `${unitData.xp_atual}/${xpNeeded}`}</span>
       </div>`;
 
+    const inTeam = Save.getTeam().includes(char.id);
+    const equipBtn = `<button class="btn btn-primary" onclick="Inventory.toggleTeam('${char.id}')">${inTeam ? 'Remover do Time' : 'Equipar no Time'}</button>`;
+
     if (char.is_farm_unit) {
       const p = char.passive;
       const levelGold = p.base + (unitData.nivel - 1) * (p.perLevel || 0);
@@ -289,6 +346,7 @@ const Inventory = (() => {
           <div class="stat-row"><span>Custo Deploy</span><span>${char.deploy_cost} 💰</span></div>
         </div>
         <div class="detail-actions">
+          ${equipBtn}
           <button class="btn btn-feed" onclick="Inventory.openFeed('${uid}')">🍖 Alimentar</button>
         </div>`;
     } else {
@@ -302,6 +360,7 @@ const Inventory = (() => {
           <div class="stat-row"><span>Custo Deploy</span><span>${char.deploy_cost} 💰</span></div>
         </div>
         <div class="detail-actions">
+          ${equipBtn}
           <button class="btn btn-feed" onclick="Inventory.openFeed('${uid}')">🍖 Alimentar</button>
         </div>`;
     }
@@ -561,6 +620,6 @@ const Inventory = (() => {
     openEvolution, closeEvolution, confirmEvolution,
     openFeed, closeFeed, confirmFeed, removeFeedSelected,
     openMaterialDetail, combineMaterial, combineMaxMaterial,
-    renderGrid
+    renderGrid, toggleTeam, renderTeamBar
   };
 })();

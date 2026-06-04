@@ -33,7 +33,7 @@ const UI = (() => {
       const stagesInWorld = getStagesByWorld(w.id);
       const completed = stagesInWorld.filter(s => Save.isStageComplete(s.id, 'normal')).length;
       const card = document.createElement('div');
-      card.className = `world-card${w.unlocked ? '' : ' world-locked'}`;
+      card.className = `world-card theme-${w.id}${w.unlocked ? '' : ' world-locked'}`;
       card.style.borderColor = w.color;
       card.innerHTML = `
         <div class="world-icon" style="color:${w.color}">🌍</div>
@@ -66,7 +66,7 @@ const UI = (() => {
       const stars = (normalDone ? 1 : 0) + (hardDone ? 1 : 0) + (legDone ? 1 : 0);
       const prevDone = i === 0 || Save.isStageComplete(stages[i-1].id, 'normal');
       const card = document.createElement('div');
-      card.className = `stage-card${prevDone ? '' : ' stage-locked'}`;
+      card.className = `stage-card theme-${worldId}${prevDone ? '' : ' stage-locked'}`;
       card.innerHTML = `
         <div class="stage-num">${i + 1}</div>
         <div class="stage-name">${stage.name}</div>
@@ -81,7 +81,7 @@ const UI = (() => {
   function showPreBattle(stageId) {
     selectedStage = stageId;
     selectedDifficulty = 'normal';
-    teamSlots = [null, null, null, null, null, null];
+    teamSlots = [...Save.getTeam()];
     showScreen('prebattle');
     const stage = getStage(stageId);
     document.getElementById('prebattle-stage-name').textContent = stage?.name || stageId;
@@ -128,7 +128,12 @@ const UI = (() => {
           <div class="ts-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
           <div class="ts-name">${char.name}</div>
           <div class="ts-lv">Lv${unitData?.nivel || 1}</div>`;
-        slot.addEventListener('click', () => { teamSlots[i] = null; renderTeamSlots(); renderAvailableUnits(); });
+        slot.addEventListener('click', () => { 
+          teamSlots[i] = null; 
+          Save.setTeam(teamSlots);
+          renderTeamSlots(); 
+          renderAvailableUnits(); 
+        });
       } else {
         slot.innerHTML = '<div class="ts-empty">+</div>';
       }
@@ -159,6 +164,7 @@ const UI = (() => {
           const emptySlot = teamSlots.findIndex(s => !s);
           if (emptySlot >= 0) {
             teamSlots[emptySlot] = u.id;
+            Save.setTeam(teamSlots);
             renderTeamSlots();
             renderAvailableUnits();
           } else {
@@ -232,6 +238,118 @@ const UI = (() => {
     Game.deselectTower();
   }
 
+  function formatAttackType(type) {
+    switch (type) {
+      case 'single_target': return '🎯 Single';
+      case 'linha': return '📏 Linha';
+      case 'cone': return '📐 Cone';
+      case 'aoe': return '💥 AOE';
+      case 'aoe_full': return '🌪️ Full AOE';
+      case 'none': return '🛡️ Suporte';
+      default: return type || 'N/A';
+    }
+  }
+
+  function makeFeaturedPanel(id) {
+    const c = getCharById(id);
+    if (!c) return '';
+    const cleanName = c.name.replace(/\s*\(.*\)/, '');
+    const series = SERIES_LABELS[c.series] || c.series;
+    const attackType = formatAttackType(c.base_stats?.type);
+    const dmg = c.base_stats?.damage || 0;
+    const rng = c.base_stats?.range || 0;
+    const spd = c.base_stats?.attack_speed ? c.base_stats.attack_speed.toFixed(2) : '0';
+    const passiveDesc = c.passive?.label || 'Nenhuma habilidade passiva.';
+
+    return `
+      <div class="banner-featured-card">
+        <div class="featured-glow-effect"></div>
+        <div class="featured-header">
+          <span class="featured-rarity-badge">★ MYTHIC ★</span>
+          <span class="featured-series-badge">${series}</span>
+        </div>
+        <div class="featured-body">
+          <div class="featured-avatar-container">
+            <div class="featured-avatar-circle" style="background:${RARITY_COLORS[c.rarity]}">
+              ${charIconInner(c)}
+            </div>
+          </div>
+          <div class="featured-details">
+            <h2 class="featured-char-name">${cleanName}</h2>
+            <div class="featured-stat-grid">
+              <div class="featured-stat-item" title="Dano Base">
+                <span class="stat-icon">⚔️</span>
+                <span class="stat-val">${dmg}</span>
+              </div>
+              <div class="featured-stat-item" title="Alcance Base">
+                <span class="stat-icon">🎯</span>
+                <span class="stat-val">${rng}</span>
+              </div>
+              <div class="featured-stat-item" title="Velocidade de Ataque">
+                <span class="stat-icon">⚡</span>
+                <span class="stat-val">${spd}s</span>
+              </div>
+              <div class="featured-stat-item" title="Tipo de Ataque">
+                <span class="stat-val">${attackType}</span>
+              </div>
+            </div>
+            <div class="featured-passive-box">
+              <div class="passive-title">✨ Habilidade Passiva</div>
+              <div class="passive-text">${passiveDesc}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function makeSupportingList(star4Ids, star3Ids) {
+    let html = `<div class="banner-supporting-section">`;
+    html += `<div class="supporting-title">Unidades de Suporte</div>`;
+    html += `<div class="supporting-grid">`;
+
+    // Render Epic (4⭐)
+    star4Ids.forEach(id => {
+      const c = getCharById(id);
+      if (!c) return;
+      const cleanName = c.name.replace(/\s*\(.*\)/, '');
+      const series = SERIES_LABELS[c.series] || c.series;
+      html += `
+        <div class="hbc hbc--star4" title="${c.name} - ${series}">
+          <div class="hbc-badge">EPIC</div>
+          <div class="hbc-avatar" style="background:${RARITY_COLORS[c.rarity]}">${charIconInner(c)}</div>
+          <div class="hbc-name">${cleanName}</div>
+          <div class="hbc-footer">
+            <div class="hbc-rarity">${c.rarity}★</div>
+            <div class="hbc-series">${series}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    // Render Rare (3⭐)
+    star3Ids.forEach(id => {
+      const c = getCharById(id);
+      if (!c) return;
+      const cleanName = c.name.replace(/\s*\(.*\)/, '');
+      const series = SERIES_LABELS[c.series] || c.series;
+      html += `
+        <div class="hbc hbc--star3" title="${c.name} - ${series}">
+          <div class="hbc-badge">RARE</div>
+          <div class="hbc-avatar" style="background:${RARITY_COLORS[c.rarity]}">${charIconInner(c)}</div>
+          <div class="hbc-name">${cleanName}</div>
+          <div class="hbc-footer">
+            <div class="hbc-rarity">${c.rarity}★</div>
+            <div class="hbc-series">${series}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div></div>`;
+    return html;
+  }
+
   function makeBannerCard(id, starClass) {
     const c = getCharById(id);
     if (!c) return null;
@@ -250,22 +368,25 @@ const UI = (() => {
   }
 
   function updateBannerDisplay(banner) {
+    const featuredHtml = banner.star5.map(id => makeFeaturedPanel(id)).join('');
+    const supportingHtml = makeSupportingList(banner.star4, banner.star3);
+    const fullHtml = `
+      <div class="banner-layout">
+        ${featuredHtml}
+        ${supportingHtml}
+      </div>
+    `;
+
     // Hub banner chars
     const hubChars = document.getElementById('hub-banner-chars');
     if (hubChars) {
-      hubChars.innerHTML = '';
-      banner.star5.forEach(id => { const d = makeBannerCard(id, 'hbc--star5'); if (d) hubChars.appendChild(d); });
-      banner.star4.forEach(id => { const d = makeBannerCard(id, 'hbc--star4'); if (d) hubChars.appendChild(d); });
-      banner.star3.forEach(id => { const d = makeBannerCard(id, 'hbc--star3'); if (d) hubChars.appendChild(d); });
+      hubChars.innerHTML = fullHtml;
     }
 
-    // Gacha banner art — usa os mesmos cards do hub
+    // Gacha banner art — usa o mesmo layout do hub
     const gachaChars = document.getElementById('gacha-banner-art-chars');
     if (gachaChars) {
-      gachaChars.innerHTML = '';
-      banner.star5.forEach(id => { const d = makeBannerCard(id, 'hbc--star5'); if (d) gachaChars.appendChild(d); });
-      banner.star4.forEach(id => { const d = makeBannerCard(id, 'hbc--star4'); if (d) gachaChars.appendChild(d); });
-      banner.star3.forEach(id => { const d = makeBannerCard(id, 'hbc--star3'); if (d) gachaChars.appendChild(d); });
+      gachaChars.innerHTML = fullHtml;
     }
 
     if (typeof Gacha !== 'undefined') Gacha.updateGachaUI();

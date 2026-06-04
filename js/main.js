@@ -52,6 +52,7 @@ window.addEventListener('DOMContentLoaded', () => {
     togglePause: () => Game.togglePause(),
     toggleSpeed: () => Game.toggleSpeed(),
     sellTower:   () => Game.sellTower(),
+    buyNextUpgrade: () => Game.buyNextUpgrade(),
     retryStage:  () => Game.retryStage(),
     useAbility:  (idx) => Game.useAbility(idx),
     deselectTower: () => Game.deselectTower(),
@@ -74,6 +75,15 @@ window.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
     } else if (e.code === 'KeyS') {
       GameController.skipWave();
+      e.preventDefault();
+    } else if (e.code === 'KeyF') {
+      GameController.toggleSpeed();
+      e.preventDefault();
+    } else if (e.code === 'KeyU') {
+      GameController.buyNextUpgrade();
+      e.preventDefault();
+    } else if (e.code === 'Backspace' || e.code === 'Delete') {
+      GameController.sellTower();
       e.preventDefault();
     } else if (['Digit1','Digit2','Digit3','Digit4','Digit5','Digit6'].includes(e.code)) {
       const idx = parseInt(e.key) - 1;

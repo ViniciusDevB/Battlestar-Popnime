@@ -102,12 +102,24 @@ const Gacha = (() => {
 
   function updateGachaUI() {
     const d = Save.get();
+    const pity = d.pity_contador || 0;
     const pc = document.getElementById('pity-counter');
     const gg = document.getElementById('gacha-gems');
     const gt = document.getElementById('gacha-tickets');
-    if (pc) pc.textContent = d.pity_contador || 0;
+    if (pc) pc.textContent = pity;
     if (gg) gg.textContent = d.gemas;
     if (gt) gt.textContent = d.tickets;
+
+    const fill = document.getElementById('gacha-pity-fill');
+    if (fill) {
+      const pct = Math.min(100, (pity / 150) * 100);
+      fill.style.width = `${pct}%`;
+      if (pct >= 80) {
+        fill.classList.add('pity-near-guarantee');
+      } else {
+        fill.classList.remove('pity-near-guarantee');
+      }
+    }
   }
 
   return { pull, closeResult, updateGachaUI };

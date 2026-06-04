@@ -28,9 +28,9 @@ const Game = (() => {
     sasuke_uchiha:    '#7986cb',
     killua_zoldyck:   '#e8eaf6',
     tanjiro_kamado:   '#ef5350',
-    zoro_base:        '#66bb6a',
+    zoro_3:           '#66bb6a',
     naruto_shippuden: '#ff8c00',
-    luffy_base:       '#ff7043',
+    luffy_3:          '#ff7043',
     levi_ackerman:    '#b0bec5',
     meliodas_base:    '#ab47bc',
     naruto_sage:      '#ffb300',
@@ -531,6 +531,11 @@ const Game = (() => {
     if (!stage) return;
 
     const wdef = WORLDS.find(w => w.id === stage.world);
+    const canvasEl = document.getElementById('game-canvas');
+    if (canvasEl) {
+      canvasEl.className = ''; // Clear previous themes
+      if (wdef) canvasEl.classList.add(`theme-${wdef.id}`);
+    }
     if (wdef && wdef.path) {
       updatePath(wdef.path);
     }
@@ -1160,7 +1165,7 @@ const Game = (() => {
       div.innerHTML = `
         <div class="upg-name">${upg.name} ${purchased ? '✓' : ''}</div>
         <div class="upg-desc">${upg.desc}</div>
-        <div class="upg-cost">${purchased ? 'Comprado' : `${upg.cost} 💰`}</div>`;
+        <div class="upg-cost">${purchased ? 'Comprado' : `${upg.cost} 💰 ${isNext ? '<span style="font-size:9px;color:#aaa;margin-left:5px;">(U)</span>' : ''}`}</div>`;
       if (isNext && canAfford) {
         div.addEventListener('click', () => buyUpgrade(slotIdx, i));
         div.style.cursor = 'pointer';
@@ -1171,7 +1176,7 @@ const Game = (() => {
     // Sell button value
     const sellVal = Math.floor(char?.deploy_cost * 0.5 || 0);
     const sellBtn = panel.querySelector('.btn-sell');
-    if (sellBtn) sellBtn.textContent = `Vender (+${sellVal} 💰)`;
+    if (sellBtn) sellBtn.textContent = `Vender (+${sellVal} 💰) [Del]`;
 
     panel.style.display = 'flex';
   }
@@ -1206,7 +1211,18 @@ const Game = (() => {
     updateHUD();
   }
 
-  function deselectTower() { selectedTowerIdx = -1; closeUpgradePanel(); }
+  function buyNextUpgrade() {
+    if (selectedTowerIdx < 0) return;
+    const tower = towers[selectedTowerIdx];
+    if (tower) buyUpgrade(selectedTowerIdx, tower.upgradeLevel);
+  }
+
+  function deselectTower() { 
+    selectedTowerIdx = -1; 
+    deployingCharId = null;
+    closeUpgradePanel(); 
+    renderTeamPanel();
+  }
   function closeUpgradePanel() {
     const p = document.getElementById('upgrade-panel');
     if (p) p.style.display = 'none';
@@ -1338,10 +1354,23 @@ const Game = (() => {
 
   function drawBackground() {
     const isOP = stage?.world === 'onepiece';
-    ctx.fillStyle = isOP ? '#0a2e3f' : '#080e08';
+    const isNaruto = stage?.world === 'naruto';
+    
+    if (isOP) {
+      const grad = ctx.createRadialGradient(CANVAS_W/2, CANVAS_H/2, 0, CANVAS_W/2, CANVAS_H/2, CANVAS_W);
+      grad.addColorStop(0, '#102a40'); grad.addColorStop(1, '#05121c');
+      ctx.fillStyle = grad;
+    } else if (isNaruto) {
+      const grad = ctx.createRadialGradient(CANVAS_W/2, CANVAS_H/2, 0, CANVAS_W/2, CANVAS_H/2, CANVAS_W);
+      grad.addColorStop(0, '#2b3a20'); grad.addColorStop(1, '#11180c');
+      ctx.fillStyle = grad;
+    } else {
+      ctx.fillStyle = '#080e08';
+    }
+    
     ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
     // Subtle grid
-    ctx.strokeStyle = isOP ? 'rgba(255,255,255,0.015)' : 'rgba(255,255,255,0.025)';
+    ctx.strokeStyle = isOP ? 'rgba(255,255,255,0.015)' : isNaruto ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.025)';
     ctx.lineWidth = 1;
     for (let x = 0; x < CANVAS_W; x += 40) {
       ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,CANVAS_H); ctx.stroke();
@@ -1353,45 +1382,46 @@ const Game = (() => {
     const dots = [[60,60],[140,380],[220,200],[380,50],[420,430],[500,90],[570,300],[650,430],[760,80],[850,250],[950,420],[900,100]];
     dots.forEach(([x,y]) => {
       ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2);
-      ctx.fillStyle = isOP ? 'rgba(15, 60, 80, 0.6)' : 'rgba(30,60,30,0.6)'; ctx.fill();
+      ctx.fillStyle = isOP ? 'rgba(15, 60, 80, 0.6)' : isNaruto ? 'rgba(46, 204, 113, 0.15)' : 'rgba(30,60,30,0.6)'; ctx.fill();
       ctx.beginPath(); ctx.arc(x+8, y-4, 9, 0, Math.PI*2);
-      ctx.fillStyle = isOP ? 'rgba(20, 80, 100, 0.5)' : 'rgba(24,50,24,0.5)'; ctx.fill();
+      ctx.fillStyle = isOP ? 'rgba(20, 80, 100, 0.5)' : isNaruto ? 'rgba(39, 174, 96, 0.2)' : 'rgba(24,50,24,0.5)'; ctx.fill();
     });
   }
 
   function drawPath() {
     const isOP = stage?.world === 'onepiece';
+    const isNaruto = stage?.world === 'naruto';
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     // Outer glow
-    ctx.strokeStyle = isOP ? 'rgba(241, 196, 15, 0.1)' : 'rgba(180,140,60,0.12)';
+    ctx.strokeStyle = isOP ? 'rgba(52, 152, 219, 0.15)' : isNaruto ? 'rgba(230, 126, 34, 0.12)' : 'rgba(180,140,60,0.12)';
     ctx.lineWidth = 46;
     ctx.beginPath();
     ctx.moveTo(PATH_POINTS[0].x, PATH_POINTS[0].y);
     PATH_POINTS.forEach(p => ctx.lineTo(p.x, p.y));
     ctx.stroke();
     // Dark shadow / Base path
-    ctx.strokeStyle = isOP ? 'rgba(211, 175, 55, 0.2)' : 'rgba(0,0,0,0.6)';
+    ctx.strokeStyle = isOP ? 'rgba(26, 82, 118, 0.6)' : isNaruto ? 'rgba(110, 44, 0, 0.6)' : 'rgba(0,0,0,0.6)';
     ctx.lineWidth = 36;
     ctx.beginPath();
     ctx.moveTo(PATH_POINTS[0].x, PATH_POINTS[0].y);
     PATH_POINTS.forEach(p => ctx.lineTo(p.x, p.y));
     ctx.stroke();
     // Inner track
-    ctx.strokeStyle = isOP ? '#f39c12' : '#3e2723';
+    ctx.strokeStyle = isOP ? '#2980b9' : isNaruto ? '#ba4a00' : '#3e2723';
     ctx.lineWidth = 28;
     ctx.beginPath();
     ctx.moveTo(PATH_POINTS[0].x, PATH_POINTS[0].y);
     PATH_POINTS.forEach(p => ctx.lineTo(p.x, p.y));
     ctx.stroke();
     // Center line
-    ctx.strokeStyle = isOP ? '#f1c40f' : '#4e342e';
+    ctx.strokeStyle = isOP ? '#3498db' : isNaruto ? '#d35400' : '#4e342e';
     ctx.lineWidth = 14;
     ctx.beginPath();
     ctx.moveTo(PATH_POINTS[0].x, PATH_POINTS[0].y);
     PATH_POINTS.forEach(p => ctx.lineTo(p.x, p.y));
     ctx.stroke();
     // Center dashes
-    ctx.strokeStyle = 'rgba(255,200,70,0.12)';
+    ctx.strokeStyle = isOP ? 'rgba(255,255,255,0.2)' : isNaruto ? 'rgba(255,200,70,0.2)' : 'rgba(255,200,70,0.12)';
     ctx.lineWidth = 2;
     ctx.setLineDash([10, 16]);
     ctx.beginPath();
@@ -1883,7 +1913,7 @@ const Game = (() => {
         ctx.fillStyle = '#ffd740'; ctx.fill();
         break;
       }
-      case 'zoro_base': {
+      case 'zoro_3': {
         // Green X sword slash
         ctx.rotate(p.angle + Math.PI / 4);
         ctx.shadowBlur = 8; ctx.shadowColor = '#43a047';
@@ -1908,7 +1938,7 @@ const Game = (() => {
         ctx.fillStyle = '#fff'; ctx.fill();
         break;
       }
-      case 'luffy_base': {
+      case 'luffy_3': {
         // Red elongated rubber fist
         ctx.rotate(p.angle);
         ctx.shadowBlur = 8; ctx.shadowColor = '#ef5350';
@@ -2144,7 +2174,8 @@ const Game = (() => {
   }
 
   return {
-    init, startGame, togglePause, toggleSpeed, sellTower,
-    deselectTower, retryStage, useAbility, skipWave
+    init, startGame, togglePause, toggleSpeed, sellTower, buyNextUpgrade,
+    retryStage, handleClick, getTowers, deployTower, selectTower,
+    useAbility, deselectTower, skipWave
   };
 })();

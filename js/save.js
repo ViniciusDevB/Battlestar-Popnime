@@ -112,6 +112,7 @@ const Save = (() => {
       if (u.id === id && removed < qty) { removed++; return false; }
       return true;
     });
+    cleanTeam();
     save();
     return removed;
   }
@@ -120,7 +121,21 @@ const Save = (() => {
   function removeUnitByUid(uid) {
     const d = get();
     d.inventario.unidades = d.inventario.unidades.filter(u => u.uid !== uid);
+    cleanTeam();
     save();
+  }
+
+  function cleanTeam() {
+    const d = get();
+    if (!d.time_salvo) return;
+    let changed = false;
+    for (let i = 0; i < d.time_salvo.length; i++) {
+      if (d.time_salvo[i] && getUnitQty(d.time_salvo[i]) === 0) {
+        d.time_salvo[i] = null;
+        changed = true;
+      }
+    }
+    if (changed) save();
   }
 
   function removeMaterial(id, qty = 1) {
@@ -187,8 +202,23 @@ const Save = (() => {
     return !!(d.fases_completas[stageId] && d.fases_completas[stageId][diff]);
   }
 
+  function getTeam() {
+    const d = get();
+    if (!d.time_salvo || d.time_salvo.length !== 6) {
+      d.time_salvo = [null, null, null, null, null, null];
+      save();
+    }
+    return d.time_salvo;
+  }
+
+  function setTeam(teamArr) {
+    const d = get();
+    d.time_salvo = teamArr;
+    save();
+  }
+
   return { load, save, get, reset, addUnit, addMaterial, removeUnit, removeUnitByUid,
            removeMaterial, getUnitData, getBestUnitData, getUnitByUid, getMaterialQty, getUnitQty,
            addGems, spendGems, addTickets, spendTickets, incStat, setStat,
-           markStageComplete, isStageComplete };
+           markStageComplete, isStageComplete, getTeam, setTeam };
 })();

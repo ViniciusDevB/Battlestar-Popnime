@@ -138,7 +138,7 @@
     <div class="hud-controls">
       <button class="btn-hud" id="btn-skip" onclick="GameController.skipWave()" title="Antecipar Wave (S)">⏭</button>
       <button class="btn-hud" id="btn-pause" onclick="GameController.togglePause()" title="Pausar (Espaço)">⏸</button>
-      <button class="btn-hud btn-speed" onclick="GameController.toggleSpeed()">⏩ <span id="speed-indicator">1×</span></button>
+      <button class="btn-hud btn-speed" onclick="GameController.toggleSpeed()" title="Acelerar Jogo (F)">⏩ <span id="speed-indicator">1×</span></button>
     </div>
   </div>
   <div class="game-main">
@@ -184,7 +184,16 @@
   <div class="gacha-body">
     <div class="gacha-banner-art">
       <div id="gacha-banner-art-chars"><!-- preenchido pelo JS --></div>
-      <div class="gacha-pity">Pity: <b><span id="pity-counter">0</span>/150</b></div>
+      <div class="gacha-pity-container">
+        <div class="gacha-pity-header">
+          <span class="gacha-pity-title">🛡️ CONTADOR PITY</span>
+          <span class="gacha-pity-val"><span id="pity-counter">0</span>/150</span>
+        </div>
+        <div class="gacha-pity-bar-bg">
+          <div id="gacha-pity-fill" class="gacha-pity-fill" style="width: 0%;"></div>
+        </div>
+        <div class="gacha-pity-hint">Garante um personagem 5⭐ (Mythic) no 150º pull</div>
+      </div>
     </div>
     <div class="gacha-info">
       <div class="gacha-info-section">
@@ -231,9 +240,12 @@
   <div class="inv-filters" id="inv-filters">
     <select id="filter-rarity" onchange="Inventory.applyFilters()">
       <option value="">Todas raridades</option>
-      <option value="3">3⭐</option>
-      <option value="4">4⭐</option>
       <option value="5">5⭐</option>
+      <option value="4">4⭐</option>
+      <option value="3">3⭐</option>
+      <option value="2">2⭐ (Material)</option>
+      <option value="1">1⭐ (Material)</option>
+      <option value="0">0⭐ (Material)</option>
     </select>
     <select id="filter-series" onchange="Inventory.applyFilters()">
       <option value="">Todas séries</option>
@@ -249,6 +261,10 @@
       <option value="nanatsu">Seven Deadly Sins</option>
       <option value="jjk">Jujutsu Kaisen</option>
     </select>
+  </div>
+  <div class="inv-team-bar" id="inv-team-bar" style="display:none;">
+    <div class="inv-team-label">SEU TIME</div>
+    <div class="inv-team-slots" id="inv-team-slots"></div>
   </div>
   <div class="inv-content">
     <div id="inventory-grid" class="inv-grid"></div>
