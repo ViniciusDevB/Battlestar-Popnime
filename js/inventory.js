@@ -484,7 +484,7 @@ const Inventory = (() => {
 
     Save.addUnit(evolutionTarget, 1, 0);
     Save.incStat('evolucoes_realizadas');
-    if (char.rarity === 5) Save.incStat('unidades_5estrelas_obtidas');
+    if (char.rarity >= 5) Save.incStat('unidades_5estrelas_obtidas');
     Missions.check();
     closeEvolution();
 

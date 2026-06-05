@@ -1,11 +1,11 @@
 const CHARACTERS = {
   // ── Star Experience (drop exclusivo do Modo Infinito) ─────────────────────
   // Nv1 = XP equivalente a um personagem 4⭐. Cada nível superior multiplica.
-  star_exp_1: { id:'star_exp_1', name:'Star Experience Nv1', rarity:3, series:'infinito', playable:false, xp_value:3000,  initials:'SE1', image:'assets/ingredients/infinito/StarExp1.png' },
-  star_exp_2: { id:'star_exp_2', name:'Star Experience Nv2', rarity:4, series:'infinito', playable:false, xp_value:7000,  initials:'SE2', image:'assets/ingredients/infinito/StarExp2.png' },
-  star_exp_3: { id:'star_exp_3', name:'Star Experience Nv3', rarity:5, series:'infinito', playable:false, xp_value:16000, initials:'SE3', image:'assets/ingredients/infinito/StarExp3.png' },
-  star_exp_4: { id:'star_exp_4', name:'Star Experience Nv4', rarity:5, series:'infinito', playable:false, xp_value:38000, initials:'SE4', image:'assets/ingredients/infinito/StarExp4.png' },
-  star_exp_5: { id:'star_exp_5', name:'Star Experience Nv5', rarity:5, series:'infinito', playable:false, xp_value:90000, initials:'SE5', image:'assets/ingredients/infinito/StarExp5.png' },
+  star_exp_1: { id:'star_exp_1', name:'Star Experience Nv1', rarity:3, series:'infinito', playable:false, xp_value:3000,  initials:'SE1', image:'assets/ingredients/infinite/Star Experience Nv1.png' },
+  star_exp_2: { id:'star_exp_2', name:'Star Experience Nv2', rarity:4, series:'infinito', playable:false, xp_value:7000,  initials:'SE2', image:'assets/ingredients/infinite/Star Experience Nv2.png' },
+  star_exp_3: { id:'star_exp_3', name:'Star Experience Nv3', rarity:5, series:'infinito', playable:false, xp_value:16000, initials:'SE3', image:'assets/ingredients/infinite/Star Experience Nv3.png' },
+  star_exp_4: { id:'star_exp_4', name:'Star Experience Nv4', rarity:5, series:'infinito', playable:false, xp_value:38000, initials:'SE4', image:'assets/ingredients/infinite/Star Experience Nv4.png' },
+  star_exp_5: { id:'star_exp_5', name:'Star Experience Nv5', rarity:5, series:'infinito', playable:false, xp_value:90000, initials:'SE5', image:'assets/ingredients/infinite/Star Experience Nv5.png' },
 
   // ── Materials ─────────────────────────────────────────────────────────────
   ninja_generico_1: { id:'ninja_generico_1', name:'Ninja Genérico I',   rarity:0, series:'naruto', playable:false, xp_value:50,  initials:'NG1', image: 'assets/ingredients/world1/Ninja 1.png', upgrades_to:'ninja_generico_2', upgrade_cost:3 },
@@ -316,31 +316,31 @@ const CHARACTERS = {
   },
 
   // ── Ingredients (One Piece) ──
-  pirata_generico_1: { id:'pirata_generico_1', name:'Pirata Novato',   rarity:0, series:'onepiece', playable:false, xp_value:60, initials:'P1', image: 'assets/ingredients/world2/Pirata 1.png', upgrades_to:'pirata_generico_2', upgrade_cost:3 },
-  pirata_generico_2: { id:'pirata_generico_2', name:'Pirata Saqueador',  rarity:1, series:'onepiece', playable:false, xp_value:180, initials:'P2', image: 'assets/ingredients/world2/Pirata 2.png', upgrades_to:'pirata_generico_3', upgrade_cost:3 },
-  pirata_generico_3: { id:'pirata_generico_3', name:'Pirata Veterano', rarity:2, series:'onepiece', playable:false, xp_value:500, initials:'P3', image: 'assets/ingredients/world2/Pirata 3.png' },
+  pirata_generico_1: { id:'pirata_generico_1', name:'Pirata I',   rarity:0, series:'onepiece', playable:false, xp_value:60, initials:'P1', image: 'assets/ingredients/world2/Pirata 1.png', upgrades_to:'pirata_generico_2', upgrade_cost:3 },
+  pirata_generico_2: { id:'pirata_generico_2', name:'Pirata II',  rarity:1, series:'onepiece', playable:false, xp_value:180, initials:'P2', image: 'assets/ingredients/world2/Pirata 2.png', upgrades_to:'pirata_generico_3', upgrade_cost:3 },
+  pirata_generico_3: { id:'pirata_generico_3', name:'Pirata III', rarity:2, series:'onepiece', playable:false, xp_value:500, initials:'P3', image: 'assets/ingredients/world2/Pirata 3.png' },
 
   // ── Materiais Bleach ───────────────────────────────────────────────────────
   shinigami_generico_1: {
-    id:'shinigami_generico_1', name:'Shinigami Genérico', rarity:0, series:'bleach',
-    playable:false, xp_value:100, initials:'SG',
+    id:'shinigami_generico_1', name:'Shinigami I', rarity:0, series:'bleach',
+    playable:false, xp_value:100, initials:'S1', image:'assets/ingredients/world3/Shinigami 1 (1).png',
     upgrades_to:'shinigami_generico_2', upgrade_cost:3
   },
   shinigami_generico_2: {
-    id:'shinigami_generico_2', name:'Shinigami Patrulha', rarity:1, series:'bleach',
-    playable:false, xp_value:300, initials:'SP',
+    id:'shinigami_generico_2', name:'Shinigami II', rarity:1, series:'bleach',
+    playable:false, xp_value:300, initials:'S2', image:'assets/ingredients/world3/Shinigami 2 (1).png',
     upgrades_to:'shinigami_generico_3', upgrade_cost:3
   },
   shinigami_generico_3: {
-    id:'shinigami_generico_3', name:'Shinigami Elite', rarity:2, series:'bleach',
-    playable:false, xp_value:800, initials:'SE'
+    id:'shinigami_generico_3', name:'Shinigami III', rarity:2, series:'bleach',
+    playable:false, xp_value:800, initials:'S3', image:'assets/ingredients/world3/Shinigame 3.png'
   },
 
   // ── 3⭐ Bleach ──────────────────────────────────────────────────────────────
   rukia_kuchiki: {
     id:'rukia_kuchiki', name:'Rukia Kuchiki', rarity:3, series:'bleach',
     playable:true, xp_value:1000, initials:'RK',
-    image:'assets/towers/bleach/Rukia.png',
+    image:'assets/towers/update1/Rukia Kuchiki.png',
     passive:{ type:'freeze_on_hit', chance:0.28, duration:2.0,
       label:'Sode no Shirayuki: 28% de chance de congelar o alvo por 2s a cada acerto' },
     base_stats:{ damage:88, range:145, attack_speed:1.25, type:'single' },
@@ -359,7 +359,7 @@ const CHARACTERS = {
   renji_abarai: {
     id:'renji_abarai', name:'Renji Abarai', rarity:3, series:'bleach',
     playable:true, xp_value:1000, initials:'RA',
-    image:'assets/towers/bleach/Renji.png',
+    image:'assets/towers/update1/Renji Abarai.png',
     passive:{ type:'snake_venom', stacks:5, burstMult:4.5,
       label:'Zabimaru: a cada 5 acertos no mesmo inimigo, explode causando 4.5× dano' },
     base_stats:{ damage:110, range:115, attack_speed:1.05, type:'single' },
@@ -378,7 +378,7 @@ const CHARACTERS = {
   uryu_ishida: {
     id:'uryu_ishida', name:'Uryu Ishida', rarity:3, series:'bleach',
     playable:true, xp_value:1000, initials:'UI',
-    image:'assets/towers/bleach/Uryu.png',
+    image:'assets/towers/update1/Uryu Ishida.png',
     passive:{ type:'quincy_pierce', label:'Letzt Stil: flechas perfuram até 3 inimigos em linha' },
     base_stats:{ damage:80, range:200, attack_speed:1.35, type:'pierce' },
     deploy_cost:230, max_level:50,
@@ -396,7 +396,7 @@ const CHARACTERS = {
   orihime_inoue: {
     id:'orihime_inoue', name:'Orihime Inoue', rarity:3, series:'bleach',
     playable:true, xp_value:1000, initials:'OI',
-    image:'assets/towers/bleach/Orihime.png',
+    image:'assets/towers/update1/Orihime Inoue.png',
     passive:{ type:'santen_kesshun', radius:145,
       label:'Santen Kesshun: torres no alcance de Orihime ficam imunes a stun continuamente' },
     base_stats:{ damage:75, range:145, attack_speed:0.85, type:'aoe' },
@@ -415,7 +415,7 @@ const CHARACTERS = {
   chad_yasutora: {
     id:'chad_yasutora', name:'Chad Yasutora', rarity:3, series:'bleach',
     playable:true, xp_value:1000, initials:'CY',
-    image:'assets/towers/bleach/Chad.png',
+    image:'assets/towers/update1/Chad Yasutora.png',
     passive:{ type:'boss_slayer', mult:2.2,
       label:'Brazo Derecho: causa 2.2× dano a minibosses e bosses' },
     base_stats:{ damage:185, range:85, attack_speed:0.72, type:'aoe' },
@@ -436,7 +436,7 @@ const CHARACTERS = {
   byakuya_kuchiki: {
     id:'byakuya_kuchiki', name:'Byakuya Kuchiki', rarity:4, series:'bleach',
     playable:true, xp_value:4000, initials:'BK',
-    image:'assets/towers/bleach/Byakuya.png',
+    image:'assets/towers/update1/Byakuha Kuchiki (1).png',
     passive:{ type:'petal_mark', splashRadius:95, splashMult:1.3,
       label:'Senbonzakura: ao matar, pétalas explodem causando 1.3× dano em área' },
     base_stats:{ damage:105, range:160, attack_speed:0.95, type:'scatter' },
@@ -455,7 +455,7 @@ const CHARACTERS = {
   toshiro_hitsugaya: {
     id:'toshiro_hitsugaya', name:'Toshiro Hitsugaya', rarity:4, series:'bleach',
     playable:true, xp_value:4000, initials:'TH',
-    image:'assets/towers/bleach/Hitsugaya.png',
+    image:'assets/towers/update1/Toshiro Hitsugaya.png',
     passive:{ type:'freeze_on_hit', chance:0.45, duration:3.0,
       label:'Hyōrinmaru: 45% de chance de congelar o alvo por 3s a cada ataque' },
     base_stats:{ damage:145, range:148, attack_speed:0.88, type:'aoe' },
@@ -474,7 +474,7 @@ const CHARACTERS = {
   kenpachi_zaraki: {
     id:'kenpachi_zaraki', name:'Kenpachi Zaraki', rarity:4, series:'bleach',
     playable:true, xp_value:4000, initials:'KZ',
-    image:'assets/towers/bleach/Kenpachi.png',
+    image:'assets/towers/update1/Zenpachi Zaraki.png',
     passive:{ type:'berserker', maxStacks:40, dmgPerStack:0.06,
       label:'Sede de Batalha: cada kill aumenta dano permanentemente (+6% por kill, máx 40 stacks)' },
     base_stats:{ damage:230, range:85, attack_speed:0.68, type:'single' },
@@ -495,7 +495,7 @@ const CHARACTERS = {
   ichigo_bankai: {
     id:'ichigo_bankai', name:'Ichigo (Bankai)', rarity:5, series:'bleach',
     playable:true, xp_value:10000, initials:'IB',
-    image:'assets/towers/bleach/Ichigo Bankai.png',
+    image:'assets/towers/update1/Ichigo Bankai.png',
     passive:{ type:'bankai_pressure', mult:1.55,
       label:'Pressão do Bankai: inimigos no alcance de Ichigo recebem 1.55× de dano de todas as torres' },
     base_stats:{ damage:450, range:135, attack_speed:0.75, type:'single' },
@@ -512,33 +512,42 @@ const CHARACTERS = {
     ]
   },
 
-  // ── 5⭐ Evolução ────────────────────────────────────────────────────────────
+  // ── 6⭐ Evolução ────────────────────────────────────────────────────────────
   ichigo_vizard: {
-    id:'ichigo_vizard', name:'Ichigo (Vizard)', rarity:5, series:'bleach',
-    playable:true, xp_value:10000, initials:'IV',
-    image:'assets/towers/bleach/Ichigo Vizard.png',
+    id:'ichigo_vizard', name:'Ichigo (Vizard)', rarity:6, series:'bleach',
+    playable:true, xp_value:15000, initials:'IV',
+    image:'assets/towers/update1/Ichigo Vizard.png',
     evolution: {
       source: 'ichigo_bankai',
       requires: [
-        { id: 'ichigo_bankai',        quantity: 3 },
-        { id: 'ichigo_base',          quantity: 5 },
-        { id: 'shinigami_generico_3', quantity: 5 },
-        { id: 'pirata_generico_3',    quantity: 3 }
+        { id: 'ichigo_bankai',        quantity: 5  },
+        { id: 'ichigo_base',          quantity: 10 },
+        { id: 'shinigami_generico_3', quantity: 10 },
+        { id: 'rukia_kuchiki',        quantity: 3  },
+        { id: 'byakuya_kuchiki',      quantity: 1  }
       ]
     },
-    passive:{ type:'hollow_sync',
-      label:'Sincronização Hollow: cada 3º ataque vira AOE; torre é imune a stun' },
-    base_stats:{ damage:580, range:140, attack_speed:0.82, type:'single' },
-    deploy_cost:700, max_level:50,
+    passive:[
+      { type:'cero_oscuras', every:3, fear_duration:4,
+        label:'Cero Oscuras: cada 3º ataque vira cone e aplica Medo (+25% dano recebido por 4s)' },
+      { type:'rei_dois_mundos', ally_bonus:0.20, self_bonus:0.10,
+        label:'Rei dos Dois Mundos: torres Bleach aliadas +20% dano; Ichigo +10% dano por aliado Bleach (máx 5)' },
+      { type:'mascara_eterna', max_stacks:12, duration:6.0, mode_dmg_mult:2.0,
+        label:'Máscara Eterna: 12 acertos carregam a Máscara → 6s de Modo Vizard Total (2× dano, 2× vel, AOE total)' }
+    ],
+    base_stats:{ damage:980, range:160, attack_speed:0.65, type:'single' },
+    deploy_cost:1400, max_level:60,
     prestige_passives: {
-      1:  { type:'kill_frenzy',  duration:5.0, speed_mult:4.0,                                      label:'Descarga do Hollow: ao matar, máscara acelera 4× por 5s' },
-      5:  { type:'crit_splash',  crit_chance:0.30, crit_mult:2.5, splash_r:85, splash_mult:0.72,   label:'Cero: críticos disparam um Cero Hollow em área (72% dano)' },
-      10: { type:'spirit_surge', trigger_at:3, mult:7.5,                                            label:'Forma Final Hollow: cada 3º ataque é o Hollow Final (7.5×!)' }
+      1:  { type:'kill_frenzy',  duration:5.0, speed_mult:4.0,                                     label:'Descarga do Hollow: ao matar, máscara acelera 4× por 5s' },
+      5:  { type:'crit_splash',  crit_chance:0.30, crit_mult:3.0, splash_r:95, splash_mult:0.75,  label:'Cero Oscuras Total: críticos disparam Cero em área (75% dano)' },
+      10: { type:'spirit_surge', trigger_at:4, mult:10.0,                                          label:'Mugetsu Definitivo: cada 4º ataque é o poder mais absoluto (10×!)' }
     },
     upgrades:[
-      { name:'Máscara Estabilizada', desc:'Dano ×1.5 | Vel ×1.2', damage_mult:1.5, speed_mult:1.2, cost:850 },
-      { name:'Getsuga Jūjishō', desc:'Tipo: cone | AOE ativa com 1/2 ataques', damage_mult:1.3, type:'cone', cost:1400 },
-      { name:'Hollow Pleno', desc:'Dano ×1.8 | Alcance ×1.2 | AOE a cada 2 ataques', damage_mult:1.8, range_mult:1.2, cost:2400 }
+      { name:'Máscara Estabilizada',   desc:'Dano ×1.4 | Vel ×1.2',                     damage_mult:1.4, speed_mult:1.2,                cost:850  },
+      { name:'Getsuga Jūjishō',        desc:'Tipo: cone | Dano ×1.3',                   damage_mult:1.3, type:'cone',                   cost:1500 },
+      { name:'Hollow Pleno',           desc:'Dano ×1.6 | Alcance ×1.2',                damage_mult:1.6, range_mult:1.2,               cost:2600 },
+      { name:'Pressão das Duas Almas', desc:'Dano ×1.5 | Vel ×1.1 | Alcance ×1.1',    damage_mult:1.5, speed_mult:1.1, range_mult:1.1, cost:4000 },
+      { name:'Forma Definitiva',       desc:'Dano ×2 | Alcance ×1.15 | Vel ×1.1',      damage_mult:2.0, speed_mult:1.1, range_mult:1.15, cost:6000 }
     ]
   },
 
@@ -789,8 +798,8 @@ const ALL_CHARACTERS_POOL = {
 // Populado em runtime por BannerSystem.init()
 const GACHA_POOL = { star3:[], star4:[], star5:[] };
 
-const RARITY_COLORS = { 0:'#666',1:'#27ae60',2:'#2980b9',3:'#9b59b6',4:'#e67e22',5:'#f1c40f' };
-const RARITY_LABELS = { 0:'0⭐',1:'1⭐',2:'2⭐',3:'3⭐',4:'4⭐',5:'5⭐' };
+const RARITY_COLORS = { 0:'#666',1:'#27ae60',2:'#2980b9',3:'#9b59b6',4:'#e67e22',5:'#f1c40f',6:'#e63939' };
+const RARITY_LABELS = { 0:'0⭐',1:'1⭐',2:'2⭐',3:'3⭐',4:'4⭐',5:'5⭐',6:'6⭐' };
 const SERIES_LABELS  = {
   naruto:'Naruto', bleach:'Bleach', dragonball:'Dragon Ball',
   deathnote:'Death Note', marvel:'Marvel', onepiece:'One Piece',

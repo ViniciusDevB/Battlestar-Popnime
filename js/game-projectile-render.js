@@ -290,19 +290,56 @@ function drawProjectileShape(ctx, id, angle, color, now) {
       break;
     }
     case 'ichigo_vizard': {
-      // Máscara Hollow — crescente laranja-preto com fissura
+      // 6★ Cero Oscuras — crescente triplo com energia hollow animada
       ctx.rotate(angle + Math.PI * 0.5);
-      ctx.shadowBlur = 18; ctx.shadowColor = '#f97316';
+      const pulse = Math.sin(now * 0.018) * 0.5 + 0.5;
+
+      // Halo exterior vermelho-sangue (aura de alcance)
+      ctx.shadowBlur = 30; ctx.shadowColor = '#dc2626';
       ctx.beginPath();
-      ctx.arc(0, 0, 9, -Math.PI * 0.65, Math.PI * 0.65);
-      ctx.arc(-3.5, 0, 6.5, Math.PI * 0.65, -Math.PI * 0.65, true);
+      ctx.arc(0, 0, 13, -Math.PI * 0.73, Math.PI * 0.73);
+      ctx.arc(-5.5, 0, 9.5, Math.PI * 0.73, -Math.PI * 0.73, true);
       ctx.closePath();
-      ctx.fillStyle = '#0c0a09'; ctx.fill();
-      ctx.strokeStyle = '#fb923c'; ctx.lineWidth = 2; ctx.stroke();
-      // Fissura laranja no centro
+      ctx.strokeStyle = `rgba(220,38,38,${0.5 + pulse * 0.3})`; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = 'rgba(50,0,0,0.35)'; ctx.fill();
+
+      // Camada média: cerne sólido preto
+      ctx.shadowBlur = 24; ctx.shadowColor = '#f97316';
       ctx.beginPath();
-      ctx.moveTo(-2, -3); ctx.lineTo(2, 0); ctx.lineTo(-1, 3);
-      ctx.strokeStyle = '#f97316'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.arc(0, 0, 10.5, -Math.PI * 0.68, Math.PI * 0.68);
+      ctx.arc(-4.5, 0, 7.8, Math.PI * 0.68, -Math.PI * 0.68, true);
+      ctx.closePath();
+      ctx.fillStyle = '#060204'; ctx.fill();
+      ctx.strokeStyle = `rgba(249,115,22,${0.75 + pulse * 0.25})`; ctx.lineWidth = 2.2; ctx.stroke();
+
+      // Núcleo laranja brilhante
+      ctx.shadowBlur = 18; ctx.shadowColor = '#fff8';
+      ctx.beginPath();
+      ctx.arc(0, 0, 5.5, -Math.PI * 0.55, Math.PI * 0.55);
+      ctx.arc(-2, 0, 3.8, Math.PI * 0.55, -Math.PI * 0.55, true);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(251,146,60,${0.8 + pulse * 0.2})`; ctx.fill();
+
+      // Fissura hollow animada
+      ctx.shadowBlur = 12; ctx.shadowColor = '#ef4444';
+      ctx.beginPath();
+      ctx.moveTo(-3.5, -4.5); ctx.lineTo(3, 0); ctx.lineTo(-2.5, 4.5);
+      ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1.5; ctx.stroke();
+
+      // Linha de energia central pulsante
+      ctx.shadowBlur = 7; ctx.shadowColor = '#f97316';
+      ctx.beginPath();
+      ctx.moveTo(0, -9); ctx.lineTo(0, 9);
+      ctx.strokeStyle = `rgba(249,115,22,${0.35 + pulse * 0.35})`; ctx.lineWidth = 1; ctx.stroke();
+
+      // Pontos de Cero nas pontas do crescente
+      ctx.shadowBlur = 10; ctx.shadowColor = '#fff';
+      [[0, -9], [0, 9]].forEach(([px, py]) => {
+        ctx.beginPath();
+        ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${0.6 + pulse * 0.4})`;
+        ctx.fill();
+      });
       break;
     }
     default: {

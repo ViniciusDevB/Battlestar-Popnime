@@ -497,6 +497,86 @@ const Game = (() => {
       }
     },
 
+    // ── Ichigo Vizard 6★ ───────────────────────────────────────────────────
+
+    // Passiva 1: Cero Oscuras — cada 3º ataque vira cone + aplica Medo
+    cero_oscuras: {
+      beforeAttack(tower, p, stats) {
+        tower._ceroCount = (tower._ceroCount || 0) + 1;
+        if (tower._ceroCount >= (p.every || 3)) {
+          tower._ceroCount = 0;
+          tower._ceroActive = true;
+          return { ...stats, type: 'cone' };
+        }
+        return stats;
+      },
+      afterAttack(tower, p, hitEnemies) {
+        if (!tower._ceroActive) return;
+        tower._ceroActive = false;
+        hitEnemies.forEach(e => applyStatus(e, 'medo', { duration: p.fear_duration || 4 }));
+        addEffect({ type:'hollow_burst', x:tower.x, y:tower.y, maxR:95, timer:0.5, maxTimer:0.5, r:0 });
+      },
+      renderBadge(tower, p) {
+        const n = tower._ceroCount || 0;
+        if (n === 0) return null;
+        return { text:`Cero ${n}/${p.every||3}`, color:'#f97316' };
+      }
+    },
+
+    // Passiva 2: Rei dos Dois Mundos — sinergia Bleach + bônus próprio por aliados
+    rei_dois_mundos: {
+      isAura: true,
+      auraEffect(auraTower, p, attackingTower, dmg) {
+        if (auraTower.disabled || attackingTower === auraTower) return dmg;
+        if (attackingTower.charData?.series === 'bleach')
+          return dmg * (1 + (p.ally_bonus || 0.20));
+        return dmg;
+      },
+      onHit(tower, p, enemy, dmg) {
+        const bleachAllies = towers.filter(t => t !== tower && !t.disabled && t.charData?.series === 'bleach').length;
+        if (bleachAllies > 0)
+          return dmg * (1 + Math.min(bleachAllies, 5) * (p.self_bonus || 0.10));
+        return dmg;
+      }
+    },
+
+    // Passiva 3: Máscara Eterna — acumula 12 acertos → Modo Vizard Total (6s)
+    mascara_eterna: {
+      update(tower, p, dt) {
+        if ((tower._vizardTimer || 0) > 0) {
+          tower._vizardTimer -= dt;
+          if (tower._vizardTimer <= 0) {
+            tower._vizardTimer = 0;
+            tower._vizardActive = false;
+          }
+        }
+      },
+      onHit(tower, p, enemy, dmg) {
+        if (tower._vizardActive) return dmg;
+        tower._vizardStacks = (tower._vizardStacks || 0) + 1;
+        if (tower._vizardStacks >= (p.max_stacks || 12)) {
+          tower._vizardStacks = 0;
+          tower._vizardActive = true;
+          tower._vizardTimer = p.duration || 6.0;
+          addEffect({ type:'vizard_mode_flash', x:tower.x, y:tower.y, timer:0.8, maxTimer:0.8 });
+          UI.toast('⚡ MODO VIZARD TOTAL!', 2000);
+        }
+        return dmg;
+      },
+      beforeAttack(tower, p, stats) {
+        if (tower._vizardActive)
+          return { ...stats, type: 'aoe_full', damage: stats.damage * (p.mode_dmg_mult || 2.0) };
+        return stats;
+      },
+      renderBadge(tower, p) {
+        if (tower._vizardActive)
+          return { text:`VIZARD ${Math.ceil(tower._vizardTimer||0)}s`, color:'#f97316' };
+        const s = tower._vizardStacks || 0;
+        if (s > 0) return { text:`Másк ${s}/${p.max_stacks||12}`, color:'#fb923c' };
+        return null;
+      }
+    },
+
     // ── Passivas de Prestígio ───────────────────────────────────────────────
 
     // Ataque encadeia para 1-2 inimigos próximos (relâmpago, serpente, etc.)
@@ -1360,7 +1440,7 @@ const Game = (() => {
       if (t.attackTimer <= 0) {
         const stats = getTowerStats(t);
         if (stats.type === 'none' || stats.attack_speed <= 0) { t.attackTimer = 9999; return; }
-        const frenzyMult = (t._frenzyTimer || 0) > 0 ? (t._frenzyMult || 1) : 1;
+        const frenzyMult = (t._frenzyTimer || 0) > 0 ? (t._frenzyMult || 1) : (t._vizardActive ? 2.0 : 1.0);
         t.attackTimer = 1 / (stats.attack_speed * frenzyMult);
         tryAttack(t, stats);
       }
@@ -1456,6 +1536,9 @@ const Game = (() => {
     // Auras de torres aliadas próximas
     dmg = PASSIVE_SYSTEM.applyAuras(tower, enemy, dmg);
 
+    // Medo (Cero Oscuras): +25% dano recebido de toda fonte
+    if (enemy.status?.medo?.active) dmg *= 1.25;
+
     if ((enemy.shieldHp || 0) > 0) {
       const absorbed = Math.min(enemy.shieldHp, dmg);
       enemy.shieldHp -= absorbed;
@@ -1537,8 +1620,9 @@ const Game = (() => {
     effects = effects.filter(e => {
       e.timer -= dt;
       // Clamp radius to >= 0 to prevent ctx.arc errors with negative values
-      if (e.type === 'ring')      e.r = Math.max(0, e.maxR * (1 - Math.max(0, e.timer) / (e.maxTimer || 0.35)));
-      if (e.type === 'shockwave') e.r = Math.max(0, e.maxR * (1 - Math.max(0, e.timer) / (e.maxTimer || 1.0)));
+      if (e.type === 'ring')         e.r = Math.max(0, e.maxR * (1 - Math.max(0, e.timer) / (e.maxTimer || 0.35)));
+      if (e.type === 'shockwave')    e.r = Math.max(0, e.maxR * (1 - Math.max(0, e.timer) / (e.maxTimer || 1.0)));
+      if (e.type === 'hollow_burst') e.r = Math.max(0, e.maxR * (1 - Math.max(0, e.timer) / (e.maxTimer || 0.50)));
       return e.timer > 0;
     });
   }
@@ -1744,9 +1828,15 @@ const Game = (() => {
     const unitData = Save.getBestUnitData(charId);
     if (!char || !unitData) return;
     if (gold < char.deploy_cost) { UI.toast('Ouro insuficiente!'); return; }
-    // Limite de 3 cópias da mesma unidade por partida
+    // 6★: 1 cópia única por tipo | demais: máximo 3
+    const maxCopies = char.rarity >= 6 ? 1 : 3;
     const copies = towers.filter(t => t.charId === charId && !t.isClone).length;
-    if (copies >= 3) { UI.toast(`Máximo de 3 cópias de ${char.name} no campo!`, 2000); return; }
+    if (copies >= maxCopies) {
+      const msg = char.rarity >= 6
+        ? `Apenas 1 ${char.name} pode estar no campo! (regra 6★)`
+        : `Máximo de 3 cópias de ${char.name} no campo!`;
+      UI.toast(msg, 2000); return;
+    }
 
     gold -= char.deploy_cost;
     sessionTowersPlaced++;
@@ -1786,8 +1876,7 @@ const Game = (() => {
     const passives = char?.passive ? (Array.isArray(char.passive) ? char.passive : [char.passive]) : [];
     const passiveHtml = passives.map(p => `<div class="upg-passive">⚡ ${p.label}</div>`).join('');
     nameEl.innerHTML = `<span style="background:${RARITY_COLORS[tower.rarity]}" class="tower-badge">${tower.initials}</span> ${char?.name} | Lv${tower.level}`;
-    const existingPassive = panel.querySelector('.upg-passive');
-    if (existingPassive) existingPassive.remove();
+    panel.querySelectorAll('.upg-passive').forEach(el => el.remove());
     if (passiveHtml) nameEl.insertAdjacentHTML('afterend', passiveHtml);
 
     optsEl.innerHTML = '';
@@ -2272,7 +2361,7 @@ const Game = (() => {
     ctx.setLineDash([]);
   }
 
-  const RARITY_GLOW = {3:'rgba(159,122,234,',4:'rgba(251,146,60,',5:'rgba(255,200,70,'};
+  const RARITY_GLOW = {3:'rgba(159,122,234,',4:'rgba(251,146,60,',5:'rgba(255,200,70,',6:'rgba(230,57,57,'};
 
   // Preloaded tower portrait cache
   const _imgCache = {};
@@ -2323,28 +2412,121 @@ const Game = (() => {
         ctx.lineWidth = 2;
         ctx.stroke();
       }
+      // ═══ 6★ Aura Visual ═══
+      if (!disabled && t.rarity >= 6) {
+        const n6 = Date.now();
+        const p6a = (Math.sin(n6 / 800) + 1) / 2;
+        const p6b = (Math.sin(n6 / 500 + Math.PI) + 1) / 2;
+
+        // Anel externo crimson rotacionando (hollow)
+        ctx.save();
+        ctx.translate(t.x, t.y);
+        ctx.rotate(n6 * 0.0008);
+        ctx.beginPath();
+        ctx.arc(0, 0, 38 + p6a * 4, 0, Math.PI * 2);
+        ctx.shadowBlur = 14; ctx.shadowColor = '#dc2626';
+        ctx.strokeStyle = `rgba(220,38,38,${0.4 + p6a * 0.35})`;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([10, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // Anel interno laranja contra-rotacionando (shinigami)
+        ctx.save();
+        ctx.translate(t.x, t.y);
+        ctx.rotate(-n6 * 0.0012);
+        ctx.beginPath();
+        ctx.arc(0, 0, 30 + p6b * 2, 0, Math.PI * 2);
+        ctx.shadowBlur = 9; ctx.shadowColor = '#f97316';
+        ctx.strokeStyle = `rgba(249,115,22,${0.30 + p6b * 0.30})`;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6, 8]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // 8 partículas orbitando (alternando laranja/vermelho-escuro)
+        const ang6 = n6 * 0.0018;
+        for (let i = 0; i < 8; i++) {
+          const a = ang6 + i * Math.PI / 4;
+          const px = t.x + Math.cos(a) * 34;
+          const py = t.y + Math.sin(a) * 34;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+          ctx.fillStyle = i % 2 === 0 ? '#f97316' : '#7b0000';
+          ctx.shadowBlur = 10; ctx.shadowColor = i % 2 === 0 ? '#f97316' : '#dc2626';
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 3 glyphs hollow contra-orbitando (círculo preto c/ borda vermelha)
+        const ang6b = -n6 * 0.0025;
+        for (let i = 0; i < 3; i++) {
+          const a = ang6b + i * Math.PI * 2 / 3;
+          const px = t.x + Math.cos(a) * 24;
+          const py = t.y + Math.sin(a) * 24;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(px, py, 3, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(20,0,0,0.95)';
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 0.9;
+          ctx.shadowBlur = 8; ctx.shadowColor = '#ef4444';
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Vizard Mode ativo — halo laranja dramático pulsante
+        if (t._vizardActive) {
+          const vp = (Math.sin(n6 / 180) + 1) / 2;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, 43 + vp * 7, 0, Math.PI * 2);
+          ctx.shadowBlur = 28; ctx.shadowColor = '#f97316';
+          ctx.strokeStyle = `rgba(249,115,22,${0.55 + vp * 0.45})`;
+          ctx.lineWidth = 3.5;
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
       // Main circle
+      const circleR = t.rarity >= 6 ? 22 : 20;
       ctx.beginPath();
-      ctx.arc(t.x, t.y, 20, 0, Math.PI*2);
+      ctx.arc(t.x, t.y, circleR, 0, Math.PI*2);
       ctx.fillStyle = col;
       ctx.fill();
-      ctx.strokeStyle = disabled ? '#222' : 'rgba(255,255,255,0.2)';
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = disabled ? '#222' : (t.rarity >= 6 ? 'rgba(249,115,22,0.5)' : 'rgba(255,255,255,0.2)');
+      ctx.lineWidth = t.rarity >= 6 ? 2 : 1.5;
       ctx.stroke();
       // Portrait or initials
       const portrait = getTowerImg(t.charId);
+      const imgR = circleR - 1;
       if (portrait && portrait.complete && portrait.naturalWidth > 0) {
         ctx.save();
         ctx.beginPath();
-        ctx.arc(t.x, t.y, 19, 0, Math.PI * 2);
+        ctx.arc(t.x, t.y, imgR, 0, Math.PI * 2);
         ctx.clip();
-        ctx.drawImage(portrait, t.x - 19, t.y - 19, 38, 38);
+        ctx.drawImage(portrait, t.x - imgR, t.y - imgR, imgR * 2, imgR * 2);
         ctx.restore();
       } else {
         ctx.fillStyle = disabled ? 'rgba(255,255,255,0.4)' : '#fff';
         ctx.font = 'bold 10px Inter,sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(t.initials, t.x, t.y);
+      }
+      // 6★ badge acima-direita do círculo
+      if (t.rarity >= 6) {
+        ctx.save();
+        ctx.shadowBlur = 8; ctx.shadowColor = '#dc2626';
+        ctx.fillStyle = '#e63939';
+        ctx.font = 'bold 8px Inter,sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('6★', t.x + 16, t.y - 19);
+        ctx.restore();
       }
       // Upgrade pips — centrados, tamanho adaptativo para até 10 upgrades
       if (t.upgradeLevel > 0) {
@@ -2724,6 +2906,62 @@ const Game = (() => {
         ctx.arc(ef.x, ef.y, 9 * prog, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(255,255,255,0.85)';
         ctx.fill();
+      } else if (ef.type === 'hollow_burst') {
+        // Cero Oscuras — duplo anel expansivo laranja + vermelho-sangue
+        ctx.shadowBlur = 22; ctx.shadowColor = '#f97316';
+        ctx.beginPath();
+        ctx.arc(ef.x, ef.y, ef.r || 2, 0, Math.PI * 2);
+        ctx.strokeStyle = '#f97316';
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
+        ctx.shadowColor = '#7b0000';
+        ctx.beginPath();
+        ctx.arc(ef.x, ef.y, Math.max(2, (ef.r || 2) * 0.55), 0, Math.PI * 2);
+        ctx.strokeStyle = '#7b0000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Cruz de fissura hollow
+        ctx.shadowBlur = 8; ctx.shadowColor = '#f97316';
+        const cr = Math.max(4, (ef.r || 2) * 0.35);
+        ctx.strokeStyle = `rgba(249,115,22,${alpha * 0.65})`;
+        ctx.lineWidth = 1.3;
+        ctx.beginPath();
+        ctx.moveTo(ef.x - cr, ef.y); ctx.lineTo(ef.x + cr, ef.y);
+        ctx.moveTo(ef.x, ef.y - cr); ctx.lineTo(ef.x, ef.y + cr);
+        ctx.stroke();
+      } else if (ef.type === 'vizard_mode_flash') {
+        // Vizard Mode ativado — explosão dramática de energia laranja+vermelha
+        const prog = 1 - alpha;
+        ctx.shadowBlur = 40; ctx.shadowColor = '#f97316';
+        // Anel externo laranja
+        ctx.beginPath();
+        ctx.arc(ef.x, ef.y, 65 * prog, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(249,115,22,${alpha * 0.95})`;
+        ctx.lineWidth = 4.5;
+        ctx.stroke();
+        // Flash de preenchimento
+        ctx.beginPath();
+        ctx.arc(ef.x, ef.y, 45 * prog, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(249,115,22,${alpha * 0.16})`;
+        ctx.fill();
+        // Anel interno escuro (hollow)
+        ctx.shadowColor = '#1c0000';
+        ctx.beginPath();
+        ctx.arc(ef.x, ef.y, 28 * prog, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(30,0,0,${alpha * 0.85})`;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        // 8 raios de energia expandindo
+        ctx.shadowBlur = 16; ctx.shadowColor = '#dc2626';
+        for (let i = 0; i < 8; i++) {
+          const a = (i * Math.PI / 4) + prog * Math.PI * 0.4;
+          ctx.beginPath();
+          ctx.moveTo(ef.x + Math.cos(a) * 9, ef.y + Math.sin(a) * 9);
+          ctx.lineTo(ef.x + Math.cos(a) * (9 + 52 * prog), ef.y + Math.sin(a) * (9 + 52 * prog));
+          ctx.strokeStyle = `rgba(220,38,38,${alpha * 0.60})`;
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
+        }
       }
       ctx.restore();
     });

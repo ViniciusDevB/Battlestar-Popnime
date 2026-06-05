@@ -80,7 +80,7 @@ const WORLDS = [
     id: 'bleach', name: 'Soul Society',
     unlocked: true,
     completionStat: 'fases_bleach_completas',
-    stages: ['bl_fase1','bl_fase2','bl_fase3','bl_fase4'],
+    stages: ['bl_fase1','bl_fase2','bl_fase3','bl_fase4','bl_fase5','bl_fase6'],
     description: 'Adentre o mundo dos Shinigami. Enfrente Hollows, Arrancar e os temidos Menos!',
     color: '#2980b9',
     path: PATH_POINTS_W3

@@ -519,7 +519,7 @@ const STAGES = [
     ]
   },
   {
-    id: 'bl_fase4', name: 'O Vazio', world: 'bleach', isBoss: true,
+    id: 'bl_fase4', name: 'O Vazio', world: 'bleach',
     drops: [
       { id: 'shinigami_generico_3', chance: 60 },
       { id: 'rukia_kuchiki', chance: 0.15, pity: 200 }
@@ -535,6 +535,79 @@ const STAGES = [
       buildWave([{type:'arrancar',count:6,gap:1.0},{type:'espada_decima',count:3,gap:2.8},{type:'menos_grande',count:1,gap:0}]),
       buildWave([{type:'arrancar',count:8,gap:1.0},{type:'espada_decima',count:4,gap:2.5}]),
       buildWave([{type:'espada_decima',count:3,gap:3.0},{type:'arrancar',count:5,gap:1.0},{type:'menos_grande',count:2,gap:0}])
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════
+  //  BL FASE 5 — Palácio dos Espada
+  //  W1–4: arrancar (Powerful 1)
+  //  W5–9: arrancar + espada_numero (Powerful 2, mini-boss que ao morrer spawn 3 arrancar)
+  //  W10: Espada Primera (Powerful 3, mini-boss, ao morrer spawn 6 arrancar)
+  // ══════════════════════════════════════════════════════
+  {
+    id: 'bl_fase5', name: 'Palácio dos Espada', world: 'bleach',
+    drops: [
+      { id: 'shinigami_generico_3', chance: 50 },
+      { id: 'byakuya_kuchiki',      chance: 0.12, pity: 200 }
+    ],
+    waves: [
+      // W1
+      buildWave([{type:'arrancar',count:8,gap:1.4}]),
+      // W2
+      buildWave([{type:'arrancar',count:10,gap:1.3}]),
+      // W3
+      buildWave([{type:'arrancar',count:12,gap:1.2}]),
+      // W4
+      buildWave([{type:'arrancar',count:14,gap:1.1}]),
+      // W5 · Primeiro mix com Espada Numerada
+      buildWave([{type:'arrancar',count:8,gap:1.2},{type:'espada_numero',count:1,gap:0}]),
+      // W6
+      buildWave([{type:'arrancar',count:8,gap:1.1},{type:'espada_numero',count:2,gap:8.0}]),
+      // W7
+      buildWave([{type:'arrancar',count:6,gap:1.1},{type:'espada_numero',count:2,gap:7.0}]),
+      // W8
+      buildWave([{type:'arrancar',count:6,gap:1.0},{type:'espada_numero',count:3,gap:6.5}]),
+      // W9 · Pressão máxima pré-boss
+      buildWave([{type:'arrancar',count:8,gap:1.0},{type:'espada_numero',count:3,gap:6.0}]),
+      // W10 · Espada Primera — mini-boss forte com escolta
+      buildWave([{type:'arrancar',count:4,gap:1.2},{type:'espada_numero',count:2,gap:7.0},{type:'espada_primera',count:1,gap:0}])
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════
+  //  BL FASE 6 — A Traição de Aizen
+  //  W1–3: espada_numero (Powerful 2)
+  //  W4–6: espada_numero + vasto_lorde (Powerful 2, veloz)
+  //  W7–9: mix pesado
+  //  W10: Aizen Sousuke (Boss — explosão Hogyoku ao morrer)
+  // ══════════════════════════════════════════════════════
+  {
+    id: 'bl_fase6', name: 'A Traição de Aizen', world: 'bleach', isBoss: true,
+    drops: [
+      { id: 'shinigami_generico_3', chance: 40 },
+      { id: 'ichigo_bankai',        chance: 0.1,  pity: 200 }
+    ],
+    waves: [
+      // W1
+      buildWave([{type:'espada_numero',count:2,gap:8.0}]),
+      // W2
+      buildWave([{type:'espada_numero',count:3,gap:7.5}]),
+      // W3
+      buildWave([{type:'arrancar',count:6,gap:1.2},{type:'espada_numero',count:2,gap:8.0}]),
+      // W4 · Vasto Lordes aparecem
+      buildWave([{type:'vasto_lorde',count:4,gap:1.8},{type:'espada_numero',count:2,gap:8.0}]),
+      // W5
+      buildWave([{type:'vasto_lorde',count:6,gap:1.6},{type:'espada_numero',count:2,gap:7.5}]),
+      // W6
+      buildWave([{type:'vasto_lorde',count:8,gap:1.4},{type:'espada_numero',count:3,gap:7.0}]),
+      // W7
+      buildWave([{type:'vasto_lorde',count:6,gap:1.3},{type:'espada_numero',count:3,gap:6.5},{type:'arrancar',count:4,gap:1.2}]),
+      // W8
+      buildWave([{type:'vasto_lorde',count:8,gap:1.2},{type:'espada_numero',count:3,gap:6.0}]),
+      // W9 · Gauntlet final — sem respiro
+      buildWave([{type:'vasto_lorde',count:6,gap:1.1},{type:'espada_numero',count:4,gap:5.5}]),
+      // W10 · Aizen Sousuke — boss final com escolta pesada
+      buildWave([{type:'vasto_lorde',count:4,gap:1.4},{type:'espada_numero',count:2,gap:7.0},{type:'aizen_sousuke',count:1,gap:0}])
     ]
   },
   {

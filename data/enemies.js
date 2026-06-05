@@ -88,6 +88,21 @@ const STATUS_TYPES = {
     }
   },
 
+  // ── Medo ─────────────────────────────────────────────────────────────────
+  // Debuff do Cero Oscuras: inimigo recebe +25% dano de toda fonte por duração.
+  medo: {
+    init: () => ({ active: false, timer: 0 }),
+    apply(status, params) {
+      status.medo = { active: true, timer: params.duration || 4 };
+    },
+    update(status, dt) {
+      if (!status.medo.active) return 0;
+      status.medo.timer -= dt;
+      if (status.medo.timer <= 0) status.medo = STATUS_TYPES.medo.init();
+      return 0;
+    }
+  },
+
   // ── Silenciado ────────────────────────────────────────────────────────────
   // Template único: anula ptype e special do inimigo por duração, depois restaura.
   // Use como base para qualquer debuff que modifica propriedades do inimigo
@@ -514,6 +529,34 @@ const ENEMY_DEFS = {
     ptype:'powerful3', req:3, size:50, col:'#1c2833', image:'assets/inimigos/world3/Menos Grande.png',
     is_boss:true,
     special:'explosion', explosionRadius:180, explosionStun:3
+  },
+
+  // ── Bleach Fases 5–6 ──────────────────────────────────────────────────────
+  espada_numero: {
+    id:'espada_numero', name:'Espada Numerada',
+    hp:22000, speed:58, gold:1100,
+    ptype:'powerful2', req:2, size:34, col:'#4a5568', image:'assets/inimigos/world3/Espada Numero.png',
+    is_miniboss:true,
+    on_death:{ type:'arrancar', count:3 }
+  },
+  vasto_lorde: {
+    id:'vasto_lorde', name:'Vasto Lorde',
+    hp:12000, speed:92, gold:620,
+    ptype:'powerful2', req:2, size:28, col:'#7c3aed', image:'assets/inimigos/world3/Vasto Lorde.png'
+  },
+  espada_primera: {
+    id:'espada_primera', name:'Espada Primera',
+    hp:50000, speed:36, gold:3000,
+    ptype:'powerful3', req:3, size:44, col:'#1e3a5f', image:'assets/inimigos/world3/Espada Primera.png',
+    is_miniboss:true,
+    on_death:{ type:'arrancar', count:6 }
+  },
+  aizen_sousuke: {
+    id:'aizen_sousuke', name:'Aizen Sousuke',
+    hp:110000, speed:20, gold:6000,
+    ptype:'powerful3', req:3, size:52, col:'#1a1a2e', image:'assets/inimigos/world3/Aizen.png',
+    is_boss:true,
+    special:'explosion', explosionRadius:230, explosionStun:4
   },
 };
 
