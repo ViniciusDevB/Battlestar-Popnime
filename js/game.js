@@ -788,13 +788,38 @@ const Game = (() => {
       activateShinraTensei,
       drainLife() { lives = Math.max(0, lives - 1); updateHUD(); if (lives <= 0) endGame(false); },
       dist2d,
-      CANVAS_W, CANVAS_H
+      CANVAS_W, CANVAS_H,
+      // Spawna um inimigo no mapa a partir de um inimigo de origem, com overrides opcionais.
+      spawnEnemy(typeId, fromEnemy, overrides = {}) {
+        const _dm = getDifficultyMults();
+        const spawned = createEnemy(typeId, 0);
+        if (!spawned) return null;
+        if (_dm.hp   !== 1.0) { spawned.maxHp = Math.round(spawned.maxHp * _dm.hp); spawned.hp = spawned.maxHp; }
+        if (_dm.gold !== 1.0) { spawned.gold  = Math.round(spawned.gold  * _dm.gold); }
+        spawned.dist    = Math.max(0, fromEnemy?.dist || 0);
+        spawned.pathArr = fromEnemy?.pathArr;
+        spawned.pathLen = fromEnemy?.pathLen;
+        Object.assign(spawned, overrides);
+        const pos = getPosOnPath(spawned.dist, spawned.pathArr);
+        spawned.x = pos.x; spawned.y = pos.y;
+        enemies.push(spawned);
+        return spawned;
+      }
     };
   }
 
   function dispatchSpecialSpawn(enemy)    { if (enemy.special) ENEMY_SPECIAL_HANDLERS[enemy.special]?.onSpawn?.(enemy, _enemyCtx()); }
   function dispatchSpecialUpdate(enemy, dt){ if (enemy.special) ENEMY_SPECIAL_HANDLERS[enemy.special]?.onUpdate?.(enemy, dt, _enemyCtx()); }
   function dispatchSpecialDeath(enemy)    { if (enemy.special) ENEMY_SPECIAL_HANDLERS[enemy.special]?.onDeath?.(enemy, _enemyCtx()); }
+
+  function dispatchPtypeUpdate(enemy, dt) {
+    const ctx = _enemyCtx();
+    (enemy.ptypes || []).forEach(pt => PTYPE_BEHAVIORS[pt]?.onUpdate?.(enemy, dt, ctx));
+  }
+  function dispatchPtypeDeath(enemy) {
+    const ctx = _enemyCtx();
+    (enemy.ptypes || []).forEach(pt => PTYPE_BEHAVIORS[pt]?.onDeath?.(enemy, ctx));
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // ATTACK_TYPE_HANDLERS — define como cada tipo de ataque executa e produz
@@ -1381,8 +1406,9 @@ const Game = (() => {
           remaining -= absorbed;
           if (e.shieldHp <= 0) {
             e.shieldHp = 0;
-            addEffect({ type:'ring', x:e.x, y:e.y, maxR:60, color:'#60a5fa', timer:0.55, maxTimer:0.55, r:0 });
-            UI.toast('💥 O escudo de Pain foi destruído!', 2500);
+            const ringCol = (e.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
+            addEffect({ type:'ring', x:e.x, y:e.y, maxR:60, color:ringCol, timer:0.55, maxTimer:0.55, r:0 });
+            UI.toast(`🛡 Escudo de ${e.name} destruído!`, 2500);
           }
         }
         e.hp -= remaining;
@@ -1391,6 +1417,8 @@ const Game = (() => {
 
       // Special periódico do inimigo (shinra_tensei, base_drain, etc.)
       dispatchSpecialUpdate(e, dt);
+      // Behaviors por ptype (regenerator, etc.)
+      dispatchPtypeUpdate(e, dt);
 
       // Movement
       const spd = getEffectiveSpeed(e) * dt;
@@ -1545,8 +1573,9 @@ const Game = (() => {
       dmg -= absorbed;
       if (enemy.shieldHp <= 0) {
         enemy.shieldHp = 0;
-        addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:60, color:'#60a5fa', timer:0.55, maxTimer:0.55, r:0 });
-        UI.toast('💥 O escudo de Pain foi destruído!', 2500);
+        const ringCol = (enemy.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
+        addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:60, color:ringCol, timer:0.55, maxTimer:0.55, r:0 });
+        UI.toast(`🛡 Escudo de ${enemy.name} destruído!`, 2500);
       }
       if (dmg <= 0) { enemy.hitFlash = 0.1; return; }
     }
@@ -1576,6 +1605,8 @@ const Game = (() => {
 
     // Special de morte do inimigo (explosion, etc.)
     dispatchSpecialDeath(enemy);
+    // Behaviors de morte por ptype (clooner, bomber, kamikaze, etc.)
+    dispatchPtypeDeath(enemy);
 
     // Spawn ao morrer
     if (enemy.on_death) {
@@ -2618,14 +2649,23 @@ const Game = (() => {
       powerful1: { t:'P1',   bg:'#9b59b6', fg:'#fff' },
       powerful2: { t:'P2',   bg:'#6c3483', fg:'#fff' },
       powerful3: { t:'P3',   bg:'#4a235a', fg:'#fff' },
-      cloner:    { t:'CLN',  bg:'#1e8449', fg:'#fff' }
+      strong1:   { t:'STR1', bg:'#5d6d7e', fg:'#fff' },
+      strong2:   { t:'STR2', bg:'#4a5568', fg:'#fff' },
+      strong3:   { t:'STR3', bg:'#34495e', fg:'#fff' },
+      strong4:   { t:'STR4', bg:'#2c3e50', fg:'#fff' },
+      strong5:   { t:'STR5', bg:'#1a252f', fg:'#fff' }
     },
     special: {
       explosion:     { t:'BOOM', bg:'#e74c3c', fg:'#fff' },
       base_drain:    { t:'DRN',  bg:'#1f618d', fg:'#fff' },
       genjutsu:      { t:'GNJ',  bg:'#1c2833', fg:'#fff' },
       shinra_tensei: { t:'ST',   bg:'#922b21', fg:'#fff' },
-      pain_boss:     { t:'ST+S', bg:'#922b21', fg:'#fff' }
+      pain_boss:     { t:'ST+S', bg:'#922b21', fg:'#fff' },
+      clooner:       { t:'CLN',  bg:'#1e8449', fg:'#fff' },
+      regenerator:   { t:'REG',  bg:'#27ae60', fg:'#fff' },
+      bomber:        { t:'BOMB', bg:'#c0392b', fg:'#fff' },
+      fortified:     { t:'FRT',  bg:'#d4ac0d', fg:'#000' },
+      kamikaze:      { t:'KMK',  bg:'#e67e22', fg:'#fff' }
     }
   };
 
@@ -2727,17 +2767,20 @@ const Game = (() => {
         }
       }
 
-      // Anel de escudo de Pain
+      // Anel de escudo (Pain = azul, Fortified = dourado)
       if ((e.shieldHp || 0) > 0) {
         const sPulse = (Math.sin(Date.now() / 200) + 1) / 2;
+        const isFort = (e.ptypes || []).includes('fortified');
+        const shRgb  = isFort ? '245,158,11' : '96,165,250';
+        const shSolid= isFort ? '#f59e0b'    : '#3b82f6';
         ctx.save();
         ctx.globalAlpha = 0.9;
         ctx.beginPath();
         ctx.arc(e.x, e.y, s * 0.6 + 8 + sPulse * 5, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(96,165,250,${0.6 + sPulse * 0.35})`;
+        ctx.strokeStyle = `rgba(${shRgb},${0.6 + sPulse * 0.35})`;
         ctx.lineWidth = 3.5 + sPulse * 2.5;
         ctx.shadowBlur = 14 + sPulse * 10;
-        ctx.shadowColor = '#3b82f6';
+        ctx.shadowColor = shSolid;
         ctx.stroke();
         ctx.shadowBlur = 0;
         ctx.restore();
@@ -2751,24 +2794,27 @@ const Game = (() => {
       ctx.fillStyle = hpPct > 0.55 ? '#3ecf8e' : hpPct > 0.28 ? '#fbbf24' : '#f56565';
       ctx.beginPath(); ctx.roundRect(bx, by, bw * hpPct, bh, 2); ctx.fill();
 
-      // Barra de escudo (Pain)
+      // Barra de escudo (Pain = azul, Fortified = dourado)
       if ((e.shieldHp || 0) > 0 && e.maxShieldHp > 0) {
         const shPct = e.shieldHp / e.maxShieldHp;
         const shby = by - 5;
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
         ctx.beginPath(); ctx.roundRect(bx, shby, bw, bh, 2); ctx.fill();
-        ctx.fillStyle = '#60a5fa';
+        ctx.fillStyle = (e.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
         ctx.beginPath(); ctx.roundRect(bx, shby, bw * shPct, bh, 2); ctx.fill();
       }
 
       // ── TAGS (tipo + special) — acima da barra de HP ──────────────────
       const tags = [];
-      const ptDef = TAG_DEFS.ptype[e.ptype];
-      if (ptDef) tags.push(ptDef);
+      // Itera todos os ptypes (suporta array)
+      (e.ptypes || [e.ptype]).forEach(pt => {
+        const ptDef = TAG_DEFS.ptype[pt];
+        if (ptDef) tags.push(ptDef);
+      });
       const spDef = e.special ? TAG_DEFS.special[e.special] : null;
       if (spDef) tags.push(spDef);
-      // on_death sem special = CLN
-      if (e.on_death && !spDef) tags.push({ t:'CLN', bg:'#1e8449', fg:'#fff' });
+      // on_death sem tag própria = ícone de spawn
+      if (e.on_death && !spDef) tags.push({ t:'SPWN', bg:'#1e8449', fg:'#fff' });
 
       if (tags.length > 0) {
         ctx.shadowBlur = 0;
