@@ -24,6 +24,9 @@ const Game = (() => {
   let sessionDmg = 0, sessionKills = 0, sessionTowersPlaced = 0;
   let sessionMinibosses = 0, sessionBossKilled = false;
 
+  let screenShakeAmount = 0;
+  let vizardOverlayAlpha = 0;
+
   const CHAR_COLORS = {
     ichigo_base:      '#ff6b00',
     goku_base:        '#4fc3f7',
@@ -514,7 +517,8 @@ const Game = (() => {
         if (!tower._ceroActive) return;
         tower._ceroActive = false;
         hitEnemies.forEach(e => applyStatus(e, 'medo', { duration: p.fear_duration || 4 }));
-        addEffect({ type:'hollow_burst', x:tower.x, y:tower.y, maxR:95, timer:0.5, maxTimer:0.5, r:0 });
+        addEffect({ type:'hollow_burst', x:tower.x, y:tower.y, maxR:120, timer:0.6, maxTimer:0.6, r:0 });
+        screenShakeAmount = 12;
       },
       renderBadge(tower, p) {
         const n = tower._ceroCount || 0;
@@ -560,6 +564,8 @@ const Game = (() => {
           tower._vizardTimer = p.duration || 6.0;
           addEffect({ type:'vizard_mode_flash', x:tower.x, y:tower.y, timer:0.8, maxTimer:0.8 });
           UI.toast('⚡ MODO VIZARD TOTAL!', 2000);
+          screenShakeAmount = 25;
+          vizardOverlayAlpha = 1.0;
         }
         return dmg;
       },
@@ -909,6 +915,26 @@ const Game = (() => {
       effect(tower, stats, hitEnemies) {
         if (hitEnemies.length === 0) return;
         addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:stats.range, color:CHAR_COLORS[tower.charId]||RARITY_COLORS[tower.rarity], timer:0.3, maxTimer:0.3, r:0, charId:tower.charId });
+      }
+    },
+
+    // Modo Vizard Total — acerta todos no alcance com impacto visual insano
+    aoe_full: {
+      execute(tower, stats, inRange) {
+        const hits = [];
+        inRange.forEach(e => {
+          if (effectiveCanDamage(tower, e)) { dealDamage(tower, e, stats.damage); hits.push(e); }
+        });
+        return hits;
+      },
+      effect(tower, stats, hitEnemies) {
+        if (hitEnemies.length === 0) return;
+        addEffect({ type:'shockwave', x:tower.x, y:tower.y, maxR:stats.range + 80, color:'#b91c1c', timer:0.4, maxTimer:0.4 });
+        screenShakeAmount = 8;
+        
+        hitEnemies.forEach(e => {
+          addEffect({ type:'hollow_burst', x:e.x, y:e.y, maxR:40, timer:0.3, maxTimer:0.3, r:0 });
+        });
       }
     },
 
@@ -1648,6 +1674,9 @@ const Game = (() => {
   }
 
   function updateEffects(dt) {
+    if (screenShakeAmount > 0) screenShakeAmount = Math.max(0, screenShakeAmount - dt * 30);
+    if (vizardOverlayAlpha > 0) vizardOverlayAlpha = Math.max(0, vizardOverlayAlpha - dt * 0.5);
+
     effects = effects.filter(e => {
       e.timer -= dt;
       // Clamp radius to >= 0 to prevent ctx.arc errors with negative values
@@ -2165,7 +2194,13 @@ const Game = (() => {
 
     // Apply uniform scale + centering so game renders in correct proportions
     ctx.save();
-    ctx.translate(renderOffX, renderOffY);
+    let cx = renderOffX;
+    let cy = renderOffY;
+    if (screenShakeAmount > 0) {
+      cx += (Math.random() - 0.5) * screenShakeAmount;
+      cy += (Math.random() - 0.5) * screenShakeAmount;
+    }
+    ctx.translate(cx, cy);
     ctx.scale(renderScale, renderScale);
 
     drawBackground();
@@ -2199,7 +2234,10 @@ const Game = (() => {
     drawEffects();
     
     // Dark Mode (Fog of War) logic
-    if (stage && stage.modifiers && stage.modifiers.dark_mode) {
+    let hasVizardActive = towers.some(t => t._vizardActive);
+    let wantsDarkMode = (stage && stage.modifiers && stage.modifiers.dark_mode) || hasVizardActive;
+
+    if (wantsDarkMode) {
       if (!window.darkCanvas) {
         window.darkCanvas = document.createElement('canvas');
         window.darkCanvas.width = CANVAS_W;
@@ -2208,7 +2246,7 @@ const Game = (() => {
       }
       const dCtx = window.darkCtx;
       dCtx.globalCompositeOperation = 'source-over';
-      dCtx.fillStyle = 'rgba(0,0,0,0.98)';
+      dCtx.fillStyle = hasVizardActive ? 'rgba(30, 0, 0, 0.95)' : 'rgba(0,0,0,0.98)';
       dCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
       
       dCtx.globalCompositeOperation = 'destination-out';
@@ -2240,6 +2278,18 @@ const Game = (() => {
       }
       
       ctx.drawImage(window.darkCanvas, 0, 0);
+    }
+
+    if (vizardOverlayAlpha > 0) {
+      ctx.save();
+      const grad = ctx.createRadialGradient(CANVAS_W/2, CANVAS_H/2, CANVAS_H/4, CANVAS_W/2, CANVAS_H/2, CANVAS_W);
+      grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      grad.addColorStop(1, `rgba(100, 0, 0, ${vizardOverlayAlpha * 0.85})`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      ctx.fillStyle = `rgba(249, 115, 22, ${vizardOverlayAlpha * 0.08})`;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      ctx.restore();
     }
 
     drawOverlay();
