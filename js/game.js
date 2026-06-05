@@ -544,7 +544,7 @@ const Game = (() => {
       }
     },
 
-    // Passiva 3: Máscara Eterna — acumula 20 acertos → Modo Vizard Total (10s)
+    // Passiva 3: Máscara Eterna — acumula 66 acertos → Modo Vizard Total (20s)
     mascara_eterna: {
       update(tower, p, dt) {
         if ((tower._vizardTimer || 0) > 0) {
@@ -558,10 +558,10 @@ const Game = (() => {
       onHit(tower, p, enemy, dmg) {
         if (tower._vizardActive) return dmg;
         tower._vizardStacks = (tower._vizardStacks || 0) + 1;
-        if (tower._vizardStacks >= (p.max_stacks || 20)) {
+        if (tower._vizardStacks >= (p.max_stacks || 66)) {
           tower._vizardStacks = 0;
           tower._vizardActive = true;
-          tower._vizardTimer = p.duration || 10.0;
+          tower._vizardTimer = p.duration || 20.0;
           addEffect({ type:'vizard_mode_flash', x:tower.x, y:tower.y, timer:0.8, maxTimer:0.8 });
           UI.toast('⚡ MODO VIZARD TOTAL!', 2000);
           screenShakeAmount = 25;
@@ -578,7 +578,7 @@ const Game = (() => {
         if (tower._vizardActive)
           return { text:`VIZARD ${Math.ceil(tower._vizardTimer||0)}s`, color:'#ffffff' };
         const s = tower._vizardStacks || 0;
-        if (s > 0) return { text:`Másк ${s}/${p.max_stacks||20}`, color:'#ffffff' };
+        if (s > 0) return { text:`Másк ${s}/${p.max_stacks||66}`, color:'#ffffff' };
         return null;
       }
     },
@@ -1675,7 +1675,7 @@ const Game = (() => {
 
   function updateEffects(dt) {
     if (screenShakeAmount > 0) screenShakeAmount = Math.max(0, screenShakeAmount - dt * 30);
-    if (vizardOverlayAlpha > 0) vizardOverlayAlpha = Math.max(0, vizardOverlayAlpha - dt * 0.1);
+    if (vizardOverlayAlpha > 0) vizardOverlayAlpha = Math.max(0, vizardOverlayAlpha - dt * 0.05);
 
     effects = effects.filter(e => {
       e.timer -= dt;
