@@ -130,6 +130,47 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 
 ---
 
+## 🗺️ Roadmap
+
+> As atualizações abaixo estão planejadas e em fase de concepção. Detalhes de personagens, mecânicas e conteúdo serão definidos conforme o desenvolvimento avança.
+
+---
+
+### 🔜 Update 2: Invasão Secreta *(Planejado)*
+
+**Universo Marvel entra no jogo.**
+
+- **Novo Mundo**: um mundo temático Marvel com caminho e fases exclusivas.
+- **Novos Personagens**: heróis e vilões do universo Marvel (3⭐ a 6⭐), cada um com passivas temáticas únicas.
+- **Qualidade de Vida**: melhorias gerais de UI, balanceamento e novas mecânicas de suporte.
+
+> ⚠️ Detalhes de personagens, inimigos e mecânicas a definir.
+
+---
+
+### 🔜 Update 3: Crise nas Infinitas Terras *(Planejado)*
+
+**O universo DC chega com força total.**
+
+- **Novo Mundo**: um mundo temático DC com caminho e fases exclusivas.
+- **Novos Personagens**: heróis e vilões do universo DC (3⭐ a 6⭐), com passivas e sinergias próprias.
+- **Qualidade de Vida**: novas mecânicas e refinamentos gerais.
+
+> ⚠️ Detalhes de personagens, inimigos e mecânicas a definir.
+
+---
+
+### 🔜 Update 4: Marvel vs DC *(Planejado)*
+
+**O confronto dos universos — sem novo mundo, mas com o maior evento já visto no jogo.**
+
+- **Evento Especial**: ao invés de um mundo novo, esta atualização traz um **evento inédito** centrado no conflito direto entre os universos Marvel e DC.
+- O formato do evento, recompensas e mecânicas exclusivas ainda serão definidos.
+
+> ⚠️ Conceito em discussão — detalhes a definir.
+
+---
+
 ## 🛠️ Tecnologias Utilizadas
 
 - **HTML5 Canvas** — renderização 2D do gameplay.
