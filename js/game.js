@@ -544,7 +544,7 @@ const Game = (() => {
       }
     },
 
-    // Passiva 3: Máscara Eterna — acumula 12 acertos → Modo Vizard Total (6s)
+    // Passiva 3: Máscara Eterna — acumula 20 acertos → Modo Vizard Total (10s)
     mascara_eterna: {
       update(tower, p, dt) {
         if ((tower._vizardTimer || 0) > 0) {
@@ -558,10 +558,10 @@ const Game = (() => {
       onHit(tower, p, enemy, dmg) {
         if (tower._vizardActive) return dmg;
         tower._vizardStacks = (tower._vizardStacks || 0) + 1;
-        if (tower._vizardStacks >= (p.max_stacks || 12)) {
+        if (tower._vizardStacks >= (p.max_stacks || 20)) {
           tower._vizardStacks = 0;
           tower._vizardActive = true;
-          tower._vizardTimer = p.duration || 6.0;
+          tower._vizardTimer = p.duration || 10.0;
           addEffect({ type:'vizard_mode_flash', x:tower.x, y:tower.y, timer:0.8, maxTimer:0.8 });
           UI.toast('⚡ MODO VIZARD TOTAL!', 2000);
           screenShakeAmount = 25;
@@ -578,7 +578,7 @@ const Game = (() => {
         if (tower._vizardActive)
           return { text:`VIZARD ${Math.ceil(tower._vizardTimer||0)}s`, color:'#f97316' };
         const s = tower._vizardStacks || 0;
-        if (s > 0) return { text:`Másк ${s}/${p.max_stacks||12}`, color:'#fb923c' };
+        if (s > 0) return { text:`Másк ${s}/${p.max_stacks||20}`, color:'#fb923c' };
         return null;
       }
     },
@@ -1675,7 +1675,7 @@ const Game = (() => {
 
   function updateEffects(dt) {
     if (screenShakeAmount > 0) screenShakeAmount = Math.max(0, screenShakeAmount - dt * 30);
-    if (vizardOverlayAlpha > 0) vizardOverlayAlpha = Math.max(0, vizardOverlayAlpha - dt * 0.5);
+    if (vizardOverlayAlpha > 0) vizardOverlayAlpha = Math.max(0, vizardOverlayAlpha - dt * 0.1);
 
     effects = effects.filter(e => {
       e.timer -= dt;
@@ -2282,12 +2282,21 @@ const Game = (() => {
 
     if (vizardOverlayAlpha > 0) {
       ctx.save();
-      const grad = ctx.createRadialGradient(CANVAS_W/2, CANVAS_H/2, CANVAS_H/4, CANVAS_W/2, CANVAS_H/2, CANVAS_W);
+      const minDim = Math.min(CANVAS_W, CANVAS_H);
+      const maxDim = Math.max(CANVAS_W, CANVAS_H);
+      
+      // Outer extremely dark/creepy corners
+      const grad = ctx.createRadialGradient(CANVAS_W/2, CANVAS_H/2, minDim * 0.45, CANVAS_W/2, CANVAS_H/2, maxDim * 0.65);
       grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      grad.addColorStop(1, `rgba(100, 0, 0, ${vizardOverlayAlpha * 0.85})`);
+      grad.addColorStop(1, `rgba(10, 0, 0, ${vizardOverlayAlpha * 0.98})`);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-      ctx.fillStyle = `rgba(249, 115, 22, ${vizardOverlayAlpha * 0.08})`;
+      
+      // Intense blood-red vignette strictly at the corners
+      const cornerGrad = ctx.createRadialGradient(CANVAS_W/2, CANVAS_H/2, minDim * 0.55, CANVAS_W/2, CANVAS_H/2, maxDim * 0.7);
+      cornerGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      cornerGrad.addColorStop(1, `rgba(160, 0, 0, ${vizardOverlayAlpha * 0.85})`);
+      ctx.fillStyle = cornerGrad;
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
       ctx.restore();
     }
@@ -2527,38 +2536,53 @@ const Game = (() => {
         ctx.setLineDash([]);
         ctx.restore();
 
-        // 8 partículas orbitando (alternando laranja/vermelho-escuro)
-        const ang6 = n6 * 0.0018;
-        for (let i = 0; i < 8; i++) {
-          const a = ang6 + i * Math.PI / 4;
-          const px = t.x + Math.cos(a) * 34;
-          const py = t.y + Math.sin(a) * 34;
-          ctx.save();
+        // Chamas de Reiatsu Vermelho/Preto (Substitui as antigas esferas e glyphs)
+        ctx.save();
+        ctx.translate(t.x, t.y);
+        const layers = [
+          { color: 'rgba(20, 0, 0, 0.95)', blur: 15, blurCol: '#7b0000', comp: 'source-over', baseR: 35, spikeMult: 25 },
+          { color: 'rgba(220, 20, 20, 0.75)', blur: 25, blurCol: '#f00', comp: 'lighter', baseR: 28, spikeMult: 18 },
+          { color: 'rgba(255, 100, 0, 0.85)', blur: 15, blurCol: '#fa0', comp: 'lighter', baseR: 20, spikeMult: 10 }
+        ];
+        
+        layers.forEach((ly, idx) => {
+          ctx.globalCompositeOperation = ly.comp;
+          ctx.fillStyle = ly.color;
+          ctx.shadowBlur = ly.blur;
+          ctx.shadowColor = ly.blurCol;
+          
           ctx.beginPath();
-          ctx.arc(px, py, 2.2, 0, Math.PI * 2);
-          ctx.fillStyle = i % 2 === 0 ? '#f97316' : '#7b0000';
-          ctx.shadowBlur = 10; ctx.shadowColor = i % 2 === 0 ? '#f97316' : '#dc2626';
+          const spikes = 14 + idx * 2; 
+          for (let i = 0; i <= spikes; i++) {
+            const angle = (i / spikes) * Math.PI * 2;
+            const timePhase = n6 * 0.006 + idx * 10 + i;
+            
+            // Ponta da chama oscilando
+            const flameLen = ly.baseR + Math.abs(Math.sin(timePhase)) * ly.spikeMult;
+            // Alongamento para cima (Y negativo) simulando aura subindo
+            const isTop = Math.sin(angle) < 0;
+            const upStretch = isTop ? Math.abs(Math.sin(angle)) * 30 : 0;
+            
+            const pxTip = Math.cos(angle) * (flameLen + upStretch * 0.4);
+            const pyTip = Math.sin(angle) * (flameLen + upStretch) - upStretch * 0.6;
+            
+            // Base/Vale entre as chamas
+            const nextAngle = ((i + 0.5) / spikes) * Math.PI * 2;
+            const valleyLen = ly.baseR - 4;
+            const isTopValley = Math.sin(nextAngle) < 0;
+            const valleyUpStretch = isTopValley ? Math.abs(Math.sin(nextAngle)) * 12 : 0;
+            const pxVal = Math.cos(nextAngle) * valleyLen;
+            const pyVal = Math.sin(nextAngle) * (valleyLen + valleyUpStretch) - valleyUpStretch * 0.4;
+            
+            if (i === 0) ctx.moveTo(pxTip, pyTip);
+            else ctx.lineTo(pxTip, pyTip);
+            
+            if (i < spikes) ctx.lineTo(pxVal, pyVal);
+          }
+          ctx.closePath();
           ctx.fill();
-          ctx.restore();
-        }
-
-        // 3 glyphs hollow contra-orbitando (círculo preto c/ borda vermelha)
-        const ang6b = -n6 * 0.0025;
-        for (let i = 0; i < 3; i++) {
-          const a = ang6b + i * Math.PI * 2 / 3;
-          const px = t.x + Math.cos(a) * 24;
-          const py = t.y + Math.sin(a) * 24;
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(px, py, 3, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(20,0,0,0.95)';
-          ctx.strokeStyle = '#ef4444';
-          ctx.lineWidth = 0.9;
-          ctx.shadowBlur = 8; ctx.shadowColor = '#ef4444';
-          ctx.fill();
-          ctx.stroke();
-          ctx.restore();
-        }
+        });
+        ctx.restore();
 
         // Vizard Mode ativo — halo laranja dramático pulsante
         if (t._vizardActive) {
