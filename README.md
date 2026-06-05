@@ -141,7 +141,7 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 **Universo Marvel entra no jogo.**
 
 - **Novo Mundo**: um mundo temático Marvel com caminho e fases exclusivas.
-- **Novos Personagens**: heróis e vilões do universo Marvel (3⭐ a 6⭐), cada um com passivas temáticas únicas.
+- **Novos Personagens**: heróis e vilões do universo Marvel (3⭐ a 5⭐), cada um com passivas temáticas únicas.
 - **Qualidade de Vida**: melhorias gerais de UI, balanceamento e novas mecânicas de suporte.
 
 > ⚠️ Detalhes de personagens, inimigos e mecânicas a definir.
@@ -153,7 +153,7 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 **O universo DC chega com força total.**
 
 - **Novo Mundo**: um mundo temático DC com caminho e fases exclusivas.
-- **Novos Personagens**: heróis e vilões do universo DC (3⭐ a 6⭐), com passivas e sinergias próprias.
+- **Novos Personagens**: heróis e vilões do universo DC (3⭐ a 5⭐), com passivas e sinergias próprias.
 - **Qualidade de Vida**: novas mecânicas e refinamentos gerais.
 
 > ⚠️ Detalhes de personagens, inimigos e mecânicas a definir.
