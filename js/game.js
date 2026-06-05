@@ -576,9 +576,9 @@ const Game = (() => {
       },
       renderBadge(tower, p) {
         if (tower._vizardActive)
-          return { text:`VIZARD ${Math.ceil(tower._vizardTimer||0)}s`, color:'#f97316' };
+          return { text:`VIZARD ${Math.ceil(tower._vizardTimer||0)}s`, color:'#ffffff' };
         const s = tower._vizardStacks || 0;
-        if (s > 0) return { text:`Másк ${s}/${p.max_stacks||20}`, color:'#fb923c' };
+        if (s > 0) return { text:`Másк ${s}/${p.max_stacks||20}`, color:'#ffffff' };
         return null;
       }
     },
@@ -2234,8 +2234,7 @@ const Game = (() => {
     drawEffects();
     
     // Dark Mode (Fog of War) logic
-    let hasVizardActive = towers.some(t => t._vizardActive);
-    let wantsDarkMode = (stage && stage.modifiers && stage.modifiers.dark_mode) || hasVizardActive;
+    let wantsDarkMode = (stage && stage.modifiers && stage.modifiers.dark_mode);
 
     if (wantsDarkMode) {
       if (!window.darkCanvas) {
@@ -2246,7 +2245,7 @@ const Game = (() => {
       }
       const dCtx = window.darkCtx;
       dCtx.globalCompositeOperation = 'source-over';
-      dCtx.fillStyle = hasVizardActive ? 'rgba(30, 0, 0, 0.95)' : 'rgba(0,0,0,0.98)';
+      dCtx.fillStyle = 'rgba(0,0,0,0.98)';
       dCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
       
       dCtx.globalCompositeOperation = 'destination-out';
@@ -2282,20 +2281,19 @@ const Game = (() => {
 
     if (vizardOverlayAlpha > 0) {
       ctx.save();
-      const minDim = Math.min(CANVAS_W, CANVAS_H);
-      const maxDim = Math.max(CANVAS_W, CANVAS_H);
+      const cornerDist = Math.hypot(CANVAS_W/2, CANVAS_H/2);
       
-      // Outer extremely dark/creepy corners
-      const grad = ctx.createRadialGradient(CANVAS_W/2, CANVAS_H/2, minDim * 0.45, CANVAS_W/2, CANVAS_H/2, maxDim * 0.65);
+      // Sombra preta avançando pelas bordas e cantos
+      const grad = ctx.createRadialGradient(CANVAS_W/2, CANVAS_H/2, cornerDist * 0.65, CANVAS_W/2, CANVAS_H/2, cornerDist * 1.05);
       grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      grad.addColorStop(1, `rgba(10, 0, 0, ${vizardOverlayAlpha * 0.98})`);
+      grad.addColorStop(1, `rgba(10, 0, 0, ${vizardOverlayAlpha * 0.95})`);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
       
-      // Intense blood-red vignette strictly at the corners
-      const cornerGrad = ctx.createRadialGradient(CANVAS_W/2, CANVAS_H/2, minDim * 0.55, CANVAS_W/2, CANVAS_H/2, maxDim * 0.7);
+      // Vermelho sangue restrito puramente aos cantos
+      const cornerGrad = ctx.createRadialGradient(CANVAS_W/2, CANVAS_H/2, cornerDist * 0.8, CANVAS_W/2, CANVAS_H/2, cornerDist);
       cornerGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      cornerGrad.addColorStop(1, `rgba(160, 0, 0, ${vizardOverlayAlpha * 0.85})`);
+      cornerGrad.addColorStop(1, `rgba(180, 0, 0, ${vizardOverlayAlpha * 0.9})`);
       ctx.fillStyle = cornerGrad;
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
       ctx.restore();
@@ -2540,9 +2538,9 @@ const Game = (() => {
         ctx.save();
         ctx.translate(t.x, t.y);
         const layers = [
-          { color: 'rgba(20, 0, 0, 0.95)', blur: 15, blurCol: '#7b0000', comp: 'source-over', baseR: 35, spikeMult: 25 },
-          { color: 'rgba(220, 20, 20, 0.75)', blur: 25, blurCol: '#f00', comp: 'lighter', baseR: 28, spikeMult: 18 },
-          { color: 'rgba(255, 100, 0, 0.85)', blur: 15, blurCol: '#fa0', comp: 'lighter', baseR: 20, spikeMult: 10 }
+          { color: 'rgba(220, 10, 20, 0.7)', blur: 25, blurCol: '#ff0000', comp: 'lighter', baseR: 38, spikeMult: 28 }, // Outer red glow
+          { color: 'rgba(80, 0, 0, 0.9)', blur: 15, blurCol: '#aa0000', comp: 'source-over', baseR: 28, spikeMult: 20 }, // Dark red mid
+          { color: 'rgba(5, 5, 10, 0.98)', blur: 5, blurCol: '#000000', comp: 'source-over', baseR: 22, spikeMult: 14 }  // Pitch black core
         ];
         
         layers.forEach((ly, idx) => {
@@ -2678,10 +2676,13 @@ const Game = (() => {
       if (!t.isClone) {
         const badge = PASSIVE_SYSTEM.renderBadge(t);
         if (badge) {
-          ctx.fillStyle = badge.color;
-          ctx.font = 'bold 9px Inter,sans-serif';
+          ctx.font = 'bold 10px Inter,sans-serif';
           ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-          ctx.fillText(badge.text, t.x, t.y - 25);
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = '#000000';
+          ctx.strokeText(badge.text, t.x, t.y - 46);
+          ctx.fillStyle = badge.color;
+          ctx.fillText(badge.text, t.x, t.y - 46);
         }
       }
       // Active ability indicator (Gojo) — bolinha verde (pronto) ou azul (cooldown)
