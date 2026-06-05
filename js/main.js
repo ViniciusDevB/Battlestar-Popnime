@@ -18,6 +18,19 @@ const CheatMode = (() => {
     const feedback = document.getElementById('cheat-feedback');
     const code = input.value.trim().toUpperCase();
 
+    if (code === 'MONEY') {
+      if (typeof Game === 'undefined' || !Game.addGold) {
+        feedback.textContent = 'Inicie uma partida primeiro!';
+        feedback.style.color = '#f87171';
+        return;
+      }
+      Game.addGold(999999);
+      feedback.textContent = '+999.999 de ouro adicionados!';
+      feedback.style.color = '#facc15';
+      setTimeout(close, 2000);
+      return;
+    }
+
     if (code !== 'CHEATON') {
       feedback.textContent = 'Código inválido!';
       feedback.style.color = '#f87171';

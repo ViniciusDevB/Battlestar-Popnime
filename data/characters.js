@@ -390,7 +390,7 @@ const CHARACTERS = {
     upgrades:[
       { name:'Reishi Avançado', desc:'Dano ×1.3 | Alcance ×1.1', damage_mult:1.3, range_mult:1.1, cost:340 },
       { name:'Blut Vene', desc:'Vel ×1.2 | Dano ×1.2', speed_mult:1.2, damage_mult:1.2, cost:580 },
-      { name:'Vollständig', desc:'Dano ×1.6 | Perfura 5 inimigos', damage_mult:1.6, cost:950 }
+      { name:'Vollständig', desc:'Dano ×1.6 | Perfura 5 inimigos', damage_mult:1.6, passive_override:{ count:5 }, cost:950 }
     ]
   },
   orihime_inoue: {
@@ -532,8 +532,8 @@ const CHARACTERS = {
         label:'Cero Oscuras: cada 3º ataque vira cone e aplica Medo (+25% dano recebido por 4s)' },
       { type:'rei_dois_mundos', ally_bonus:0.20, self_bonus:0.10,
         label:'Rei dos Dois Mundos: torres Bleach aliadas +20% dano; Ichigo +10% dano por aliado Bleach (máx 5)' },
-      { type:'mascara_eterna', max_stacks:12, duration:6.0, mode_dmg_mult:2.0,
-        label:'Máscara Eterna: 12 acertos carregam a Máscara → 6s de Modo Vizard Total (2× dano, 2× vel, AOE total)' }
+      { type:'mascara_eterna', max_stacks:66, duration:20.0, mode_dmg_mult:2.0,
+        label:'Máscara Eterna: 66 ataques carregam a Máscara → 20s de Modo Vizard Total (2× dano, 2× vel, AOE total)' }
     ],
     base_stats:{ damage:980, range:160, attack_speed:0.65, type:'single' },
     deploy_cost:1400, max_level:60,

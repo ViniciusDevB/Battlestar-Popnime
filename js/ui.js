@@ -351,6 +351,7 @@ const UI = (() => {
       case 'cone': return '📐 Cone';
       case 'aoe': return '💥 AOE';
       case 'aoe_full': return '🌪️ Full AOE';
+      case 'aoe_vizard_total': return '👁️ Vizard AOE';
       case 'none': return '🛡️ Suporte';
       default: return type || 'N/A';
     }

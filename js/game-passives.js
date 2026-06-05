@@ -1,0 +1,670 @@
+// game-passives.js
+// Definições de todas as passivas de personagens.
+// Depende de _passiveCtx (populado por game.js) para acessar estado e funções do jogo.
+// Globals usados diretamente: RARITY_COLORS, applyStatus, UI, PATH_LENGTH, getPosOnPath.
+
+const CHAR_COLORS = {
+  ichigo_base:      '#ff6b00',
+  goku_base:        '#4fc3f7',
+  l_deathnote:      '#bdbdbd',
+  demolidor:        '#e53935',
+  sasuke_uchiha:    '#7986cb',
+  killua_zoldyck:   '#e8eaf6',
+  tanjiro_kamado:   '#ef5350',
+  zoro_3:           '#66bb6a',
+  naruto_shippuden: '#ff8c00',
+  luffy_3:          '#ff7043',
+  levi_ackerman:    '#b0bec5',
+  meliodas_base:    '#ab47bc',
+  naruto_sage:      '#ffb300',
+  gojo_satoru:      '#e3f2fd',
+};
+
+// Todos os handlers de passiva. Acessa estado do jogo via _passiveCtx.
+// _passiveCtx é populado em game.js após a inicialização do módulo Game.
+var PASSIVE_ENTRIES = {
+
+  // Template: passiva baseada em timer periódico que invoca aliado/projétil.
+  tsunami: {
+    update(tower, p, dt) {
+      if (tower.disabled) return;
+      tower.tsunamiTimer = (tower.tsunamiTimer || 0) + dt;
+      const interval = _passiveCtx.getPassiveValue(tower, 'interval', p.interval);
+      if (tower.tsunamiTimer >= interval) {
+        tower.tsunamiTimer = 0;
+        const hp = _passiveCtx.getPassiveValue(tower, 'hp', p.hp);
+        _passiveCtx.tsunamis.push({ hp, maxHp: hp, dist: PATH_LENGTH, speed: 100, color: '#3498db', hitIds: new Set() });
+        UI.toast('🌊 Tsunami Reversivo Invocado!', 2000);
+      }
+    }
+  },
+
+  // Template: stacker de kills com multiplicador de dano e decaimento por tempo.
+  kill_streak: {
+    renderBadge(tower, p) {
+      if (!(tower.killStreak > 0)) return null;
+      return { text: `×${tower.killStreak}`, color: '#f56565' };
+    },
+    update(tower, p, dt) {
+      if (tower.isClone || !(tower.killStreak > 0)) return;
+      tower.killDecayTimer = (tower.killDecayTimer || 0) - dt;
+      if (tower.killDecayTimer <= 0) { tower.killStreak = 0; tower.killDecayTimer = 0; }
+    },
+    onHit(tower, p, enemy, dmg) {
+      if (tower.killStreak > 0) return dmg * (1 + tower.killStreak * p.stack_bonus);
+      return dmg;
+    },
+    onKill(tower, p, enemy) {
+      const maxS   = _passiveCtx.getPassiveValue(tower, 'max_stacks', p.max_stacks || 999);
+      const decayT = _passiveCtx.getPassiveValue(tower, 'decay_time', p.decay_time);
+      tower.killStreak = Math.min((tower.killStreak || 0) + 1, maxS);
+      tower.killDecayTimer = decayT;
+    }
+  },
+
+  // Template: aura de área que aplica debuff passivamente a cada frame.
+  slow_aura: {
+    update(tower, p, dt) {
+      if (tower.disabled) return;
+      const stats   = _passiveCtx.getTowerStats(tower);
+      const slowPct = _passiveCtx.getPassiveValue(tower, 'slow_pct', p.slow_pct);
+      _passiveCtx.enemies.forEach(e => {
+        if (e.dead || e.reached_end) return;
+        if (_passiveCtx.dist2d(tower.x, tower.y, e.x, e.y) <= stats.range)
+          applyStatus(e, 'freeze', { slow_pct: slowPct, duration: 0.2 });
+      });
+    }
+  },
+
+  // Template: bypass de requisito de upgrade (pierce / ignore armor).
+  sharingan: {
+    canDamageOverride(tower, p, enemy) { return true; }
+  },
+
+  // Template: padrão de ataque rítmico — ataca N vezes, descansa N vezes.
+  zoro_burst: {
+    beforeAttack(tower, p, stats) {
+      tower.burstCount = (tower.burstCount || 0) + 1;
+      if (tower.burstCount > 3) {
+        if (tower.burstCount >= 6) tower.burstCount = 0;
+        return null;
+      }
+      return stats;
+    }
+  },
+
+  // Template: N-ésimo ataque aplica multiplicador de dano (combo counter).
+  three_swords: {
+    renderBadge(tower, p) {
+      const cnt  = (tower.comboCounter || 0) + 1;
+      const mult = _passiveCtx.getPassiveValue(tower, 'mult', p.mult || 3);
+      const color = cnt >= 3 ? '#ffc846' : cnt === 2 ? 'rgba(255,200,70,0.7)' : 'rgba(255,255,255,0.35)';
+      return { text: `${cnt}/3 [${mult}×]`, color };
+    },
+    beforeAttack(tower, p, stats) {
+      if (tower.isClone) return stats;
+      tower.comboCounter = (tower.comboCounter || 0) + 1;
+      if (tower.comboCounter >= 3) {
+        const mult = _passiveCtx.getPassiveValue(tower, 'mult', p.mult || 3);
+        tower.comboCounter = 0;
+        _passiveCtx.addEffect({ type:'crit', x:tower.x, y:tower.y, color:CHAR_COLORS[tower.charId]||RARITY_COLORS[tower.rarity], timer:0.45, maxTimer:0.45, charId:tower.charId });
+        return { ...stats, damage: stats.damage * mult };
+      }
+      return stats;
+    }
+  },
+
+  // Template: chance de ataque extra no mesmo ciclo (apenas single_target).
+  double_hit: {
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      if (tower.isClone || attackType !== 'single_target' || hitEnemies.length === 0) return;
+      const chance = _passiveCtx.getPassiveValue(tower, 'chance', p.chance);
+      if (Math.random() < chance) _passiveCtx.spawnProjectile(tower, hitEnemies[0], stats.damage, 'single');
+    }
+  },
+
+  // Template: invocação de aliado temporário baseada em chance por ataque.
+  clone_on_attack: {
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      if (tower.isClone) return;
+      const chance = _passiveCtx.getPassiveValue(tower, 'chance', p.chance);
+      if (Math.random() < chance) _passiveCtx.spawnClone(tower);
+    }
+  },
+
+  // Template: aura de boost de dano para aliados no alcance da torre.
+  damage_aura: {
+    isAura: true,
+    auraEffect(auraTower, p, attackingTower, dmg) {
+      if (_passiveCtx.dist2d(auraTower.x, auraTower.y, attackingTower.x, attackingTower.y) <= _passiveCtx.getTowerStats(auraTower).range)
+        return dmg * (1 + _passiveCtx.getPassiveValue(auraTower, 'bonus', p.bonus));
+      return dmg;
+    }
+  },
+
+  // Template: redução de cooldown de ataque ao confirmar kill.
+  kill_cooldown: {
+    onKill(tower, p, enemy) {
+      const period    = 1 / _passiveCtx.getTowerStats(tower).attack_speed;
+      const reduction = _passiveCtx.getPassiveValue(tower, 'reduction', p.reduction);
+      tower.attackTimer = Math.min(tower.attackTimer, period * reduction);
+    }
+  },
+
+  // Template: aplica status em TODO acerto (dps/duration escalam com upgrades).
+  status_on_hit: {
+    onHit(tower, p, enemy, dmg) {
+      const dps = _passiveCtx.getPassiveValue(tower, 'dps', p.dps);
+      const dur = _passiveCtx.getPassiveValue(tower, 'duration', p.duration);
+      applyStatus(enemy, p.status, { ...p, dps, duration: dur });
+      return dmg;
+    }
+  },
+
+  // Bansho Ten'in: Puxa inimigos para trás a cada N ataques
+  bansho_tenin: {
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      tower.banshoCount = (tower.banshoCount || 0) + 1;
+      const req = _passiveCtx.getPassiveValue(tower, 'attacks_required', p.attacks_required || 4);
+      if (tower.banshoCount >= req) {
+        tower.banshoCount = 0;
+        const pushDist = _passiveCtx.getPassiveValue(tower, 'push_dist', p.push_dist || 30);
+        hitEnemies.forEach(e => {
+          e.dist = Math.max(0, e.dist - pushDist);
+          const pos = getPosOnPath(e.dist, e.pathArr);
+          e.x = pos.x; e.y = pos.y;
+          _passiveCtx.addEffect({ type:'silenced', x: e.x, y: e.y, color:'#9b59b6', text:'Puxado!', timer:0.8, maxTimer:0.8 });
+        });
+      }
+    }
+  },
+
+  // Template: aplica status com CHANCE por acerto.
+  status_on_hit_chance: {
+    onHit(tower, p, enemy, dmg) {
+      if (Math.random() < p.chance) applyStatus(enemy, p.status, { duration: p.duration });
+      return dmg;
+    }
+  },
+
+  // Template: chance de dano crítico com multiplicador escalável.
+  critical: {
+    onHit(tower, p, enemy, dmg) {
+      const chance = _passiveCtx.getPassiveValue(tower, 'chance', p.chance);
+      const mult   = _passiveCtx.getPassiveValue(tower, 'mult',   p.mult);
+      if (Math.random() < chance) {
+        _passiveCtx.addEffect({ type:'crit', x:enemy.x, y:enemy.y, color:RARITY_COLORS[tower.rarity], timer:0.35, maxTimer:0.35 });
+        return dmg * mult;
+      }
+      return dmg;
+    }
+  },
+
+  // Template: dano multiplicado contra inimigos com status específico ativo.
+  bonus_vs_burned: {
+    onHit(tower, p, enemy, dmg) {
+      if (enemy.status.burn?.active) return dmg * p.mult;
+      return dmg;
+    }
+  },
+
+  // Template: chance de gerar recurso (ouro) por acerto.
+  ladra: {
+    onHit(tower, p, enemy, dmg) {
+      if (Math.random() < p.chance) {
+        _passiveCtx.gold += 1;
+        _passiveCtx.addEffect({ type:'coin', x:enemy.x, y:enemy.y - 15, color:'#f1c40f', timer:0.5, maxTimer:0.5 });
+      }
+      return dmg;
+    }
+  },
+
+  // Template único: anula ptype/special do inimigo no primeiro acerto (permanente).
+  silence_buffs: {
+    onHit(tower, p, enemy, dmg) {
+      if (!enemy.silenceChecked) {
+        enemy.silenceChecked = true;
+        if ((enemy.ptype !== 'normal' || enemy.special) && Math.random() < p.chance) {
+          enemy.ptype  = 'normal';
+          enemy.special = null;
+          _passiveCtx.addEffect({ type:'shockwave', x:enemy.x, y:enemy.y, maxR:40, color:'#9b59b6', timer:0.4, maxTimer:0.4 });
+        }
+      }
+      return dmg;
+    }
+  },
+
+  // Template único: aplica MÚLTIPLOS status simultâneos em cada acerto.
+  dual_affliction: {
+    onHit(tower, p, enemy, dmg) {
+      const bDps  = _passiveCtx.getPassiveValue(tower, 'burn_dps',  p.burn_dps);
+      const blDps = _passiveCtx.getPassiveValue(tower, 'bleed_dps', p.bleed_dps);
+      applyStatus(enemy, 'burn',        { dps: bDps,  duration: p.burn_duration });
+      applyStatus(enemy, 'sangramento', { dps: blDps, duration: p.bleed_duration });
+      return dmg;
+    }
+  },
+
+  // Template: geração de ouro ao fim de cada wave + bônus por kill na área.
+  wave_gold: {
+    onWaveEnd(tower, p) {
+      if (tower.isClone) return;
+      let wg = p.base + (tower.level - 1) * (p.perLevel || 0);
+      for (let i = 0; i < tower.upgradeLevel; i++) wg += tower.charData.upgrades[i]?.gold_bonus || 0;
+      if (wg > 0) { _passiveCtx.gold += wg; _passiveCtx.updateHUD(); UI.toast(`💰 L gerou +${wg} ouro!`, 2500); }
+    },
+    onAnyKill(tower, p, deadEnemy) {
+      if (tower.isClone) return;
+      let killGold = 0;
+      for (let i = 0; i < tower.upgradeLevel; i++) killGold = tower.charData.upgrades[i]?.kill_gold || killGold;
+      if (killGold > 0 && _passiveCtx.dist2d(tower.x, tower.y, deadEnemy.x, deadEnemy.y) <= _passiveCtx.getTowerStats(tower).range) {
+        _passiveCtx.gold += killGold; _passiveCtx.updateHUD();
+      }
+    }
+  },
+
+  // ── Bleach: Passivas Novas ──────────────────────────────────────────────
+
+  // Rukia / Toshiro — chance de congelar o alvo a cada acerto
+  freeze_on_hit: {
+    onHit(tower, p, enemy, dmg) {
+      const chance = _passiveCtx.getPassiveValue(tower, 'chance', p.chance || 0.25);
+      const dur    = _passiveCtx.getPassiveValue(tower, 'duration', p.duration || 2);
+      if (Math.random() < chance) {
+        applyStatus(enemy, 'freeze', { duration: dur, slow_pct: 0.6 });
+        _passiveCtx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:22, color:'#7dd3fc', timer:0.3, maxTimer:0.3, r:0 });
+      }
+      return dmg;
+    }
+  },
+
+  // Renji — stacks de veneno, estoura a cada N acertos no mesmo inimigo
+  snake_venom: {
+    onHit(tower, p, enemy, dmg) {
+      enemy._venomStacks = (enemy._venomStacks || 0) + 1;
+      const thresh = _passiveCtx.getPassiveValue(tower, 'stacks', p.stacks || 5);
+      if (enemy._venomStacks >= thresh) {
+        enemy._venomStacks = 0;
+        const burst = _passiveCtx.getTowerStats(tower).damage * (p.burstMult || 4.5);
+        _passiveCtx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:28, color:'#7c3aed', timer:0.35, maxTimer:0.35, r:0 });
+        return dmg + burst;
+      }
+      return dmg;
+    }
+  },
+
+  // Chad — dano multiplicado contra bosses e minibosses
+  boss_slayer: {
+    onHit(tower, p, enemy, dmg) {
+      if (enemy.is_boss || enemy.is_miniboss) return dmg * (p.mult || 2.2);
+      return dmg;
+    }
+  },
+
+  // Orihime — aura que mantém stunCooldown alto em torres vizinhas (imunidade passiva)
+  santen_kesshun: {
+    isAura: false,
+    update(tower, p, dt) {
+      if (tower.disabled) return;
+      const radius = p.radius || 145;
+      _passiveCtx.towers.forEach(t => {
+        if (t === tower) return;
+        if (_passiveCtx.dist2d(t.x, t.y, tower.x, tower.y) <= radius && (t.miniStunTimer || 0) <= 0) {
+          t.stunCooldown = Math.max(t.stunCooldown || 0, 8);
+        }
+      });
+    }
+  },
+
+  // Byakuya — ao matar, pétalas causam dano em área ao redor do inimigo morto
+  petal_mark: {
+    onKill(tower, p, enemy) {
+      const r    = p.splashRadius || 95;
+      const dmg  = _passiveCtx.getTowerStats(tower).damage * (p.splashMult || 1.3);
+      _passiveCtx.enemies.forEach(e => {
+        if (!e.dead && !e.reached_end && e !== enemy && _passiveCtx.dist2d(e.x, e.y, enemy.x, enemy.y) <= r) {
+          _passiveCtx.dealDamage(tower, e, dmg);
+        }
+      });
+      _passiveCtx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:r, color:'#f48fb1', timer:0.4, maxTimer:0.4, r:0 });
+    }
+  },
+
+  // Kenpachi — cada kill adiciona stack permanente de dano (até maxStacks)
+  berserker: {
+    onHit(tower, p, enemy, dmg) {
+      const stacks = tower.berserkerStacks || 0;
+      return stacks > 0 ? dmg * (1 + stacks * (p.dmgPerStack || 0.06)) : dmg;
+    },
+    onKill(tower, p, enemy) {
+      const max = p.maxStacks || 40;
+      tower.berserkerStacks = Math.min((tower.berserkerStacks || 0) + 1, max);
+    },
+    renderBadge(tower, p) {
+      const stacks = tower.berserkerStacks || 0;
+      if (stacks === 0) return null;
+      const max = p.maxStacks || 40;
+      return { text: `${stacks}/${max}`, color: `rgba(239,68,68,${0.55 + (stacks/max)*0.45})` };
+    }
+  },
+
+  // Ichigo Bankai — aura que amplifica dano de todas as torres em inimigos no seu alcance
+  bankai_pressure: {
+    isAura: true,
+    auraEffect(auraTower, p, attackingTower, dmg, enemy) {
+      if (!enemy || auraTower.disabled) return dmg;
+      const range = _passiveCtx.getTowerStats(auraTower).range;
+      if (_passiveCtx.dist2d(enemy.x, enemy.y, auraTower.x, auraTower.y) <= range) {
+        return dmg * (p.mult || 1.55);
+      }
+      return dmg;
+    }
+  },
+
+  // Ichigo Vizard — cada 3º ataque vira AOE; imunidade total a stun
+  hollow_sync: {
+    update(tower, p, dt) {
+      tower.stunCooldown = Math.max(tower.stunCooldown || 0, 5);
+      if ((tower.miniStunTimer || 0) > 0) {
+        tower.miniStunTimer = 0;
+        if (!_passiveCtx.shinraTenseiActive) tower.disabled = false;
+      }
+    },
+    beforeAttack(tower, p, stats) {
+      tower._hollowSyncCount = ((tower._hollowSyncCount || 0) + 1);
+      if (tower._hollowSyncCount >= 3) {
+        tower._hollowSyncCount = 0;
+        _passiveCtx.addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:stats.range * 0.6, color:'#fb923c', timer:0.25, maxTimer:0.25, r:0 });
+        return { ...stats, type: 'aoe' };
+      }
+      return stats;
+    }
+  },
+
+  // ── Ichigo Vizard 6★ ───────────────────────────────────────────────────
+
+  // Passiva 1: Cero Oscuras — cada 3º ataque vira cone + aplica Medo
+  cero_oscuras: {
+    beforeAttack(tower, p, stats) {
+      tower._ceroCount = (tower._ceroCount || 0) + 1;
+      if (tower._ceroCount >= (p.every || 3)) {
+        tower._ceroCount = 0;
+        tower._ceroActive = true;
+        return { ...stats, type: 'cone' };
+      }
+      return stats;
+    },
+    afterAttack(tower, p, hitEnemies) {
+      if (!tower._ceroActive) return;
+      tower._ceroActive = false;
+      hitEnemies.forEach(e => applyStatus(e, 'medo', { duration: p.fear_duration || 4 }));
+      _passiveCtx.addEffect({ type:'hollow_burst', x:tower.x, y:tower.y, maxR:120, timer:0.6, maxTimer:0.6, r:0 });
+      _passiveCtx.screenShakeAmount = 12;
+    },
+    renderBadge(tower, p) {
+      const n = tower._ceroCount || 0;
+      if (n === 0) return null;
+      return { text:`Cero ${n}/${p.every||3}`, color:'#f97316' };
+    }
+  },
+
+  // Passiva 2: Rei dos Dois Mundos — sinergia Bleach + bônus próprio por aliados
+  rei_dois_mundos: {
+    isAura: true,
+    auraEffect(auraTower, p, attackingTower, dmg) {
+      if (auraTower.disabled || attackingTower === auraTower) return dmg;
+      if (attackingTower.charData?.series === 'bleach')
+        return dmg * (1 + (p.ally_bonus || 0.20));
+      return dmg;
+    },
+    onHit(tower, p, enemy, dmg) {
+      const bleachAllies = _passiveCtx.towers.filter(t => t !== tower && !t.disabled && t.charData?.series === 'bleach').length;
+      if (bleachAllies > 0)
+        return dmg * (1 + Math.min(bleachAllies, 5) * (p.self_bonus || 0.10));
+      return dmg;
+    }
+  },
+
+  // Passiva 3: Máscara Eterna — acumula 66 acertos → Modo Vizard Total (20s)
+  mascara_eterna: {
+    update(tower, p, dt) {
+      if ((tower._vizardTimer || 0) > 0) {
+        tower._vizardTimer -= dt;
+        if (tower._vizardTimer <= 0) {
+          tower._vizardTimer = 0;
+          tower._vizardActive = false;
+        }
+      }
+    },
+    beforeAttack(tower, p, stats) {
+      if (!tower._vizardActive) {
+        tower._vizardStacks = (tower._vizardStacks || 0) + 1;
+        if (tower._vizardStacks >= (p.max_stacks || 66)) {
+          tower._vizardStacks = 0;
+          tower._vizardActive = true;
+          tower._vizardTimer = p.duration || 20.0;
+          _passiveCtx.addEffect({ type:'vizard_mode_flash', x:tower.x, y:tower.y, timer:0.8, maxTimer:0.8 });
+          UI.toast('⚡ MODO VIZARD TOTAL!', 2000);
+          _passiveCtx.screenShakeAmount = 25;
+          _passiveCtx.vizardOverlayAlpha = 1.0;
+        }
+      }
+      if (tower._vizardActive)
+        return { ...stats, type: 'aoe_vizard_total', damage: stats.damage * (p.mode_dmg_mult || 2.0) };
+      return stats;
+    },
+    renderBadge(tower, p) {
+      if (tower._vizardActive)
+        return { text:`VIZARD ${Math.ceil(tower._vizardTimer||0)}s`, color:'#ffffff' };
+      const s = tower._vizardStacks || 0;
+      if (s > 0) return { text:`Másк ${s}/${p.max_stacks||66}`, color:'#ffffff' };
+      return null;
+    }
+  },
+
+  // ── Passivas de Prestígio ───────────────────────────────────────────────
+
+  // Ataque encadeia para 1-2 inimigos próximos (relâmpago, serpente, etc.)
+  arc_chain: {
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      if (hitEnemies.length === 0) return;
+      const r   = p.chain_r   || 75;
+      const dmg = stats.damage * (p.chain_mult || 0.5);
+      const max = p.chains    || 1;
+      const hit = new Set(hitEnemies.map(e => e.uid));
+      let last = hitEnemies[0];
+      for (let i = 0; i < max; i++) {
+        const next = _passiveCtx.enemies.find(e => !e.dead && !e.reached_end && !hit.has(e.uid)
+          && _passiveCtx.dist2d(e.x, e.y, last.x, last.y) <= r && _passiveCtx.effectiveCanDamage(tower, e));
+        if (!next) break;
+        hit.add(next.uid);
+        _passiveCtx.dealDamage(tower, next, dmg);
+        _passiveCtx.addEffect({ type:'line', x:last.x, y:last.y, tx:next.x, ty:next.y,
+          color:RARITY_COLORS[tower.rarity], timer:0.18, maxTimer:0.18 });
+        last = next;
+      }
+    }
+  },
+
+  // Chance de crítico explosivo — acerto dá dano extra + splash em área
+  crit_splash: {
+    onHit(tower, p, enemy, dmg) {
+      if (Math.random() < (p.crit_chance || 0.20)) {
+        const r = p.splash_r || 60;
+        _passiveCtx.enemies.forEach(e => {
+          if (e !== enemy && !e.dead && !e.reached_end
+              && _passiveCtx.dist2d(e.x, e.y, enemy.x, enemy.y) <= r && _passiveCtx.effectiveCanDamage(tower, e)) {
+            _passiveCtx.dealDamage(tower, e, dmg * (p.splash_mult || 0.45));
+          }
+        });
+        _passiveCtx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:r,
+          color:RARITY_COLORS[tower.rarity], timer:0.3, maxTimer:0.3, r:0 });
+        return dmg * (p.crit_mult || 2.0);
+      }
+      return dmg;
+    }
+  },
+
+  // Acumula ataques; no Nº ataque dispara super-golpe multiplicado
+  spirit_surge: {
+    beforeAttack(tower, p, stats) {
+      tower._surgeCount = (tower._surgeCount || 0) + 1;
+      if (tower._surgeCount >= (p.trigger_at || 5)) {
+        tower._surgeCount = 0;
+        _passiveCtx.addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:stats.range * 0.55,
+          color:RARITY_COLORS[tower.rarity], timer:0.28, maxTimer:0.28, r:0 });
+        return { ...stats, damage: stats.damage * (p.mult || 3.5) };
+      }
+      return stats;
+    },
+    renderBadge(tower, p) {
+      const c = tower._surgeCount || 0;
+      const t = p.trigger_at || 5;
+      if (c === 0) return null;
+      return { text: `${c}/${t}▲`, color: `rgba(251,191,36,${0.4 + c/t * 0.6})` };
+    }
+  },
+
+  // Nº ataque acerta TODOS os inimigos no alcance (ataque fantasma)
+  phantom_strike: {
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      tower._phantomCount = (tower._phantomCount || 0) + 1;
+      if (tower._phantomCount >= (p.trigger_at || 7)) {
+        tower._phantomCount = 0;
+        const range = _passiveCtx.getTowerStats(tower).range;
+        const pdmg  = stats.damage * (p.phantom_mult || 1.5);
+        _passiveCtx.enemies.forEach(e => {
+          if (!e.dead && !e.reached_end && _passiveCtx.dist2d(e.x, e.y, tower.x, tower.y) <= range
+              && _passiveCtx.effectiveCanDamage(tower, e)) {
+            _passiveCtx.dealDamage(tower, e, pdmg);
+          }
+        });
+        _passiveCtx.addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:range,
+          color:'rgba(200,180,255,0.85)', timer:0.38, maxTimer:0.38, r:0 });
+      }
+    },
+    renderBadge(tower, p) {
+      const c = tower._phantomCount || 0;
+      const t = p.trigger_at || 7;
+      if (c === 0) return null;
+      return { text: `${c}/${t}◆`, color: 'rgba(167,139,250,0.85)' };
+    }
+  },
+
+  // Kill → triplica velocidade de ataque por alguns segundos
+  kill_frenzy: {
+    onKill(tower, p, enemy) {
+      tower._frenzyTimer = p.duration  || 3;
+      tower._frenzyMult  = p.speed_mult || 2.5;
+      tower.attackTimer  = Math.min(tower.attackTimer || 9999, 0.12);
+    },
+    update(tower, p, dt) {
+      if ((tower._frenzyTimer || 0) > 0)
+        tower._frenzyTimer = Math.max(0, tower._frenzyTimer - dt);
+    },
+    renderBadge(tower, p) {
+      if ((tower._frenzyTimer || 0) <= 0) return null;
+      return { text: `${tower._frenzyMult||2.5}× SPD`, color: 'rgba(239,68,68,0.88)' };
+    }
+  },
+
+  // Dano escala com a quantidade de inimigos vivos no campo
+  battle_rage: {
+    beforeAttack(tower, p, stats) {
+      const n    = _passiveCtx.enemies.filter(e => !e.dead && !e.reached_end).length;
+      const mult = 1 + Math.min(n * (p.per_enemy || 0.025), p.max_bonus || 0.5);
+      return { ...stats, damage: stats.damage * mult };
+    },
+    renderBadge(tower, p) {
+      const n = _passiveCtx.enemies.filter(e => !e.dead && !e.reached_end).length;
+      if (n === 0) return null;
+      const pct = Math.round(Math.min(n * (p.per_enemy||0.025), p.max_bonus||0.5) * 100);
+      return { text: `+${pct}% RAGE`, color: 'rgba(251,113,133,0.85)' };
+    }
+  },
+
+  // Qualquer kill de aliado no alcance dá ouro bônus (suporte)
+  gold_detector: {
+    onAnyKill(tower, p, deadEnemy) {
+      if (tower.isClone || tower.disabled) return;
+      if (_passiveCtx.dist2d(tower.x, tower.y, deadEnemy.x, deadEnemy.y) <= _passiveCtx.getTowerStats(tower).range) {
+        _passiveCtx.gold += p.bonus || 8;
+        _passiveCtx.updateHUD();
+      }
+    }
+  },
+
+  // Aura global: todas as torres causam X% mais dano
+  field_commander: {
+    isAura: true,
+    auraEffect(auraTower, p, attackingTower, dmg, enemy) {
+      if (auraTower.disabled) return dmg;
+      return dmg * (1 + (p.bonus || 0.12));
+    }
+  },
+
+  // Chance de acertar o mesmo alvo uma segunda vez (menor dano)
+  echo_strike: {
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      if (hitEnemies.length === 0 || Math.random() >= (p.chance || 0.12)) return;
+      const target = hitEnemies[0];
+      if (!target.dead && !target.reached_end && _passiveCtx.effectiveCanDamage(tower, target)) {
+        _passiveCtx.dealDamage(tower, target, stats.damage * (p.dmg_mult || 0.5));
+        _passiveCtx.addEffect({ type:'ring', x:target.x, y:target.y, maxR:14, color:RARITY_COLORS[tower.rarity], timer:0.18, maxTimer:0.18, r:0 });
+      }
+    }
+  },
+
+  // Dano multiplicado contra inimigos com HP abaixo do limiar
+  execute: {
+    onHit(tower, p, enemy, dmg) {
+      if (enemy.hp / enemy.maxHp <= (p.threshold || 0.25)) {
+        _passiveCtx.addEffect({ type:'crit', x:enemy.x, y:enemy.y, color:'#ef4444', timer:0.3, maxTimer:0.3 });
+        return dmg * (p.mult || 1.7);
+      }
+      return dmg;
+    }
+  },
+
+  // Pulso periódico de dano em área ao redor da torre
+  damage_pulse: {
+    update(tower, p, dt) {
+      if (tower.disabled) return;
+      tower._pulseTimer = (tower._pulseTimer || 0) + dt;
+      if (tower._pulseTimer >= (p.interval || 5)) {
+        tower._pulseTimer = 0;
+        const stats = _passiveCtx.getTowerStats(tower);
+        const dmg   = stats.damage * (p.dmg_mult || 0.35);
+        const range = stats.range   * 0.85;
+        _passiveCtx.enemies.forEach(e => {
+          if (!e.dead && !e.reached_end && _passiveCtx.dist2d(e.x, e.y, tower.x, tower.y) <= range) {
+            _passiveCtx.dealDamage(tower, e, dmg);
+          }
+        });
+        _passiveCtx.addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:range, color:RARITY_COLORS[tower.rarity], timer:0.32, maxTimer:0.32, r:0 });
+      }
+    }
+  },
+
+  // Ouro fixo por wave (exclusivo de unidades farm no prestígio)
+  prestige_gold: {
+    onWaveEnd(tower, p) {
+      if (tower.isClone) return;
+      const bonus = p.bonus || 0;
+      if (bonus > 0) { _passiveCtx.gold += bonus; _passiveCtx.updateHUD(); }
+    }
+  },
+
+  // Uryu — escala quantos inimigos o ataque pierce acerta (base 3, upgrade aumenta)
+  quincy_pierce: {
+    beforeAttack(tower, p, stats) {
+      const count = _passiveCtx.getPassiveValue(tower, 'count', p.count || 3);
+      return { ...stats, pierce_count: count };
+    }
+  },
+
+  // Orochimaru — passiva informativa; lógica de venda 100% já tratada em sellTower()
+  edo_tensei_economy: {},
+
+  none: {}
+};
