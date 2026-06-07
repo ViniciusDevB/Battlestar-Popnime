@@ -412,9 +412,9 @@ const Game = (() => {
       ['agente_ambu','op_pirata_veterano','hollow_pequeno','hollow_grande','boa_constritora'],
       ['op_homem_peixe','hollow_mascara','arrancar','caminho_animal','ninja_chuva'],
       ['caminho_humano','op_cp9_oficial','hollow_mascara','arrancar','ninja_chuva'],
-      ['caminho_asura','op_marinha_capitao','espada_decima','akatsuki_chuva','ninja_chuva_veloz'],
-      ['op_marinha_elite','espada_decima','caminho_asura','menos_grande'],
-      ['op_marinha_elite','espada_decima','menos_grande','caminho_deus_animal']
+      ['caminho_deus_animal','op_marinha_capitao','vasto_lorde','akatsuki_chuva','ninja_chuva_veloz'],
+      ['op_marinha_elite','espada_hierro','vasto_lorde','espada_regen'],
+      ['op_marinha_elite','espada_hierro','espada_regen','caminho_deus_animal']
     ];
     const tierIdx = Math.min(getInfiniteTierIdx(waveNum), 7);
     const cur  = POOLS[tierIdx];
@@ -433,12 +433,12 @@ const Game = (() => {
 
     // Miniboss a cada 10 waves
     if (waveNum % 10 === 0) {
-      const MB = ['deidara','itachi_uchiha','sasuke_taka','konan','caminho_deus_animal','espada_decima','menos_grande'];
+      const MB = ['deidara','itachi_uchiha','sasuke_taka','konan','caminho_deus_animal','grimmjow','nnoitra'];
       queue.push({ type: MB[Math.min(Math.floor(waveNum / 10) - 1, MB.length - 1)], delay: t + 2 });
     }
     // Boss a cada 30 waves
     if (waveNum % 30 === 0) {
-      const BS = ['pain','akainu','menos_grande'];
+      const BS = ['pain','akainu','ulquiorra'];
       queue.push({ type: BS[Math.min(Math.floor(waveNum / 30) - 1, BS.length - 1)], delay: t + 5 });
     }
     return queue;
