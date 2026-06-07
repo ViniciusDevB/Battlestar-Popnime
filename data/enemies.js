@@ -261,6 +261,149 @@ const ENEMY_SPECIAL_HANDLERS = {
     }
   },
 
+  // ── Grand Fisher ──────────────────────────────────────────────────────────
+  // Stuna torres ao surgir + spawna Hollows periodicamente a partir de si
+  grand_fisher_special: {
+    init(enemy, def) {
+      enemy.gfStunDone   = false;
+      enemy.gfStunDur    = def.stunDuration  || 2.5;
+      enemy.gfSpawnTimer = def.spawnInterval || 14;
+      enemy.gfSpawnInt   = def.spawnInterval || 14;
+      enemy.gfSpawnType  = def.spawnType     || 'hollow_pequeno';
+      enemy.gfSpawnCount = def.spawnCount    || 2;
+    },
+    onSpawn(enemy, ctx) {
+      if (enemy.gfStunDone) return;
+      enemy.gfStunDone = true;
+      ctx.towers.forEach(t => {
+        if (!t.isClone) {
+          t.miniStunTimer = Math.max(t.miniStunTimer || 0, enemy.gfStunDur);
+          t.disabled = true;
+        }
+      });
+      ctx.addEffect({ type:'shockwave', x:ctx.CANVAS_W/2, y:ctx.CANVAS_H/2, maxR:420, color:'#607d8b', timer:0.7, maxTimer:0.7, r:0 });
+      ctx.toast(`👁️ Grand Fisher surgiu! Torres paralisadas por ${enemy.gfStunDur}s!`, 3000);
+    },
+    onUpdate(enemy, dt, ctx) {
+      enemy.gfSpawnTimer -= dt;
+      if (enemy.gfSpawnTimer <= 0) {
+        enemy.gfSpawnTimer = enemy.gfSpawnInt;
+        for (let i = 0; i < enemy.gfSpawnCount; i++) {
+          ctx.spawnEnemy(enemy.gfSpawnType, enemy, { dist: Math.max(0, enemy.dist - i * 15) });
+        }
+        ctx.toast(`👁️ Grand Fisher invoca Hollows!`, 2000);
+      }
+    }
+  },
+
+  // ── Grimmjow ──────────────────────────────────────────────────────────────
+  // Spawna Arrancars explosivos periodicamente enquanto vivo
+  grimmjow_special: {
+    init(enemy, def) {
+      enemy.gjSpawnTimer = def.spawnInterval || 10;
+      enemy.gjSpawnInt   = def.spawnInterval || 10;
+      enemy.gjSpawnCount = def.spawnCount    || 2;
+    },
+    onUpdate(enemy, dt, ctx) {
+      enemy.gjSpawnTimer -= dt;
+      if (enemy.gjSpawnTimer <= 0) {
+        enemy.gjSpawnTimer = enemy.gjSpawnInt;
+        for (let i = 0; i < enemy.gjSpawnCount; i++) {
+          ctx.spawnEnemy('arrancar_explosivo', enemy, { dist: Math.max(0, enemy.dist - i * 10) });
+        }
+        ctx.toast(`💢 Grimmjow lança Arrancars explosivos!`, 2000);
+      }
+    }
+  },
+
+  // ── Nnoitra (Hierro regenerativo) ─────────────────────────────────────────
+  // Escudo Fortified com cooldown de regeneração após ser destruído
+  nnoitra_special: {
+    init(enemy, def) {
+      enemy.nnoiShieldCD  = def.shieldRegenCooldown || 40;
+      enemy.nnoiShieldMax = def.shieldRegenCooldown || 40;
+    },
+    onUpdate(enemy, dt, ctx) {
+      if ((enemy.shieldHp || 0) > 0) {
+        enemy.nnoiShieldCD = enemy.nnoiShieldMax;
+        return;
+      }
+      enemy.nnoiShieldCD -= dt;
+      if (enemy.nnoiShieldCD <= 0) {
+        enemy.nnoiShieldCD = enemy.nnoiShieldMax;
+        enemy.shieldHp     = enemy.maxShieldHp;
+        ctx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:80, color:'#f59e0b', timer:0.6, maxTimer:0.6, r:0 });
+        ctx.toast(`🛡 Hierro de Nnoitra restaurado!`, 3000);
+      }
+    }
+  },
+
+  // ── Aizen Fase 1 — Estrategista ────────────────────────────────────────────
+  // Kyoka Suigetsu: trava todas as torres periodicamente
+  // Escudo Hogyoku: regenera após ser destruído
+  aizen_hogyoku_phase1: {
+    init(enemy, def) {
+      enemy.kyokaTimer    = def.kyokaInterval || 18;
+      enemy.kyokaInterval = def.kyokaInterval || 18;
+      enemy.kyokaDur      = def.kyokaDuration || 3;
+      enemy.hogyokuCD     = def.shieldRegenCD || 35;
+      enemy.hogyokuMax    = def.shieldRegenCD || 35;
+    },
+    onUpdate(enemy, dt, ctx) {
+      // Kyoka Suigetsu — ilude todas as torres periodicamente
+      enemy.kyokaTimer -= dt;
+      if (enemy.kyokaTimer <= 0) {
+        enemy.kyokaTimer = enemy.kyokaInterval;
+        ctx.towers.forEach(t => {
+          if (!t.isClone) {
+            t.miniStunTimer = Math.max(t.miniStunTimer || 0, enemy.kyokaDur);
+            t.disabled = true;
+          }
+        });
+        ctx.addEffect({ type:'shockwave', x:ctx.CANVAS_W/2, y:ctx.CANVAS_H/2, maxR:520, color:'#1a1a2e', timer:0.9, maxTimer:0.9, r:0 });
+        ctx.toast(`🌀 Kyoka Suigetsu! Todas as torres foram iludidas por ${enemy.kyokaDur}s!`, 3500);
+      }
+      // Escudo Hogyoku — regenera após destruído
+      if ((enemy.shieldHp || 0) > 0) {
+        enemy.hogyokuCD = enemy.hogyokuMax;
+      } else {
+        enemy.hogyokuCD -= dt;
+        if (enemy.hogyokuCD <= 0) {
+          enemy.hogyokuCD = enemy.hogyokuMax;
+          enemy.shieldHp  = enemy.maxShieldHp;
+          ctx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:100, color:'#7c3aed', timer:0.8, maxTimer:0.8, r:0 });
+          ctx.toast(`🔮 Hogyoku regenerou o escudo de Aizen!`, 3000);
+        }
+      }
+    },
+    onDeath(enemy, ctx) {
+      ctx.addEffect({ type:'shockwave', x:enemy.x, y:enemy.y, maxR:460, color:'#7c3aed', timer:1.2, maxTimer:1.2, r:0 });
+      ctx.toast(`💀 HOGYOKU DESPERTO! Aizen ressurgiu sem ilusões — rápido e imparável!`, 5000);
+    }
+  },
+
+  // ── Aizen Fase 2 — Hogyoku Desperto ──────────────────────────────────────
+  // Rápido, imune a lentidão, drena base e recupera 100 HP por drenagem
+  aizen_hogyoku_phase2: {
+    init(enemy, def) {
+      enemy.drainTimer    = def.drainInterval || 2;
+      enemy.drainInterval = def.drainInterval || 2;
+    },
+    onUpdate(enemy, dt, ctx) {
+      // Imunidade a lentidão: limpa slow/paralisia a cada frame
+      if (enemy.status.freeze.active)    enemy.status.freeze    = STATUS_TYPES.freeze.init();
+      if (enemy.status.paralisia.active) enemy.status.paralisia = STATUS_TYPES.paralisia.init();
+      // Drena base e cura 100 HP por drenagem
+      enemy.drainTimer -= dt;
+      if (enemy.drainTimer <= 0) {
+        enemy.drainTimer = enemy.drainInterval;
+        ctx.drainLife();
+        enemy.hp = Math.min(enemy.maxHp, enemy.hp + 100);
+        ctx.toast(`⚫ Hogyoku drena a base! Aizen recupera vida!`, 2000);
+      }
+    }
+  },
+
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -600,22 +743,22 @@ const ENEMY_DEFS = {
 
   // Fase 1
   hollow_pequeno: {
-    name:'Hollow Pequeno', hp:900, speed:95, gold:38,
-    ptype:'normal', size:18, col:'#78909c', image:'assets/inimigos/world3/Hollow Pequeno.png'
+    name:'Hollow', hp:900, speed:95, gold:38,
+    ptype:'normal', size:18, col:'#78909c', image:'assets/inimigos/world3/Hollow.png'
   },
   hollow_grande: {
-    name:'Hollow Grande', hp:1800, speed:70, gold:80,
-    ptype:'normal', size:26, col:'#546e7a', image:'assets/inimigos/world3/Hollow Grande.png'
+    name:'Hollow Powerful', hp:1800, speed:70, gold:80,
+    ptype:'normal', size:26, col:'#546e7a', image:'assets/inimigos/world3/Hollow Powerfull.png'
   },
 
   // Fase 2
   hollow_mascara: {
-    name:'Hollow Mascarado', hp:3200, speed:58, gold:140,
-    ptype:'powerful1', size:30, col:'#37474f', image:'assets/inimigos/world3/Hollow Mascarado.png'
+    name:'Hollow Shield', hp:3200, speed:58, gold:140,
+    ptype:'powerful1', size:30, col:'#37474f', image:'assets/inimigos/world3/Hollow Shield.png'
   },
   arrancar: {
     name:'Arrancar', hp:2800, speed:82, gold:120,
-    ptype:'powerful1', size:24, col:'#b0bec5', image:'assets/inimigos/world3/Arrancar.png'
+    ptype:'powerful1', size:24, col:'#b0bec5', image:'assets/inimigos/world3/Hollow Shield.png'
   },
 
   // Fase 3
@@ -651,6 +794,105 @@ const ENEMY_DEFS = {
     name:'Aizen Sousuke', hp:110000, speed:20, gold:6000,
     ptype:['powerful3','bomber'], bomberRadius:230, bomberStun:4,
     size:52, col:'#1a1a2e', image:'assets/inimigos/world3/Aizen.png', is_boss:true
+  },
+
+  // ─── Novos inimigos — Bleach Refatorado ─────────────────────────────────
+
+  // Inimigo Speed (usa imagem Hollow Powerful por ser variante rápida)
+  arrancar_sonido: {
+    name:'Hollow Speed', hp:1800, speed:150, gold:130,
+    ptype:['powerful1','speed'], size:16, col:'#c0c8d0',
+    image:'assets/inimigos/world3/Hollow Powerfull.png'
+  },
+
+  // Inimigo Fortified
+  espada_hierro: {
+    name:'Hollow Fortified', hp:18000, speed:50, gold:1200,
+    ptype:['powerful2','fortified'], size:38, col:'#4a5568',
+    image:'assets/inimigos/world3/Hollow Forfied.png',
+    shieldHp: 9000
+  },
+
+  // Inimigo Regenerator
+  espada_regen: {
+    name:'Hollow Regen', hp:22000, speed:44, gold:1400,
+    ptype:['powerful2','regenerator'], size:38, col:'#5b4fcf',
+    image:'assets/inimigos/world3/Hollow Regen.png',
+    regenRate: 200
+  },
+
+  // Inimigo Bomber (spawnable por Grimmjow)
+  arrancar_explosivo: {
+    name:'Hollow Explosion', hp:1200, speed:120, gold:70,
+    ptype:['powerful1','bomber'], size:20, col:'#ef4444',
+    image:'assets/inimigos/world3/Hollow Explosion.png',
+    bomberRadius:120, bomberStun:1.5
+  },
+
+  // ── Miniboss 1: Grand Fisher (Fase 1) ────────────────────────────────────
+  grand_fisher: {
+    name:'Grand Fisher', hp:14000, speed:50, gold:800,
+    ptype:'powerful2', size:42, col:'#607d8b',
+    image:'assets/inimigos/world3/Grand Fisher.png',
+    is_miniboss:true, special:'grand_fisher_special',
+    stunDuration:2.5, spawnInterval:14, spawnType:'hollow_pequeno', spawnCount:2
+  },
+
+  // ── Miniboss 2: Gin Ichimaru (Fase 2) ────────────────────────────────────
+  gin_ichimaru: {
+    name:'Gin Ichimaru', hp:20000, speed:72, gold:1100,
+    ptype:'powerful2', size:40, col:'#78909c',
+    image:'assets/inimigos/world3/Gin Ichimaru.png',
+    is_miniboss:true, special:'base_drain', drainInterval:3
+  },
+
+  // ── Miniboss 3: Grimmjow (Fase 3) ────────────────────────────────────────
+  grimmjow: {
+    name:'Grimmjow Jaegerjaquez', hp:32000, speed:98, gold:1600,
+    ptype:'powerful2', size:44, col:'#1e88e5',
+    image:'assets/inimigos/world3/Grinmmjow.png',
+    is_miniboss:true, special:'grimmjow_special',
+    spawnInterval:10, spawnCount:2
+  },
+
+  // ── Miniboss 4: Nnoitra (Fase 4) ─────────────────────────────────────────
+  nnoitra: {
+    name:'Nnoitra Gilga', hp:65000, speed:42, gold:3200,
+    ptype:['powerful3','fortified'], size:48, col:'#1c2833',
+    image:'assets/inimigos/world3/Nnoitra.png',
+    is_miniboss:true, special:'nnoitra_special',
+    shieldHp:45000, shieldRegenCooldown:40
+  },
+
+  // ── Miniboss 5: Ulquiorra (Fase 5) ───────────────────────────────────────
+  ulquiorra: {
+    name:'Ulquiorra Cifer', hp:80000, speed:55, gold:4200,
+    ptype:['powerful3','regenerator'], size:46, col:'#1a252f',
+    image:'assets/inimigos/world3/Ulquiorra.png',
+    is_miniboss:true, special:'base_drain',
+    regenRate:350, drainInterval:2
+  },
+
+  // ── Boss Fase 1: Aizen — Estrategista ─────────────────────────────────────
+  // Lento e durão. Kyoka Suigetsu trava torres + escudo Hogyoku regenerativo.
+  // Ao morrer spawna a Fase 2.
+  aizen_fase1: {
+    name:'Aizen — Estrategista', hp:200000, speed:22, gold:7000,
+    ptype:['powerful3','fortified'], size:54, col:'#1a1a2e',
+    image:'assets/inimigos/world3/Aizen Hogyoku.png',
+    is_boss:true, special:'aizen_hogyoku_phase1',
+    shieldHp:80000, kyokaInterval:18, kyokaDuration:3, shieldRegenCD:35,
+    on_death:{ type:'aizen_fase2', count:1 }
+  },
+
+  // ── Boss Fase 2: Aizen — Hogyoku Desperto ────────────────────────────────
+  // Rápido, sem escudo, imune a lentidão, drena base e recupera 100 HP por drenagem.
+  aizen_fase2: {
+    name:'Aizen — Hogyoku Desperto', hp:200000, speed:90, gold:5000,
+    ptype:'powerful3', size:54, col:'#4c1d95',
+    image:'assets/inimigos/world3/Aizen Hogyoku.png',
+    is_boss:true, special:'aizen_hogyoku_phase2',
+    drainInterval:2
   },
 };
 

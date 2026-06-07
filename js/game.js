@@ -2092,27 +2092,34 @@ const Game = (() => {
   // Tabela de tags visuais por ptype e special
   const TAG_DEFS = {
     ptype: {
-      speed:     { t:'SPD',  bg:'#d4ac0d', fg:'#000' },
-      powerful1: { t:'P1',   bg:'#9b59b6', fg:'#fff' },
-      powerful2: { t:'P2',   bg:'#6c3483', fg:'#fff' },
-      powerful3: { t:'P3',   bg:'#4a235a', fg:'#fff' },
-      strong1:   { t:'STR1', bg:'#5d6d7e', fg:'#fff' },
-      strong2:   { t:'STR2', bg:'#4a5568', fg:'#fff' },
-      strong3:   { t:'STR3', bg:'#34495e', fg:'#fff' },
-      strong4:   { t:'STR4', bg:'#2c3e50', fg:'#fff' },
-      strong5:   { t:'STR5', bg:'#1a252f', fg:'#fff' }
+      // Tier de poder
+      powerful1:   { t:'P1',   bg:'#9b59b6', fg:'#fff' },
+      powerful2:   { t:'P2',   bg:'#6c3483', fg:'#fff' },
+      powerful3:   { t:'P3',   bg:'#4a235a', fg:'#fff' },
+      strong1:     { t:'STR1', bg:'#5d6d7e', fg:'#fff' },
+      strong2:     { t:'STR2', bg:'#4a5568', fg:'#fff' },
+      strong3:     { t:'STR3', bg:'#34495e', fg:'#fff' },
+      strong4:     { t:'STR4', bg:'#2c3e50', fg:'#fff' },
+      strong5:     { t:'STR5', bg:'#1a252f', fg:'#fff' },
+      // Buffs de mecânica (ptype behaviors) — agora exibidos corretamente
+      speed:       { t:'SPD',  bg:'#d4ac0d', fg:'#000' },
+      fortified:   { t:'SHLD', bg:'#f59e0b', fg:'#000' },
+      regenerator: { t:'REG',  bg:'#27ae60', fg:'#fff' },
+      bomber:      { t:'BOOM', bg:'#c0392b', fg:'#fff' },
+      clooner:     { t:'CLN',  bg:'#1e8449', fg:'#fff' },
+      kamikaze:    { t:'KMK',  bg:'#e67e22', fg:'#fff' }
     },
     special: {
-      explosion:     { t:'BOOM', bg:'#e74c3c', fg:'#fff' },
-      base_drain:    { t:'DRN',  bg:'#1f618d', fg:'#fff' },
-      genjutsu:      { t:'GNJ',  bg:'#1c2833', fg:'#fff' },
-      shinra_tensei: { t:'ST',   bg:'#922b21', fg:'#fff' },
-      pain_boss:     { t:'ST+S', bg:'#922b21', fg:'#fff' },
-      clooner:       { t:'CLN',  bg:'#1e8449', fg:'#fff' },
-      regenerator:   { t:'REG',  bg:'#27ae60', fg:'#fff' },
-      bomber:        { t:'BOMB', bg:'#c0392b', fg:'#fff' },
-      fortified:     { t:'FRT',  bg:'#d4ac0d', fg:'#000' },
-      kamikaze:      { t:'KMK',  bg:'#e67e22', fg:'#fff' }
+      explosion:              { t:'BOOM', bg:'#e74c3c', fg:'#fff' },
+      base_drain:             { t:'DRN',  bg:'#1f618d', fg:'#fff' },
+      genjutsu:               { t:'GNJ',  bg:'#1c2833', fg:'#fff' },
+      shinra_tensei:          { t:'ST',   bg:'#922b21', fg:'#fff' },
+      pain_boss:              { t:'ST+S', bg:'#922b21', fg:'#fff' },
+      grand_fisher_special:   { t:'SPWN', bg:'#607d8b', fg:'#fff' },
+      grimmjow_special:       { t:'SPWN', bg:'#1e88e5', fg:'#fff' },
+      nnoitra_special:        { t:'SHLD+',bg:'#f59e0b', fg:'#000' },
+      aizen_hogyoku_phase1:   { t:'ILSN', bg:'#1a1a2e', fg:'#fff' },
+      aizen_hogyoku_phase2:   { t:'DRN',  bg:'#4c1d95', fg:'#fff' }
     }
   };
 

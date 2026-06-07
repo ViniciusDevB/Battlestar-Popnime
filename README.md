@@ -4,10 +4,6 @@
 
 ---
 
-> ## 🚧 Update 1 — Soul Society (Em Desenvolvimento)
->
-> Esta versão está **em progresso ativo**. As funcionalidades abaixo foram implementadas e estão funcionais, mas o update ainda não foi finalizado — ajustes, balanceamento e novos conteúdos serão adicionados antes do release oficial.
-
 ---
 
 ## 🚀 Como Jogar / Executar o Projeto
@@ -62,17 +58,46 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 
 ## 📈 Histórico de Updates
 
-### 🚧 Update 1: Soul Society *(Em Desenvolvimento)*
+### ✅ Update 1: Soul Society *(Lançado)*
 
-**Bleach — Novo Mundo e Personagens:**
+**Bleach — Mundo 3 completo com 6 fases e sistema de inimigos redesenhado:**
+
 - **Mundo 3: Soul Society** com caminho exclusivo (curva em S tripla).
-- **4 novas fases**: Karakura Town, Portão da Seireitei, Las Noches, O Vazio (boss).
-- **6 novos inimigos**: Hollow Pequeno, Hollow Grande, Hollow Mascarado, Arrancar, Espada Décima (miniboss), Menos Grande (boss com explosão).
-- **10 novos personagens** (3⭐ a 5⭐) com passivas únicas:
-  - 3⭐: Rukia Kuchiki, Renji Abarai, Uryu Ishida, Orihime Inoue, Chad Yasutora.
-  - 4⭐: Byakuya Kuchiki, Toshiro Hitsugaya, Kenpachi Zaraki.
-  - 5⭐ Gacha: Ichigo (Bankai).
-  - 5⭐ Evolução: Ichigo (Vizard) — evolui do Bankai.
+- **6 fases completas** com 10 waves cada, miniboss na W10 de cada fase e boss de duas fases na fase 6:
+  - Fase 1 — **Karakura**: backbone de Hollows, abertura suave sem mecânicas especiais.
+  - Fase 2 — **Seireitei**: introduz inimigos Speed (`Hollow Speed`).
+  - Fase 3 — **Hueco Mundo**: combinação de Speed e tanques velozes (`Vasto Lorde`).
+  - Fase 4 — **Las Noches**: introduz Fortified (`Hollow Fortified` com escudo).
+  - Fase 5 — **Cúpula de Las Noches**: introduz Regenerator (`Hollow Regen`).
+  - Fase 6 — **Fake Karakura**: gauntlet com todos os tipos + Boss de 2 fases.
+
+**Novos inimigos comuns (com tags visuais de buff):**
+- `Hollow` — inimigo base, ptype normal.
+- `Hollow Powerful` — normal mais resistente.
+- `Hollow Shield` — Powerful 1, aparência mascarada.
+- `Arrancar` — Powerful 1, velocidade elevada.
+- `Hollow Speed` — Powerful 1 + Speed, 150 de velocidade.
+- `Vasto Lorde` — Powerful 2, tank veloz.
+- `Hollow Fortified` — Powerful 2 + Fortified, escudo de 9.000 HP.
+- `Hollow Regen` — Powerful 2 + Regenerator, regen de 200 HP/s.
+- `Hollow Explosion` — Powerful 1 + Bomber, spawnable pelo Grimmjow.
+
+**Minibosses (W10 de cada fase):**
+- **Grand Fisher** (F1): stuna todas as torres ao surgir + spawna Hollows periodicamente a partir de si.
+- **Gin Ichimaru** (F2): drena 1 HP da base a cada 3s enquanto vivo.
+- **Grimmjow** (F3): velocidade 98, spawna 2 Hollow Explosions a cada 10s.
+- **Nnoitra** (F4): Powerful 3 + Fortified com escudo de 45.000 HP que regenera após 40s.
+- **Ulquiorra** (F5): Powerful 3 + Regenerator (350 HP/s) + drena a base a cada 2s.
+
+**Boss de duas fases — Aizen/Hogyoku (F6 W10):**
+- **Fase 1 — Estrategista**: 200.000 HP + escudo Hogyoku de 80.000 HP regenerativo (35s). Kyoka Suigetsu trava todas as torres por 3s a cada 18s. Lento (speed 22).
+- **Fase 2 — Hogyoku Desperto**: ao morrer na Fase 1, ressurge com HP resetado e speed 90. Sem escudo, imune a lentidão (freeze/paralisia). Drena 1 HP da base a cada 2s e se cura 100 HP por drenagem.
+
+**10 novos personagens jogáveis** (3⭐ a 5⭐) com passivas únicas:
+- 3⭐: Rukia Kuchiki, Renji Abarai, Uryu Ishida, Orihime Inoue, Chad Yasutora.
+- 4⭐: Byakuya Kuchiki, Toshiro Hitsugaya, Kenpachi Zaraki.
+- 5⭐ Gacha: Ichigo (Bankai) — drop exclusivo da Fase 6.
+- 5⭐ Evolução: Ichigo (Vizard) — evolui do Bankai.
 - Novos tipos de ataque: `pierce` (Uryu), `scatter` (Byakuya).
 - Novos tipos de passiva: `freeze_on_hit`, `boss_slayer`, `snake_venom`, `santen_kesshun`, `petal_mark`, `berserker`, `bankai_pressure`, `hollow_sync`.
 
@@ -80,40 +105,36 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 - Máximo de **Prestígio 10** por personagem.
 - Transmutação requer nível máximo (Lv50).
 - Bônus base: **+20% dano** e **+6% alcance** por nível de Prestígio.
-- **Passivas exclusivas** em P1, P5 e P10 únicas por personagem, temáticas da série:
-  - Novos tipos: `spirit_surge`, `arc_chain`, `phantom_strike`, `kill_frenzy`, `battle_rage`, `crit_splash`, `gold_detector`, `field_commander`.
+- Passivas exclusivas em P1, P5 e P10 únicas por personagem.
 - Anel dourado pulsante + indicador `P1`–`P10` na torre.
 - Painel de inventário mostra passivas ativas (✦) e futuras (🔒) com valores exatos.
 
 **♾ Modo Infinito:**
 - Waves geradas dinamicamente com 8 tiers de dificuldade (Fácil → Além do Limite).
 - Escalonamento de HP: 1× → 1.8× → 3.2× → 5.5× → 9× → 15× → 25× → 40×+.
-- Inimigos de todos os mundos aparecem progressivamente conforme o tier.
 - Miniboss a cada 10 waves; boss a cada 30 waves.
 - Recompensas a cada 5 waves: Gemas escalando por tier (15–200💎).
-- **Limite de 3 cópias** da mesma unidade no campo (contador visual no painel lateral).
-- Recorde de wave salvo permanentemente.
+- Limite de 3 cópias da mesma unidade por partida.
 
 **Star Experience ✨:**
 - Materiais exclusivos do Modo Infinito, Nv1 a Nv5.
 - XP: Nv1=3.000 · Nv2=7.000 · Nv3=16.000 · Nv4=38.000 · Nv5=90.000.
-- Drop a cada 5 waves com chance independente por nível: na wave 30 → SE1=10%, SE2=5%, SE3=2%, SE4=1%, SE5=0.5%.
-- Fórmula: `chance = min(100%, wave/30 × base)` — escala linearmente, garantindo SE1 na wave ~300.
-- **Usáveis no Feed**: aparecem na grade de materiais do feed de qualquer personagem, aplicando o XP exato de cada nível.
+- Usáveis diretamente no Feed de qualquer personagem.
 
-**Qualidade de Vida e Balanceamento:**
-- **Gacha**: chance de 5⭐ reduzida para **1%** em ambos os banners (Gemas e Tickets). 4⭐ redistribuído para manter 100%.
-- **Star Experience no Feed**: SE Nv1–5 agora disponíveis na grade de materiais ao alimentar qualquer personagem.
-- Stun no mapa 3 do evento nerfado: duração aleatória (1–5s) por torre, imunidade de 5s.
-- Pain (Nagato) invoca escudo de Rinnegan aleatório (4.000–6.000 HP) que bloqueia todo o dano.
-- Overlay "Próxima Wave" mostra bônus de ouro e atalho `[S]`.
-- Botão de skip mostra ouro do próximo skip no tooltip.
+**Sistema de tags visuais de buff corrigido:**
+- `fortified`, `regenerator`, `bomber`, `clooner` e `kamikaze` agora exibem corretamente suas tags (`SHLD`, `REG`, `BOOM`, `CLN`, `KMK`) pois foram movidos para a seção `ptype` do `TAG_DEFS`.
+- Novos specials com tags dedicadas: `SPWN` (Grand Fisher, Grimmjow), `SHLD+` (Nnoitra), `ILSN` (Aizen F1), `DRN` (Gin, Ulquiorra, Aizen F2).
+
+**Regra de drops padronizada:**
+- Fases 1–5 de cada mundo dropam apenas ingredientes (materiais de progressão).
+- Personagens raros são drop exclusivo da Fase 6 de cada mundo: `naruto_sage` (Naruto), `barbabranca_5` (One Piece), `ichigo_bankai` (Bleach).
+
+**Qualidade de Vida:**
+- Overlay "Próxima Wave" com bônus de ouro e atalho `[S]`.
 - Indicador de imunidade a stun nas torres (badge azul com countdown).
-- Indicador `✦ MAXIMIZADO` no painel de upgrade quando todas as melhorias foram compradas.
-- Velocidade do jogo colorida: 1× branco, 2× amarelo, 3× vermelho.
-- Status da torre (dano, alcance, vel., tipo) exibidos no painel de upgrade.
-- Zoro Ashura (5⭐ evolução) removido do pool do Gacha.
-- `getTowerStats` com cache por torre (invalidado ao comprar upgrade).
+- Indicador `✦ MAXIMIZADO` no painel de upgrade.
+- Velocidade colorida: 1× branco, 2× amarelo, 3× vermelho.
+- Status completo da torre no painel de upgrade.
 - Projéteis de todos os personagens extraídos para `game-projectile-render.js`.
 
 ---

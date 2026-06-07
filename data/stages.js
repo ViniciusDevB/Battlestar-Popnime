@@ -459,155 +459,232 @@ const STAGES = [
       buildWave([{type:'op_marinha_capitao',count:6,gap:1.0}, {type:'op_marinha_elite',count:4,gap:1.0}, {type:'akainu',count:1,gap:0}])
     ]
   }
+  // ══════════════════════════════════════════════════════
+  //  BL FASE 1 — Karakura (abertura suave)
+  //  W1–4: hollow_pequeno
+  //  W5–7: + hollow_grande
+  //  W8–9: rush de hollow_pequeno (pressão por volume, gap baixo)
+  //  W10: Grand Fisher — stuna torres + spawna Hollows a partir de si
+  // ══════════════════════════════════════════════════════
   ,{
-    id: 'bl_fase1', name: 'Karakura Town', world: 'bleach',
+    id: 'bl_fase1', name: 'Karakura', world: 'bleach',
     drops: [
       { id: 'shinigami_generico_1', chance: 70 },
       { id: 'shinigami_generico_2', chance: 20 },
-      { id: 'shinigami_generico_3', chance: 8 }
+      { id: 'shinigami_generico_3', chance: 10 }
     ],
     waves: [
+      // W1
       buildWave([{type:'hollow_pequeno',count:6,gap:1.6}]),
-      buildWave([{type:'hollow_pequeno',count:8,gap:1.5}]),
-      buildWave([{type:'hollow_pequeno',count:9,gap:1.4}]),
-      buildWave([{type:'hollow_pequeno',count:10,gap:1.3}]),
-      buildWave([{type:'hollow_pequeno',count:12,gap:1.2}]),
-      buildWave([{type:'hollow_pequeno',count:10,gap:1.2},{type:'hollow_grande',count:2,gap:3.0}]),
-      buildWave([{type:'hollow_pequeno',count:10,gap:1.1},{type:'hollow_grande',count:3,gap:2.8}]),
-      buildWave([{type:'hollow_pequeno',count:8,gap:1.0},{type:'hollow_grande',count:4,gap:2.5}]),
-      buildWave([{type:'hollow_pequeno',count:6,gap:1.0},{type:'hollow_grande',count:6,gap:2.2}]),
-      buildWave([{type:'hollow_pequeno',count:4,gap:1.0},{type:'hollow_grande',count:4,gap:2.0},{type:'espada_decima',count:1,gap:0}])
+      // W2
+      buildWave([{type:'hollow_pequeno',count:7,gap:1.5}]),
+      // W3
+      buildWave([{type:'hollow_pequeno',count:8,gap:1.4}]),
+      // W4
+      buildWave([{type:'hollow_pequeno',count:9,gap:1.3}]),
+      // W5 · Hollow Grande aparecem
+      buildWave([{type:'hollow_pequeno',count:6,gap:1.4},{type:'hollow_grande',count:2,gap:3.0}]),
+      // W6
+      buildWave([{type:'hollow_pequeno',count:5,gap:1.3},{type:'hollow_grande',count:3,gap:2.8}]),
+      // W7
+      buildWave([{type:'hollow_pequeno',count:5,gap:1.2},{type:'hollow_grande',count:3,gap:2.6}]),
+      // W8 · Rush por volume — gap baixo
+      buildWave([{type:'hollow_pequeno',count:12,gap:0.9}]),
+      // W9 · Pressão máxima pré-boss
+      buildWave([{type:'hollow_pequeno',count:14,gap:0.8}]),
+      // W10 · Grand Fisher — stuna torres ao surgir + spawna Hollows periodicamente
+      buildWave([{type:'hollow_pequeno',count:4,gap:1.2},{type:'grand_fisher',count:1,gap:0}])
     ]
   },
+
+  // ══════════════════════════════════════════════════════
+  //  BL FASE 2 — Seireitei (entra SPEED)
+  //  W1–3: hollow_grande
+  //  W4–6: + arrancar_sonido (Speed)
+  //  W7–9: + hollow_mascara
+  //  W10: Gin Ichimaru — drena a base enquanto vivo
+  // ══════════════════════════════════════════════════════
   {
-    id: 'bl_fase2', name: 'Portão da Seireitei', world: 'bleach',
+    id: 'bl_fase2', name: 'Seireitei', world: 'bleach',
     drops: [
       { id: 'shinigami_generico_1', chance: 50 },
       { id: 'shinigami_generico_2', chance: 30 },
       { id: 'shinigami_generico_3', chance: 15 }
     ],
     waves: [
-      buildWave([{type:'hollow_grande',count:6,gap:1.6}]),
-      buildWave([{type:'hollow_grande',count:8,gap:1.5}]),
-      buildWave([{type:'hollow_grande',count:9,gap:1.4}]),
-      buildWave([{type:'hollow_grande',count:10,gap:1.3}]),
-      buildWave([{type:'hollow_grande',count:8,gap:1.3},{type:'hollow_mascara',count:2,gap:3.2}]),
-      buildWave([{type:'hollow_grande',count:8,gap:1.2},{type:'hollow_mascara',count:3,gap:3.0}]),
-      buildWave([{type:'hollow_grande',count:6,gap:1.1},{type:'hollow_mascara',count:4,gap:2.8}]),
-      buildWave([{type:'hollow_grande',count:6,gap:1.0},{type:'hollow_mascara',count:4,gap:2.5},{type:'arrancar',count:2,gap:2.0}]),
-      buildWave([{type:'hollow_grande',count:4,gap:1.0},{type:'hollow_mascara',count:4,gap:2.2},{type:'arrancar',count:4,gap:1.8}]),
-      buildWave([{type:'hollow_mascara',count:3,gap:1.2},{type:'arrancar',count:3,gap:1.8},{type:'espada_decima',count:1,gap:0}])
+      // W1
+      buildWave([{type:'hollow_grande',count:5,gap:1.6}]),
+      // W2
+      buildWave([{type:'hollow_grande',count:6,gap:1.5}]),
+      // W3
+      buildWave([{type:'hollow_grande',count:7,gap:1.4}]),
+      // W4 · Arrancar Sonido aparecem
+      buildWave([{type:'hollow_grande',count:5,gap:1.4},{type:'arrancar_sonido',count:2,gap:0.8}]),
+      // W5
+      buildWave([{type:'hollow_grande',count:4,gap:1.3},{type:'arrancar_sonido',count:3,gap:0.8}]),
+      // W6
+      buildWave([{type:'hollow_grande',count:4,gap:1.2},{type:'arrancar_sonido',count:4,gap:0.7}]),
+      // W7 · Hollow Mascarado aparecem
+      buildWave([{type:'hollow_grande',count:3,gap:1.2},{type:'arrancar_sonido',count:3,gap:0.7},{type:'hollow_mascara',count:2,gap:2.8}]),
+      // W8
+      buildWave([{type:'hollow_grande',count:3,gap:1.1},{type:'arrancar_sonido',count:4,gap:0.7},{type:'hollow_mascara',count:2,gap:2.6}]),
+      // W9 · Mix crescente
+      buildWave([{type:'hollow_grande',count:2,gap:1.0},{type:'arrancar_sonido',count:5,gap:0.6},{type:'hollow_mascara',count:3,gap:2.4}]),
+      // W10 · Gin Ichimaru — escolta + boss que drena a base
+      buildWave([{type:'hollow_grande',count:2,gap:1.2},{type:'arrancar_sonido',count:2,gap:0.7},{type:'hollow_mascara',count:2,gap:2.6},{type:'gin_ichimaru',count:1,gap:0}])
     ]
   },
+
+  // ══════════════════════════════════════════════════════
+  //  BL FASE 3 — Hueco Mundo (speed denso + tank veloz)
+  //  Backbone normal: hollow_grande (maioria em todas as waves)
+  //  W1–3: hollow_grande puro
+  //  W4–6: + hollow_mascara + arrancar + arrancar_sonido
+  //  W7–9: + vasto_lorde
+  //  W10: Grimmjow — rápido + spawna Arrancars explosivos
+  // ══════════════════════════════════════════════════════
   {
-    id: 'bl_fase3', name: 'Las Noches', world: 'bleach',
+    id: 'bl_fase3', name: 'Hueco Mundo', world: 'bleach',
     drops: [
-      { id: 'shinigami_generico_2', chance: 30 },
+      { id: 'shinigami_generico_2', chance: 50 },
       { id: 'shinigami_generico_3', chance: 40 }
     ],
     waves: [
-      buildWave([{type:'hollow_mascara',count:8,gap:1.5}]),
-      buildWave([{type:'hollow_mascara',count:10,gap:1.4}]),
-      buildWave([{type:'hollow_mascara',count:8,gap:1.3},{type:'arrancar',count:3,gap:2.0}]),
-      buildWave([{type:'hollow_mascara',count:8,gap:1.2},{type:'arrancar',count:4,gap:1.8}]),
-      buildWave([{type:'hollow_mascara',count:6,gap:1.2},{type:'arrancar',count:5,gap:1.6}]),
-      buildWave([{type:'hollow_mascara',count:6,gap:1.1},{type:'arrancar',count:6,gap:1.4}]),
-      buildWave([{type:'arrancar',count:8,gap:1.3},{type:'espada_decima',count:2,gap:0}]),
-      buildWave([{type:'hollow_mascara',count:4,gap:1.0},{type:'arrancar',count:8,gap:1.2}]),
-      buildWave([{type:'arrancar',count:6,gap:1.1},{type:'espada_decima',count:2,gap:4.0},{type:'arrancar',count:4,gap:1.1}]),
-      buildWave([{type:'arrancar',count:5,gap:1.0},{type:'espada_decima',count:2,gap:3.5},{type:'menos_grande',count:1,gap:0}])
-    ]
-  },
-  {
-    id: 'bl_fase4', name: 'O Vazio', world: 'bleach',
-    drops: [
-      { id: 'shinigami_generico_3', chance: 60 },
-      { id: 'rukia_kuchiki', chance: 0.15, pity: 200 }
-    ],
-    waves: [
-      buildWave([{type:'hollow_mascara',count:10,gap:1.4},{type:'arrancar',count:4,gap:1.8}]),
-      buildWave([{type:'hollow_mascara',count:12,gap:1.3},{type:'arrancar',count:5,gap:1.6}]),
-      buildWave([{type:'hollow_mascara',count:10,gap:1.2},{type:'arrancar',count:6,gap:1.5}]),
-      buildWave([{type:'hollow_mascara',count:8,gap:1.1},{type:'arrancar',count:8,gap:1.3}]),
-      buildWave([{type:'arrancar',count:10,gap:1.2},{type:'espada_decima',count:2,gap:4.0}]),
-      buildWave([{type:'arrancar',count:12,gap:1.0},{type:'espada_decima',count:2,gap:3.5}]),
-      buildWave([{type:'arrancar',count:8,gap:1.0},{type:'espada_decima',count:3,gap:3.0}]),
-      buildWave([{type:'arrancar',count:6,gap:1.0},{type:'espada_decima',count:3,gap:2.8},{type:'menos_grande',count:1,gap:0}]),
-      buildWave([{type:'arrancar',count:8,gap:1.0},{type:'espada_decima',count:4,gap:2.5}]),
-      buildWave([{type:'espada_decima',count:3,gap:3.0},{type:'arrancar',count:5,gap:1.0},{type:'menos_grande',count:2,gap:0}])
-    ]
-  },
-
-  // ══════════════════════════════════════════════════════
-  //  BL FASE 5 — Palácio dos Espada
-  //  W1–4: arrancar (Powerful 1)
-  //  W5–9: arrancar + espada_numero (Powerful 2, mini-boss que ao morrer spawn 3 arrancar)
-  //  W10: Espada Primera (Powerful 3, mini-boss, ao morrer spawn 6 arrancar)
-  // ══════════════════════════════════════════════════════
-  {
-    id: 'bl_fase5', name: 'Palácio dos Espada', world: 'bleach',
-    drops: [
-      { id: 'shinigami_generico_3', chance: 50 },
-      { id: 'byakuya_kuchiki',      chance: 0.12, pity: 200 }
-    ],
-    waves: [
-      // W1
-      buildWave([{type:'arrancar',count:8,gap:1.4}]),
+      // W1 · Backbone puro
+      buildWave([{type:'hollow_grande',count:8,gap:1.5}]),
       // W2
-      buildWave([{type:'arrancar',count:10,gap:1.3}]),
+      buildWave([{type:'hollow_grande',count:9,gap:1.4}]),
       // W3
-      buildWave([{type:'arrancar',count:12,gap:1.2}]),
-      // W4
-      buildWave([{type:'arrancar',count:14,gap:1.1}]),
-      // W5 · Primeiro mix com Espada Numerada
-      buildWave([{type:'arrancar',count:8,gap:1.2},{type:'espada_numero',count:1,gap:0}]),
+      buildWave([{type:'hollow_grande',count:10,gap:1.3}]),
+      // W4 · Hollow Mascara + Arrancar aparecem como minoria
+      buildWave([{type:'hollow_grande',count:6,gap:1.4},{type:'hollow_mascara',count:2,gap:2.8},{type:'arrancar',count:1,gap:1.8}]),
+      // W5 · + Arrancar Sonido
+      buildWave([{type:'hollow_grande',count:5,gap:1.3},{type:'hollow_mascara',count:2,gap:2.6},{type:'arrancar',count:2,gap:1.6},{type:'arrancar_sonido',count:2,gap:0.8}]),
       // W6
-      buildWave([{type:'arrancar',count:8,gap:1.1},{type:'espada_numero',count:2,gap:8.0}]),
-      // W7
-      buildWave([{type:'arrancar',count:6,gap:1.1},{type:'espada_numero',count:2,gap:7.0}]),
+      buildWave([{type:'hollow_grande',count:5,gap:1.2},{type:'hollow_mascara',count:2,gap:2.4},{type:'arrancar',count:2,gap:1.5},{type:'arrancar_sonido',count:3,gap:0.7}]),
+      // W7 · Vasto Lorde aparecem
+      buildWave([{type:'hollow_grande',count:4,gap:1.2},{type:'hollow_mascara',count:2,gap:2.2},{type:'arrancar',count:2,gap:1.4},{type:'arrancar_sonido',count:3,gap:0.7},{type:'vasto_lorde',count:1,gap:2.0}]),
       // W8
-      buildWave([{type:'arrancar',count:6,gap:1.0},{type:'espada_numero',count:3,gap:6.5}]),
-      // W9 · Pressão máxima pré-boss
-      buildWave([{type:'arrancar',count:8,gap:1.0},{type:'espada_numero',count:3,gap:6.0}]),
-      // W10 · Espada Primera — mini-boss forte com escolta
-      buildWave([{type:'arrancar',count:4,gap:1.2},{type:'espada_numero',count:2,gap:7.0},{type:'espada_primera',count:1,gap:0}])
+      buildWave([{type:'hollow_grande',count:4,gap:1.1},{type:'hollow_mascara',count:2,gap:2.0},{type:'arrancar',count:3,gap:1.3},{type:'arrancar_sonido',count:4,gap:0.7},{type:'vasto_lorde',count:2,gap:1.8}]),
+      // W9 · Gauntlet pré-boss
+      buildWave([{type:'hollow_grande',count:4,gap:1.0},{type:'hollow_mascara',count:2,gap:1.8},{type:'arrancar',count:3,gap:1.2},{type:'arrancar_sonido',count:5,gap:0.6},{type:'vasto_lorde',count:3,gap:1.6}]),
+      // W10 · Grimmjow + escolta
+      buildWave([{type:'hollow_grande',count:3,gap:1.3},{type:'hollow_mascara',count:2,gap:2.2},{type:'vasto_lorde',count:2,gap:1.8},{type:'grimmjow',count:1,gap:0}])
     ]
   },
 
   // ══════════════════════════════════════════════════════
-  //  BL FASE 6 — A Traição de Aizen
-  //  W1–3: espada_numero (Powerful 2)
-  //  W4–6: espada_numero + vasto_lorde (Powerful 2, veloz)
-  //  W7–9: mix pesado
-  //  W10: Aizen Sousuke (Boss — explosão Hogyoku ao morrer)
+  //  BL FASE 4 — Las Noches (entra FORTIFIED / Hierro)
+  //  Backbone normal: hollow_grande (maioria em todas as waves)
+  //  W1–3: hollow_grande + arrancar
+  //  W4–6: + hollow_mascara + arrancar_sonido
+  //  W7–9: + espada_hierro (Fortified)
+  //  W10: Nnoitra — Fortified massivo + escudo regenerativo
   // ══════════════════════════════════════════════════════
   {
-    id: 'bl_fase6', name: 'A Traição de Aizen', world: 'bleach', isBoss: true,
+    id: 'bl_fase4', name: 'Las Noches', world: 'bleach',
+    drops: [
+      { id: 'shinigami_generico_2', chance: 20 },
+      { id: 'shinigami_generico_3', chance: 70 }
+    ],
+    waves: [
+      // W1 · Backbone + arrancar como adição inicial
+      buildWave([{type:'hollow_grande',count:8,gap:1.4},{type:'arrancar',count:2,gap:2.0}]),
+      // W2
+      buildWave([{type:'hollow_grande',count:8,gap:1.3},{type:'arrancar',count:3,gap:1.8}]),
+      // W3
+      buildWave([{type:'hollow_grande',count:7,gap:1.2},{type:'arrancar',count:3,gap:1.8},{type:'hollow_mascara',count:2,gap:2.6}]),
+      // W4 · Arrancar Sonido entram
+      buildWave([{type:'hollow_grande',count:6,gap:1.2},{type:'arrancar',count:3,gap:1.6},{type:'hollow_mascara',count:2,gap:2.4},{type:'arrancar_sonido',count:2,gap:0.8}]),
+      // W5
+      buildWave([{type:'hollow_grande',count:5,gap:1.1},{type:'arrancar',count:3,gap:1.5},{type:'hollow_mascara',count:2,gap:2.2},{type:'arrancar_sonido',count:3,gap:0.7}]),
+      // W6
+      buildWave([{type:'hollow_grande',count:5,gap:1.1},{type:'arrancar',count:3,gap:1.4},{type:'hollow_mascara',count:2,gap:2.0},{type:'arrancar_sonido',count:4,gap:0.7}]),
+      // W7 · Espada Hierro aparecem
+      buildWave([{type:'hollow_grande',count:5,gap:1.0},{type:'arrancar',count:3,gap:1.3},{type:'arrancar_sonido',count:4,gap:0.6},{type:'espada_hierro',count:1,gap:0}]),
+      // W8
+      buildWave([{type:'hollow_grande',count:4,gap:1.0},{type:'arrancar',count:3,gap:1.2},{type:'arrancar_sonido',count:4,gap:0.6},{type:'espada_hierro',count:2,gap:11.0}]),
+      // W9 · Pressão máxima pré-boss
+      buildWave([{type:'hollow_grande',count:4,gap:1.0},{type:'arrancar',count:3,gap:1.2},{type:'arrancar_sonido',count:4,gap:0.6},{type:'espada_hierro',count:3,gap:10.0}]),
+      // W10 · Nnoitra — Fortified colossal + escudo regenerativo
+      buildWave([{type:'hollow_grande',count:3,gap:1.3},{type:'arrancar_sonido',count:2,gap:0.7},{type:'espada_hierro',count:1,gap:0},{type:'nnoitra',count:1,gap:0}])
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════
+  //  BL FASE 5 — Cúpula (entra REGENERATOR)
+  //  Backbone normal: hollow_grande (maioria em todas as waves)
+  //  W1–3: hollow_grande + vasto_lorde + arrancar
+  //  W4–6: + espada_hierro
+  //  W7–9: + espada_regen (Regenerator)
+  //  W10: Ulquiorra — regeneração de vida + drena a base
+  // ══════════════════════════════════════════════════════
+  {
+    id: 'bl_fase5', name: 'Cúpula de Las Noches', world: 'bleach',
+    drops: [
+      { id: 'shinigami_generico_3', chance: 90 }
+    ],
+    waves: [
+      // W1 · Backbone + primeiros Vasto Lordes
+      buildWave([{type:'hollow_grande',count:6,gap:1.3},{type:'vasto_lorde',count:2,gap:1.8},{type:'arrancar',count:2,gap:1.5}]),
+      // W2
+      buildWave([{type:'hollow_grande',count:6,gap:1.2},{type:'vasto_lorde',count:3,gap:1.7},{type:'arrancar',count:2,gap:1.4}]),
+      // W3
+      buildWave([{type:'hollow_grande',count:5,gap:1.2},{type:'vasto_lorde',count:4,gap:1.6},{type:'arrancar',count:2,gap:1.3}]),
+      // W4 · Espada Hierro entram
+      buildWave([{type:'hollow_grande',count:5,gap:1.1},{type:'vasto_lorde',count:3,gap:1.6},{type:'arrancar',count:2,gap:1.3},{type:'espada_hierro',count:1,gap:0}]),
+      // W5
+      buildWave([{type:'hollow_grande',count:4,gap:1.1},{type:'vasto_lorde',count:3,gap:1.5},{type:'arrancar',count:2,gap:1.2},{type:'espada_hierro',count:2,gap:11.0}]),
+      // W6
+      buildWave([{type:'hollow_grande',count:4,gap:1.0},{type:'vasto_lorde',count:4,gap:1.4},{type:'espada_hierro',count:2,gap:10.0}]),
+      // W7 · Espada Regen aparecem
+      buildWave([{type:'hollow_grande',count:4,gap:1.0},{type:'vasto_lorde',count:3,gap:1.4},{type:'espada_hierro',count:2,gap:10.0},{type:'espada_regen',count:1,gap:0}]),
+      // W8
+      buildWave([{type:'hollow_grande',count:3,gap:1.0},{type:'vasto_lorde',count:3,gap:1.3},{type:'espada_hierro',count:2,gap:9.0},{type:'espada_regen',count:2,gap:13.0}]),
+      // W9 · Gauntlet pré-boss
+      buildWave([{type:'hollow_grande',count:3,gap:1.0},{type:'vasto_lorde',count:3,gap:1.2},{type:'espada_hierro',count:2,gap:8.0},{type:'espada_regen',count:3,gap:12.0}]),
+      // W10 · Ulquiorra — regen massiva + drena a base
+      buildWave([{type:'hollow_grande',count:2,gap:1.3},{type:'vasto_lorde',count:2,gap:1.5},{type:'espada_hierro',count:1,gap:0},{type:'espada_regen',count:1,gap:0},{type:'ulquiorra',count:1,gap:0}])
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════
+  //  BL FASE 6 — Fake Karakura (tudo junto, gauntlet)
+  //  Backbone normal: hollow_grande (maioria) + vasto_lorde como "elite normal"
+  //  W1–3: hollow_grande + vasto_lorde
+  //  W4–6: + espada_hierro + espada_regen
+  //  W7–9: + arrancar_sonido (pressão máxima)
+  //  W10: Aizen/Hogyoku — Boss de 2 fases
+  //    Fase 1 — Estrategista: lento, durão, Kyoka Suigetsu + escudo Hogyoku regenerativo
+  //    Fase 2 — Hogyoku Desperto: rápido, sem escudo, imune a slow, drena base + cura 100x
+  // ══════════════════════════════════════════════════════
+  {
+    id: 'bl_fase6', name: 'Fake Karakura', world: 'bleach', isBoss: true,
     drops: [
       { id: 'shinigami_generico_3', chance: 40 },
       { id: 'ichigo_bankai',        chance: 0.1,  pity: 200 }
     ],
     waves: [
-      // W1
-      buildWave([{type:'espada_numero',count:2,gap:8.0}]),
+      // W1 · Backbone + Vasto Lordes como elite
+      buildWave([{type:'hollow_grande',count:6,gap:1.3},{type:'vasto_lorde',count:3,gap:1.6}]),
       // W2
-      buildWave([{type:'espada_numero',count:3,gap:7.5}]),
+      buildWave([{type:'hollow_grande',count:6,gap:1.2},{type:'vasto_lorde',count:4,gap:1.5}]),
       // W3
-      buildWave([{type:'arrancar',count:6,gap:1.2},{type:'espada_numero',count:2,gap:8.0}]),
-      // W4 · Vasto Lordes aparecem
-      buildWave([{type:'vasto_lorde',count:4,gap:1.8},{type:'espada_numero',count:2,gap:8.0}]),
+      buildWave([{type:'hollow_grande',count:5,gap:1.2},{type:'vasto_lorde',count:5,gap:1.4}]),
+      // W4 · Espada Hierro + Espada Regen entram
+      buildWave([{type:'hollow_grande',count:5,gap:1.1},{type:'vasto_lorde',count:4,gap:1.4},{type:'espada_hierro',count:1,gap:0}]),
       // W5
-      buildWave([{type:'vasto_lorde',count:6,gap:1.6},{type:'espada_numero',count:2,gap:7.5}]),
+      buildWave([{type:'hollow_grande',count:4,gap:1.1},{type:'vasto_lorde',count:4,gap:1.3},{type:'espada_hierro',count:2,gap:10.0},{type:'espada_regen',count:1,gap:0}]),
       // W6
-      buildWave([{type:'vasto_lorde',count:8,gap:1.4},{type:'espada_numero',count:3,gap:7.0}]),
-      // W7
-      buildWave([{type:'vasto_lorde',count:6,gap:1.3},{type:'espada_numero',count:3,gap:6.5},{type:'arrancar',count:4,gap:1.2}]),
+      buildWave([{type:'hollow_grande',count:4,gap:1.0},{type:'vasto_lorde',count:3,gap:1.3},{type:'espada_hierro',count:2,gap:9.0},{type:'espada_regen',count:2,gap:12.0}]),
+      // W7 · Arrancar Sonido entram — pressão máxima
+      buildWave([{type:'hollow_grande',count:4,gap:1.0},{type:'vasto_lorde',count:3,gap:1.2},{type:'espada_hierro',count:2,gap:9.0},{type:'espada_regen',count:2,gap:11.0},{type:'arrancar_sonido',count:3,gap:0.7}]),
       // W8
-      buildWave([{type:'vasto_lorde',count:8,gap:1.2},{type:'espada_numero',count:3,gap:6.0}]),
-      // W9 · Gauntlet final — sem respiro
-      buildWave([{type:'vasto_lorde',count:6,gap:1.1},{type:'espada_numero',count:4,gap:5.5}]),
-      // W10 · Aizen Sousuke — boss final com escolta pesada
-      buildWave([{type:'vasto_lorde',count:4,gap:1.4},{type:'espada_numero',count:2,gap:7.0},{type:'aizen_sousuke',count:1,gap:0}])
+      buildWave([{type:'hollow_grande',count:3,gap:1.0},{type:'vasto_lorde',count:3,gap:1.2},{type:'espada_hierro',count:2,gap:8.0},{type:'espada_regen',count:2,gap:11.0},{type:'arrancar_sonido',count:4,gap:0.6}]),
+      // W9 · Gauntlet final sem respiro
+      buildWave([{type:'hollow_grande',count:3,gap:0.9},{type:'vasto_lorde',count:4,gap:1.1},{type:'espada_hierro',count:2,gap:7.0},{type:'espada_regen',count:3,gap:10.0},{type:'arrancar_sonido',count:5,gap:0.6}]),
+      // W10 · Aizen/Hogyoku — Boss de 2 fases com escolta pesada
+      buildWave([{type:'hollow_grande',count:3,gap:1.3},{type:'vasto_lorde',count:2,gap:1.5},{type:'espada_regen',count:2,gap:12.0},{type:'aizen_fase1',count:1,gap:0}])
     ]
   },
   {
