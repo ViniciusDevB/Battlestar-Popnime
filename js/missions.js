@@ -22,7 +22,7 @@ const Missions = (() => {
     const d = Save.get();
     d.missoes_ativas    = d.missoes_ativas    || [];
     d.missoes_completas = d.missoes_completas || [];
-    if (d.missoes_ativas.length === 0) _fillFixed();
+    if (d.missoes_ativas.length < MAX_FIXED) _fillFixed();
     initDailies();
     Save.save();
   }
@@ -73,6 +73,10 @@ const Missions = (() => {
     const today = _today();
     if (!d.missoes_diarias || d.missoes_diarias.data !== today) {
       _resetDailies(d, today);
+    } else if (d.missoes_diarias.ativas.length < 10) {
+      // Pool was expanded — rebuild today's active list keeping existing completions/snapshot
+      d.missoes_diarias.ativas = getDailyMissions(today).map(m => m.id);
+      Save.save();
     }
   }
 
