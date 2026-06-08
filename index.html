@@ -32,7 +32,7 @@
     <div class="hub-banner-card">
       <div class="hub-banner-tag">✦ BANNER ATIVO ✦</div>
       <div id="hub-banner-chars" class="hub-banner-chars"><!-- preenchido pelo JS --></div>
-      <div class="hub-banner-note">🌟 Zoro Ashura (5⭐) disponível via Evolução</div>
+      <div class="hub-banner-note">🌟 Hulk Quebra-Mundo (5⭐) disponível via Evolução</div>
       <div id="banner-timer" class="hub-banner-timer"></div>
       <button class="btn hub-btn-gacha" onclick="UI.showGacha()">⚡ INVOCAR AGORA</button>
     </div>
@@ -165,6 +165,21 @@
       <div class="side-hint">Clique em uma unidade, depois em um slot amarelo</div>
     </div>
   </div>
+  <!-- Wave Preview — aparece entre waves -->
+  <div id="wave-preview" class="wave-preview" style="display:none"></div>
+
+  <!-- Auto-Place toolbar -->
+  <div id="autoplace-bar" class="autoplace-bar" style="display:none">
+    <span class="autoplace-label">Setup:</span>
+    <button onclick="GameController.saveSetup('a')" title="Salvar slot A">💾 A</button>
+    <button onclick="GameController.saveSetup('b')" title="Salvar slot B">💾 B</button>
+    <button onclick="GameController.saveSetup('c')" title="Salvar slot C">💾 C</button>
+    <span class="autoplace-divider">|</span>
+    <button onclick="GameController.loadSetup('a')" title="Carregar slot A">📂 A</button>
+    <button onclick="GameController.loadSetup('b')" title="Carregar slot B">📂 B</button>
+    <button onclick="GameController.loadSetup('c')" title="Carregar slot C">📂 C</button>
+  </div>
+
   <div class="upgrade-panel" id="upgrade-panel" style="display:none">
     <div class="upg-header">
       <span id="upgrade-unit-name"></span>
@@ -207,8 +222,10 @@
         </div>
         <div class="gacha-pity-bar-bg">
           <div id="gacha-pity-fill" class="gacha-pity-fill" style="width: 0%;"></div>
+          <div class="gacha-pity-marker" style="left:33.33%" title="50 pulls"></div>
+          <div class="gacha-pity-marker" style="left:66.66%" title="100 pulls"></div>
         </div>
-        <div class="gacha-pity-hint">Garante um personagem 5⭐ (Mythic) no 150º pull</div>
+        <div class="gacha-pity-hint">0 / 150 pulls — Pity em 150 pulls</div>
       </div>
     </div>
     <div class="gacha-info">
@@ -237,7 +254,7 @@
           <button class="btn btn-pull-ticket" onclick="Gacha.pull(10,'tickets')">x10 Pull — 10 🎫</button>
         </div>
       </div>
-      <div class="gacha-pool-note">🌟 Banner rotativo a cada 30min · Zoro Ashura (5⭐) via Evolução</div>
+      <div class="gacha-pool-note">🌟 Banner rotativo a cada 30min · Hulk Quebra-Mundo (5⭐) via Evolução</div>
     </div>
   </div>
 </div>
@@ -254,29 +271,7 @@
     <button class="tab-btn tab-btn--evo" data-tab="evolution" onclick="Inventory.showTab('evolution')">🔮 Evolução</button>
   </div>
   <div class="inv-filters" id="inv-filters">
-    <select id="filter-rarity" onchange="Inventory.applyFilters()">
-      <option value="">Todas raridades</option>
-      <option value="5">5⭐</option>
-      <option value="4">4⭐</option>
-      <option value="3">3⭐</option>
-      <option value="2">2⭐ (Material)</option>
-      <option value="1">1⭐ (Material)</option>
-      <option value="0">0⭐ (Material)</option>
-    </select>
-    <select id="filter-series" onchange="Inventory.applyFilters()">
-      <option value="">Todas séries</option>
-      <option value="naruto">Naruto</option>
-      <option value="bleach">Bleach</option>
-      <option value="dragonball">Dragon Ball</option>
-      <option value="deathnote">Death Note</option>
-      <option value="marvel">Marvel</option>
-      <option value="onepiece">One Piece</option>
-      <option value="hxh">Hunter × Hunter</option>
-      <option value="kimetsu">Demon Slayer</option>
-      <option value="snk">Attack on Titan</option>
-      <option value="nanatsu">Seven Deadly Sins</option>
-      <option value="jjk">Jujutsu Kaisen</option>
-    </select>
+    <div class="inv-filter-chips" id="inv-filter-chips"></div>
   </div>
   <div class="inv-team-bar" id="inv-team-bar" style="display:none;">
     <div class="inv-team-label">SEU TIME</div>

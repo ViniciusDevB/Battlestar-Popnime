@@ -124,7 +124,10 @@ window.addEventListener('DOMContentLoaded', () => {
     retryStage:  () => Game.retryStage(),
     useAbility:  (idx) => Game.useAbility(idx),
     deselectTower: () => Game.deselectTower(),
-    skipWave:    () => Game.skipWave()
+    skipWave:    () => Game.skipWave(),
+    undoLastTower: () => Game.undoLastTower(),
+    saveSetup:   (slot) => Game.saveSetup(slot),
+    loadSetup:   (slot) => Game.loadSetup(slot)
   };
 
   // Global: " key opens cheat modal (anywhere, except while typing)
@@ -157,6 +160,9 @@ window.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
     } else if (e.code === 'KeyU') {
       GameController.buyNextUpgrade();
+      e.preventDefault();
+    } else if (e.code === 'KeyZ') {
+      GameController.undoLastTower();
       e.preventDefault();
     } else if (e.code === 'Backspace' || e.code === 'Delete') {
       GameController.sellTower();

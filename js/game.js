@@ -13,6 +13,7 @@ const Game = (() => {
   let lives, gold, wave, totalWaves;
   let enemies, towers, projectiles, effects, tsunamis;
   let waveActive, spawnQueue, betweenWaves, betweenTimer, waveElapsed;
+  let _lastPlacedTower = null;
   let activeWavesCount = 1;
   let selectedTowerIdx, deployingCharId;
   let shinraTenseiActive, shinraTenseiTimer, stageModifierTimer;
@@ -147,6 +148,8 @@ const Game = (() => {
     _passiveCtx.effectiveCanDamage = effectiveCanDamage;
     _passiveCtx.updateHUD          = updateHUD;
     _passiveCtx.dist2d             = dist2d;
+    _passiveCtx.restoreLife        = (n = 1) => { lives = Math.min(lives + n, stage?.base_hp || lives + n); updateHUD(); };
+    Object.defineProperty(_passiveCtx, 'waveElapsed', { get: () => waveElapsed, configurable: true });
   })();
   Object.assign(PASSIVE_SYSTEM, PASSIVE_ENTRIES);
 
@@ -734,6 +737,13 @@ const Game = (() => {
     wave++;
     activeWavesCount = 1;
     spawnQueue = isInfiniteMode ? generateInfiniteWave(wave) : [...stage.waves[wave - 1]];
+    // dualFront (Cap.3): segunda metade do spawn entra a 50% do caminho
+    if (!isInfiniteMode && stage?.modifiers?.dualFront) {
+      const half = Math.floor(spawnQueue.length / 2);
+      for (let i = half; i < spawnQueue.length; i++) {
+        spawnQueue[i] = { ...spawnQueue[i], distFraction: 0.5 };
+      }
+    }
     waveElapsed = 0;
     waveActive = true;
     updateHUD();
@@ -785,13 +795,19 @@ const Game = (() => {
       const _dm = getDifficultyMults();
       if (_dm.hp !== 1.0)   { e.maxHp = Math.round(e.maxHp * _dm.hp); e.hp = e.maxHp; }
       if (_dm.gold !== 1.0) { e.gold  = Math.round(e.gold  * _dm.gold); }
-      e.dist = 0;
       if (window.currentPaths && window.currentPaths.length > 0) {
         e.pathArr = window.currentPaths[Math.floor(Math.random() * window.currentPaths.length)];
       } else {
         e.pathArr = PATH_POINTS;
       }
       e.pathLen = getPathLength(e.pathArr);
+      e.dist = next.distFraction ? e.pathLen * next.distFraction : 0;
+      // sandShield (Cap.1): todos os inimigos nascem com escudo de areia
+      if (!isInfiniteMode && stage?.modifiers?.sandShield && !e.is_boss) {
+        e.sandShield = true;
+        e._sandBurst = 0;
+        e._sandBurstStart = 0;
+      }
       enemies.push(e);
       dispatchSpecialSpawn(e);
     }
@@ -879,6 +895,12 @@ const Game = (() => {
         }
       }
       if ((t.stunCooldown || 0) > 0) t.stunCooldown = Math.max(0, t.stunCooldown - dt);
+      // Stun immunity (Tsunade P5 — Byakugou)
+      if (t._stunImmune) {
+        t._stunImmuneTimer = (t._stunImmuneTimer || 0) - dt;
+        if (t._stunImmuneTimer <= 0) { t._stunImmune = false; t._stunImmuneTimer = 0; }
+        else { t.miniStunTimer = 0; t.disabled = false; }
+      }
       // Verdict timer — Ronan: silencia a torre com maior DPS
       if (t.verdictActive) {
         t.verdictTimer = (t.verdictTimer || 0) - dt;
@@ -935,7 +957,9 @@ const Game = (() => {
     const handler = ATTACK_TYPE_HANDLERS[stats.type];
     if (!handler) return;
 
+    tower._currentAttackType = stats.type;
     const hitEnemies = handler.execute(tower, stats, inRange);
+    tower._currentAttackType = null;
 
     // Status do upgrade aplicado imediatamente ao acertar
     if (tower.statusEffect && hitEnemies.length > 0) {
@@ -991,6 +1015,12 @@ const Game = (() => {
   function dealDamage(tower, enemy, damage) {
     if (enemy.dead || enemy.reached_end) return;
 
+    // Jinchuuriki — Replicante de Killer Bee: imune ao tipo de ataque atual
+    if (enemy.jinchuurikiImmuneType && tower && tower._currentAttackType === enemy.jinchuurikiImmuneType) {
+      addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:30, color:'#7c3aed', timer:0.3, maxTimer:0.3, r:0 });
+      return;
+    }
+
     // Passiva do atacante (multiplicadores, status, efeitos colaterais)
     let dmg = PASSIVE_SYSTEM.onHit(tower, enemy, damage);
 
@@ -1001,6 +1031,24 @@ const Game = (() => {
     if (enemy.status?.medo?.active) dmg *= 1.25;
     // Cross Mark (Black Widow): inimigo marcado recebe bônus de dano de todas as fontes
     if (enemy.crossMarked) dmg *= (1 + (enemy.crossMarkBonus || 0.25));
+
+    // Escudo de Areia (Cap.1): só quebra por burst (>800 dmg em janela de 1.5s)
+    if (enemy.sandShield) {
+      const now = performance.now() / 1000;
+      if (!enemy._sandBurstStart || (now - enemy._sandBurstStart) > 1.5) {
+        enemy._sandBurstStart = now;
+        enemy._sandBurst = 0;
+      }
+      enemy._sandBurst += dmg;
+      if (enemy._sandBurst >= 800) {
+        enemy.sandShield = false;
+        addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:55, color:'#d97706', timer:0.7, maxTimer:0.7, r:0 });
+        UI.toast(`💥 Escudo de Areia destruído!`, 2000);
+      } else {
+        enemy.hitFlash = 0.1;
+        return;
+      }
+    }
 
     if ((enemy.shieldHp || 0) > 0) {
       const absorbed = Math.min(enemy.shieldHp, dmg);
@@ -1234,6 +1282,16 @@ const Game = (() => {
       }
     });
 
+    // Desbloqueio automático de Tsunade ao coletar todos os 4 fragmentos
+    if (typeof getCharById !== 'undefined') {
+      const allPieces = ['tsunade_piece_1','tsunade_piece_2','tsunade_piece_3','tsunade_piece_4'];
+      const hasTsunade = Save.getUnitQty('tsunade') > 0;
+      if (!hasTsunade && allPieces.every(p => Save.getMaterialQty(p) >= 1)) {
+        Save.addUnit('tsunade');
+        UI.toast('✨ TSUNADE DESBLOQUEADA! Todos os fragmentos coletados!', 6000);
+      }
+    }
+
     Save.addGems(gems);
     Save.markStageComplete(stageId, difficulty);
     Save.setStat('fases_completas', Object.keys(Save.get().fases_completas).length);
@@ -1322,9 +1380,65 @@ const Game = (() => {
       prestige: unitData.prestige || 0
     };
     towers.push(newTower);
+    _lastPlacedTower = newTower;
     updateHUD();
     Save.incStat('torres_colocadas');
     Missions.check();
+  }
+
+  function saveSetup(slot) {
+    if (!stage) return;
+    const placements = towers
+      .filter(t => !t.isClone)
+      .map(t => ({ charId: t.charId, x: t.x, y: t.y }));
+    Save.saveSetup(stage.id, slot, placements);
+    UI.toast(`💾 Setup ${slot.toUpperCase()} salvo! (${placements.length} torre${placements.length !== 1 ? 's' : ''})`, 2000);
+  }
+
+  function loadSetup(slot) {
+    if (!stage) return;
+    const placements = Save.loadSetup(stage.id, slot);
+    if (!placements || placements.length === 0) {
+      UI.toast(`Slot ${slot.toUpperCase()} está vazio!`, 1800);
+      return;
+    }
+    // Remove towers sem inimigos em campo
+    if (waveActive && enemies.length > 0) {
+      UI.toast('Não é possível carregar setup com inimigos em campo!', 2000);
+      return;
+    }
+    // Devolve ouro de todas as torres atuais
+    towers.filter(t => !t.isClone).forEach(t => {
+      gold += getCharById(t.charId)?.deploy_cost || 0;
+    });
+    towers = towers.filter(t => t.isClone);
+    selectedTowerIdx = -1;
+    closeUpgradePanel();
+
+    placements.forEach(({ charId, x, y }) => {
+      if (isValidPlacement(x, y)) deployTower(x, y, charId);
+    });
+    renderTeamPanel();
+    updateHUD();
+    UI.toast(`📂 Setup ${slot.toUpperCase()} carregado!`, 2000);
+  }
+
+  function undoLastTower() {
+    // Desativado após o primeiro spawn de inimigo na wave atual
+    if (waveActive && enemies.length > 0) {
+      UI.toast('Undo indisponível — inimigos já estão em campo!', 2000);
+      return;
+    }
+    if (!_lastPlacedTower) { UI.toast('Nenhuma torre para desfazer.', 1500); return; }
+    const idx = towers.indexOf(_lastPlacedTower);
+    if (idx < 0) { _lastPlacedTower = null; return; }
+    const t = towers.splice(idx, 1)[0];
+    gold += getCharById(t.charId)?.deploy_cost || 0;
+    _lastPlacedTower = null;
+    if (selectedTowerIdx === idx) { selectedTowerIdx = -1; closeUpgradePanel(); }
+    renderTeamPanel();
+    updateHUD();
+    UI.toast(`↩️ Colocação de ${t.charData?.name || 'torre'} desfeita! Ouro devolvido.`, 2000);
   }
 
   function selectTower(idx) {
@@ -1352,25 +1466,46 @@ const Game = (() => {
 
     optsEl.innerHTML = '';
 
-    // ── Status atuais da torre ─────────────────────────────────────────────
+    // ── Status atuais e comparação com próximo upgrade ─────────────────────
     const typeLabels = {
       single_target:'Alvo único', single:'Alvo único', linha:'Linha',
       cone:'Cone', aoe:'Área', aoe_full:'Área total', aoe_vizard_total:'Vizard AOE', pierce:'Perfura 3',
       scatter:'Dispersão', none:'Sem ataque'
     };
     const frenzyMult   = (tower._frenzyTimer   || 0) > 0 ? ` ×${tower._frenzyMult||1} FRENZY` : '';
-    const surgeCount   = tower._surgeCount   != null ? ` (${tower._surgeCount}/${char?.prestige_passives?.[1]?.trigger_at || char?.prestige_passives?.[5]?.trigger_at || '?'})` : '';
     const prestigeRow  = (tower.prestige || 0) > 0
       ? `<div class="upg-stat-row" style="color:#fbbf24">✦ Prestígio ${tower.prestige} <span style="opacity:0.7">(+${tower.prestige*20}% dano, +${tower.prestige*6}% alc.)</span></div>`
       : '';
+
+    // Stats do próximo upgrade para comparação
+    const nextUpgIdx = tower.upgradeLevel;
+    const nextUpg    = char?.upgrades?.[nextUpgIdx];
+    let nextStats = null;
+    if (nextUpg && nextUpgIdx < (char?.upgrades?.length || 0)) {
+      const tempTower = { ...tower, upgradeLevel: nextUpgIdx + 1 };
+      nextStats = getTowerStats(tempTower);
+    }
+
+    function statRow(label, cur, nxt) {
+      if (nxt == null || nxt === cur) return `<div class="upg-stat-row"><span>${label}</span><span>${cur}</span></div>`;
+      const better = typeof cur === 'number' ? nxt > cur : false;
+      const col = better ? '#4ade80' : '#f87171';
+      return `<div class="upg-stat-row upg-stat-cmp"><span>${label}</span><span>${cur} <span class="upg-next-val" style="color:${col}">→ ${nxt}</span></span></div>`;
+    }
+
     const statsEl = document.createElement('div');
     statsEl.className = 'upg-stats-block';
+
+    const totalUpgradesCount = char?.upgrades?.length || 0;
+    const isMaximized = tower.upgradeLevel >= totalUpgradesCount && totalUpgradesCount > 0;
+
     statsEl.innerHTML = `
-      <div class="upg-stat-row"><span>⚔ Dano</span><span>${Math.round(stats.damage)}</span></div>
-      <div class="upg-stat-row"><span>🎯 Alcance</span><span>${Math.round(stats.range)}px</span></div>
-      <div class="upg-stat-row"><span>⚡ Vel. Ataque</span><span>${stats.attack_speed.toFixed(2)}/s${frenzyMult}</span></div>
+      ${statRow('⚔ Dano', Math.round(stats.damage), nextStats ? Math.round(nextStats.damage) : null)}
+      ${statRow('🎯 Alcance', Math.round(stats.range) + 'px', nextStats ? Math.round(nextStats.range) + 'px' : null)}
+      ${statRow('⚡ Vel. Ataque', stats.attack_speed.toFixed(2) + '/s' + frenzyMult, nextStats ? nextStats.attack_speed.toFixed(2) + '/s' : null)}
       <div class="upg-stat-row"><span>🗡 Tipo</span><span>${typeLabels[stats.type] || stats.type}</span></div>
-      ${prestigeRow}`;
+      ${prestigeRow}
+      ${isMaximized ? '<div class="upg-stat-row" style="color:#fbbf24;font-weight:700;text-align:center">✦ MAXIMIZADO ✦</div>' : ''}`;
     optsEl.appendChild(statsEl);
 
     // Active ability button (Gojo)
@@ -1408,15 +1543,6 @@ const Game = (() => {
       }
       optsEl.appendChild(div);
     });
-
-    // Indicador de MAX (todas as melhorias compradas)
-    const totalUpgrades = char?.upgrades?.length || 0;
-    if (totalUpgrades > 0 && tower.upgradeLevel >= totalUpgrades) {
-      const maxDiv = document.createElement('div');
-      maxDiv.style.cssText = 'text-align:center;padding:8px 0;color:#fbbf24;font-size:11px;font-weight:700;letter-spacing:0.08em;opacity:0.85';
-      maxDiv.textContent = '✦ MAXIMIZADO ✦';
-      optsEl.appendChild(maxDiv);
-    }
 
     // Sell button value
     const hasEconomy = passives.some(p => p.type === 'edo_tensei_economy');
@@ -1521,6 +1647,54 @@ const Game = (() => {
 
   function retryStage() { startGame(); }
 
+  const PTYPE_PREVIEW_COLORS = {
+    normal: '#6b7280', speed: '#3b82f6', fortified: '#f59e0b',
+    regenerator: '#10b981', bomber: '#ef4444', powerful1: '#a78bfa',
+    powerful2: '#7c3aed', powerful3: '#4f46e5', powerful3b: '#6366f1'
+  };
+
+  function renderWavePreview() {
+    const el = document.getElementById('wave-preview');
+    if (!el) return;
+    const nextWaveIdx = wave; // wave hasn't incremented yet during betweenWaves
+    if (isInfiniteMode || !stage || !stage.waves || nextWaveIdx >= stage.waves.length) {
+      el.style.display = 'none';
+      return;
+    }
+    const nextWave = stage.waves[nextWaveIdx];
+    if (!nextWave || nextWave.length === 0) { el.style.display = 'none'; return; }
+
+    // Count enemies by type
+    const counts = {};
+    nextWave.forEach(entry => {
+      counts[entry.type] = (counts[entry.type] || 0) + 1;
+    });
+
+    const hasBoss     = nextWave.some(e => (ENEMY_DEFS[e.type]?.is_boss));
+    const hasMiniboss = nextWave.some(e => (ENEMY_DEFS[e.type]?.is_miniboss));
+
+    let html = `<div class="wp-title">`;
+    if (hasBoss)          html += `<span class="wp-alert wp-boss">⚠️ BOSS</span>`;
+    else if (hasMiniboss) html += `<span class="wp-alert wp-mini">★ MINI-BOSS</span>`;
+    html += `Wave ${nextWaveIdx + 1}:</div><div class="wp-enemies">`;
+
+    Object.entries(counts).forEach(([typeId, count]) => {
+      const def = ENEMY_DEFS[typeId];
+      if (!def) return;
+      const ptypes = Array.isArray(def.ptype) ? def.ptype : [def.ptype];
+      const col = PTYPE_PREVIEW_COLORS[ptypes.find(p => PTYPE_PREVIEW_COLORS[p]) || 'normal'] || '#6b7280';
+      html += `<div class="wp-entry">
+        <div class="wp-dot" style="background:${col}"></div>
+        <span class="wp-name">${def.name}</span>
+        <span class="wp-count">×${count}</span>
+      </div>`;
+    });
+    html += '</div>';
+
+    el.innerHTML = html;
+    el.style.display = betweenWaves ? 'flex' : 'none';
+  }
+
   function updateHUD() {
     const el = id => document.getElementById(id);
     if (el('hud-lives')) el('hud-lives').textContent = lives;
@@ -1564,6 +1738,11 @@ const Game = (() => {
     }
 
     UI.updateCurrencyDisplay();
+    renderWavePreview();
+
+    // Auto-Place toolbar: visível entre waves e antes da wave 1
+    const apBar = document.getElementById('autoplace-bar');
+    if (apBar) apBar.style.display = (betweenWaves || wave === 0) ? 'flex' : 'none';
   }
 
   function renderTeamPanel() {
@@ -2175,6 +2354,7 @@ const Game = (() => {
   }
 
   function drawEnemies() {
+    const fogActive = !!(stage?.modifiers?.fogOfWar);
     enemies.forEach(e => {
       if (e.dead || e.reached_end) return;
       ctx.save();
@@ -2223,19 +2403,21 @@ const Game = (() => {
           ctx.restore();
         }
 
-        if (e.is_boss) {
-          ctx.fillStyle = '#fff'; ctx.font = 'bold 8px Inter,sans-serif';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-          ctx.fillText(e.name, e.x, e.y - s/2 - 5);
-        } else if (e.is_miniboss) {
-          ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'bold 7px Inter,sans-serif';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-          ctx.fillText(e.name, e.x, e.y - s/2 - 5);
+        if (!fogActive) {
+          if (e.is_boss) {
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 8px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+            ctx.fillText(e.name, e.x, e.y - s/2 - 5);
+          } else if (e.is_miniboss) {
+            ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'bold 7px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+            ctx.fillText(e.name, e.x, e.y - s/2 - 5);
+          }
         }
       } else {
         const col = hasBurn ? '#f97316' : e.col;
         const r   = Math.min(5, s * 0.18);
-        ctx.fillStyle = col;
+        ctx.fillStyle = fogActive ? '#374151' : col;
 
         if (e.is_boss) {
           const pulse = 2 + Math.sin(Date.now() / 180) * 1.5;
@@ -2244,20 +2426,58 @@ const Game = (() => {
           ctx.strokeStyle = '#f56565'; ctx.lineWidth = pulse;
           ctx.beginPath(); ctx.roundRect(e.x-s/2, e.y-s/2, s, s, r); ctx.stroke();
           ctx.shadowBlur = 0;
-          ctx.fillStyle = '#fff'; ctx.font = 'bold 8px Inter,sans-serif';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-          ctx.fillText(e.name, e.x, e.y - s/2 - 5);
+          if (!fogActive) {
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 8px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+            ctx.fillText(e.name, e.x, e.y - s/2 - 5);
+          }
         } else if (e.is_miniboss) {
           const pulse = 1.5 + Math.sin(Date.now() / 260) * 1;
           ctx.beginPath(); ctx.roundRect(e.x-s/2, e.y-s/2, s, s, r); ctx.fill();
           ctx.strokeStyle = '#ffc846'; ctx.lineWidth = pulse;
           ctx.beginPath(); ctx.roundRect(e.x-s/2, e.y-s/2, s, s, r); ctx.stroke();
-          ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'bold 7px Inter,sans-serif';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-          ctx.fillText(e.name, e.x, e.y - s/2 - 5);
+          if (!fogActive) {
+            ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = 'bold 7px Inter,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+            ctx.fillText(e.name, e.x, e.y - s/2 - 5);
+          }
         } else {
           ctx.beginPath(); ctx.roundRect(e.x-s/2, e.y-s/2, s, s, r); ctx.fill();
         }
+      }
+
+      // Indicador de imunidade — Replicante Killer Bee (Cap.4)
+      if (e.jinchuurikiImmuneType && !fogActive) {
+        const IMMUNE_LABELS = { single:'1 alvo', aoe:'AOE', pierce:'Pierce', scatter:'Scatter', ricochet:'Ricochet' };
+        const txt = `IMUNE: ${(IMMUNE_LABELS[e.jinchuurikiImmuneType] || e.jinchuurikiImmuneType).toUpperCase()}`;
+        ctx.save();
+        ctx.font = 'bold 7px Inter,sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const tw = ctx.measureText(txt).width;
+        const bw = tw + 10, bh = 12;
+        const bx = e.x - bw/2, by = e.y - s/2 - 24;
+        ctx.fillStyle = 'rgba(109,40,217,0.88)';
+        ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 4); ctx.fill();
+        ctx.fillStyle = '#e9d5ff';
+        ctx.fillText(txt, e.x, by + bh/2);
+        ctx.restore();
+      }
+
+      // Escudo de Areia (Cap.1) — anel arenoso pulsante
+      if (e.sandShield) {
+        const sPulse = (Math.sin(Date.now() / 180) + 1) / 2;
+        ctx.save();
+        ctx.globalAlpha = 0.85;
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, s * 0.6 + 6 + sPulse * 4, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(217,119,6,${0.65 + sPulse * 0.3})`;
+        ctx.lineWidth = 3 + sPulse * 2;
+        ctx.shadowBlur = 10 + sPulse * 8;
+        ctx.shadowColor = '#d97706';
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.restore();
       }
 
       // Anel de escudo (Pain = azul, Fortified = dourado)
@@ -2279,51 +2499,51 @@ const Game = (() => {
         ctx.restore();
       }
 
-      // Barra de HP
-      const hpPct = e.hp / e.maxHp;
-      const bw = s + 10, bh = 3, bx = e.x - bw/2, by = e.y - s/2 - 7;
-      ctx.fillStyle = 'rgba(0,0,0,0.55)';
-      ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 2); ctx.fill();
-      ctx.fillStyle = hpPct > 0.55 ? '#3ecf8e' : hpPct > 0.28 ? '#fbbf24' : '#f56565';
-      ctx.beginPath(); ctx.roundRect(bx, by, bw * hpPct, bh, 2); ctx.fill();
-
-      // Barra de escudo (Pain = azul, Fortified = dourado)
-      if ((e.shieldHp || 0) > 0 && e.maxShieldHp > 0) {
-        const shPct = e.shieldHp / e.maxShieldHp;
-        const shby = by - 5;
+      if (!fogActive) {
+        // Barra de HP
+        const hpPct = e.hp / e.maxHp;
+        const bw = s + 10, bh = 3, bx = e.x - bw/2, by = e.y - s/2 - 7;
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
-        ctx.beginPath(); ctx.roundRect(bx, shby, bw, bh, 2); ctx.fill();
-        ctx.fillStyle = (e.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
-        ctx.beginPath(); ctx.roundRect(bx, shby, bw * shPct, bh, 2); ctx.fill();
-      }
+        ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 2); ctx.fill();
+        ctx.fillStyle = hpPct > 0.55 ? '#3ecf8e' : hpPct > 0.28 ? '#fbbf24' : '#f56565';
+        ctx.beginPath(); ctx.roundRect(bx, by, bw * hpPct, bh, 2); ctx.fill();
 
-      // ── TAGS (tipo + special) — acima da barra de HP ──────────────────
-      const tags = [];
-      // Itera todos os ptypes (suporta array)
-      (e.ptypes || [e.ptype]).forEach(pt => {
-        const ptDef = TAG_DEFS.ptype[pt];
-        if (ptDef) tags.push(ptDef);
-      });
-      const spDef = e.special ? TAG_DEFS.special[e.special] : null;
-      if (spDef) tags.push(spDef);
-      // on_death sem tag própria = ícone de spawn
-      if (e.on_death && !spDef) tags.push({ t:'SPWN', bg:'#1e8449', fg:'#fff' });
+        // Barra de escudo (Pain = azul, Fortified = dourado)
+        if ((e.shieldHp || 0) > 0 && e.maxShieldHp > 0) {
+          const shPct = e.shieldHp / e.maxShieldHp;
+          const shby = by - 5;
+          ctx.fillStyle = 'rgba(0,0,0,0.55)';
+          ctx.beginPath(); ctx.roundRect(bx, shby, bw, bh, 2); ctx.fill();
+          ctx.fillStyle = (e.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
+          ctx.beginPath(); ctx.roundRect(bx, shby, bw * shPct, bh, 2); ctx.fill();
+        }
 
-      if (tags.length > 0) {
-        ctx.shadowBlur = 0;
-        ctx.font = 'bold 7px Inter,sans-serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-        const tagH = 9, tagGap = 2;
-        const tagY  = by - tagH - tagGap;
-        let tx = bx;
-        tags.forEach(tag => {
-          const tw = ctx.measureText(tag.t).width + 5;
-          ctx.fillStyle = tag.bg;
-          ctx.beginPath(); ctx.roundRect(tx, tagY, tw, tagH, 2); ctx.fill();
-          ctx.fillStyle = tag.fg;
-          ctx.fillText(tag.t, tx + 2.5, tagY + tagH - 1.5);
-          tx += tw + tagGap;
+        // ── TAGS (tipo + special) — acima da barra de HP ──────────────────
+        const tags = [];
+        (e.ptypes || [e.ptype]).forEach(pt => {
+          const ptDef = TAG_DEFS.ptype[pt];
+          if (ptDef) tags.push(ptDef);
         });
+        const spDef = e.special ? TAG_DEFS.special[e.special] : null;
+        if (spDef) tags.push(spDef);
+        if (e.on_death && !spDef) tags.push({ t:'SPWN', bg:'#1e8449', fg:'#fff' });
+
+        if (tags.length > 0) {
+          ctx.shadowBlur = 0;
+          ctx.font = 'bold 7px Inter,sans-serif';
+          ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+          const tagH = 9, tagGap = 2;
+          const tagY  = by - tagH - tagGap;
+          let tx = bx;
+          tags.forEach(tag => {
+            const tw = ctx.measureText(tag.t).width + 5;
+            ctx.fillStyle = tag.bg;
+            ctx.beginPath(); ctx.roundRect(tx, tagY, tw, tagH, 2); ctx.fill();
+            ctx.fillStyle = tag.fg;
+            ctx.fillText(tag.t, tx + 2.5, tagY + tagH - 1.5);
+            tx += tw + tagGap;
+          });
+        }
       }
 
       // ── STATUS DOTS — abaixo do inimigo ───────────────────────────────
@@ -2612,6 +2832,8 @@ const Game = (() => {
   return {
     init, startGame, togglePause, toggleSpeed, sellTower, buyNextUpgrade,
     retryStage, handleClick, getTowers, deployTower, selectTower,
-    useAbility, deselectTower, skipWave, addGold
+    useAbility, deselectTower, skipWave, addGold,
+    undoLastTower,
+    saveSetup, loadSetup
   };
 })();

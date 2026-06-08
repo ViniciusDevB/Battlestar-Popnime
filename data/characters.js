@@ -17,6 +17,12 @@ const CHARACTERS = {
   avenger_material_2: { id: 'avenger_material_2', name: 'Material Vingador II', rarity: 1, series: 'marvel', playable: false, xp_value: 150, initials: 'AM2', image: 'assets/ingredients/world4/Avenger 2.png', upgrades_to: 'avenger_material_3', upgrade_cost: 3 },
   avenger_material_3: { id: 'avenger_material_3', name: 'Material Vingador III', rarity: 2, series: 'marvel', playable: false, xp_value: 400, initials: 'AM3', image: 'assets/ingredients/world4/Avenger 3.png' },
 
+  // ── Peças de Tsunade (Evento 2) ───────────────────────────────────────────
+  tsunade_piece_1: { id: 'tsunade_piece_1', name: 'Fragmento de Tsunade I', rarity: 3, series: 'naruto', playable: false, xp_value: 0, initials: 'TN1', image: 'assets/ingredients/eventos/op_ressureicao/Tsunade Piece 1.png', tsunade_piece: 1 },
+  tsunade_piece_2: { id: 'tsunade_piece_2', name: 'Fragmento de Tsunade II', rarity: 3, series: 'naruto', playable: false, xp_value: 0, initials: 'TN2', image: 'assets/ingredients/eventos/op_ressureicao/Tsunade Piece 2.png', tsunade_piece: 2 },
+  tsunade_piece_3: { id: 'tsunade_piece_3', name: 'Fragmento de Tsunade III', rarity: 3, series: 'naruto', playable: false, xp_value: 0, initials: 'TN3', image: 'assets/ingredients/eventos/op_ressureicao/Tsunade Piece 3.png', tsunade_piece: 3 },
+  tsunade_piece_4: { id: 'tsunade_piece_4', name: 'Fragmento de Tsunade IV', rarity: 3, series: 'naruto', playable: false, xp_value: 0, initials: 'TN4', image: 'assets/ingredients/eventos/op_ressureicao/Tsunade Piece 4.png', tsunade_piece: 4 },
+
   // ══════════════════════════════════════════════════════════════════════════
   //  3⭐  —  Sem AOE. Poder vem de passivas, status effects e multiplicadores.
   //  Tipos permitidos: single_target, linha, cone (1-2 unidades), AOE só L.
@@ -849,6 +855,53 @@ const CHARACTERS = {
     ]
   },
 
+  // ── EVENTO 2 — Operação: Ressurreição ─────────────────────────────────────
+  tsunade: {
+    id: 'tsunade', name: 'Tsunade', rarity: 4, series: 'naruto', playable: true, xp_value: 6000, initials: 'TN',
+    image: 'assets/towers/events/Tsunade.png',
+    event_exclusive: true,
+    passive: [
+      { type: 'cem_sobrancelhas', drain_interval_mult: 1.5, label: 'Cem Sobrancelhas: inimigos com drain drenam a base 50% mais devagar enquanto Tsunade está em campo' },
+      { type: 'byakugou', trigger_at: 40, cooldown: 40, label: 'Byakugou: após 40s de wave ativa, restaura 1 vida perdida nessa wave (máx 1 por ativação)' }
+    ],
+    base_stats: { damage: 480, range: 75, attack_speed: 0.6, type: 'aoe' },
+    deploy_cost: 600, max_level: 50,
+    prestige_passives: {
+      1: { type: 'ally_damage_aura', bonus: 0.06, label: 'Vontade de Ferro: todas as torres em campo ganham +6% de dano enquanto Tsunade está ativa' },
+      5: { type: 'byakugou_shield', stun_immune_duration: 2, label: 'Cura da Hokage: ativação do Byakugou também concede 2s de imunidade a stun para todas as torres' },
+      10: { type: 'last_stand', restore_lives: 3, label: 'Renascimento: uma vez por sessão, quando lives chegam a 0, Tsunade restaura 3 vidas' }
+    },
+    upgrades: [
+      { name: 'Raio Terrestre', desc: 'Raio AOE ×1.35 | Dano ×1.3', damage_mult: 1.3, range_mult: 1.0, passive_override: { aoe_radius_mult: 1.35 }, cost: 900 },
+      { name: 'Byakugou Avançado', desc: 'Byakugou CD -8s | Restaura 2 vidas', passive_override: { cooldown: 32, restore: 2 }, cost: 1500 },
+      { name: 'Punho da Hokage', desc: 'Dano ×1.6 | Aplica sangramento 90 DPS / 5s', damage_mult: 1.6, statusEffect: { type: 'sangramento', dps: 90, duration: 5 }, cost: 2200 },
+      { name: 'Sannin Supremo', desc: 'Dano ×2.0 | Vel ×1.15', damage_mult: 2.0, speed_mult: 1.15, cost: 3500 }
+    ]
+  },
+
+  killer_bee: {
+    id: 'killer_bee', name: 'Killer Bee', rarity: 5, series: 'naruto', playable: true, xp_value: 10000, initials: 'KB',
+    image: 'assets/towers/events/Killer Bee.png',
+    event_exclusive: true,
+    passive: [
+      { type: 'modo_bijuu_gyuki', cooldown: 20, duration: 3, damage_mult: 3.0, label: 'Modo Bijuu (Gyuki): a cada 20s transforma por 3s — paralisa todos os inimigos em tela por 1.5s e causa 3× dano base' }
+    ],
+    base_stats: { damage: 130, range: 130, attack_speed: 1.1, type: 'scatter' },
+    deploy_cost: 800, max_level: 50,
+    prestige_passives: {
+      1: { type: 'mark_on_nth_hit', n: 5, bonus: 0.30, duration: 3, label: 'Mestre do Enka: a cada 5ª espada que acerta, o inimigo fica Marcado (+30% dano por 3s)' },
+      5: { type: 'bijuu_boost', duration_bonus: 2, damage_bonus: 0.5, label: 'Bijuu Completo: duração do Modo Bijuu +2s e dano +50%' },
+      10: { type: 'bijuu_fast', cooldown_override: 12, label: 'Oito Caudas Liberadas: Modo Bijuu a cada 12s com onda de choque global ao transformar' }
+    },
+    upgrades: [
+      { name: 'Sete Espadas', desc: '+2 projéteis (→ 9) | Dano ×1.2', damage_mult: 1.2, passive_override: { extra_projectiles: 2 }, cost: 1000 },
+      { name: 'Pierce Total', desc: 'Cada espada perfura +1 inimigo extra', passive_override: { pierce: 1 }, cost: 1600 },
+      { name: 'Tinta de Octópus', desc: 'Bijuu aplica burn 100 DPS / 3s em todos', passive_override: { bijuu_burn_dps: 100, bijuu_burn_dur: 3 }, cost: 2300 },
+      { name: 'Oito Estilos Plenos', desc: 'Dano ×1.8 | Bijuu CD -4s', damage_mult: 1.8, passive_override: { cooldown_bonus: -4 }, cost: 3000 },
+      { name: 'Mestre Shinobi', desc: 'Vel ×1.2 | Alcance ×1.15', speed_mult: 1.2, range_mult: 1.15, cost: 4000 }
+    ]
+  },
+
   // ══════════════════════════════════════════════════════════════════════════
   //  MARVEL — Mundo 4  |  3⭐  Sem AOE de base (web_zone é habilidade, não tipo)
   // ══════════════════════════════════════════════════════════════════════════
@@ -1096,7 +1149,8 @@ const RARITY_LABELS = { 0: '0⭐', 1: '1⭐', 2: '2⭐', 3: '3⭐', 4: '4⭐', 5
 const SERIES_LABELS = {
   naruto: 'Naruto', bleach: 'Bleach', dragonball: 'Dragon Ball',
   deathnote: 'Death Note', marvel: 'Marvel', onepiece: 'One Piece',
-  hxh: 'HxH', kimetsu: 'Kimetsu', snk: 'SNK', nanatsu: '7DS', jjk: 'JJK'
+  hxh: 'HxH', kimetsu: 'Kimetsu', snk: 'SNK', nanatsu: '7DS', jjk: 'JJK',
+  evento: 'Evento'
 };
 
 function getCharById(id) { return CHARACTERS[id] || null; }

@@ -246,9 +246,24 @@ const Save = (() => {
     return true;
   }
 
+  // ── Auto-Place — 3 slots por fase ─────────────────────────────────────────
+  function saveSetup(stageId, slot, placements) {
+    const key = `astd_setup_${stageId}_${slot}`;
+    try { localStorage.setItem(key, JSON.stringify(placements)); } catch {}
+  }
+
+  function loadSetup(stageId, slot) {
+    const key = `astd_setup_${stageId}_${slot}`;
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  }
+
   return { load, save, get, reset, addUnit, addMaterial, removeUnit, removeUnitByUid,
            removeMaterial, getUnitData, getBestUnitData, getUnitByUid, getMaterialQty, getUnitQty,
            addGems, spendGems, addTickets, spendTickets, incStat, setStat,
            markStageComplete, isStageComplete, getTeam, setTeam,
-           getPrestige, canPrestige, doPrestige };
+           getPrestige, canPrestige, doPrestige,
+           saveSetup, loadSetup };
 })();

@@ -18,6 +18,9 @@ const CHAR_COLORS = {
   meliodas_base:    '#ab47bc',
   naruto_sage:      '#ffb300',
   gojo_satoru:      '#e3f2fd',
+  // Evento 2
+  tsunade:    '#f9a8d4',
+  killer_bee: '#7c3aed',
   // Marvel
   spider_man:         '#dc2626',
   black_widow:        '#1c1917',
@@ -868,6 +871,106 @@ var PASSIVE_ENTRIES = {
       });
       if (hits > 0)
         _passiveCtx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:radius, color:'#10b981', timer:0.5, maxTimer:0.5, r:0 });
+    }
+  },
+
+  // ── Tsunade — Byakugou (restaura vida após X segundos de wave ativa) ──────
+  byakugou: {
+    renderBadge(tower, p) {
+      const timer = tower._byakugouTimer || 0;
+      const trigger = _passiveCtx.getPassiveValue(tower, 'trigger_at', p.trigger_at || 40);
+      const remaining = Math.max(0, trigger - timer);
+      return remaining <= 10 ? { text:`✨ ${Math.ceil(remaining)}s`, color:'#f9a8d4' }
+                              : { text:`BY ${Math.ceil(remaining)}s`, color:'#d1d5db' };
+    },
+    update(tower, p, dt) {
+      if (tower.isClone) return;
+      tower._byakugouTimer  = (tower._byakugouTimer  || 0) + dt;
+      tower._byakugouUsed   = tower._byakugouUsed   || false;
+      const trigger = _passiveCtx.getPassiveValue(tower, 'trigger_at', p.trigger_at || 40);
+      if (!tower._byakugouUsed && tower._byakugouTimer >= trigger) {
+        tower._byakugouUsed = true;
+        const restore = _passiveCtx.getPassiveValue(tower, 'restore', p.restore || 1);
+        _passiveCtx.restoreLife(restore);
+        _passiveCtx.addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:80, color:'#f9a8d4', timer:1.0, maxTimer:1.0, r:0 });
+        UI.toast(`✨ Byakugou de Tsunade! +${restore} vida restaurada!`, 3500);
+
+        // Imunidade a stun para todas as torres (prestígio 5)
+        const pp5 = (tower.charData?.prestige_passives || {})[5];
+        if ((tower.prestige || 0) >= 5 && pp5?.stun_immune_duration) {
+          _passiveCtx.towers.forEach(t => {
+            t._stunImmune = true;
+            t._stunImmuneTimer = pp5.stun_immune_duration;
+          });
+          UI.toast(`🛡️ Cura da Hokage: ${pp5.stun_immune_duration}s de imunidade a stun para todas as torres!`, 3000);
+        }
+      }
+    },
+    onWaveEnd(tower, p) {
+      tower._byakugouTimer = 0;
+      tower._byakugouUsed  = false;
+    }
+  },
+
+  // Tsunade — Cem Sobrancelhas (passiva de campo — lógica real em base_drain handler)
+  cem_sobrancelhas: {
+    renderBadge(tower, p) {
+      return { text:'100⬤', color:'#86efac' };
+    }
+  },
+
+  // ── Killer Bee — Modo Bijuu Gyuki ────────────────────────────────────────
+  modo_bijuu_gyuki: {
+    renderBadge(tower, p) {
+      const cd   = tower._bijuuTimer || 0;
+      const need = _passiveCtx.getPassiveValue(tower, 'cooldown', p.cooldown || 20);
+      const rem  = Math.max(0, need - cd);
+      return rem <= 3 ? { text:`🐙 PRONTO`, color:'#a78bfa' }
+                      : { text:`BJ ${Math.ceil(rem)}s`, color:'#7c3aed' };
+    },
+    update(tower, p, dt) {
+      if (tower.isClone) return;
+      tower._bijuuTimer = (tower._bijuuTimer || 0) + dt;
+
+      const baseCd  = _passiveCtx.getPassiveValue(tower, 'cooldown', p.cooldown || 20);
+      const cdBonus = _passiveCtx.getPassiveValue(tower, 'cooldown_bonus', 0);
+      const cd      = Math.max(8, baseCd + cdBonus);
+
+      if (tower._bijuuTimer >= cd) {
+        tower._bijuuTimer = 0;
+        const dur     = _passiveCtx.getPassiveValue(tower, 'duration', p.duration || 3)
+                      + _passiveCtx.getPassiveValue(tower, 'duration_bonus', 0);
+        const dmgMult = _passiveCtx.getPassiveValue(tower, 'damage_mult', p.damage_mult || 3.0)
+                      * (1 + _passiveCtx.getPassiveValue(tower, 'damage_bonus', 0));
+        const stats   = _passiveCtx.getTowerStats(tower);
+
+        // Paralisa todos os inimigos por 1.5s
+        _passiveCtx.enemies.forEach(e => {
+          if (!e.dead && !e.reached_end) {
+            STATUS_TYPES.paralisia.apply(e.status, { duration: 1.5 });
+          }
+        });
+
+        // Dano massivo em toda a tela
+        _passiveCtx.enemies.forEach(e => {
+          if (!e.dead && !e.reached_end) {
+            _passiveCtx.dealDamage(tower, e, stats.damage * dmgMult);
+          }
+        });
+
+        // Burn se o upgrade estiver ativo
+        const burnDps = _passiveCtx.getPassiveValue(tower, 'bijuu_burn_dps', 0);
+        if (burnDps > 0) {
+          const burnDur = _passiveCtx.getPassiveValue(tower, 'bijuu_burn_dur', 3);
+          _passiveCtx.enemies.forEach(e => {
+            if (!e.dead && !e.reached_end) applyStatus(e, 'burn', { dps: burnDps, duration: burnDur });
+          });
+        }
+
+        _passiveCtx.addEffect({ type:'shockwave', x:tower.x, y:tower.y, maxR:600, color:'#7c3aed', timer:0.9, maxTimer:0.9, r:0 });
+        _passiveCtx.screenShakeAmount = 12;
+        UI.toast(`🐙 Modo Bijuu (Gyuki)! Killer Bee transforma por ${dur}s — todos os inimigos paralisados!`, 3500);
+      }
     }
   },
 

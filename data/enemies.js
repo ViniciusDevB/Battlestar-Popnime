@@ -229,9 +229,12 @@ const ENEMY_SPECIAL_HANDLERS = {
       enemy.drainTimer    = def.drainInterval || 4;
     },
     onUpdate(enemy, dt, ctx) {
+      // Tsunade — Cem Sobrancelhas: drena 50% mais devagar quando Tsunade está em campo
+      const tsunadeInField = ctx.towers.some(t => !t.dead && t.charData?.id === 'tsunade');
+      const effectiveInterval = tsunadeInField ? enemy.drainInterval * 1.5 : enemy.drainInterval;
       enemy.drainTimer -= dt;
       if (enemy.drainTimer <= 0) {
-        enemy.drainTimer = enemy.drainInterval;
+        enemy.drainTimer = effectiveInterval;
         ctx.drainLife();
         ctx.toast(`⚠️ ${enemy.name} drena a base! −1 vida`, 2000);
       }
@@ -631,6 +634,70 @@ const ENEMY_SPECIAL_HANDLERS = {
         }
         ctx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:80, color:GEM_COLORS[gi], timer:0.8, maxTimer:0.8, r:0 });
         enemy.gemIndex = (enemy.gemIndex + 1) % 6;
+      }
+    }
+  },
+
+  // ── Replicante do Mizukage — Genjutsu Cegante ────────────────────────────
+  mizukage_special: {
+    init(enemy, def) {
+      enemy.genjutsuTimer    = def.genjutsuInterval || 20;
+      enemy.genjutsuInterval = def.genjutsuInterval || 20;
+      enemy.genjutsuDuration = def.genjutsuDuration || 5;
+    },
+    onUpdate(enemy, dt, ctx) {
+      enemy.genjutsuTimer -= dt;
+      if (enemy.genjutsuTimer <= 0) {
+        enemy.genjutsuTimer = enemy.genjutsuInterval;
+        ctx.towers.forEach(t => {
+          if (!t.isClone) {
+            t.miniStunTimer = Math.max(t.miniStunTimer || 0, enemy.genjutsuDuration);
+            t.disabled = true;
+          }
+        });
+        ctx.addEffect({ type:'shockwave', x:ctx.CANVAS_W/2, y:ctx.CANVAS_H/2, maxR:500, color:'#1e3a5f', timer:0.9, maxTimer:0.9, r:0 });
+        ctx.toast(`🌫️ Genjutsu do Mizukage! Torres paralisadas por ${enemy.genjutsuDuration}s!`, 3000);
+      }
+    }
+  },
+
+  // ── Replicante do Tsuchikage — Partícula Invocante ────────────────────────
+  tsuchikage_special: {
+    init(enemy, def) {
+      enemy.spawnSpecTimer    = def.spawnInterval || 15;
+      enemy.spawnSpecInterval = def.spawnInterval || 15;
+      enemy.spawnSpecCount    = def.spawnCount || 2;
+    },
+    onUpdate(enemy, dt, ctx) {
+      enemy.spawnSpecTimer -= dt;
+      if (enemy.spawnSpecTimer <= 0) {
+        enemy.spawnSpecTimer = enemy.spawnSpecInterval;
+        for (let i = 0; i < enemy.spawnSpecCount; i++) {
+          ctx.spawnEnemy('guerreiro_pedra', enemy, { dist: Math.max(0, enemy.dist - i * 30) });
+        }
+        ctx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:70, color:'#57534e', timer:0.7, maxTimer:0.7, r:0 });
+        ctx.toast(`🪨 Tsuchikage invoca reforços de pedra!`, 2500);
+      }
+    }
+  },
+
+  // ── Replicante de Killer Bee — Imunidade Rotativa ────────────────────────
+  killerbee_replica_special: {
+    init(enemy, def) {
+      enemy.immuneTimer    = def.immuneCycleInterval || 30;
+      enemy.immuneInterval = def.immuneCycleInterval || 30;
+      const order = ['single','aoe','pierce','scatter','ricochet'];
+      enemy.immuneOrder = order;
+      enemy.immuneIdx   = 0;
+      enemy.jinchuurikiImmuneType = order[0];
+    },
+    onUpdate(enemy, dt, ctx) {
+      enemy.immuneTimer -= dt;
+      if (enemy.immuneTimer <= 0) {
+        enemy.immuneTimer = enemy.immuneInterval;
+        enemy.immuneIdx = (enemy.immuneIdx + 1) % enemy.immuneOrder.length;
+        enemy.jinchuurikiImmuneType = enemy.immuneOrder[enemy.immuneIdx];
+        ctx.toast(`⚡ Imunidade Rotativa! Killer Bee agora é imune a: ${enemy.jinchuurikiImmuneType.toUpperCase()}`, 4000);
       }
     }
   },
@@ -1237,6 +1304,114 @@ const ENEMY_DEFS = {
     snapInterval:10, snapDuration:3,
     gemInterval:20,
     image:'assets/inimigos/world4/Thanos Full Power.png'
+  },
+
+  // ═══════════════════════════════════════════════
+  //  EVENTO 2 — OPERAÇÃO: RESSURREIÇÃO
+  // ═══════════════════════════════════════════════
+
+  // ── Capítulo 1: A Queda da Areia ─────────────────────────────────────────────
+  areia_soldado: {
+    name:'Soldado da Areia', hp:3500, speed:70, gold:80,
+    ptype:'normal', size:22, col:'#d97706',
+    image:'assets/inimigos/eventos/op_ressureicao/Areia Soldado.png'
+  },
+  areia_marionete: {
+    name:'Marionete da Areia', hp:9000, speed:95, gold:280,
+    ptype:['powerful1','speed'], size:18, col:'#b45309',
+    image:'assets/inimigos/eventos/op_ressureicao/Areia Marionete.png'
+  },
+  areia_golem: {
+    name:'Golem de Areia', hp:60000, speed:38, gold:1800,
+    ptype:['powerful2','fortified'], shieldHp:20000,
+    size:40, col:'#78350f',
+    image:'assets/inimigos/eventos/op_ressureicao/Areia Golem.png'
+  },
+  replicante_kazekage: {
+    name:'Replicante do Kazekage', hp:180000, speed:48, gold:5000,
+    ptype:['powerful3','fortified'], shieldHp:60000,
+    size:52, col:'#92400e', is_boss:true,
+    special:'base_drain',
+    on_death:{ type:'areia_soldado', count:4 },
+    drainInterval:5,
+    image:'assets/inimigos/eventos/op_ressureicao/Replicante Kazekage.png'
+  },
+
+  // ── Capítulo 2: Névoa Sangrenta ───────────────────────────────────────────────
+  nebulino: {
+    name:'???', hp:4000, speed:65, gold:90,
+    ptype:'normal', size:22, col:'#6b7280',
+    image:'assets/inimigos/eventos/op_ressureicao/Nebulino.png'
+  },
+  espada_nebulosa: {
+    name:'???', hp:10000, speed:110, gold:320,
+    ptype:['powerful1','speed'], size:18, col:'#4b5563',
+    image:'assets/inimigos/eventos/op_ressureicao/Espada Nebulosa.png'
+  },
+  zumbi_kaguya: {
+    name:'???', hp:40000, speed:50, gold:1600,
+    ptype:['powerful2','regenerator'], regenRate:180,
+    size:38, col:'#374151',
+    image:'assets/inimigos/eventos/op_ressureicao/Zumbi Kaguya.png'
+  },
+  replicante_mizukage: {
+    name:'Replicante do Mizukage', hp:220000, speed:70, gold:6000,
+    ptype:'powerful3', size:54, col:'#1e3a5f', is_boss:true,
+    special:'mizukage_special',
+    genjutsuInterval:20, genjutsuDuration:5,
+    image:'assets/inimigos/eventos/op_ressureicao/Replicante Mizukage.png'
+  },
+
+  // ── Capítulo 3: O Coração de Pedra ────────────────────────────────────────────
+  guerreiro_pedra: {
+    name:'Guerreiro de Pedra', hp:5000, speed:60, gold:100,
+    ptype:'normal', size:24, col:'#57534e',
+    image:'assets/inimigos/eventos/op_ressureicao/Guerreiro Pedra.png'
+  },
+  explosao_terra: {
+    name:'Explosão de Terra', hp:2500, speed:100, gold:200,
+    ptype:['powerful1','bomber'], bomberRadius:100, bomberStun:1.5,
+    size:20, col:'#a16207',
+    image:'assets/inimigos/eventos/op_ressureicao/Explosao Terra.png'
+  },
+  golem_terra: {
+    name:'Golem de Terra', hp:80000, speed:35, gold:2200,
+    ptype:['powerful2','fortified'], shieldHp:35000,
+    size:44, col:'#292524',
+    image:'assets/inimigos/eventos/op_ressureicao/Golem Terra.png'
+  },
+  replicante_tsuchikage: {
+    name:'Replicante do Tsuchikage', hp:260000, speed:42, gold:7000,
+    ptype:'powerful3', size:52, col:'#1c1917', is_boss:true,
+    special:'tsuchikage_special',
+    spawnInterval:15, spawnCount:2,
+    image:'assets/inimigos/eventos/op_ressureicao/Replicante Tsuchikage.png'
+  },
+
+  // ── Capítulo 4: Tempestade de Trovões ─────────────────────────────────────────
+  kumo_ninja: {
+    name:'Ninja das Nuvens', hp:4500, speed:80, gold:90,
+    ptype:'normal', size:22, col:'#7c3aed',
+    image:'assets/inimigos/eventos/op_ressureicao/Kumo Ninja.png'
+  },
+  kumo_rapido: {
+    name:'Ninja das Nuvens Speed', hp:7000, speed:140, gold:250,
+    ptype:['powerful1','speed'], size:18, col:'#6d28d9',
+    image:'assets/inimigos/eventos/op_ressureicao/Kumo Rapido.png'
+  },
+  jinchuuriki_corrompido: {
+    name:'Jinchuuriki Corrompido', hp:70000, speed:55, gold:2500,
+    ptype:['powerful2','fortified'], shieldHp:30000,
+    size:42, col:'#4c1d95',
+    image:'assets/inimigos/eventos/op_ressureicao/Jinchuuriki Corrompido.png'
+  },
+  replicante_killerbee: {
+    name:'Replicante de Killer Bee', hp:300000, speed:60, gold:8000,
+    ptype:'powerful3', size:56, col:'#581c87', is_boss:true,
+    special:'killerbee_replica_special',
+    jinchuurikiImmuneType: 'single',
+    immuneCycleInterval: 30,
+    image:'assets/inimigos/eventos/op_ressureicao/Replicante Killer Bee.png'
   },
 };
 

@@ -5,6 +5,70 @@ const Inventory = (() => {
   let feedSelected = [];    // [{type:'unit', uid} | {type:'material', id}]
   let evolutionTarget = null;
 
+  // ── Filtros múltiplos ──────────────────────────────────────────────────────
+  const FILTER_CHIPS = [
+    { id: 'all',      label: 'Todos',      type: 'all' },
+    { id: 'naruto',   label: 'Naruto',     type: 'series' },
+    { id: 'onepiece', label: 'One Piece',  type: 'series' },
+    { id: 'bleach',   label: 'Bleach',     type: 'series' },
+    { id: 'marvel',   label: 'Marvel',     type: 'series' },
+    { id: 'evento',   label: 'Evento',     type: 'series' },
+    { id: 'r5',       label: '⭐⭐⭐⭐⭐',   type: 'rarity', val: 5 },
+    { id: 'r4',       label: '⭐⭐⭐⭐',    type: 'rarity', val: 4 },
+    { id: 'r3',       label: '⭐⭐⭐',     type: 'rarity', val: 3 },
+  ];
+
+  let _savedFilters = (() => {
+    try { return JSON.parse(localStorage.getItem('astd_inv_filters') || '["all"]'); } catch { return ['all']; }
+  })();
+  let activeFilters = new Set(_savedFilters);
+
+  function _saveFilters() {
+    try { localStorage.setItem('astd_inv_filters', JSON.stringify([...activeFilters])); } catch {}
+  }
+
+  function renderFilterChips() {
+    const container = document.getElementById('inv-filter-chips');
+    if (!container) return;
+    container.innerHTML = '';
+    FILTER_CHIPS.forEach(chip => {
+      const el = document.createElement('button');
+      el.className = 'inv-chip' + (activeFilters.has(chip.id) ? ' active' : '');
+      el.textContent = chip.label;
+      el.addEventListener('click', () => toggleFilter(chip.id));
+      container.appendChild(el);
+    });
+  }
+
+  function toggleFilter(id) {
+    if (id === 'all') {
+      activeFilters = new Set(['all']);
+    } else {
+      activeFilters.delete('all');
+      if (activeFilters.has(id)) {
+        activeFilters.delete(id);
+        if (activeFilters.size === 0) activeFilters.add('all');
+      } else {
+        activeFilters.add(id);
+      }
+    }
+    _saveFilters();
+    renderFilterChips();
+    renderGrid();
+  }
+
+  function _matchesFilters(char) {
+    if (activeFilters.has('all')) return true;
+    for (const id of activeFilters) {
+      const chip = FILTER_CHIPS.find(c => c.id === id);
+      if (!chip) continue;
+      if (chip.id === 'evento') { if (char.event_exclusive) return true; continue; }
+      if (chip.type === 'series' && char.series === chip.id) return true;
+      if (chip.type === 'rarity' && char.rarity === chip.val) return true;
+    }
+    return false;
+  }
+
   function showTab(tab) {
     currentTab = tab;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
@@ -16,6 +80,7 @@ const Inventory = (() => {
       if (tab === 'units') renderTeamBar();
     }
     if (tab !== 'units') closeDetail();
+    renderFilterChips();
     renderGrid();
   }
 
@@ -82,10 +147,6 @@ const Inventory = (() => {
     if (evoContent) evoContent.style.display = 'none';
     grid.innerHTML = '';
 
-    const rarityVal = document.getElementById('filter-rarity')?.value;
-    const rarityFilter = (rarityVal !== '' && rarityVal !== undefined) ? parseInt(rarityVal) : null;
-    const seriesFilter = document.getElementById('filter-series')?.value || '';
-
     if (currentTab === 'units') {
       const d = Save.get();
       const ownedIds = new Set();
@@ -93,8 +154,7 @@ const Inventory = (() => {
       d.inventario.unidades.forEach(unit => {
         const char = getCharById(unit.id);
         if (!char || !char.playable) return;
-        if (rarityFilter !== null && char.rarity !== rarityFilter) return;
-        if (seriesFilter && char.series !== seriesFilter) return;
+        if (!_matchesFilters(char)) return;
         ownedIds.add(unit.id);
 
         const card = document.createElement('div');
@@ -109,8 +169,7 @@ const Inventory = (() => {
 
       getPlayable().forEach(char => {
         if (ownedIds.has(char.id)) return;
-        if (rarityFilter !== null && char.rarity !== rarityFilter) return;
-        if (seriesFilter && char.series !== seriesFilter) return;
+        if (!_matchesFilters(char)) return;
         const card = document.createElement('div');
         card.className = `inv-card rarity-${char.rarity} inv-card--locked`;
         card.innerHTML = `
@@ -123,8 +182,7 @@ const Inventory = (() => {
     } else {
       const materials = Object.values(CHARACTERS)
         .filter(c => !c.playable)
-        .filter(c => rarityFilter === null || c.rarity === rarityFilter)
-        .filter(c => !seriesFilter || c.series === seriesFilter)
+        .filter(c => _matchesFilters(c))
         .sort((a, b) => a.rarity - b.rarity);
 
       materials.forEach(char => {
@@ -666,6 +724,6 @@ const Inventory = (() => {
     openFeed, closeFeed, confirmFeed, removeFeedSelected,
     openMaterialDetail, combineMaterial, combineMaxMaterial,
     renderGrid, toggleTeam, renderTeamBar,
-    doPrestigeUnit
+    doPrestigeUnit, renderFilterChips
   };
 })();

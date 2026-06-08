@@ -114,11 +114,23 @@ const Gacha = (() => {
     if (fill) {
       const pct = Math.min(100, (pity / 150) * 100);
       fill.style.width = `${pct}%`;
-      if (pct >= 80) {
+      // Coloração por faixa: azul → amarelo → vermelho
+      if (pity >= 131) {
+        fill.style.background = '#ef4444';
         fill.classList.add('pity-near-guarantee');
+      } else if (pity >= 100) {
+        fill.style.background = '#f59e0b';
+        fill.classList.remove('pity-near-guarantee');
       } else {
+        fill.style.background = '#3b82f6';
         fill.classList.remove('pity-near-guarantee');
       }
+    }
+
+    const hint = document.querySelector('.gacha-pity-hint');
+    if (hint) {
+      const remaining = 150 - pity;
+      hint.textContent = `${pity} / 150 pulls — Pity em ${remaining} pull${remaining !== 1 ? 's' : ''}`;
     }
   }
 

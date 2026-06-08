@@ -58,6 +58,63 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 
 ## 📈 Histórico de Updates
 
+### ✅ Update 2: Invasão Secreta *(Lançado)*
+
+**Universo Marvel entra no Battlestar Popnime + Evento narrativo shinobi:**
+
+**Mundo 4 — Nova York** com caminho temático de Manhattan (cruzamentos em Z):
+- **6 fases completas** com 10 waves cada:
+  - Fase 1 — **Manhattan (Hydra)**: backbone de invasores padrão.
+  - Fase 2 — **Helicarrier SHIELD**: introduz Invasor Speed (ptype Speed).
+  - Fase 3 — **Sokovia (Ultron)**: adiciona Invasor Fortified (escudo + ptype Fortified).
+  - Fase 4 — **Wakanda**: adiciona Invasor Regen (regeneração passiva).
+  - Fase 5 — **Titan**: adiciona Invasor Bomb (explosor com AOE de atordoamento).
+  - Fase 6 — **O Espaço (Gauntlet)**: todos os tipos simultâneos + Boss Thanos em 2 fases.
+
+**Novos inimigos comuns:**
+- `Invasor` — backbone das 6 fases, ptype normal.
+- `Invasor Speed` — rápido (speed 155), introduzido na Fase 2.
+- `Invasor Fortified` — tanque blindado (HP 20k + escudo 10k).
+- `Invasor Regen` — regenera 210 HP/s.
+- `Invasor Bomb` — explosor com raio de 125px e stun de 1.8s.
+
+**Minibosses (W10 de cada fase):**
+- **Batroc** (F1): avança ativamente no caminho pelo Golpe de Savate a cada 12s.
+- **Crossbones** (F2): Colete Suicida — mata rápido (explosão colossal) ou ele entra em Berserk.
+- **Ronan** (F3): O Veredito — bloqueia a torre de maior DPS por 7s a cada 22s.
+- **Corvus Glaive** (F4): Imortal enquanto o escudo estiver ativo; escudo regenera se inimigos suficientes estiverem em campo.
+- **Ebony Maw** (F5): Telecinese Dupla — empurra todos os inimigos no caminho + inverte targeting de torres aleatórias.
+
+**Boss de duas fases — Thanos (F6 W10):**
+- **Thanos — O Eterno**: 300k HP + escudo 100k. Snap stuna todas as torres a cada 25s. Drena 1 vida da base a cada 3s.
+- **Thanos — Manopla Completa**: 300k HP, speed 55. Imune a slow. Snap a cada 10s. Ativa 1 das 6 Gemas do Infinito a cada 20s em rotação (Espaço, Mente, Realidade, Poder, Tempo, Alma).
+
+**8 novos personagens jogáveis** (3⭐ a 5⭐):
+- 3⭐: Homem-Aranha (slow de teia por hit), Viúva Negra (marca inimigos ao matar), Gavião Arqueiro (rotação de 4 tipos de flecha).
+- 4⭐: Pantera Negra (ricochet 2–4 bounces + aura), Thor (chain lightning em cascata), Hulk (stacks de Raiva crescentes).
+- 5⭐ Gacha: Iron Man Mark 50 — drop exclusivo da Fase 6. Multi-míssil + Unibeam ao detectar boss.
+- 5⭐ Evolução: World Breaker Hulk — evolui do Hulk. Gamma Burst ao atingir 60 stacks.
+
+**Evento — Operação: Ressurreição** (4 capítulos, continuação de "A Anomalia de Konoha"):
+- **Capítulo 1 — A Queda da Areia**: Modificador *Escudo de Areia* — todos os inimigos só tomam dano por burst (>800 em 1.5s). Drop: Peça Tsunade 1/4.
+- **Capítulo 2 — Névoa Sangrenta**: Modificador *Nevoeiro Mortal* — HP bars, nomes e tipos ocultos (só silhuetas). Drop: Peça Tsunade 2/4.
+- **Capítulo 3 — O Coração de Pedra**: Modificador *Frente Dupla* — metade da wave surge a 50% do caminho simultaneamente. Drop: Peça Tsunade 3/4.
+- **Capítulo 4 — Tempestade de Trovões**: Modificador *Modo Jinchuuriki* — boss alterna imunidade de tipo de ataque a cada 30s (ícone visível). Drop: Peça Tsunade 4/4 + roll Killer Bee.
+
+**2 personagens exclusivos do evento** (não dropam no gacha):
+- **Tsunade** (4⭐): AOE corpo-a-corpo. Passiva dupla — *Cem Sobrancelhas* (inimigos com base_drain drenam mais lentamente) + *Byakugou* (restaura 1 vida após 40s de wave ativa, 1× por wave).
+- **Killer Bee** (5⭐, pity 80 runs): 8 Estilos de Espada em 360° (único ataque omnidirecional). Passiva *Modo Bijuu (Gyuki)* — a cada 20s, paralisa todos os inimigos e causa 3× dano base.
+
+**Qualidade de Vida:**
+- **Auto-Place**: 3 slots (A, B, C) para salvar e recarregar posicionamento de torres por fase.
+- **Undo de Posicionamento**: desfaz a última torre colocada (tecla `Z`), bloqueado após inimigos spawnar.
+- **Preview Expandido de Wave**: overlay mostra ícones coloridos de cada ptype da próxima wave com contagem. Alerta vermelho para miniboss/boss.
+- **Filtro no Inventário**: chips de filtro múltiplo (Naruto, One Piece, Bleach, Marvel, Evento, ⭐⭐⭐ a ⭐⭐⭐⭐⭐). Estado persiste no localStorage.
+- **Comparação de Torres**: painel de upgrade mostra stats atuais → próximo nível (números melhores em verde).
+- **Barra de Pity colorida**: azul (0–99) → amarelo (100–130) → vermelho (131–150) com texto "X/150 pulls — Pity em Y pulls".
+
+---
+
 ### ✅ Update 1: Soul Society *(Lançado)*
 
 **Bleach — Mundo 3 completo com 6 fases e sistema de inimigos redesenhado:**
@@ -154,18 +211,6 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 ## 🗺️ Roadmap
 
 > As atualizações abaixo estão planejadas e em fase de concepção. Detalhes de personagens, mecânicas e conteúdo serão definidos conforme o desenvolvimento avança.
-
----
-
-### 🔜 Update 2: Invasão Secreta *(Planejado)*
-
-**Universo Marvel entra no jogo.**
-
-- **Novo Mundo**: um mundo temático Marvel com caminho e fases exclusivas.
-- **Novos Personagens**: heróis e vilões do universo Marvel (3⭐ a 5⭐), cada um com passivas temáticas únicas.
-- **Qualidade de Vida**: melhorias gerais de UI, balanceamento e novas mecânicas de suporte.
-
-> ⚠️ Detalhes de personagens, inimigos e mecânicas a definir.
 
 ---
 
