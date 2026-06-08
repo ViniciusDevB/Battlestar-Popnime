@@ -12,7 +12,7 @@ const Save = (() => {
         materiais: []   // {id, quantidade}
       },
       gemas: 500,
-      tickets: 3,
+      tickets: 0,
       pity_contador: 0,
       fases_completas: {},
       time_salvo: [],
