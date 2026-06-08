@@ -65,6 +65,10 @@ const Gacha = (() => {
     }
 
     Save.incStat('pulls_realizados', count);
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
+      const _cm = Online.getActiveMission();
+      if (_cm && _cm.goal_type === 'pulls') Online.contributeToMission(_cm.id, count);
+    }
     Missions.check();
     updateGachaUI();
     showResult(results);

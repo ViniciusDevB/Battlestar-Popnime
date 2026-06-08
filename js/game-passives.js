@@ -44,8 +44,12 @@ const PASSIVE_ENTRIES = {
       const interval = _passiveCtx.getPassiveValue(tower, 'interval', p.interval);
       if (tower.tsunamiTimer >= interval) {
         tower.tsunamiTimer = 0;
-        const hp = _passiveCtx.getPassiveValue(tower, 'hp', p.hp);
-        _passiveCtx.tsunamis.push({ hp, maxHp: hp, dist: PATH_LENGTH, speed: 100, color: '#3498db', hitIds: new Set() });
+        const hp    = _passiveCtx.getPassiveValue(tower, 'hp', p.hp);
+        const paths = window.currentPaths || [PATH_POINTS];
+        paths.forEach(pathArr => {
+          const pathLen = getPathLength(pathArr);
+          _passiveCtx.tsunamis.push({ hp, maxHp: hp, dist: pathLen, speed: 100, color: '#3498db', hitIds: new Set(), pathArr });
+        });
         UI.toast('🌊 Tsunami Reversivo Invocado!', 2000);
       }
     }

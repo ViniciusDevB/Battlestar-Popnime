@@ -197,18 +197,13 @@ const ENEMY_SPECIAL_HANDLERS = {
   // ── Pain Boss (Shinra Tensei + Escudo de Rinnegan) ────────────────────────
   pain_boss: {
     init(enemy, def) {
-      enemy.specialTimer    = def.specialInterval || 30;
-      enemy.specialInterval = def.specialInterval || 30;
-      enemy.shieldHp        = 0;
-      enemy.maxShieldHp     = 0;
-      enemy.shieldCooldown  = 10 + Math.random() * 10;
+      ENEMY_SPECIAL_HANDLERS.shinra_tensei.init(enemy, def);
+      enemy.shieldHp       = 0;
+      enemy.maxShieldHp    = 0;
+      enemy.shieldCooldown = 10 + Math.random() * 10;
     },
     onUpdate(enemy, dt, ctx) {
-      enemy.specialTimer -= dt;
-      if (enemy.specialTimer <= 0) {
-        enemy.specialTimer = enemy.specialInterval;
-        ctx.activateShinraTensei();
-      }
+      ENEMY_SPECIAL_HANDLERS.shinra_tensei.onUpdate(enemy, dt, ctx);
       if (enemy.shieldHp <= 0) {
         enemy.shieldCooldown -= dt;
         if (enemy.shieldCooldown <= 0) {
@@ -325,6 +320,10 @@ const ENEMY_SPECIAL_HANDLERS = {
     init(enemy, def) {
       enemy.nnoiShieldCD  = def.shieldRegenCooldown || 40;
       enemy.nnoiShieldMax = def.shieldRegenCooldown || 40;
+      if (!enemy.maxShieldHp) {
+        const shHp = def.shieldHp || Math.round(enemy.maxHp * 0.5);
+        enemy.shieldHp = shHp; enemy.maxShieldHp = shHp;
+      }
     },
     onUpdate(enemy, dt, ctx) {
       if ((enemy.shieldHp || 0) > 0) {
@@ -351,6 +350,10 @@ const ENEMY_SPECIAL_HANDLERS = {
       enemy.kyokaDur      = def.kyokaDuration || 3;
       enemy.hogyokuCD     = def.shieldRegenCD || 35;
       enemy.hogyokuMax    = def.shieldRegenCD || 35;
+      if (!enemy.maxShieldHp) {
+        const shHp = def.shieldHp || Math.round(enemy.maxHp * 0.5);
+        enemy.shieldHp = shHp; enemy.maxShieldHp = shHp;
+      }
     },
     onUpdate(enemy, dt, ctx) {
       // Kyoka Suigetsu — ilude todas as torres periodicamente
@@ -497,8 +500,12 @@ const ENEMY_SPECIAL_HANDLERS = {
   // ── Corvus Glaive — Glaive Imortal ───────────────────────────────────────
   corvus_glaive_special: {
     init(enemy, def) {
-      enemy.glaiveImmortalWarned  = false;
-      enemy.shieldRegenThreshold  = def.shieldRegenThreshold || 5;
+      enemy.glaiveImmortalWarned = false;
+      enemy.shieldRegenThreshold = def.shieldRegenThreshold || 5;
+      if (!enemy.maxShieldHp) {
+        const shHp = def.shieldHp || Math.round(enemy.maxHp * 0.5);
+        enemy.shieldHp = shHp; enemy.maxShieldHp = shHp;
+      }
     },
     onUpdate(enemy, dt, ctx) {
       if ((enemy.shieldHp || 0) > 0 && enemy.hp <= 1) {

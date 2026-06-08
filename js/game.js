@@ -702,7 +702,7 @@ const Game = (() => {
     // Tsunami loop
     tsunamis.forEach(tsu => {
       tsu.dist -= tsu.speed * dt;
-      const pos = getPosOnPath(tsu.dist);
+      const pos = getPosOnPath(tsu.dist, tsu.pathArr);
       tsu.x = pos.x; tsu.y = pos.y;
 
       for (let i = 0; i < _aliveEnemies.length; i++) {
@@ -1314,8 +1314,8 @@ const Game = (() => {
         if (wave > best) Save.setStat('melhor_onda_infinita', wave);
         Save.incStat('ondas_infinito', wave);
         _submitScore('infinite');
-        _contributeMissionStats(false);
       }
+      _contributeMissionStats(false);
       Missions.check();
       UI.showPostBattle({
         victory: false,
