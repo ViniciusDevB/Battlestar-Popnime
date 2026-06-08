@@ -3,7 +3,11 @@ function buildWave(groups) {
   const queue = [];
   let t = 0;
   groups.forEach(g => {
-    for (let i = 0; i < g.count; i++) {
+    let finalCount = g.count;
+    if (finalCount > 1) {
+      finalCount += Math.max(1, Math.floor(finalCount * 0.25));
+    }
+    for (let i = 0; i < finalCount; i++) {
       queue.push({ type: g.type, delay: t });
       t += (g.gap !== undefined ? g.gap : 1.5);
     }
@@ -837,7 +841,7 @@ const STAGES = [
   id: 'mv_fase6', name: 'O Espaço', world: 'marvel', isBoss: true,
   drops: [
     { id: 'avenger_material_3', chance: 40 },
-    { id: 'iron_man_mark50',    chance: 0.1, pity: 200 }
+    { id: 'hulk_base',          chance: 0.1, pity: 200 }
   ],
   waves: [
     buildWave([{type:'invasor',count:7,gap:1.3},{type:'invasor_veloz',count:3,gap:0.8}]),

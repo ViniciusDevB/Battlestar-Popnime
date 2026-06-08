@@ -843,7 +843,12 @@ const Game = (() => {
         lives = Math.max(0, lives - 1);
         updateHUD();
         toRemove.push(e);
-        if (lives <= 0) endGame(false);
+        if (lives <= 0) {
+          endGame(false);
+        } else if (e.is_boss || e.is_miniboss) {
+          UI.toast(`O Boss ${e.name} escapou! Missão Falhou!`, 4000);
+          endGame(false);
+        }
       }
     });
     toRemove.forEach(e => { enemies = enemies.filter(x => x !== e); });
@@ -1124,7 +1129,7 @@ const Game = (() => {
     if (spawnQueue.length === 0 && enemies.length === 0) {
       waveActive = false;
       // Wave bonus
-      const bonus = wave * 11;
+      const bonus = 100;
       gold += bonus;
       updateHUD();
       if (bonus > 0) UI.toast(`Wave ${wave} completa! +${bonus} 💰`);
