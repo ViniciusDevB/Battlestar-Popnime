@@ -864,7 +864,7 @@ const ENEMY_DEFS = {
   },
   caminho_asura: {
     name:'Caminho Asura', hp:2800, speed:60, gold:110,
-    ptype:'powerful1', size:24, col:'#4a235a', image:'assets/inimigos/world1/Pain Caminho Asura.png'
+    ptype:'powerful1', size:24, col:'#4a235a', image:'assets/inimigos/world1/Pain Caminho Ashura.png'
   },
 
   // Fase 5
@@ -1064,39 +1064,15 @@ const ENEMY_DEFS = {
   },
 
   // Fase 3
-  espada_decima: {
-    name:'Espada Décima', hp:10000, speed:45, gold:520,
-    ptype:'powerful2', size:36, col:'#607d8b', image:'assets/inimigos/world3/Espada.png',
-    is_miniboss:true, on_death:{ type:'hollow_pequeno', count:4 }
-  },
-  menos_grande: {
-    name:'Menos Grande', hp:28000, speed:32, gold:1600,
-    ptype:['powerful3','bomber'], bomberRadius:180, bomberStun:3,
-    size:50, col:'#1c2833', image:'assets/inimigos/world3/Menos Grande.png', is_boss:true
-  },
 
   // Fase 4
-  espada_numero: {
-    name:'Espada Numerada', hp:22000, speed:58, gold:1100,
-    ptype:'powerful2', size:34, col:'#4a5568', image:'assets/inimigos/world3/Espada Numero.png',
-    is_miniboss:true, on_death:{ type:'arrancar', count:3 }
-  },
   vasto_lorde: {
     name:'Vasto Lorde', hp:12000, speed:92, gold:620,
     ptype:'powerful2', size:28, col:'#7c3aed', image:'assets/inimigos/world3/Vasto Lorde.png'
   },
 
   // Fase 5
-  espada_primera: {
-    name:'Espada Primera', hp:50000, speed:36, gold:3000,
-    ptype:'powerful3', size:44, col:'#1e3a5f', image:'assets/inimigos/world3/Espada Primera.png',
-    is_miniboss:true, on_death:{ type:'arrancar', count:6 }
-  },
-  aizen_sousuke: {
-    name:'Aizen Sousuke', hp:110000, speed:20, gold:6000,
-    ptype:['powerful3','bomber'], bomberRadius:230, bomberStun:4,
-    size:52, col:'#1a1a2e', image:'assets/inimigos/world3/Aizen.png', is_boss:true
-  },
+
 
   // ─── Novos inimigos — Bleach Refatorado ─────────────────────────────────
 
