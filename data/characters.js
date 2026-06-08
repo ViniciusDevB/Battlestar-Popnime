@@ -130,10 +130,10 @@ const CHARACTERS = {
     id: 'sasuke_uchiha', name: 'Sasuke Uchiha', rarity: 3, series: 'naruto', playable: true, xp_value: 1000, initials: 'SU',
     image: 'assets/towers/update0/Sasuke.png',
     passive: {
-      type: 'sharingan',
-      label: 'Sharingan: ignora o requisito de upgrade de todos os inimigos'
+      type: 'critical', chance: 0.18, mult: 2.5,
+      label: 'Sharingan: antecipa os movimentos inimigos — 18% de chance de acerto crítico (2.5×)'
     },
-    base_stats: { damage: 77, range: 104, attack_speed: 0.99, type: 'single_target' },
+    base_stats: { damage: 105, range: 104, attack_speed: 0.99, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'spirit_surge', trigger_at: 4, mult: 3.0, label: 'Chidori Carregado: cada 4º ataque dispara um Chidori (3× dano)' },
@@ -295,10 +295,10 @@ const CHARACTERS = {
     id: 'naruto_sage', name: 'Naruto (Sage Mode)', rarity: 5, series: 'naruto', playable: true, xp_value: 8000, initials: 'NM',
     image: 'assets/towers/update0/Naruto Sage.png',
     passive: {
-      type: 'clone_on_attack', chance: 0.15, duration: 60, maxClones: 5,
-      label: 'Senjutsu: 15% de chance por ataque de invocar um clone por 60s (máx 5, cada clone ataca independentemente)'
+      type: 'clone_on_attack', chance: 0.15, duration: 60, maxClones: 3, damage_pct: 0.30,
+      label: 'Senjutsu: 15% de chance por ataque de invocar um clone por 60s (máx 3, clones causam 30% do dano)'
     },
-    base_stats: { damage: 308, range: 130, attack_speed: 2.42, type: 'single_target' },
+    base_stats: { damage: 270, range: 130, attack_speed: 2.42, type: 'single_target' },
     deploy_cost: 500, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 100, chain_mult: 0.72, chains: 2, label: 'Modo Sábio Aprimorado: chakra da natureza encadeia 2 inimigos (72% dano)' },
@@ -308,9 +308,9 @@ const CHARACTERS = {
     upgrades: [
       { name: 'Senjutsu', desc: 'Dano ×1.35 | Alcance ×1.1 | Clone chance → 20%', damage_mult: 1.35, range_mult: 1.21, passive_override: { chance: 0.20 }, cost: 400 },
       { name: 'Modo Sábio', desc: 'Vel ×1.2 | Clone duração → 75s', speed_mult: 1.2, passive_override: { duration: 75 }, cost: 700 },
-      { name: 'Modo Sábio Completo', desc: 'Dano ×1.4 | Máx clones → 6', damage_mult: 1.4, passive_override: { maxClones: 6 }, cost: 1000 },
+      { name: 'Modo Sábio Completo', desc: 'Dano ×1.4 | Máx clones → 4', damage_mult: 1.4, passive_override: { maxClones: 4 }, cost: 1000 },
       { name: 'Monte Myoboku', desc: 'Vel ×1.15 | Alcance ×1.1 | Clone chance → 25%', speed_mult: 1.15, range_mult: 1.21, passive_override: { chance: 0.25 }, cost: 1300 },
-      { name: 'Modo Bijuu', desc: 'Dano ×1.55 | Vel ×1.15 | Máx clones → 8', damage_mult: 1.55, speed_mult: 1.15, passive_override: { maxClones: 8 }, cost: 1700 }
+      { name: 'Modo Bijuu', desc: 'Dano ×1.4 | Vel ×1.15 | Máx clones → 5', damage_mult: 1.40, speed_mult: 1.15, passive_override: { maxClones: 5 }, cost: 1700 }
     ],
     evolution: {
       source: 'naruto_shippuden', requires: [
@@ -485,7 +485,7 @@ const CHARACTERS = {
       type: 'petal_mark', splashRadius: 95, splashMult: 1.3,
       label: 'Senbonzakura: ao matar, pétalas explodem causando 1.3× dano em área'
     },
-    base_stats: { damage: 105, range: 160, attack_speed: 0.95, type: 'scatter' },
+    base_stats: { damage: 165, range: 160, attack_speed: 0.95, type: 'scatter' },
     deploy_cost: 380, max_level: 50,
     prestige_passives: {
       1: { type: 'spirit_surge', trigger_at: 4, mult: 4.0, label: 'Senbonzakura Dupla: cada 4º ataque desencadeia rajada de pétalas (4× dano)' },
@@ -524,8 +524,8 @@ const CHARACTERS = {
     playable: true, xp_value: 4000, initials: 'KZ',
     image: 'assets/towers/update1/Zenpachi Zaraki.png',
     passive: {
-      type: 'berserker', maxStacks: 40, dmgPerStack: 0.06,
-      label: 'Sede de Batalha: cada kill aumenta dano permanentemente (+6% por kill, máx 40 stacks)'
+      type: 'berserker', maxStacks: 40, dmgPerStack: 0.04,
+      label: 'Sede de Batalha: cada kill aumenta dano permanentemente (+4% por kill, máx 40 stacks)'
     },
     base_stats: { damage: 230, range: 85, attack_speed: 0.68, type: 'single' },
     deploy_cost: 420, max_level: 50,
@@ -537,7 +537,7 @@ const CHARACTERS = {
     upgrades: [
       { name: 'Eyepatch Removido', desc: 'Vel ×1.5 | Dano ×1.3', speed_mult: 1.5, damage_mult: 1.3, cost: 600 },
       { name: 'Kenpachi Liberado', desc: 'Alcance ×1.3 | Dano ×1.4', range_mult: 1.3, damage_mult: 1.4, cost: 1000 },
-      { name: 'Bankai: Unnamed', desc: 'Dano ×2 | Tipo: cone | Stacks máx: 60', damage_mult: 2.0, type: 'cone', cost: 1800 }
+      { name: 'Bankai: Unnamed', desc: 'Dano ×2 | Tipo: cone | Stacks máx: 60 (+4%/stack)', damage_mult: 2.0, type: 'cone', cost: 1800 }
     ]
   },
 
@@ -550,7 +550,7 @@ const CHARACTERS = {
       type: 'bankai_pressure', mult: 1.55,
       label: 'Pressão do Bankai: inimigos no alcance de Ichigo recebem 1.55× de dano de todas as torres'
     },
-    base_stats: { damage: 450, range: 135, attack_speed: 0.75, type: 'single' },
+    base_stats: { damage: 640, range: 135, attack_speed: 0.75, type: 'single' },
     deploy_cost: 600, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 100, chain_mult: 0.72, chains: 2, label: 'Getsuga Expansivo: Getsuga encadeia 2 inimigos em sequência (72% dano)' },
@@ -651,7 +651,7 @@ const CHARACTERS = {
   nami_3: {
     id: 'nami_3', name: 'Nami', rarity: 3, series: 'onepiece', playable: true, xp_value: 1000, initials: 'NA',
     image: 'assets/towers/update1/Nami.png',
-    passive: { type: 'ladra', chance: 0.05, label: 'Gatuna: 5% de chance de gerar +1 Ouro ao atacar' },
+    passive: { type: 'slow_aura', slow_pct: 0.20, label: 'Clima-Tact: controla o clima ao redor, desacelerando inimigos próximos em 20%' },
     base_stats: { damage: 79, range: 90, attack_speed: 1.1, type: 'cone' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
@@ -702,7 +702,7 @@ const CHARACTERS = {
     id: 'sanji_4', name: 'Sanji', rarity: 4, series: 'onepiece', playable: true, xp_value: 3000, initials: 'SJ',
     image: 'assets/towers/update1/Sanji.png',
     passive: { type: 'status_on_hit', status: 'burn', dps: 30, duration: 3, label: 'Diable Jambe: Causa Burn' },
-    base_stats: { damage: 238, range: 65, attack_speed: 1.98, type: 'single_target' },
+    base_stats: { damage: 190, range: 65, attack_speed: 1.98, type: 'single_target' },
     deploy_cost: 250, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'burn', dps: 20, duration: 3, label: 'Diable Jambe: cada chute incendeia o alvo (20 DPS/3s)' },
@@ -778,7 +778,7 @@ const CHARACTERS = {
     id: 'luffy_5', name: 'Luffy (Gear 4)', rarity: 5, series: 'onepiece', playable: true, xp_value: 10000, initials: 'L4',
     image: 'assets/towers/update1/Luffy G4.png',
     passive: { type: 'silence_buffs', chance: 0.3, label: 'Haki: 30% chance no 1º hit de anular o buff inimigo' },
-    base_stats: { damage: 660, range: 100, attack_speed: 1.54, type: 'aoe' },
+    base_stats: { damage: 500, range: 100, attack_speed: 1.54, type: 'aoe' },
     deploy_cost: 650, max_level: 50,
     prestige_passives: {
       1: { type: 'battle_rage', per_enemy: 0.050, max_bonus: 1.0, label: 'Haki do Rei: Haki do Conquistador escala com inimigos (+5%/inimigo, máx 100%!)' },
@@ -817,7 +817,7 @@ const CHARACTERS = {
       { type: 'status_on_hit', status: 'sangramento', dps: 20, duration: 3, label: 'Marca da Maldição: Aplica DoT venenoso' },
       { type: 'edo_tensei_economy', label: 'Imortalidade: Vende por 100% do ouro investido' }
     ],
-    base_stats: { damage: 115, range: 120, attack_speed: 1.1, type: 'cone' },
+    base_stats: { damage: 200, range: 120, attack_speed: 1.1, type: 'cone' },
     deploy_cost: 450, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 85, chain_mult: 0.58, chains: 2, label: 'Serpente Multiplicada: cobras encadeiam 2 inimigos em sequência (58% dano)' },
@@ -836,7 +836,7 @@ const CHARACTERS = {
       { type: 'sharingan', label: 'Rinnegan: Ignora qualquer imunidade do inimigo (Bypass)' },
       { type: 'bansho_tenin', attacks_required: 4, push_dist: 35, label: 'Bansho Ten\'in: A cada 4 ataques, puxa os inimigos para trás' }
     ],
-    base_stats: { damage: 210, range: 150, attack_speed: 0.85, type: 'aoe' },
+    base_stats: { damage: 350, range: 150, attack_speed: 1.1, type: 'aoe' },
     deploy_cost: 800, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 110, chain_mult: 0.70, chains: 2, label: 'Gravitação: força gravitacional do Rinnegan encadeia 2 inimigos (70% dano)' },
@@ -880,7 +880,7 @@ const CHARACTERS = {
     passive: [
       { type: 'modo_bijuu_gyuki', cooldown: 20, duration: 3, damage_mult: 3.0, label: 'Modo Bijuu (Gyuki): a cada 20s transforma por 3s — paralisa todos os inimigos em tela por 1.5s e causa 3× dano base' }
     ],
-    base_stats: { damage: 130, range: 130, attack_speed: 1.1, type: 'scatter' },
+    base_stats: { damage: 250, range: 130, attack_speed: 1.1, type: 'scatter' },
     deploy_cost: 800, max_level: 50,
     prestige_passives: {
       1: { type: 'mark_on_nth_hit', n: 5, bonus: 0.30, duration: 3, label: 'Mestre do Enka: a cada 5ª espada que acerta, o inimigo fica Marcado (+30% dano por 3s)' },
@@ -961,7 +961,7 @@ const CHARACTERS = {
       type: 'arrow_rotation', freeze_dur: 3,
       label: 'Aljava Tática: cicla entre flechas Normal (×1.8), Explosiva (AOE), Gelo (3s), Perfurante (×3)'
     },
-    base_stats: { damage: 125, range: 132, attack_speed: 1.15, type: 'single_target' },
+    base_stats: { damage: 85, range: 132, attack_speed: 0.95, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'boss_slayer', bonus: 0.30, label: 'Olho de Falcão: +30% de dano contra minibosses e bosses' },
@@ -974,7 +974,7 @@ const CHARACTERS = {
       { name: 'Arsenal Avançado', desc: 'Gelo → 4s | Explosiva dano ×1.1', passive_override: { freeze_dur: 4 }, cost: 460 },
       { name: 'Olho de Falcão', desc: 'Alcance ×1.3 | Vel ×1.15', range_mult: 1.3, speed_mult: 1.15, cost: 620 },
       { name: 'Flechas de Vibranium', desc: 'Dano ×1.6 | Normal → ×2.2', damage_mult: 1.6, cost: 880 },
-      { name: 'Mestre dos Arcos', desc: 'Dano ×1.9 | Gelo → 5.5s | AOE +', damage_mult: 1.9, passive_override: { freeze_dur: 5.5 }, cost: 1300 }
+      { name: 'Mestre dos Arcos', desc: 'Dano ×1.5 | Gelo → 5.5s | AOE +', damage_mult: 1.5, passive_override: { freeze_dur: 5.5 }, cost: 1300 }
     ]
   },
 

@@ -1082,6 +1082,7 @@ const Game = (() => {
     const cx = Math.max(24, Math.min(CANVAS_W - 24, origin.x + Math.cos(angle) * r));
     const cy = Math.max(24, Math.min(CANVAS_H - 36, origin.y + Math.sin(angle) * r));
 
+    const cloneDamagePct = p.damage_pct != null ? p.damage_pct : 1.0;
     towers.push({
       slotId: null, charId: origin.charId,
       x: cx, y: cy,
@@ -1091,7 +1092,7 @@ const Game = (() => {
       disabled: false,
       attackTimer: Math.random() * (1 / getTowerStats(origin).attack_speed),
       statusEffect: origin.statusEffect, currentType: origin.currentType,
-      isClone: true, cloneTimer: cloneDuration
+      isClone: true, cloneTimer: cloneDuration, cloneDamagePct
     });
     UI.toast(`🌀 Clone de Naruto invocado! (${cloneDuration}s)`, 2000);
   }
@@ -1782,6 +1783,8 @@ const Game = (() => {
       stats.damage *= 1 + tower.prestige * 0.20;
       stats.range  *= 1 + tower.prestige * 0.06;
     }
+    if (tower.cloneDamagePct != null && tower.cloneDamagePct < 1)
+      stats.damage *= tower.cloneDamagePct;
     tower._statsCache = stats;
     return stats;
   }
