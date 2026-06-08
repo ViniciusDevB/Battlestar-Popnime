@@ -200,7 +200,7 @@ const UI = (() => {
           ? `<div style="color:#4ade80;font-weight:700;">✓ Obtida</div>`
           : `<div style="color:#fbbf24;font-weight:700;">1ª vez</div>`;
       } else if (drop.pity) {
-        chanceLabel = `<div style="color:#ffaa00;">${drop.chance * 100}% <span style="color:#a78bfa;font-size:9px;">(pity ${drop.pity})</span></div>`;
+        chanceLabel = `<div style="color:#ffaa00;">${drop.chance}% <span style="color:#a78bfa;font-size:9px;">(pity ${drop.pity})</span></div>`;
       } else {
         chanceLabel = `<div style="color:#ffaa00;">${drop.chance}%</div>`;
       }

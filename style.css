@@ -330,7 +330,7 @@ html,body{
   background: linear-gradient(160deg, rgba(60,45,15,0.9), rgba(35,25,10,0.95));
   border-color:rgba(255,200,70,.5);
 }
-.hab--evo:hover  {
+.hab--events {\n  background: linear-gradient(160deg, rgba(60,50,15,0.9), rgba(35,30,10,0.95));\n  border-color:rgba(255,215,0,.5);\n}\n.hab--events:hover {\n  border-color:var(--gold); background: linear-gradient(160deg, rgba(90,80,25,0.9), rgba(50,40,15,0.95));\n  box-shadow: 0 18px 36px rgba(255,215,0,0.3);\n}\n.hab--evo:hover  {
   border-color:var(--gold); background: linear-gradient(160deg, rgba(90,70,25,0.9), rgba(50,35,15,0.95));
   box-shadow: 0 18px 36px rgba(255,200,70,0.3);
 }
