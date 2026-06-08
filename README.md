@@ -58,6 +58,32 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 
 ## 📈 Histórico de Updates
 
+### 🔄 Update 2.5: Sistema Online *(Em desenvolvimento)*
+
+**Camada online assíncrona via Supabase — sem PvP/co-op, foco em comunidade:**
+
+- **Contas e Perfil**: registro e login com username/senha (email sintético interno). Barra de status online persistente no HUD.
+- **Leaderboard e Rankings**: envio de scores (modo infinito e fases), ranking global com paginação, destaque do rank do próprio jogador.
+- **Sistema de Trocas**: ofertas públicas assíncronas de personagens entre jogadores.
+  - Criação de ofertas com até 3 unidades (3★+), pedidos opcionais e mensagem.
+  - Bloqueio local da unidade durante a oferta (cadeado no inventário).
+  - Aceitação com picker por tipo de personagem pedido.
+  - Transferência atômica via função SQL `accept_trade` (sem race condition).
+  - Cancelamento com desbloqueio automático e reconciliação de estado.
+  - Expiração automática (7 dias) via cron job Supabase.
+- **Integridade**: HMAC do save + validação de plausibilidade bloqueiam scores e trocas de saves adulterados.
+- **Novos arquivos**: `js/online.js`, `js/ui-online.js`, `js/ui-leaderboard.js`, `js/ui-trades.js`, `js/integrity.js`, `data/online_config.js`.
+- **Banco de dados**: schema e migrations em `/supabase/`.
+
+**Correções do sistema de Trocas (fixes incluídos neste commit):**
+- Cancelamento de oferta não desbloqueava a unidade quando o cache de UIDs estava vazio — agora busca do banco como fallback.
+- Save remoto com `in_trade: true` podia sobrescrever o desbloqueio local em sincronizações futuras — agora o save é enviado ao remoto imediatamente após cancelar.
+- Reconciliação automática na aba "Minhas Ofertas": unidades travadas sem trade aberta associada são desbloqueadas automaticamente.
+- `startAccept` passava `wantedIds`/`offeredNames` por atributos HTML (encoding problemático) — agora lê do cache em memória.
+- **Migration necessária**: executar `supabase/migrate_trades_v2.sql` no SQL Editor do Supabase para migrar o schema de colunas singulares para arrays e corrigir o `CHECK` constraint de status.
+
+---
+
 ### ✅ Update 2: Invasão Secreta *(Lançado)*
 
 **Universo Marvel entra no Battlestar Popnime + Evento narrativo shinobi:**

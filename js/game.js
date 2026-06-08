@@ -12,6 +12,7 @@ const Game = (() => {
   // Game state
   let lives, gold, wave, totalWaves;
   let enemies, towers, projectiles, effects, tsunamis;
+  let _aliveEnemies = [];
   let waveActive, spawnQueue, betweenWaves, betweenTimer, waveElapsed;
   let _lastPlacedTower = null;
   let activeWavesCount = 1;
@@ -28,6 +29,7 @@ const Game = (() => {
   // Stats tracking per session
   let sessionDmg = 0, sessionKills = 0, sessionTowersPlaced = 0;
   let sessionMinibosses = 0, sessionBossKilled = false;
+  let _gameStartTime = 0;
 
   let screenShakeAmount = 0;
   let vizardOverlayAlpha = 0;
@@ -596,6 +598,7 @@ const Game = (() => {
     waveElapsed = 0;
     sessionDmg = 0; sessionKills = 0; sessionTowersPlaced = 0;
     sessionMinibosses = 0; sessionBossKilled = false;
+    _gameStartTime = performance.now();
     _gojoBuffedSet = new Set();
     infiniteSessionDrops = {};
     infiniteSessionGems  = 0;
@@ -648,6 +651,14 @@ const Game = (() => {
     // Spawn queue
     updateSpawn(dt);
     updateEnemiesLoop(dt);
+
+    // Rebuild alive enemies cache once per tick — tryAttack reads this instead of re-filtering enemies[]
+    _aliveEnemies.length = 0;
+    for (let i = 0; i < enemies.length; i++) {
+      const e = enemies[i];
+      if (!e.dead && !e.reached_end) _aliveEnemies.push(e);
+    }
+
     updateTowersLoop(dt);
     updateProjectiles(dt);
     
@@ -694,15 +705,15 @@ const Game = (() => {
       const pos = getPosOnPath(tsu.dist);
       tsu.x = pos.x; tsu.y = pos.y;
 
-      enemies.forEach(e => {
-        if (e.dead || e.reached_end) return;
+      for (let i = 0; i < _aliveEnemies.length; i++) {
+        const e = _aliveEnemies[i];
         if (!tsu.hitIds.has(e.uid) && dist2d(tsu.x, tsu.y, e.x, e.y) < 60) {
           tsu.hitIds.add(e.uid);
           const dmg = Math.min(e.hp, tsu.hp);
           tsu.hp -= dmg;
-          dealDamage({ charData: {}, rarity: 5 }, e, dmg); // dummy tower to deal damage
+          dealDamage({ charData: {}, rarity: 5 }, e, dmg);
         }
-      });
+      }
       // Add bubble effect trail
       if (Math.random() < 0.3) {
         addEffect({ type:'ring', x:tsu.x + (Math.random()*40-20), y:tsu.y + (Math.random()*40-20), maxR:20, color:'#e0f7fa', timer:0.3, maxTimer:0.3 });
@@ -769,19 +780,18 @@ const Game = (() => {
   }
 
   function triggerLightningStrike() {
-    const alive = enemies.filter(e => !e.dead && !e.reached_end);
-    if (alive.length === 0) return;
-    const target = alive[Math.floor(Math.random() * alive.length)];
+    if (_aliveEnemies.length === 0) return;
+    const target = _aliveEnemies[Math.floor(Math.random() * _aliveEnemies.length)];
     const strikeR = 80;
     const dmg = Math.round(800 + Math.random() * 400);
-    // Flash branco descendente + anel dourado
     addEffect({ type:'ring', x:target.x, y:target.y, maxR:strikeR, color:'#fde047', timer:0.5, maxTimer:0.5, r:4 });
     addEffect({ type:'ring', x:target.x, y:target.y, maxR:strikeR * 0.5, color:'#fafafa', timer:0.25, maxTimer:0.25, r:2 });
-    alive.forEach(e => {
+    for (let i = 0; i < _aliveEnemies.length; i++) {
+      const e = _aliveEnemies[i];
       if (dist2d(e.x, e.y, target.x, target.y) <= strikeR) {
         dealDamage({ _currentAttackType: 'aoe', charData: {} }, e, dmg);
       }
-    });
+    }
     UI.toast(`⚡ Raio Errante! ${dmg} dano em área!`, 2000);
   }
 
@@ -936,7 +946,14 @@ const Game = (() => {
         }
       }
     });
-    toRemove.forEach(e => { enemies = enemies.filter(x => x !== e); });
+    if (toRemove.length) {
+      const dead = new Set(toRemove);
+      let w = 0;
+      for (let i = 0; i < enemies.length; i++) {
+        if (!dead.has(enemies[i])) enemies[w++] = enemies[i];
+      }
+      enemies.length = w;
+    }
   }
 
   function updateTowersLoop(dt) {
@@ -1016,7 +1033,13 @@ const Game = (() => {
 
   function tryAttack(tower, stats) {
     const stormMult = (_sandStormActive && stage?.modifiers?.sandStorm) ? 0.6 : 1;
-    const inRange = enemies.filter(e => !e.dead && !e.reached_end && dist2d(tower.x, tower.y, e.x, e.y) <= stats.range * stormMult);
+    const rangeThreshold = stats.range * stormMult;
+    const tx = tower.x, ty = tower.y;
+    const inRange = [];
+    for (let i = 0; i < _aliveEnemies.length; i++) {
+      const e = _aliveEnemies[i];
+      if (dist2d(tx, ty, e.x, e.y) <= rangeThreshold) inRange.push(e);
+    }
     if (inRange.length === 0) return;
 
     // Passiva pré-ataque: pode modificar stats ou retornar null para pular
@@ -1182,37 +1205,42 @@ const Game = (() => {
   }
 
   function updateProjectiles(dt) {
-    projectiles = projectiles.filter(p => {
-      if (p.dead) return false;
-      if (p.target.dead || p.target.reached_end) { p.dead = true; return false; }
+    let w = 0;
+    for (let i = 0; i < projectiles.length; i++) {
+      const p = projectiles[i];
+      if (p.dead) continue;
+      if (p.target.dead || p.target.reached_end) continue;
       const dx = p.target.x - p.x, dy = p.target.y - p.y;
       const d = Math.sqrt(dx*dx + dy*dy);
       if (d < 10) {
         if (effectiveCanDamage(p.tower, p.target)) dealDamage(p.tower, p.target, p.damage);
         if (p.tower.statusEffect) applyStatus(p.target, p.tower.statusEffect.type, { duration: p.tower.statusEffect.duration });
-        p.dead = true;
-        return false;
+        continue;
       }
       p.angle = Math.atan2(dy, dx);
       const spd = p.speed * dt;
       p.x += (dx/d)*spd;
       p.y += (dy/d)*spd;
-      return true;
-    });
+      projectiles[w++] = p;
+    }
+    projectiles.length = w;
   }
 
   function updateEffects(dt) {
     if (screenShakeAmount > 0) screenShakeAmount = Math.max(0, screenShakeAmount - dt * 30);
     if (vizardOverlayAlpha > 0) vizardOverlayAlpha = Math.max(0, vizardOverlayAlpha - dt * 0.05);
 
-    effects = effects.filter(e => {
+    let w = 0;
+    for (let i = 0; i < effects.length; i++) {
+      const e = effects[i];
       e.timer -= dt;
       // Clamp radius to >= 0 to prevent ctx.arc errors with negative values
       if (e.type === 'ring')         e.r = Math.max(0, e.maxR * (1 - Math.max(0, e.timer) / (e.maxTimer || 0.35)));
       if (e.type === 'shockwave')    e.r = Math.max(0, e.maxR * (1 - Math.max(0, e.timer) / (e.maxTimer || 1.0)));
       if (e.type === 'hollow_burst') e.r = Math.max(0, e.maxR * (1 - Math.max(0, e.timer) / (e.maxTimer || 0.50)));
-      return e.timer > 0;
-    });
+      if (e.timer > 0) effects[w++] = e;
+    }
+    effects.length = w;
   }
 
   function activateShinraTensei() {
@@ -1285,6 +1313,7 @@ const Game = (() => {
         const best = Save.get().stats.melhor_onda_infinita || 0;
         if (wave > best) Save.setStat('melhor_onda_infinita', wave);
         Save.incStat('ondas_infinito', wave);
+        _submitScore('infinite');
       }
       Missions.check();
       UI.showPostBattle({
@@ -1381,8 +1410,39 @@ const Game = (() => {
       Save.addMaterial('ninja_generico_3');
     }
 
+    _submitScore('stage');
     Missions.check();
     UI.showPostBattle({ victory: true, gems, materials: dropsAcheived, bonusGems: firstTime ? Math.max(50, bonusGems) : 0 });
+  }
+
+  function _submitScore(mode) {
+    if (typeof Online === 'undefined' || !Online.isLoggedIn()) return;
+    const duration_s  = Math.max(1, Math.round((performance.now() - _gameStartTime) / 1000));
+    const units_used  = [...new Set(towers.filter(t => !t.isClone).map(t => t.charId).filter(Boolean))];
+    const diffMults   = { normal: 1, dificil: 1.5, lendario: 2.2 };
+    const dm          = diffMults[difficulty] || 1;
+
+    if (mode === 'infinite') {
+      Online.postScore({
+        mode:       'infinite',
+        score:      wave,
+        wave,
+        damage:     Math.round(sessionDmg),
+        duration_s,
+        units_used,
+      });
+    } else {
+      Online.postScore({
+        mode:       'stage',
+        stage_id:   stage?.id || null,
+        difficulty: difficulty || 'normal',
+        score:      Math.round((1_000_000 / duration_s) * dm),
+        wave,
+        damage:     Math.round(sessionDmg),
+        duration_s,
+        units_used,
+      });
+    }
   }
 
   // Tower management

@@ -37,6 +37,10 @@ const CheatMode = (() => {
       return;
     }
 
+    // Marca sessão como cheat — bloqueia leaderboard
+    Save.get()._cheatMode = true;
+    Save.save();
+
     // Unlock all playable characters
     getPlayable().forEach(char => {
       if (Save.getUnitQty(char.id) === 0) Save.addUnit(char.id, 1, 0);
@@ -76,6 +80,9 @@ window.addEventListener('DOMContentLoaded', () => {
   // Initialize save system
   Save.load();
 
+  // Initialize online layer
+  Online.init();
+
   // Seed starter inventory if new player
   const d = Save.get();
   if (!d._initialized) {
@@ -95,11 +102,37 @@ window.addEventListener('DOMContentLoaded', () => {
   try {
     Missions.init();
     Game.init();
-    
+
     // Start at hub
     UI.showHub();
     UI.updateCurrencyDisplay();
     UI.updateBannerDisplay(initBanner);
+
+    if (Save.wasCorrupted()) {
+      UI.toast('⚠️ Save corrompido detectado — progresso reiniciado automaticamente.', 8000);
+    }
+
+    // Integrity guards — snapshot das funções críticas + monitoramento de DevTools
+    Integrity.FunctionGuard.snapshot({
+      'Save.addUnit':     Save.addUnit,
+      'Save.addGems':     Save.addGems,
+      'Save.spendGems':   Save.spendGems,
+      'Save.addTickets':  Save.addTickets,
+      'Save.addMaterial': Save.addMaterial,
+    });
+    Integrity.DevToolsGuard.startMonitoring();
+    setInterval(() => {
+      const patched = Integrity.FunctionGuard.audit({
+        'Save.addUnit':     Save.addUnit,
+        'Save.addGems':     Save.addGems,
+        'Save.spendGems':   Save.spendGems,
+        'Save.addTickets':  Save.addTickets,
+        'Save.addMaterial': Save.addMaterial,
+      });
+      if (patched.length > 0) {
+        Integrity.recordViolation('function_patched', { fns: patched });
+      }
+    }, 30_000);
   } catch (err) {
     document.body.innerHTML = `<div style="color:red; background:black; padding:20px; font-family:monospace; font-size:20px; z-index:999999; position:absolute; top:0; left:0; right:0; bottom:0;">
       <h2>CRITICAL ERROR</h2>

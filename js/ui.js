@@ -596,6 +596,7 @@ const UI = (() => {
     showPreBattle, showGacha, showInventory, showGame, showPostBattle, showEvents,
     setDifficulty, updateCurrencyDisplay, updateBannerDisplay, updateBannerTimer,
     confirmReset, closeUpgradePanel, toast,
-    getSelectedTeam, getSelectedStage, getSelectedDifficulty
+    getSelectedTeam, getSelectedStage, getSelectedDifficulty,
+    showOnlineModal: () => typeof OnlineUI !== 'undefined' && OnlineUI.show()
   };
 })();

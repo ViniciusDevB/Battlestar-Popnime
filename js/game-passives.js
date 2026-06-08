@@ -34,7 +34,7 @@ const CHAR_COLORS = {
 
 // Todos os handlers de passiva. Acessa estado do jogo via _passiveCtx.
 // _passiveCtx é populado em game.js após a inicialização do módulo Game.
-var PASSIVE_ENTRIES = {
+const PASSIVE_ENTRIES = {
 
   // Template: passiva baseada em timer periódico que invoca aliado/projétil.
   tsunami: {

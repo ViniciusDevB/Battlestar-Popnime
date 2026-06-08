@@ -157,12 +157,13 @@ const Inventory = (() => {
         if (!_matchesFilters(char)) return;
         ownedIds.add(unit.id);
 
+        const locked = !!unit.in_trade;
         const card = document.createElement('div');
-        card.className = `inv-card rarity-${char.rarity}`;
+        card.className = `inv-card rarity-${char.rarity}${locked ? ' inv-card--in-trade' : ''}`;
         card.innerHTML = `
           <div class="inv-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
           <div class="inv-name">${char.name}</div>
-          <div class="inv-meta">${RARITY_LABELS[char.rarity]} Lv${unit.nivel}</div>`;
+          <div class="inv-meta">${RARITY_LABELS[char.rarity]} Lv${unit.nivel}${locked ? ' · Em troca' : ''}</div>`;
         card.addEventListener('click', () => openDetail(unit.uid));
         grid.appendChild(card);
       });

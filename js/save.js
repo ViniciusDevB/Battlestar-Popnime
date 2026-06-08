@@ -37,12 +37,22 @@ const Save = (() => {
   }
 
   let _data = null;
+  let _corruptedSave = false;
+  let _saveFailed = false;
 
   function load() {
+    _corruptedSave = false;
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) {
-        _data = Object.assign(defaultSave(), JSON.parse(raw));
+        try {
+          _data = Object.assign(defaultSave(), JSON.parse(raw));
+        } catch(parseErr) {
+          _corruptedSave = true;
+          _data = defaultSave();
+          try { localStorage.removeItem(KEY); } catch {}
+          return _data;
+        }
         _data.inventario = _data.inventario || { unidades:[], materiais:[] };
         _data.stats = Object.assign(defaultSave().stats, _data.stats || {});
 
@@ -64,6 +74,23 @@ const Save = (() => {
           }
         });
         _data.inventario.unidades = newUnidades;
+
+        // Integrity: HMAC async (fire-and-forget) + plausibility sync
+        if (typeof Integrity !== 'undefined') {
+          Integrity.verify(raw).then(verdict => {
+            if (verdict === 'tampered') {
+              Integrity.recordViolation('hmac_mismatch', {});
+              if (typeof UI !== 'undefined' && UI.toast) {
+                UI.toast('⚠️ Save modificado detectado — leaderboard bloqueado nesta sessão.', 8000);
+              }
+            } else if (verdict === 'no_seal') {
+              Integrity.seal(raw); // gera HMAC para saves pré-2.5
+            }
+          }).catch(() => {});
+
+          const plViolations = Integrity.validateSavePlausibility(_data);
+          plViolations.forEach(v => Integrity.recordViolation(v, {}));
+        }
       } else {
         _data = defaultSave();
       }
@@ -75,10 +102,29 @@ const Save = (() => {
 
   function save() {
     if (!_data) return;
+    _saveFailed = false;
+    const json = JSON.stringify(_data);
     try {
-      localStorage.setItem(KEY, JSON.stringify(_data));
-    } catch(e) { console.warn('Save failed:', e); }
+      localStorage.setItem(KEY, json);
+      if (typeof Integrity !== 'undefined') {
+        Integrity.seal(json).catch(() => {});
+      }
+    } catch(e) {
+      _saveFailed = true;
+      console.warn('Save failed:', e);
+      if (typeof UI !== 'undefined' && UI.toast) {
+        UI.toast('⚠️ Falha ao salvar! Armazenamento cheio — limpe dados do navegador.', 6000);
+      }
+    }
   }
+
+  function _setData(d) {
+    _data = d;
+    save();
+  }
+
+  function wasCorrupted() { return _corruptedSave; }
+  function didSaveFail()  { return _saveFailed; }
 
   function get() { return _data || load(); }
 
@@ -246,6 +292,26 @@ const Save = (() => {
     return true;
   }
 
+  // ── Trocas — bloqueio de unidades em oferta ──────────────────────────────
+  function lockUnit(uid) {
+    const d = get();
+    const u = d.inventario.unidades.find(x => x.uid === uid);
+    if (u) { u.in_trade = true; save(); return true; }
+    return false;
+  }
+
+  function unlockUnit(uid) {
+    const d = get();
+    const u = d.inventario.unidades.find(x => x.uid === uid);
+    if (u) { delete u.in_trade; save(); return true; }
+    return false;
+  }
+
+  function isUnitLocked(uid) {
+    const u = getUnitByUid(uid);
+    return !!(u?.in_trade);
+  }
+
   // ── Auto-Place — 3 slots por fase ─────────────────────────────────────────
   function saveSetup(stageId, slot, placements) {
     const key = `astd_setup_${stageId}_${slot}`;
@@ -260,10 +326,13 @@ const Save = (() => {
     } catch { return null; }
   }
 
-  return { load, save, get, reset, addUnit, addMaterial, removeUnit, removeUnitByUid,
+  return { load, save, get, reset, _setData,
+           addUnit, addMaterial, removeUnit, removeUnitByUid,
            removeMaterial, getUnitData, getBestUnitData, getUnitByUid, getMaterialQty, getUnitQty,
            addGems, spendGems, addTickets, spendTickets, incStat, setStat,
            markStageComplete, isStageComplete, getTeam, setTeam,
            getPrestige, canPrestige, doPrestige,
-           saveSetup, loadSetup };
+           lockUnit, unlockUnit, isUnitLocked,
+           saveSetup, loadSetup,
+           wasCorrupted, didSaveFail };
 })();
