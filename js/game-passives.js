@@ -86,7 +86,7 @@ const PASSIVE_ENTRIES = {
       const slowPct = _passiveCtx.getPassiveValue(tower, 'slow_pct', p.slow_pct);
       _passiveCtx.enemies.forEach(e => {
         if (e.dead || e.reached_end) return;
-        if (_passiveCtx.dist2d(tower.x, tower.y, e.x, e.y) <= stats.range)
+        if (_passiveCtx.distSq(tower.x, tower.y, e.x, e.y) <= stats.range * stats.range)
           applyStatus(e, 'freeze', { slow_pct: slowPct, duration: 0.2 });
       });
     }
@@ -152,7 +152,7 @@ const PASSIVE_ENTRIES = {
   damage_aura: {
     isAura: true,
     auraEffect(auraTower, p, attackingTower, dmg) {
-      if (_passiveCtx.dist2d(auraTower.x, auraTower.y, attackingTower.x, attackingTower.y) <= _passiveCtx.getTowerStats(auraTower).range)
+      if (_passiveCtx.distSq(auraTower.x, auraTower.y, attackingTower.x, attackingTower.y) <= _passiveCtx.getTowerStats(auraTower).range ** 2)
         return dmg * (1 + _passiveCtx.getPassiveValue(auraTower, 'bonus', p.bonus));
       return dmg;
     }
@@ -273,7 +273,7 @@ const PASSIVE_ENTRIES = {
       if (tower.isClone) return;
       let killGold = 0;
       for (let i = 0; i < tower.upgradeLevel; i++) killGold = tower.charData.upgrades[i]?.kill_gold || killGold;
-      if (killGold > 0 && _passiveCtx.dist2d(tower.x, tower.y, deadEnemy.x, deadEnemy.y) <= _passiveCtx.getTowerStats(tower).range) {
+      if (killGold > 0 && _passiveCtx.distSq(tower.x, tower.y, deadEnemy.x, deadEnemy.y) <= _passiveCtx.getTowerStats(tower).range ** 2) {
         _passiveCtx.gold += killGold; _passiveCtx.updateHUD();
       }
     }
@@ -325,7 +325,7 @@ const PASSIVE_ENTRIES = {
       const radius = p.radius || 145;
       _passiveCtx.towers.forEach(t => {
         if (t === tower) return;
-        if (_passiveCtx.dist2d(t.x, t.y, tower.x, tower.y) <= radius && (t.miniStunTimer || 0) <= 0) {
+        if (_passiveCtx.distSq(t.x, t.y, tower.x, tower.y) <= radius * radius && (t.miniStunTimer || 0) <= 0) {
           t.stunCooldown = Math.max(t.stunCooldown || 0, 8);
         }
       });
@@ -338,7 +338,7 @@ const PASSIVE_ENTRIES = {
       const r    = p.splashRadius || 95;
       const dmg  = _passiveCtx.getTowerStats(tower).damage * (p.splashMult || 1.3);
       _passiveCtx.enemies.forEach(e => {
-        if (!e.dead && !e.reached_end && e !== enemy && _passiveCtx.dist2d(e.x, e.y, enemy.x, enemy.y) <= r) {
+        if (!e.dead && !e.reached_end && e !== enemy && _passiveCtx.distSq(e.x, e.y, enemy.x, enemy.y) <= r * r) {
           _passiveCtx.dealDamage(tower, e, dmg);
         }
       });
@@ -370,7 +370,7 @@ const PASSIVE_ENTRIES = {
     auraEffect(auraTower, p, attackingTower, dmg, enemy) {
       if (!enemy || auraTower.disabled) return dmg;
       const range = _passiveCtx.getTowerStats(auraTower).range;
-      if (_passiveCtx.dist2d(enemy.x, enemy.y, auraTower.x, auraTower.y) <= range) {
+      if (_passiveCtx.distSq(enemy.x, enemy.y, auraTower.x, auraTower.y) <= range * range) {
         return dmg * (p.mult || 1.55);
       }
       return dmg;
@@ -491,7 +491,7 @@ const PASSIVE_ENTRIES = {
       let last = hitEnemies[0];
       for (let i = 0; i < max; i++) {
         const next = _passiveCtx.enemies.find(e => !e.dead && !e.reached_end && !hit.has(e.uid)
-          && _passiveCtx.dist2d(e.x, e.y, last.x, last.y) <= r && _passiveCtx.effectiveCanDamage(tower, e));
+          && _passiveCtx.distSq(e.x, e.y, last.x, last.y) <= r * r && _passiveCtx.effectiveCanDamage(tower, e));
         if (!next) break;
         hit.add(next.uid);
         _passiveCtx.dealDamage(tower, next, dmg);
@@ -509,7 +509,7 @@ const PASSIVE_ENTRIES = {
         const r = p.splash_r || 60;
         _passiveCtx.enemies.forEach(e => {
           if (e !== enemy && !e.dead && !e.reached_end
-              && _passiveCtx.dist2d(e.x, e.y, enemy.x, enemy.y) <= r && _passiveCtx.effectiveCanDamage(tower, e)) {
+              && _passiveCtx.distSq(e.x, e.y, enemy.x, enemy.y) <= r * r && _passiveCtx.effectiveCanDamage(tower, e)) {
             _passiveCtx.dealDamage(tower, e, dmg * (p.splash_mult || 0.45));
           }
         });
@@ -550,7 +550,7 @@ const PASSIVE_ENTRIES = {
         const range = _passiveCtx.getTowerStats(tower).range;
         const pdmg  = stats.damage * (p.phantom_mult || 1.5);
         _passiveCtx.enemies.forEach(e => {
-          if (!e.dead && !e.reached_end && _passiveCtx.dist2d(e.x, e.y, tower.x, tower.y) <= range
+          if (!e.dead && !e.reached_end && _passiveCtx.distSq(e.x, e.y, tower.x, tower.y) <= range * range
               && _passiveCtx.effectiveCanDamage(tower, e)) {
             _passiveCtx.dealDamage(tower, e, pdmg);
           }
@@ -603,7 +603,7 @@ const PASSIVE_ENTRIES = {
   gold_detector: {
     onAnyKill(tower, p, deadEnemy) {
       if (tower.isClone || tower.disabled) return;
-      if (_passiveCtx.dist2d(tower.x, tower.y, deadEnemy.x, deadEnemy.y) <= _passiveCtx.getTowerStats(tower).range) {
+      if (_passiveCtx.distSq(tower.x, tower.y, deadEnemy.x, deadEnemy.y) <= _passiveCtx.getTowerStats(tower).range ** 2) {
         _passiveCtx.gold += p.bonus || 8;
         _passiveCtx.updateHUD();
       }
@@ -653,7 +653,7 @@ const PASSIVE_ENTRIES = {
         const dmg   = stats.damage * (p.dmg_mult || 0.35);
         const range = stats.range   * 0.85;
         _passiveCtx.enemies.forEach(e => {
-          if (!e.dead && !e.reached_end && _passiveCtx.dist2d(e.x, e.y, tower.x, tower.y) <= range) {
+          if (!e.dead && !e.reached_end && _passiveCtx.distSq(e.x, e.y, tower.x, tower.y) <= range * range) {
             _passiveCtx.dealDamage(tower, e, dmg);
           }
         });
@@ -695,7 +695,7 @@ const PASSIVE_ENTRIES = {
       const dur    = _passiveCtx.getPassiveValue(tower, 'duration',   p.duration   || 2.5);
       // Aplica slow (freeze) no alvo e em inimigos próximos ao ponto de impacto
       _passiveCtx.enemies.forEach(e => {
-        if (!e.dead && !e.reached_end && _passiveCtx.dist2d(e.x, e.y, target.x, target.y) <= webR)
+        if (!e.dead && !e.reached_end && _passiveCtx.distSq(e.x, e.y, target.x, target.y) <= webR * webR)
           applyStatus(e, 'freeze', { slow_pct: 0.6, duration: dur });
       });
       _passiveCtx.addEffect({ type:'ring', x:target.x, y:target.y, maxR:webR, color:'#cbd5e1', timer:0.4, maxTimer:0.4, r:0 });
@@ -710,7 +710,7 @@ const PASSIVE_ENTRIES = {
       const bonus  = _passiveCtx.getPassiveValue(tower, 'bonus',    p.bonus    || 0.25);
       let marked = 0;
       _passiveCtx.enemies.forEach(e => {
-        if (!e.dead && !e.reached_end && _passiveCtx.dist2d(e.x, e.y, enemy.x, enemy.y) <= range) {
+        if (!e.dead && !e.reached_end && _passiveCtx.distSq(e.x, e.y, enemy.x, enemy.y) <= range * range) {
           e.crossMarked      = true;
           e.crossMarkTimer   = dur;
           e.crossMarkBonus   = bonus;
@@ -762,8 +762,8 @@ const PASSIVE_ENTRIES = {
       const already = new Set([primary]);
       const nearby = _passiveCtx.enemies
         .filter(e => !e.dead && !e.reached_end && !already.has(e) &&
-                     _passiveCtx.dist2d(e.x, e.y, primary.x, primary.y) <= radius)
-        .sort((a,b) => _passiveCtx.dist2d(a.x,a.y,primary.x,primary.y) - _passiveCtx.dist2d(b.x,b.y,primary.x,primary.y))
+                     _passiveCtx.distSq(e.x, e.y, primary.x, primary.y) <= radius * radius)
+        .sort((a,b) => _passiveCtx.distSq(a.x,a.y,primary.x,primary.y) - _passiveCtx.distSq(b.x,b.y,primary.x,primary.y))
         .slice(0, bounces);
       nearby.forEach(e => {
         _passiveCtx.dealDamage(tower, e, stats.damage * mult);
@@ -785,8 +785,8 @@ const PASSIVE_ENTRIES = {
       for (let i = 0; i < chains; i++) {
         const next = _passiveCtx.enemies
           .filter(e => !e.dead && !e.reached_end && !chained.includes(e) &&
-                       _passiveCtx.dist2d(e.x,e.y,current.x,current.y) <= radius)
-          .sort((a,b) => _passiveCtx.dist2d(a.x,a.y,current.x,current.y) - _passiveCtx.dist2d(b.x,b.y,current.x,current.y))[0];
+                       _passiveCtx.distSq(e.x,e.y,current.x,current.y) <= radius * radius)
+          .sort((a,b) => _passiveCtx.distSq(a.x,a.y,current.x,current.y) - _passiveCtx.distSq(b.x,b.y,current.x,current.y))[0];
         if (!next) break;
         _passiveCtx.dealDamage(tower, next, stats.damage * mult);
         _passiveCtx.addEffect({ type:'line', x:current.x, y:current.y, tx:next.x, ty:next.y, color:'#fbbf24', timer:0.22, maxTimer:0.22 });
@@ -807,7 +807,7 @@ const PASSIVE_ENTRIES = {
       if (tower.isClone) return;
       const stats    = _passiveCtx.getTowerStats(tower);
       const inRange  = _passiveCtx.enemies.filter(e => !e.dead && !e.reached_end &&
-                       _passiveCtx.dist2d(tower.x,tower.y,e.x,e.y) <= stats.range);
+                       _passiveCtx.distSq(tower.x,tower.y,e.x,e.y) <= stats.range * stats.range);
       tower.rageStacks = inRange.length;
       if (inRange.length === 0) {
         tower._rageFadeTimer = (tower._rageFadeTimer || 0) - dt;
@@ -868,7 +868,7 @@ const PASSIVE_ENTRIES = {
       const stats = _passiveCtx.getTowerStats(tower);
       let hits = 0;
       _passiveCtx.enemies.forEach(e => {
-        if (!e.dead && !e.reached_end && _passiveCtx.dist2d(e.x,e.y,enemy.x,enemy.y) <= radius) {
+        if (!e.dead && !e.reached_end && _passiveCtx.distSq(e.x,e.y,enemy.x,enemy.y) <= radius * radius) {
           _passiveCtx.dealDamage(tower, e, stats.damage * mult);
           hits++;
         }

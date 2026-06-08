@@ -151,6 +151,7 @@ const Game = (() => {
     _passiveCtx.effectiveCanDamage = effectiveCanDamage;
     _passiveCtx.updateHUD          = updateHUD;
     _passiveCtx.dist2d             = dist2d;
+    _passiveCtx.distSq             = distSq;
     _passiveCtx.restoreLife        = (n = 1) => { lives = Math.min(lives + n, stage?.base_hp || lives + n); updateHUD(); };
     Object.defineProperty(_passiveCtx, 'waveElapsed', { get: () => waveElapsed, configurable: true });
   })();
@@ -333,7 +334,7 @@ const Game = (() => {
     pierce: {
       execute(tower, stats, inRange) {
         const count = stats.pierce_count || 3;
-        const sorted = [...inRange].sort((a, b) => dist2d(tower.x, tower.y, a.x, a.y) - dist2d(tower.x, tower.y, b.x, b.y));
+        const sorted = [...inRange].sort((a, b) => distSq(tower.x, tower.y, a.x, a.y) - distSq(tower.x, tower.y, b.x, b.y));
         const targets = sorted.slice(0, count).filter(e => effectiveCanDamage(tower, e));
         targets.forEach(e => dealDamage(tower, e, stats.damage));
         return targets;
@@ -707,7 +708,7 @@ const Game = (() => {
 
       for (let i = 0; i < _aliveEnemies.length; i++) {
         const e = _aliveEnemies[i];
-        if (!tsu.hitIds.has(e.uid) && dist2d(tsu.x, tsu.y, e.x, e.y) < 60) {
+        if (!tsu.hitIds.has(e.uid) && distSq(tsu.x, tsu.y, e.x, e.y) < 3600) {
           tsu.hitIds.add(e.uid);
           const dmg = Math.min(e.hp, tsu.hp);
           tsu.hp -= dmg;
@@ -746,7 +747,7 @@ const Game = (() => {
     targets.forEach(pt => {
       addEffect({ type: 'meteor_strike', x: pt.x, y: pt.y, maxR: 90, color: '#f56565', timer: 1.0, maxTimer: 1.0, r: 0 });
       towers.forEach(t => {
-        if (dist2d(t.x, t.y, pt.x, pt.y) <= 90 && (t.stunCooldown || 0) <= 0) {
+        if (distSq(t.x, t.y, pt.x, pt.y) <= 8100 && (t.stunCooldown || 0) <= 0) {
           const stun = 1 + Math.random() * 4;
           t.miniStunTimer = Math.max((t.miniStunTimer || 0), stun);
           t.stunCooldown = stun + 5;
@@ -788,7 +789,7 @@ const Game = (() => {
     addEffect({ type:'ring', x:target.x, y:target.y, maxR:strikeR * 0.5, color:'#fafafa', timer:0.25, maxTimer:0.25, r:2 });
     for (let i = 0; i < _aliveEnemies.length; i++) {
       const e = _aliveEnemies[i];
-      if (dist2d(e.x, e.y, target.x, target.y) <= strikeR) {
+      if (distSq(e.x, e.y, target.x, target.y) <= strikeR * strikeR) {
         dealDamage({ _currentAttackType: 'aoe', charData: {} }, e, dmg);
       }
     }
@@ -1021,7 +1022,7 @@ const Game = (() => {
       const gp = gt.charData?.passive;
       if (gp?.type !== 'damage_aura' || gt.disabled) return;
       const gr = getTowerStats(gt).range;
-      towers.forEach(t => { if (t !== gt && dist2d(gt.x, gt.y, t.x, t.y) <= gr) _gojoBuffedSet.add(t); });
+      towers.forEach(t => { if (t !== gt && distSq(gt.x, gt.y, t.x, t.y) <= gr * gr) _gojoBuffedSet.add(t); });
     });
   }
 
@@ -1038,7 +1039,7 @@ const Game = (() => {
     const inRange = [];
     for (let i = 0; i < _aliveEnemies.length; i++) {
       const e = _aliveEnemies[i];
-      if (dist2d(tx, ty, e.x, e.y) <= rangeThreshold) inRange.push(e);
+      if (distSq(tx, ty, e.x, e.y) <= rangeThreshold * rangeThreshold) inRange.push(e);
     }
     if (inRange.length === 0) return;
 
@@ -1480,7 +1481,7 @@ const Game = (() => {
     // Check if clicking existing tower
     for (let i = 0; i < towers.length; i++) {
       const t = towers[i];
-      if (dist2d(cx, cy, t.x, t.y) < 30) {
+      if (distSq(cx, cy, t.x, t.y) < 900) {
         selectTower(i);
         return;
       }
@@ -3020,6 +3021,7 @@ const Game = (() => {
 
   function addEffect(ef) { effects.push(ef); }
   function dist2d(x1,y1,x2,y2) { return Math.sqrt((x2-x1)**2+(y2-y1)**2); }
+  function distSq(x1,y1,x2,y2) { const dx=x2-x1, dy=y2-y1; return dx*dx+dy*dy; }
 
   function distToSegment(px, py, x1, y1, x2, y2) {
     const l2 = (x2-x1)**2 + (y2-y1)**2;
@@ -3042,11 +3044,11 @@ const Game = (() => {
     const zones = stage?.modifiers?.blockZones;
     if (zones && Array.isArray(zones)) {
       for (const z of zones) {
-        if (dist2d(x, y, z.x, z.y) < z.r) return false;
+        if (distSq(x, y, z.x, z.y) < z.r * z.r) return false;
       }
     }
     for (const t of towers) {
-      if (dist2d(x, y, t.x, t.y) < 30) return false;
+      if (distSq(x, y, t.x, t.y) < 900) return false;
     }
     return true;
   }

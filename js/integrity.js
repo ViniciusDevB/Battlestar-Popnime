@@ -45,6 +45,12 @@ const Integrity = (() => {
     }
   }
 
+  // Remove o HMAC atual antes de um novo seal assíncrono, evitando falso 'tampered'
+  // se o browser fechar entre o localStorage.setItem do save e a conclusão do seal.
+  function invalidate() {
+    try { localStorage.removeItem(HMAC_KEY); } catch {}
+  }
+
   // Retorna 'ok' | 'no_seal' | 'tampered'
   async function verify(saveJson) {
     try {
@@ -190,7 +196,7 @@ const Integrity = (() => {
   // ── Public API ────────────────────────────────────────────────────────────
 
   return {
-    seal, verify,
+    seal, invalidate, verify,
     validateSavePlausibility,
     auditGameState,
     recordViolation,

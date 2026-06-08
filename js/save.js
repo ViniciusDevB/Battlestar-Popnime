@@ -107,6 +107,7 @@ const Save = (() => {
     try {
       localStorage.setItem(KEY, json);
       if (typeof Integrity !== 'undefined') {
+        Integrity.invalidate();
         Integrity.seal(json).catch(() => {});
       }
     } catch(e) {
