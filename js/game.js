@@ -538,6 +538,7 @@ const Game = (() => {
   }
 
   function startGame() {
+    renderWavePreview();
     resizeCanvas(); // Ensure canvas matches container before game starts
     const stageId = UI.getSelectedStage();
     const teamIds = UI.getSelectedTeam();
