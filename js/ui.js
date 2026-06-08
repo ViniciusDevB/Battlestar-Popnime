@@ -544,11 +544,20 @@ const UI = (() => {
   }
 
   function confirmReset() {
-    if (window.confirm('⚠️ Resetar todo o progresso?\n\nEsta ação apaga saves, unidades e gemas. Não pode ser desfeita.')) {
+    const isOnline = typeof Online !== 'undefined' && Online.isLoggedIn();
+    const msg = isOnline
+      ? '⚠️ Resetar todo o progresso?\n\nIsso irá apagar saves, unidades e gemas locais E remover seu save do servidor (você será deslogado).\n\nNão pode ser desfeita.'
+      : '⚠️ Resetar todo o progresso?\n\nEsta ação apaga saves, unidades e gemas. Não pode ser desfeita.';
+
+    if (!window.confirm(msg)) return;
+
+    async function _doReset() {
+      if (isOnline) await Online.resetAccount();
       Save.reset();
       try { localStorage.removeItem('astd_banner_v2'); } catch(e) {}
       window.location.reload();
     }
+    _doReset();
   }
 
   function updateBannerTimer() {

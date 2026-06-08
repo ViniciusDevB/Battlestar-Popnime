@@ -83,20 +83,18 @@ window.addEventListener('DOMContentLoaded', () => {
   // Initialize online layer
   Online.init();
 
-  // Seed starter inventory if new player
+  // Initialize banner before new-player seed so starters match current banner
+  const initBanner = BannerSystem.init();
+
+  // Seed starter inventory if new player — grants the 3★ units from the active banner
   const d = Save.get();
   if (!d._initialized) {
-    Save.addUnit('naruto_shippuden', 1, 0);
-    Save.addUnit('ichigo_base', 1, 0);
-    Save.addUnit('goku_base', 1, 0);
+    initBanner.star3.forEach(id => Save.addUnit(id, 1, 0));
     Save.addMaterial('ninja_generico_1', 5);
     Save.addMaterial('ninja_generico_2', 2);
     d._initialized = true;
     Save.save();
   }
-
-  // Initialize banner (must run before Gacha so pool is set)
-  const initBanner = BannerSystem.init();
 
   // Initialize systems
   try {

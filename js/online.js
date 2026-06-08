@@ -128,6 +128,16 @@ const Online = (() => {
     _showOnlineStatus(false);
   }
 
+  async function resetAccount() {
+    if (!_ready || !_session || !_profile) return;
+    // Delete the player's save row so next login starts fresh
+    await _client.from('saves').delete().eq('player_id', _profile.id);
+    await _client.auth.signOut();
+    _session = null;
+    _profile = null;
+    _showOnlineStatus(false);
+  }
+
   async function _loadProfile() {
     if (!_session) return null;
     const { data, error } = await _client
@@ -514,7 +524,7 @@ const Online = (() => {
   return {
     init, isReady, isLoggedIn, getProfile, getSession,
     waitForProfile, refreshProfile,
-    register, login, logout,
+    register, login, logout, resetAccount,
     syncSave,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,
