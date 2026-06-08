@@ -205,12 +205,20 @@ const Game = (() => {
   // execute(tower, stats, inRange) → array de inimigos atingidos
   // effect(tower, stats, hitEnemies) → efeito visual (sem retorno)
   // ─────────────────────────────────────────────────────────────────────────
+  // Seleciona alvo: normalmente o mais avançado no caminho; se invertedTargeting,
+  // o mais atrasado (Ebony Maw mechanic).
+  function pickTarget(tower, candidates) {
+    if (tower.invertedTargeting)
+      return candidates.reduce((b, e) => e.dist < b.dist ? e : b, candidates[0]);
+    return candidates.reduce((b, e) => e.dist > b.dist ? e : b, candidates[0]);
+  }
+
   const ATTACK_TYPE_HANDLERS = {
 
     // Template: ataque que dispara projétil contra o inimigo mais avançado.
     single_target: {
       execute(tower, stats, inRange) {
-        const target = inRange.reduce((best, e) => e.dist > best.dist ? e : best, inRange[0]);
+        const target = pickTarget(tower, inRange);
         if (!effectiveCanDamage(tower, target)) return [];
         spawnProjectile(tower, target, stats.damage, 'single');
         return [target];
@@ -221,7 +229,7 @@ const Game = (() => {
     // Template: ataque em arco de 90° centrado no inimigo mais avançado.
     cone: {
       execute(tower, stats, inRange) {
-        const target = inRange.reduce((best, e) => e.dist > best.dist ? e : best, inRange[0]);
+        const target = pickTarget(tower, inRange);
         const dx = target.x - tower.x, dy = target.y - tower.y;
         const len = Math.sqrt(dx*dx + dy*dy);
         if (len === 0) return [];
@@ -250,7 +258,7 @@ const Game = (() => {
     // Template: ataque linear que acerta todos no corredor à frente.
     linha: {
       execute(tower, stats, inRange) {
-        const target = inRange.reduce((best, e) => e.dist > best.dist ? e : best, inRange[0]);
+        const target = pickTarget(tower, inRange);
         const dx = target.x - tower.x, dy = target.y - tower.y;
         const len = Math.sqrt(dx*dx + dy*dy);
         if (len === 0) return [];
@@ -412,9 +420,9 @@ const Game = (() => {
       ['agente_ambu','op_pirata_veterano','hollow_pequeno','hollow_grande','boa_constritora'],
       ['op_homem_peixe','hollow_mascara','arrancar','caminho_animal','ninja_chuva'],
       ['caminho_humano','op_cp9_oficial','hollow_mascara','arrancar','ninja_chuva'],
-      ['caminho_deus_animal','op_marinha_capitao','vasto_lorde','akatsuki_chuva','ninja_chuva_veloz'],
-      ['op_marinha_elite','espada_hierro','vasto_lorde','espada_regen'],
-      ['op_marinha_elite','espada_hierro','espada_regen','caminho_deus_animal']
+      ['caminho_deus_animal','op_marinha_capitao','vasto_lorde','akatsuki_chuva','ninja_chuva_veloz','invasor','invasor_veloz'],
+      ['op_marinha_elite','espada_hierro','vasto_lorde','espada_regen','invasor_veloz','invasor_blindado','invasor_regen'],
+      ['op_marinha_elite','espada_hierro','espada_regen','invasor_blindado','invasor_regen','invasor_explosivo']
     ];
     const tierIdx = Math.min(getInfiniteTierIdx(waveNum), 7);
     const cur  = POOLS[tierIdx];
@@ -433,12 +441,12 @@ const Game = (() => {
 
     // Miniboss a cada 10 waves
     if (waveNum % 10 === 0) {
-      const MB = ['deidara','itachi_uchiha','sasuke_taka','konan','caminho_deus_animal','grimmjow','nnoitra'];
+      const MB = ['deidara','itachi_uchiha','sasuke_taka','konan','caminho_deus_animal','grimmjow','nnoitra','batroc','crossbones','ronan','corvus_glaive','ebony_maw'];
       queue.push({ type: MB[Math.min(Math.floor(waveNum / 10) - 1, MB.length - 1)], delay: t + 2 });
     }
     // Boss a cada 30 waves
     if (waveNum % 30 === 0) {
-      const BS = ['pain','akainu','ulquiorra'];
+      const BS = ['pain','akainu','ulquiorra','thanos_fase1'];
       queue.push({ type: BS[Math.min(Math.floor(waveNum / 30) - 1, BS.length - 1)], delay: t + 5 });
     }
     return queue;
@@ -817,6 +825,11 @@ const Game = (() => {
       dispatchSpecialUpdate(e, dt);
       // Behaviors por ptype (regenerator, etc.)
       dispatchPtypeUpdate(e, dt);
+      // Cross Mark timer (Black Widow mechanic)
+      if (e.crossMarked) {
+        e.crossMarkTimer = (e.crossMarkTimer || 0) - dt;
+        if (e.crossMarkTimer <= 0) { e.crossMarked = false; e.crossMarkTimer = 0; }
+      }
 
       // Movement
       const spd = getEffectiveSpeed(e) * dt;
@@ -861,7 +874,24 @@ const Game = (() => {
         }
       }
       if ((t.stunCooldown || 0) > 0) t.stunCooldown = Math.max(0, t.stunCooldown - dt);
-      if (t.disabled) return;
+      // Verdict timer — Ronan: silencia a torre com maior DPS
+      if (t.verdictActive) {
+        t.verdictTimer = (t.verdictTimer || 0) - dt;
+        if (t.verdictTimer <= 0) { t.verdictActive = false; t.verdictTimer = 0; }
+      }
+      // Inverted targeting timer — Ebony Maw: inverte o alvo
+      if (t.invertedTargeting) {
+        t.invertedTimer = (t.invertedTimer || 0) - dt;
+        if (t.invertedTimer <= 0) { t.invertedTargeting = false; t.invertedTimer = 0; }
+      }
+      // DPS tracking (janela de 1s) — usado pela mecânica do Ronan
+      t._dpsTimer = (t._dpsTimer || 0) + dt;
+      if (t._dpsTimer >= 1.0) {
+        t.realtimeDPS = (t._dmgAccum || 0) / t._dpsTimer;
+        t._dmgAccum = 0;
+        t._dpsTimer = 0;
+      }
+      if (t.disabled || t.verdictActive) return;
       t.attackTimer -= dt;
       if (t.attackTimer <= 0) {
         const stats = getTowerStats(t);
@@ -964,6 +994,8 @@ const Game = (() => {
 
     // Medo (Cero Oscuras): +25% dano recebido de toda fonte
     if (enemy.status?.medo?.active) dmg *= 1.25;
+    // Cross Mark (Black Widow): inimigo marcado recebe bônus de dano de todas as fontes
+    if (enemy.crossMarked) dmg *= (1 + (enemy.crossMarkBonus || 0.25));
 
     if ((enemy.shieldHp || 0) > 0) {
       const absorbed = Math.min(enemy.shieldHp, dmg);
@@ -981,6 +1013,7 @@ const Game = (() => {
     enemy.hp -= dmg;
     enemy.hitFlash = 0.1;
     sessionDmg += dmg;
+    if (tower) tower._dmgAccum = (tower._dmgAccum || 0) + dmg;
 
     if (enemy.hp <= 0) killEnemy(enemy, tower);
   }

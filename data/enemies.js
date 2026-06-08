@@ -404,6 +404,237 @@ const ENEMY_SPECIAL_HANDLERS = {
     }
   },
 
+  // ── Batroc — Golpe de Savate ──────────────────────────────────────────────
+  batroc_special: {
+    init(enemy, def) {
+      enemy.dashTimer    = def.dashInterval || 12;
+      enemy.dashInterval = def.dashInterval || 12;
+      enemy.dashDist     = def.dashDist     || 280;
+    },
+    onUpdate(enemy, dt, ctx) {
+      enemy.dashTimer -= dt;
+      if (enemy.dashTimer <= 0) {
+        enemy.dashTimer = enemy.dashInterval;
+        enemy.dist += enemy.dashDist;
+        ctx.addEffect({ type:'shockwave', x:enemy.x, y:enemy.y, maxR:60, color:'#b91c1c', timer:0.4, maxTimer:0.4, r:0 });
+        ctx.toast(`💨 Golpe de Savate! Batroc avançou no caminho!`, 2000);
+      }
+    }
+  },
+
+  // ── Crossbones — Colete Suicida ───────────────────────────────────────────
+  crossbones_special: {
+    init(enemy, def) {
+      enemy.vestActivated   = false;
+      enemy.vestCountdownCD = def.vestCountdown || 6;
+      enemy.vestMaxCD       = def.vestCountdown || 6;
+      enemy.berserkActive   = false;
+      enemy.berserkMult     = def.berserkSpeedMult || 1.65;
+      enemy.vestWarned      = false;
+    },
+    onUpdate(enemy, dt, ctx) {
+      if (enemy.hp < enemy.maxHp * 0.25 && !enemy.vestActivated && !enemy.berserkActive && !enemy.vestWarned) {
+        enemy.vestActivated   = true;
+        enemy.vestWarned      = true;
+        enemy.vestCountdownCD = enemy.vestMaxCD;
+        ctx.toast(`💣 Colete Suicida ativado! Mate Crossbones em ${enemy.vestMaxCD}s ou entre em BERSERK!`, 3500);
+      }
+      if (enemy.vestActivated) {
+        enemy.vestCountdownCD -= dt;
+        enemy.countdownDisplay = Math.ceil(Math.max(0, enemy.vestCountdownCD));
+        if (enemy.vestCountdownCD <= 0) {
+          enemy.vestActivated = false;
+          enemy.berserkActive = true;
+          enemy.speed *= enemy.berserkMult;
+          ctx.toast(`💀 Crossbones sobreviveu ao countdown! BERSERK ATIVADO!`, 3000);
+        }
+      }
+    },
+    onDeath(enemy, ctx) {
+      if (enemy.vestActivated) {
+        const stunR = 280, stunT = 3;
+        let stunCount = 0;
+        ctx.towers.forEach(t => {
+          if (!t.isClone && ctx.dist2d(t.x, t.y, enemy.x, enemy.y) <= stunR) {
+            t.miniStunTimer = Math.max(t.miniStunTimer || 0, stunT);
+            t.disabled = true;
+            stunCount++;
+          }
+        });
+        ctx.addEffect({ type:'shockwave', x:enemy.x, y:enemy.y, maxR:stunR, color:'#ef4444', timer:0.8, maxTimer:0.8, r:0 });
+        ctx.toast(`💥 EXPLOSÃO DO COLETE! ${stunCount} torre(s) bloqueada(s) por ${stunT}s!`, 3500);
+      }
+    }
+  },
+
+  // ── Ronan — O Veredito do Acusador ───────────────────────────────────────
+  ronan_special: {
+    init(enemy, def) {
+      enemy.verdictTimer    = def.verdictInterval || 22;
+      enemy.verdictInterval = def.verdictInterval || 22;
+      enemy.verdictDuration = def.verdictDuration || 7;
+    },
+    onUpdate(enemy, dt, ctx) {
+      enemy.verdictTimer -= dt;
+      if (enemy.verdictTimer <= 0) {
+        enemy.verdictTimer = enemy.verdictInterval;
+        const best = ctx.towers
+          .filter(t => !t.isClone && !t.verdictActive)
+          .sort((a, b) => (b.realtimeDPS || 0) - (a.realtimeDPS || 0))[0];
+        if (best) {
+          best.verdictActive = true;
+          best.verdictTimer  = enemy.verdictDuration;
+          ctx.addEffect({ type:'shockwave', x:best.x, y:best.y, maxR:50, color:'#1e1b4b', timer:0.6, maxTimer:0.6, r:0 });
+          ctx.toast(`⚖️ Ronan sentenciou ${best.charData?.name || 'a torre'}! Bloqueada por ${enemy.verdictDuration}s!`, 3500);
+        }
+      }
+    }
+  },
+
+  // ── Corvus Glaive — Glaive Imortal ───────────────────────────────────────
+  corvus_glaive_special: {
+    init(enemy, def) {
+      enemy.glaiveImmortalWarned  = false;
+      enemy.shieldRegenThreshold  = def.shieldRegenThreshold || 5;
+    },
+    onUpdate(enemy, dt, ctx) {
+      if ((enemy.shieldHp || 0) > 0 && enemy.hp <= 1) {
+        enemy.hp = 1;
+        if (!enemy.glaiveImmortalWarned) {
+          enemy.glaiveImmortalWarned = true;
+          ctx.toast(`⚔️ Glaive Imortal! Corvus não pode morrer com o escudo ativo!`, 3000);
+        }
+      }
+      if ((enemy.shieldHp || 0) === 0) {
+        const aliveCount = ctx.enemies.filter(e => !e.dead && !e.reached_end && e !== enemy).length;
+        if (aliveCount >= enemy.shieldRegenThreshold) {
+          enemy.shieldHp             = enemy.maxShieldHp;
+          enemy.glaiveImmortalWarned = false;
+          ctx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:90, color:'#0f172a', timer:0.7, maxTimer:0.7, r:0 });
+          ctx.toast(`⚔️ Glaive regenerado! Há inimigos suficientes em campo!`, 3000);
+        }
+      }
+    }
+  },
+
+  // ── Ebony Maw — Telecinese Dupla ─────────────────────────────────────────
+  ebony_maw_special: {
+    init(enemy, def) {
+      enemy.pushTimer      = def.pushInterval  || 18;
+      enemy.pushInterval   = def.pushInterval  || 18;
+      enemy.pushDist       = def.pushDist      || 200;
+      enemy.invertTimer    = def.invertInterval || 28;
+      enemy.invertInterval = def.invertInterval || 28;
+      enemy.invertDuration = def.invertDuration || 6;
+      enemy.invertCount    = def.invertCount    || 3;
+    },
+    onUpdate(enemy, dt, ctx) {
+      enemy.pushTimer -= dt;
+      if (enemy.pushTimer <= 0) {
+        enemy.pushTimer = enemy.pushInterval;
+        ctx.enemies.forEach(e => { if (!e.dead && !e.reached_end) e.dist += enemy.pushDist; });
+        ctx.addEffect({ type:'shockwave', x:ctx.CANVAS_W/2, y:ctx.CANVAS_H/2, maxR:600, color:'#1e3a5f', timer:0.7, maxTimer:0.7, r:0 });
+        ctx.toast(`🌀 Ebony Maw levanta os inimigos! Todos avançam no caminho!`, 2500);
+      }
+      enemy.invertTimer -= dt;
+      if (enemy.invertTimer <= 0) {
+        enemy.invertTimer = enemy.invertInterval;
+        const eligible = ctx.towers.filter(t => !t.isClone && !t.invertedTargeting);
+        const targets  = eligible.sort(() => Math.random() - 0.5).slice(0, enemy.invertCount);
+        targets.forEach(t => { t.invertedTargeting = true; t.invertedTimer = enemy.invertDuration; });
+        if (targets.length > 0) ctx.toast(`🌀 Ebony Maw inverteu o alvo de ${targets.length} torre(s)!`, 2500);
+      }
+    }
+  },
+
+  // ── Thanos Fase 1 — O Eterno ─────────────────────────────────────────────
+  thanos_fase1_special: {
+    init(enemy, def) {
+      enemy.snapTimer     = def.snapInterval  || 25;
+      enemy.snapInterval  = def.snapInterval  || 25;
+      enemy.snapDuration  = def.snapDuration  || 4;
+      enemy.drainTimer    = def.drainInterval || 3;
+      enemy.drainInterval = def.drainInterval || 3;
+    },
+    onUpdate(enemy, dt, ctx) {
+      enemy.snapTimer -= dt;
+      if (enemy.snapTimer <= 0) {
+        enemy.snapTimer = enemy.snapInterval;
+        ctx.towers.forEach(t => {
+          if (!t.isClone) { t.miniStunTimer = Math.max(t.miniStunTimer || 0, enemy.snapDuration); t.disabled = true; }
+        });
+        ctx.addEffect({ type:'shockwave', x:ctx.CANVAS_W/2, y:ctx.CANVAS_H/2, maxR:550, color:'#581c87', timer:1.0, maxTimer:1.0, r:0 });
+        ctx.toast(`💥 O Snap de Thanos! Torres bloqueadas por ${enemy.snapDuration}s!`, 3500);
+      }
+      enemy.drainTimer -= dt;
+      if (enemy.drainTimer <= 0) {
+        enemy.drainTimer = enemy.drainInterval;
+        ctx.drainLife();
+        ctx.toast(`💀 Thanos drena a base! −1 vida`, 2000);
+      }
+    },
+    onDeath(enemy, ctx) {
+      ctx.addEffect({ type:'shockwave', x:enemy.x, y:enemy.y, maxR:500, color:'#7c3aed', timer:1.2, maxTimer:1.2, r:0 });
+      ctx.toast(`🔮 MANOPLA COMPLETA! Thanos está IMPARÁVEL!`, 5000);
+    }
+  },
+
+  // ── Thanos Fase 2 — Manopla Completa ─────────────────────────────────────
+  thanos_manopla_special: {
+    init(enemy, def) {
+      enemy.snapTimer    = def.snapInterval || 10;
+      enemy.snapInterval = def.snapInterval || 10;
+      enemy.snapDuration = def.snapDuration || 3;
+      enemy.gemTimer     = def.gemInterval  || 20;
+      enemy.gemInterval  = def.gemInterval  || 20;
+      enemy.gemIndex     = 0;
+    },
+    onUpdate(enemy, dt, ctx) {
+      if (enemy.status.freeze.active)    enemy.status.freeze    = STATUS_TYPES.freeze.init();
+      if (enemy.status.paralisia.active) enemy.status.paralisia = STATUS_TYPES.paralisia.init();
+      // Snap — independente das gemas, a cada 10s
+      enemy.snapTimer -= dt;
+      if (enemy.snapTimer <= 0) {
+        enemy.snapTimer = enemy.snapInterval;
+        ctx.towers.forEach(t => {
+          if (!t.isClone) { t.miniStunTimer = Math.max(t.miniStunTimer || 0, enemy.snapDuration); t.disabled = true; }
+        });
+        ctx.addEffect({ type:'shockwave', x:ctx.CANVAS_W/2, y:ctx.CANVAS_H/2, maxR:550, color:'#581c87', timer:0.8, maxTimer:0.8, r:0 });
+        ctx.toast(`💥 Snap da Manopla! Torres bloqueadas por ${enemy.snapDuration}s!`, 2500);
+      }
+      // Gemas — rotação a cada 20s
+      enemy.gemTimer -= dt;
+      if (enemy.gemTimer <= 0) {
+        enemy.gemTimer = enemy.gemInterval;
+        const GEM_COLORS = ['#2563eb','#facc15','#dc2626','#9333ea','#16a34a','#f97316'];
+        const GEM_NAMES  = ['Espaço','Mente','Realidade','Poder','Tempo','Alma'];
+        const gi = enemy.gemIndex;
+        switch(gi) {
+          case 0: // Espaço
+            for (let i = 0; i < 4; i++) ctx.spawnEnemy('invasor', enemy, { dist: Math.max(0, enemy.dist - i*20) });
+            ctx.toast(`🔵 Gema do Espaço! Invasores invocados!`, 2500); break;
+          case 1: // Mente
+            ctx.towers.forEach(t => { if (!t.isClone) { t.miniStunTimer = Math.max(t.miniStunTimer||0, 5); t.disabled = true; } });
+            ctx.toast(`🟡 Gema da Mente! Torres silenciadas por 5s!`, 2500); break;
+          case 2: // Realidade
+            enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * 0.20);
+            ctx.toast(`🔴 Gema da Realidade! Thanos restaurou 20% de vida!`, 2500); break;
+          case 3: // Poder
+            ctx.drainLife(); ctx.drainLife();
+            ctx.toast(`🟣 Gema do Poder! −2 vidas da base!`, 2500); break;
+          case 4: // Tempo
+            ctx.enemies.forEach(e => { if (!e.dead && !e.reached_end) e.dist += 150; });
+            ctx.toast(`🟢 Gema do Tempo! Todos os inimigos avançaram no caminho!`, 2500); break;
+          case 5: // Alma — sem restrição de "uma vez"
+            enemy.hp = Math.min(enemy.maxHp, enemy.hp + 50000);
+            ctx.toast(`🟠 Gema da Alma! Thanos curou 50.000 HP!`, 2500); break;
+        }
+        ctx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:80, color:GEM_COLORS[gi], timer:0.8, maxTimer:0.8, r:0 });
+        enemy.gemIndex = (enemy.gemIndex + 1) % 6;
+      }
+    }
+  },
+
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -893,6 +1124,119 @@ const ENEMY_DEFS = {
     image:'assets/inimigos/world3/Aizen Hogyoku.png',
     is_boss:true, special:'aizen_hogyoku_phase2',
     drainInterval:2
+  },
+
+  // ═══════════════════════════════════════════════
+  //  MUNDO 4 — MARVEL
+  // ═══════════════════════════════════════════════
+
+  // ── Backbone (normal — base de todas as fases) ────────────────────────────────
+  invasor: {
+    name:'Invasor', hp:1500, speed:85, gold:55,
+    ptype:'normal', size:20, col:'#374151',
+    image:'assets/inimigos/world4/Invasor.png'
+  },
+
+  // ── Invasor Speed (Fase 2+) ───────────────────────────────────────────────────
+  invasor_veloz: {
+    name:'Invasor Speed', hp:1800, speed:155, gold:140,
+    ptype:['powerful1','speed'], size:16, col:'#6b7280',
+    image:'assets/inimigos/world4/Invasor Speed.png'
+  },
+
+  // ── Invasor Fortified (Fase 3+) ──────────────────────────────────────────────
+  invasor_blindado: {
+    name:'Invasor Fortified', hp:20000, speed:50, gold:1200,
+    ptype:['powerful2','fortified'], shieldHp:10000,
+    size:36, col:'#1f2937',
+    image:'assets/inimigos/world4/Invasor Fortified.png'
+  },
+
+  // ── Invasor Regen (Fase 4+) ──────────────────────────────────────────────────
+  invasor_regen: {
+    name:'Invasor Regen', hp:24000, speed:44, gold:1400,
+    ptype:['powerful2','regenerator'], regenRate:210,
+    size:36, col:'#1e3a5f',
+    image:'assets/inimigos/world4/Invasor Regen.png'
+  },
+
+  // ── Invasor Bomb (Fase 5+) ───────────────────────────────────────────────────
+  invasor_explosivo: {
+    name:'Invasor Bomb', hp:1300, speed:125, gold:75,
+    ptype:['powerful1','bomber'], bomberRadius:125, bomberStun:1.8,
+    size:18, col:'#f59e0b',
+    image:'assets/inimigos/world4/Invasor Bomb.png'
+  },
+
+  // ── Miniboss 1: Batroc — Fase 1 ──────────────────────────────────────────────
+  batroc: {
+    name:'Batroc', hp:20000, speed:110, gold:950,
+    ptype:'powerful2', size:38, col:'#b91c1c',
+    is_miniboss:true, special:'batroc_special',
+    dashInterval:12, dashDist:280,
+    image:'assets/inimigos/world4/Batroc.png'
+  },
+
+  // ── Miniboss 2: Crossbones — Fase 2 ──────────────────────────────────────────
+  crossbones: {
+    name:'Crossbones', hp:30000, speed:60, gold:1500,
+    ptype:['powerful2','fortified'], shieldHp:15000,
+    size:42, col:'#1c1917', is_miniboss:true,
+    special:'crossbones_special',
+    vestCountdown:6, berserkSpeedMult:1.65,
+    image:'assets/inimigos/world4/Crossbones.png'
+  },
+
+  // ── Miniboss 3: Ronan — Fase 3 ───────────────────────────────────────────────
+  ronan: {
+    name:'Ronan, o Acusador', hp:45000, speed:45, gold:2200,
+    ptype:'powerful2', size:44, col:'#1e1b4b',
+    is_miniboss:true, special:'ronan_special',
+    verdictInterval:22, verdictDuration:7,
+    on_death:{ type:'invasor', count:6 },
+    image:'assets/inimigos/world4/Ronan.png'
+  },
+
+  // ── Miniboss 4: Corvus Glaive — Fase 4 ───────────────────────────────────────
+  corvus_glaive: {
+    name:'Corvus Glaive', hp:65000, speed:55, gold:3200,
+    ptype:['powerful3','fortified'], shieldHp:38000,
+    size:46, col:'#0f172a', is_miniboss:true,
+    special:'corvus_glaive_special',
+    shieldRegenThreshold:5,
+    image:'assets/inimigos/world4/Corvus Glaive.png'
+  },
+
+  // ── Miniboss 5: Ebony Maw — Fase 5 ───────────────────────────────────────────
+  ebony_maw: {
+    name:'Ebony Maw', hp:80000, speed:48, gold:4200,
+    ptype:['powerful3','regenerator'], regenRate:300,
+    size:46, col:'#1e3a5f', is_miniboss:true,
+    special:'ebony_maw_special',
+    pushInterval:18, pushDist:200,
+    invertInterval:28, invertDuration:6, invertCount:3,
+    image:'assets/inimigos/world4/Ebony Maw.png'
+  },
+
+  // ── Boss Fase 1: Thanos — O Eterno ───────────────────────────────────────────
+  thanos_fase1: {
+    name:'Thanos — O Eterno', hp:300000, speed:20, gold:9000,
+    ptype:['powerful3','fortified'], shieldHp:100000,
+    size:58, col:'#581c87', is_boss:true,
+    special:'thanos_fase1_special',
+    on_death:{ type:'thanos_manopla', count:1 },
+    snapInterval:25, snapDuration:4, drainInterval:3,
+    image:'assets/inimigos/world4/Thanos.png'
+  },
+
+  // ── Boss Fase 2: Thanos — Manopla Completa ────────────────────────────────────
+  thanos_manopla: {
+    name:'Thanos — Manopla Completa', hp:300000, speed:55, gold:6000,
+    ptype:'powerful3', size:58, col:'#7c3aed', is_boss:true,
+    special:'thanos_manopla_special',
+    snapInterval:10, snapDuration:3,
+    gemInterval:20,
+    image:'assets/inimigos/world4/Thanos Manopla.png'
   },
 };
 

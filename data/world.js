@@ -40,6 +40,21 @@ const PATH_POINTS_W3 = [
   {x: 1044, y: 200}
 ];
 
+const PATH_POINTS_W4 = [
+  {x: -20,  y: 540},
+  {x: 130,  y: 540},
+  {x: 130,  y: 380},
+  {x: 300,  y: 380},
+  {x: 300,  y: 150},
+  {x: 510,  y: 150},
+  {x: 510,  y: 420},
+  {x: 680,  y: 420},
+  {x: 680,  y: 120},
+  {x: 870,  y: 120},
+  {x: 870,  y: 380},
+  {x: 1044, y: 380}
+];
+
 // Caminho especial do Modo Infinito — curva em S com 3 viradas
 const PATH_POINTS_INF = [
   {x: -20,  y: 300},
@@ -84,6 +99,15 @@ const WORLDS = [
     description: 'Adentre o mundo dos Shinigami. Enfrente Hollows, Arrancar e os temidos Menos!',
     color: '#2980b9',
     path: PATH_POINTS_W3
+  },
+  {
+    id: 'marvel', name: 'Nova York',
+    unlocked: true,
+    completionStat: 'fases_marvel_completas',
+    stages: ['mv_fase1','mv_fase2','mv_fase3','mv_fase4','mv_fase5','mv_fase6'],
+    description: 'Os Vingadores precisam de você. Nova York está sob ataque — defenda a cidade dos invasores.',
+    color: '#b91c1c',
+    path: PATH_POINTS_W4
   },
   {
     id: 'infinito', name: '♾ Modo Infinito',

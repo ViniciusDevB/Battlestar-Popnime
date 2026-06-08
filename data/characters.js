@@ -336,6 +336,11 @@ const CHARACTERS = {
     playable:false, xp_value:800, initials:'S3', image:'assets/ingredients/world3/Shinigame 3.png'
   },
 
+  // ── Materiais Marvel ───────────────────────────────────────────────────────
+  avenger_material_1: { id:'avenger_material_1', name:'Dados de Campo I',   rarity:0, series:'marvel', playable:false, xp_value:50,  initials:'AF1', image:'assets/ingredients/world4/Avenger Material 1.png', upgrades_to:'avenger_material_2', upgrade_cost:3 },
+  avenger_material_2: { id:'avenger_material_2', name:'Dados de Campo II',  rarity:1, series:'marvel', playable:false, xp_value:150, initials:'AF2', image:'assets/ingredients/world4/Avenger Material 2.png', upgrades_to:'avenger_material_3', upgrade_cost:3 },
+  avenger_material_3: { id:'avenger_material_3', name:'Dados de Campo III', rarity:2, series:'marvel', playable:false, xp_value:400, initials:'AF3', image:'assets/ingredients/world4/Avenger Material 3.png' },
+
   // ── 3⭐ Bleach ──────────────────────────────────────────────────────────────
   rukia_kuchiki: {
     id:'rukia_kuchiki', name:'Rukia Kuchiki', rarity:3, series:'bleach',
@@ -785,13 +790,218 @@ const CHARACTERS = {
       { name:'Puxão Sombrio', desc:'Dano ×1.4 | Puxa mais forte (50px)', damage_mult:1.4, passive_override:{attacks_required:4, push_dist:50}, cost:1100 },
       { name:'Devastação',   desc:'Dano ×1.8 | Alcance ×1.2', damage_mult:1.8, range_mult:1.2, cost:2500 }
     ]
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  MARVEL — Mundo 4  |  3⭐  Sem AOE de base (web_zone é habilidade, não tipo)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Spider-Man — Teias no solo que paralisam inimigos | 6 upgrades
+  // Single → Cone | web_zone: acerto deixa teia (slow 60% / 2.5s em área 55px)
+  spider_man: {
+    id:'spider_man', name:'Homem-Aranha', rarity:3, series:'marvel', playable:true, xp_value:1000, initials:'SM',
+    image:'assets/towers/world4/Spider-Man.png',
+    passive:{ type:'web_zone', web_radius:55, duration:2.5,
+      label:'Teia de Aranha: cada acerto deixa teia no solo (slow 60% / 2.5s em raio de 55px)' },
+    base_stats:{ damage:105, range:100, attack_speed:1.65, type:'single_target' },
+    deploy_cost:150, max_level:50,
+    prestige_passives: {
+      1:  { type:'double_hit', chance:0.30, label:'Sentido Aranha: 30% de chance de atacar uma segunda vez no mesmo ciclo' },
+      5:  { type:'slow_aura',  slow_pct:0.35, label:'Campo de Teia: aura passiva reduz a velocidade de inimigos próximos em 35%' },
+      10: { type:'spirit_surge', trigger_at:6, mult:5.0, label:'Teia Máxima: a cada 6 ataques, dispara uma teia gigante (5× dano + área total)' }
+    },
+    upgrades:[
+      { name:'Teias Duplas',         desc:'Vel ×1.2 | Teia dura 3.5s',           speed_mult:1.2, passive_override:{duration:3.5},                              cost:170 },
+      { name:'Tiro em Arco',         desc:'Tipo → Cone | Dano ×1.3',              type:'cone', damage_mult:1.3,                                                cost:340 },
+      { name:'Sentido Aranha',       desc:'Alcance ×1.25 | Vel ×1.15',            range_mult:1.25, speed_mult:1.15,                                            cost:480 },
+      { name:'Teia Elétrica',        desc:'Raio da teia → 75px | Teia dura 4.5s', passive_override:{web_radius:75, duration:4.5},                              cost:650 },
+      { name:'Instinto de Perigo',   desc:'Dano ×1.6 | Vel ×1.1',                damage_mult:1.6, speed_mult:1.1,                                              cost:900 },
+      { name:'No Way Home',          desc:'Dano ×1.8 | Raio da teia → 90px',     damage_mult:1.8, passive_override:{web_radius:90, duration:5.0},               cost:1300 }
+    ]
+  },
+
+  // Black Widow — Marcas de mira que amplificam o dano global | 6 upgrades
+  // Single → Linha | cross_mark: kills marcam inimigos próximos (+25% dano de todos)
+  black_widow: {
+    id:'black_widow', name:'Viúva Negra', rarity:3, series:'marvel', playable:true, xp_value:1000, initials:'BW',
+    image:'assets/towers/world4/Black Widow.png',
+    passive:{ type:'cross_mark', bonus:0.25, duration:6,
+      label:'Mira de Mestre: kills marcam inimigos próximos por 6s (todos recebem +25% dano)' },
+    base_stats:{ damage:90, range:118, attack_speed:1.85, type:'single_target' },
+    deploy_cost:150, max_level:50,
+    prestige_passives: {
+      1:  { type:'status_on_hit', status:'paralisia', duration:1.2, label:'Pistola de Viúva: cada acerto aplica paralisia de 1.2s' },
+      5:  { type:'kill_streak', stack_bonus:0.12, max_stacks:8, decay_time:5, label:'Modo Assassina: kills acumulam +12% dano por stack (máx 8, decai em 5s)' },
+      10: { type:'critical', chance:0.38, mult:3.5, label:'Precisão Letal: 38% de chance de acerto crítico (3.5× dano)' }
+    },
+    upgrades:[
+      { name:'Pistola Sonda',      desc:'Vel ×1.3 | Dano ×1.1',               speed_mult:1.3, damage_mult:1.1,                              cost:170 },
+      { name:'Treinamento Russo',  desc:'Tipo → Linha | Dano ×1.2',            type:'linha',  damage_mult:1.2,                              cost:340 },
+      { name:'Marca Amplificada',  desc:'Marca → +35% dano | dura 8s',         passive_override:{bonus:0.35, duration:8},                   cost:470 },
+      { name:'Agente Triplo',      desc:'Alcance ×1.2 | Vel ×1.1',             range_mult:1.2, speed_mult:1.1,                              cost:640 },
+      { name:'Marca de Elite',     desc:'Marca → +45% dano | dura 10s',        passive_override:{bonus:0.45, duration:10},                  cost:850 },
+      { name:'Viúva Negra Letal',  desc:'Dano ×2.0 | Marca → +55% dano',      damage_mult:2.0, passive_override:{bonus:0.55, duration:10}, cost:1250 }
+    ]
+  },
+
+  // Hawkeye — Ciclo de 4 tipos de flecha (Normal ×1.8, AOE, Gelo, Pierce) | 6 upgrades
+  // Single → Pierce | arrow_rotation: alterna entre 4 tipos de flecha a cada ataque
+  hawkeye: {
+    id:'hawkeye', name:'Gavião Arqueiro', rarity:3, series:'marvel', playable:true, xp_value:1000, initials:'HW',
+    image:'assets/towers/world4/Hawkeye.png',
+    passive:{ type:'arrow_rotation', freeze_dur:3,
+      label:'Aljava Tática: cicla entre flechas Normal (×1.8), Explosiva (AOE), Gelo (3s), Perfurante (×3)' },
+    base_stats:{ damage:125, range:132, attack_speed:1.15, type:'single_target' },
+    deploy_cost:150, max_level:50,
+    prestige_passives: {
+      1:  { type:'boss_slayer', bonus:0.30, label:'Olho de Falcão: +30% de dano contra minibosses e bosses' },
+      5:  { type:'bankai_pressure', aoe_r:75, aoe_mult:0.70, label:'Flecha-Bomba: kills causam explosão (70% dano em raio de 75px)' },
+      10: { type:'quincy_pierce', count:5, label:'Trick Arrows: flecha perfurante acerta até 5 inimigos simultâneos' }
+    },
+    upgrades:[
+      { name:'Aljava Completa',     desc:'Vel ×1.2 | Dano ×1.2',            speed_mult:1.2, damage_mult:1.2,                       cost:170 },
+      { name:'Flecha Perfurante',   desc:'Tipo → Pierce | Dano ×1.3',        type:'pierce', damage_mult:1.3,                       cost:340 },
+      { name:'Arsenal Avançado',    desc:'Gelo → 4s | Explosiva dano ×1.1',  passive_override:{freeze_dur:4},                      cost:460 },
+      { name:'Olho de Falcão',      desc:'Alcance ×1.3 | Vel ×1.15',         range_mult:1.3, speed_mult:1.15,                      cost:620 },
+      { name:'Flechas de Vibranium',desc:'Dano ×1.6 | Normal → ×2.2',        damage_mult:1.6,                                     cost:880 },
+      { name:'Mestre dos Arcos',    desc:'Dano ×1.9 | Gelo → 5.5s | AOE +', damage_mult:1.9, passive_override:{freeze_dur:5.5},   cost:1300 }
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  MARVEL — 4⭐  |  Ataques mais versáteis com mecânicas complexas
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Black Panther — Ataques de vibranium que ricocheteiam | 6 upgrades
+  // Single | ricochet_aura: após acertar, bounces para N inimigos próximos (55%)
+  black_panther: {
+    id:'black_panther', name:'Pantera Negra', rarity:4, series:'marvel', playable:true, xp_value:2500, initials:'BP',
+    image:'assets/towers/world4/Black Panther.png',
+    passive:{ type:'ricochet_aura', bounces:2, radius:80, mult:0.55,
+      label:'Vibranium Cinético: cada acerto ricocheteia para 2 inimigos próximos (55% dano, raio 80px)' },
+    base_stats:{ damage:195, range:118, attack_speed:1.42, type:'single_target' },
+    deploy_cost:350, max_level:50,
+    prestige_passives: {
+      1:  { type:'status_on_hit', status:'sangramento', dps:30, duration:4, label:'Garras de Vibranium: cada acerto causa sangramento (30 DPS / 4s)' },
+      5:  { type:'bankai_pressure', aoe_r:80, aoe_mult:0.80, label:'Impacto Cinético: kills liberam energia vibranium em área (80% dano / raio 80px)' },
+      10: { type:'battle_rage', per_enemy:0.06, max_bonus:0.80, label:'Rei de Wakanda: presença de inimigos amplifica dano (+6%/inimigo, máx 80%)' }
+    },
+    upgrades:[
+      { name:'Garras de Vibranium',  desc:'Dano ×1.3 | Ricochet → 65% dano',  damage_mult:1.3, passive_override:{mult:0.65},                    cost:400 },
+      { name:'Traje T\'Challa',       desc:'Alcance ×1.2 | Vel ×1.2',           range_mult:1.2, speed_mult:1.2,                                   cost:600 },
+      { name:'Absorção Cinética',    desc:'Ricochet → 3 inimigos | 70% dano',  passive_override:{bounces:3, mult:0.70},                          cost:800 },
+      { name:'Rei de Wakanda',       desc:'Dano ×1.4 | Vel ×1.15',             damage_mult:1.4, speed_mult:1.15,                                  cost:1100 },
+      { name:'Vibranium Puro',       desc:'Ricochet → 4 inimigos | 80% dano',  passive_override:{bounces:4, mult:0.80},                          cost:1500 },
+      { name:'Pantera Definitiva',   desc:'Dano ×2.0 | Raio ricochet → 110px', damage_mult:2.0, passive_override:{bounces:4, radius:110, mult:0.85}, cost:2200 }
+    ]
+  },
+
+  // Thor — Raios que encadeiam entre inimigos | 6 upgrades
+  // Single → AOE | chain_lightning: após acertar, encadeia raio para N inimigos mais próximos
+  thor: {
+    id:'thor', name:'Thor', rarity:4, series:'marvel', playable:true, xp_value:2500, initials:'TH',
+    image:'assets/towers/world4/Thor.png',
+    passive:{ type:'chain_lightning', chains:3, radius:90, mult:0.40,
+      label:'Relâmpago de Asgard: cada acerto encadeia raio para 3 inimigos próximos (40% dano, raio 90px)' },
+    base_stats:{ damage:215, range:128, attack_speed:1.28, type:'single_target' },
+    deploy_cost:350, max_level:50,
+    prestige_passives: {
+      1:  { type:'status_on_hit', status:'paralisia', duration:1.5, label:'Mjolnir Atordoante: cada acerto aplica paralisia de 1.5s' },
+      5:  { type:'spirit_surge',  trigger_at:4, mult:5.0, label:'Stormbreaker: a cada 4 ataques, dispara o golpe completo (5× dano)' },
+      10: { type:'damage_aura', range:140, aura_mult:0.30, label:'Aura de Trovão: presença de Thor concede +30% dano a todas as torres aliadas' }
+    },
+    upgrades:[
+      { name:'Mjolnir',             desc:'Dano ×1.4 | Raio → 50% dano',     damage_mult:1.4, passive_override:{mult:0.50},                    cost:400 },
+      { name:'Deus do Trovão',      desc:'Tipo → AOE | Dano ×0.85',          type:'aoe', damage_mult:0.85,                                    cost:600 },
+      { name:'Tempestade de Asgard',desc:'Cadeia → 4 inimigos | Raio 100px', passive_override:{chains:4, radius:100},                         cost:820 },
+      { name:'Stormbreaker',        desc:'Vel ×1.2 | Dano ×1.4',            speed_mult:1.2, damage_mult:1.4,                                  cost:1100 },
+      { name:'Raio Divino',         desc:'Cadeia → 5 inimigos | 60% dano',  passive_override:{chains:5, radius:110, mult:0.60},               cost:1500 },
+      { name:'Odinson',             desc:'Dano ×1.9 | Cadeia paralisa 1.5s',damage_mult:1.9, passive_override:{chains:5, radius:120, mult:0.65}, cost:2200 }
+    ]
+  },
+
+  // Hulk — Fúria acumulada por presença de inimigos | 6 upgrades → evolui
+  // AOE | rage_stack: +5% dano por inimigo no alcance (máx 50%), persiste 3s
+  hulk_base: {
+    id:'hulk_base', name:'Hulk', rarity:4, series:'marvel', playable:true, xp_value:2500, initials:'HK',
+    image:'assets/towers/world4/Hulk.png',
+    passive:{ type:'rage_stack', per_enemy:0.05, max_bonus:0.50, fade_time:3,
+      label:'Fúria Implacável: +5% dano por inimigo no alcance (máx 50%); bônus persiste 3s' },
+    base_stats:{ damage:180, range:95, attack_speed:0.88, type:'aoe' },
+    deploy_cost:350, max_level:50,
+    prestige_passives: {
+      1:  { type:'berserker', per_enemy:0.05, max_bonus:0.50, label:'Modo Rage: +5% de vel de ataque por inimigo próximo (máx 50%)' },
+      5:  { type:'bankai_pressure', aoe_r:90, aoe_mult:0.90, label:'Smash Sísmico: kills causam impacto devastador em área (90% dano / raio 90px)' },
+      10: { type:'three_swords', trigger_at:3, mult:4.5, label:'HULK SMASH: a cada 3 ataques, o golpe é LEGENDÁRIO (4.5× dano)' }
+    },
+    upgrades:[
+      { name:'Punho do Hulk',    desc:'+6% / inimigo (máx 55%)',              passive_override:{per_enemy:0.06, max_bonus:0.55},               cost:400 },
+      { name:'Fúria Verde',      desc:'Vel ×1.3 | Alcance ×1.1',              speed_mult:1.3, range_mult:1.1,                                  cost:600 },
+      { name:'Hulk Definitivo',  desc:'Dano ×1.4 | +7% / inimigo (máx 65%)', damage_mult:1.4, passive_override:{per_enemy:0.07, max_bonus:0.65}, cost:820 },
+      { name:'Rage Mode',        desc:'Bônus persiste 4s | Dano ×1.2',        damage_mult:1.2, passive_override:{per_enemy:0.07, max_bonus:0.70, fade_time:4}, cost:1100 },
+      { name:'Punho Sísmico',    desc:'Alcance ×1.15 | Dano ×1.4',            range_mult:1.15, damage_mult:1.4,                                cost:1500 },
+      { name:'HULK SMASH!!!',   desc:'Dano ×1.8 | +8% / inimigo (máx 80%)',  damage_mult:1.8, passive_override:{per_enemy:0.08, max_bonus:0.80, fade_time:5}, cost:2200 }
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  MARVEL — 5⭐  |  Drop exclusivo (Fase 6) + evolução do Hulk
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Iron Man Mark 50 — Unibeam periódico de altíssimo dano | 6 upgrades
+  // Linha | unibeam: a cada 8 ataques, dispara Unibeam (8× dano em linha)
+  iron_man_mark50: {
+    id:'iron_man_mark50', name:'Iron Man Mark 50', rarity:5, series:'marvel', playable:true, xp_value:10000, initials:'IM',
+    image:'assets/towers/world4/Iron Man Mark 50.png',
+    passive:{ type:'unibeam', attacks_required:8, mult:8,
+      label:'Unibeam: a cada 8 ataques, dispara o Unibeam central (8× dano em linha, acerta todos)' },
+    base_stats:{ damage:340, range:152, attack_speed:1.18, type:'linha' },
+    deploy_cost:800, max_level:50,
+    prestige_passives: {
+      1:  { type:'arc_chain', chain_r:90, chain_mult:0.50, chains:2, label:'Repulsor Duplo: disparos encadeiam para 2 inimigos próximos (50% dano)' },
+      5:  { type:'critical', chance:0.25, mult:3.0, label:'Sistema de Mira JARVIS: 25% de chance de disparo crítico (3× dano)' },
+      10: { type:'spirit_surge', trigger_at:5, mult:10.0, label:'Modo Extremis: a cada 5 ataques, ativa modo pleno (10× dano total)' }
+    },
+    upgrades:[
+      { name:'Repulsor Mk.45',   desc:'Dano ×1.3 | Vel ×1.2',                     damage_mult:1.3, speed_mult:1.2,                                        cost:900 },
+      { name:'Modo Assalto',     desc:'Alcance ×1.15 | Unibeam → 9× dano',         range_mult:1.15, passive_override:{mult:9},                            cost:1300 },
+      { name:'JARVIS Online',    desc:'Vel ×1.15 | Unibeam a cada 7 ataques',       speed_mult:1.15, passive_override:{attacks_required:7, mult:9},         cost:1700 },
+      { name:'Nanites Mark 50',  desc:'Dano ×1.4 | Alcance ×1.15',                 damage_mult:1.4, range_mult:1.15,                                       cost:2200 },
+      { name:'Modo Extremis',    desc:'Unibeam → 10× | Unibeam a cada 6 ataques',  passive_override:{attacks_required:6, mult:10},                        cost:2800 },
+      { name:'Iron Man Superior',desc:'Dano ×2.0 | Unibeam a cada 5 ataques | 12×',damage_mult:2.0, passive_override:{attacks_required:5, mult:12},        cost:4000 }
+    ]
+  },
+
+  // World Breaker Hulk — Explosões gamma em cadeia amplificadas | 6 upgrades
+  // AOE | gamma_burst: kills causam explosão AOE (3× dano base, +20% por kill consecutiva)
+  world_breaker_hulk: {
+    id:'world_breaker_hulk', name:'Hulk Quebra-Mundo', rarity:5, series:'marvel', playable:true, xp_value:10000, initials:'WBH',
+    image:'assets/towers/world4/World Breaker Hulk.png',
+    evolution:{ source:'hulk_base', requires:[{ id:'hulk_base', count:3 }] },
+    passive:{ type:'gamma_burst', burst_mult:3.0, streak_bonus:0.20, streak_dur:3, radius:120,
+      label:'Explosão Gamma: kills causam explosão em área (3× dano / raio 120px; +20% por kill consecutiva em 3s)' },
+    base_stats:{ damage:370, range:108, attack_speed:0.95, type:'aoe' },
+    deploy_cost:1000, max_level:50,
+    prestige_passives: {
+      1:  { type:'bankai_pressure', aoe_r:100, aoe_mult:1.0, label:'Fúria Gamma: kills adicionais criam ondas de choque duplas (100% dano, raio 100px)' },
+      5:  { type:'berserker', per_enemy:0.07, max_bonus:1.2, label:'Raiva Primordial: +7% vel de ataque por inimigo próximo (máx 120%)' },
+      10: { type:'slow_aura', slow_pct:0.50, label:'Campo de Radiação Gamma: aura passiva reduz velocidade de todos os inimigos em 50%' }
+    },
+    upgrades:[
+      { name:'Corpo Destruidor',    desc:'Dano ×1.4 | Burst → raio 140px',           damage_mult:1.4, passive_override:{radius:140},                                    cost:1100 },
+      { name:'Fúria Gamma',         desc:'Vel ×1.2 | Burst → 3.5× dano',              speed_mult:1.2, passive_override:{burst_mult:3.5},                                 cost:1600 },
+      { name:'Terra Partido',       desc:'Alcance ×1.2 | +25% por kill consecutiva',  range_mult:1.2, passive_override:{streak_bonus:0.25},                              cost:2100 },
+      { name:'Quebra-Mundo Ativo',  desc:'Dano ×1.5 | Burst → raio 160px',           damage_mult:1.5, passive_override:{burst_mult:4.0, radius:160},                    cost:2700 },
+      { name:'Nível Sentry',        desc:'Vel ×1.15 | Burst → 4.5× | +30% por kill', speed_mult:1.15, passive_override:{burst_mult:4.5, streak_bonus:0.30, radius:170}, cost:3500 },
+      { name:'Fim do Mundo',        desc:'Dano ×2.0 | Burst → 5× | raio 200px',      damage_mult:2.0, passive_override:{burst_mult:5.0, streak_bonus:0.35, radius:200}, cost:5000 }
+    ]
   }
 };
 
 // Full pool — usado pelo BannerSystem
 const ALL_CHARACTERS_POOL = {
-  star3: ['ichigo_base','goku_base','l_deathnote','demolidor','sasuke_uchiha','killua_zoldyck','tanjiro_kamado','zoro_3','luffy_3','nami_3','usopp_3','brook_3','rukia_kuchiki','renji_abarai','uryu_ishida','orihime_inoue','chad_yasutora'],
-  star4: ['naruto_shippuden','levi_ackerman','meliodas_base','sanji_4','robin_4','ace_4','byakuya_kuchiki','toshiro_hitsugaya','kenpachi_zaraki'],
+  star3: ['ichigo_base','goku_base','l_deathnote','demolidor','sasuke_uchiha','killua_zoldyck','tanjiro_kamado','zoro_3','luffy_3','nami_3','usopp_3','brook_3','rukia_kuchiki','renji_abarai','uryu_ishida','orihime_inoue','chad_yasutora','spider_man','black_widow','hawkeye'],
+  star4: ['naruto_shippuden','levi_ackerman','meliodas_base','sanji_4','robin_4','ace_4','byakuya_kuchiki','toshiro_hitsugaya','kenpachi_zaraki','black_panther','thor','hulk_base'],
   star5: ['gojo_satoru','luffy_5','ichigo_bankai']
 };
 

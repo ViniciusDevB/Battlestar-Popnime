@@ -18,6 +18,15 @@ const CHAR_COLORS = {
   meliodas_base:    '#ab47bc',
   naruto_sage:      '#ffb300',
   gojo_satoru:      '#e3f2fd',
+  // Marvel
+  spider_man:         '#dc2626',
+  black_widow:        '#1c1917',
+  hawkeye:            '#7c3aed',
+  black_panther:      '#6d28d9',
+  thor:               '#fbbf24',
+  hulk_base:          '#16a34a',
+  iron_man_mark50:    '#dc2626',
+  world_breaker_hulk: '#15803d',
 };
 
 // Todos os handlers de passiva. Acessa estado do jogo via _passiveCtx.
@@ -665,6 +674,202 @@ var PASSIVE_ENTRIES = {
 
   // Orochimaru — passiva informativa; lógica de venda 100% já tratada em sellTower()
   edo_tensei_economy: {},
+
+  // ═══════════════════════════════════════════════════════
+  //  MARVEL — Passivas exclusivas do Mundo 4
+  // ═══════════════════════════════════════════════════════
+
+  // Spider-Man — teia no solo que paralisa inimigos que passam por ela
+  web_zone: {
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      if (hitEnemies.length === 0) return;
+      const target = hitEnemies[0];
+      const webR   = _passiveCtx.getPassiveValue(tower, 'web_radius', p.web_radius || 55);
+      const dur    = _passiveCtx.getPassiveValue(tower, 'duration',   p.duration   || 2.5);
+      // Aplica slow (freeze) no alvo e em inimigos próximos ao ponto de impacto
+      _passiveCtx.enemies.forEach(e => {
+        if (!e.dead && !e.reached_end && _passiveCtx.dist2d(e.x, e.y, target.x, target.y) <= webR)
+          applyStatus(e, 'freeze', { slow_pct: 0.6, duration: dur });
+      });
+      _passiveCtx.addEffect({ type:'ring', x:target.x, y:target.y, maxR:webR, color:'#cbd5e1', timer:0.4, maxTimer:0.4, r:0 });
+    }
+  },
+
+  // Black Widow — mata marcam inimigos próximos recebendo +25% dano de todas as fontes
+  cross_mark: {
+    onKill(tower, p, enemy) {
+      const range  = _passiveCtx.getTowerStats(tower).range * 1.2;
+      const dur    = _passiveCtx.getPassiveValue(tower, 'duration', p.duration || 6);
+      const bonus  = _passiveCtx.getPassiveValue(tower, 'bonus',    p.bonus    || 0.25);
+      let marked = 0;
+      _passiveCtx.enemies.forEach(e => {
+        if (!e.dead && !e.reached_end && _passiveCtx.dist2d(e.x, e.y, enemy.x, enemy.y) <= range) {
+          e.crossMarked      = true;
+          e.crossMarkTimer   = dur;
+          e.crossMarkBonus   = bonus;
+          marked++;
+        }
+      });
+      if (marked > 0) {
+        _passiveCtx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:range, color:'#f87171', timer:0.45, maxTimer:0.45, r:0 });
+      }
+    }
+  },
+
+  // Hawkeye — cicla entre 4 tipos de flecha (normal ×1.8, explosiva AOE, gelo, perfurante)
+  arrow_rotation: {
+    renderBadge(tower, p) {
+      const idx   = (tower.arrowIndex || 0) % 4;
+      const names = ['🟡','💥','❄️','➡️'];
+      return { text: names[idx], color:'#fbbf24' };
+    },
+    beforeAttack(tower, p, stats) {
+      tower.arrowIndex = (tower.arrowIndex || 0);
+      const idx = tower.arrowIndex % 4;
+      tower.arrowIndex++;
+      switch(idx) {
+        case 0: return { ...stats, damage: stats.damage * 1.8 };            // Normal poderosa
+        case 1: return { ...stats, type:'aoe', damage: stats.damage * 0.9 };// Explosiva
+        case 2: tower._nextShotFreeze = true; return stats;                  // Gelo (flag para onHit)
+        case 3: return { ...stats, type:'pierce', pierce_count:3 };          // Perfurante
+      }
+      return stats;
+    },
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      if (tower._nextShotFreeze && hitEnemies.length > 0) {
+        const dur = _passiveCtx.getPassiveValue(tower, 'freeze_dur', p.freeze_dur || 3);
+        hitEnemies.forEach(e => applyStatus(e, 'freeze', { slow_pct:1.0, duration:dur }));
+        tower._nextShotFreeze = false;
+      }
+    }
+  },
+
+  // Black Panther — ataques ricocheteiam para N inimigos próximos ao alvo
+  ricochet_aura: {
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      if (hitEnemies.length === 0 || tower.isClone) return;
+      const bounces = _passiveCtx.getPassiveValue(tower, 'bounces', p.bounces || 2);
+      const radius  = _passiveCtx.getPassiveValue(tower, 'radius',  p.radius  || 80);
+      const mult    = _passiveCtx.getPassiveValue(tower, 'mult',    p.mult    || 0.55);
+      const primary = hitEnemies[0];
+      const already = new Set([primary]);
+      const nearby = _passiveCtx.enemies
+        .filter(e => !e.dead && !e.reached_end && !already.has(e) &&
+                     _passiveCtx.dist2d(e.x, e.y, primary.x, primary.y) <= radius)
+        .sort((a,b) => _passiveCtx.dist2d(a.x,a.y,primary.x,primary.y) - _passiveCtx.dist2d(b.x,b.y,primary.x,primary.y))
+        .slice(0, bounces);
+      nearby.forEach(e => {
+        _passiveCtx.dealDamage(tower, e, stats.damage * mult);
+        _passiveCtx.addEffect({ type:'line', x:primary.x, y:primary.y, tx:e.x, ty:e.y, color:'#7c3aed', timer:0.18, maxTimer:0.18 });
+      });
+    }
+  },
+
+  // Thor — cada ataque encadeia raios para N inimigos próximos ao alvo
+  chain_lightning: {
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      if (hitEnemies.length === 0 || tower.isClone) return;
+      const chains = _passiveCtx.getPassiveValue(tower, 'chains', p.chains || 3);
+      const radius = _passiveCtx.getPassiveValue(tower, 'radius', p.radius || 90);
+      const mult   = _passiveCtx.getPassiveValue(tower, 'mult',   p.mult   || 0.40);
+      const primary = hitEnemies.reduce((b,e) => e.dist > b.dist ? e : b, hitEnemies[0]);
+      const chained = [primary];
+      let current = primary;
+      for (let i = 0; i < chains; i++) {
+        const next = _passiveCtx.enemies
+          .filter(e => !e.dead && !e.reached_end && !chained.includes(e) &&
+                       _passiveCtx.dist2d(e.x,e.y,current.x,current.y) <= radius)
+          .sort((a,b) => _passiveCtx.dist2d(a.x,a.y,current.x,current.y) - _passiveCtx.dist2d(b.x,b.y,current.x,current.y))[0];
+        if (!next) break;
+        _passiveCtx.dealDamage(tower, next, stats.damage * mult);
+        _passiveCtx.addEffect({ type:'line', x:current.x, y:current.y, tx:next.x, ty:next.y, color:'#fbbf24', timer:0.22, maxTimer:0.22 });
+        chained.push(next);
+        current = next;
+      }
+    }
+  },
+
+  // Hulk — fúria por inimigos no alcance (+5% dano por inimigo, máx configurável)
+  rage_stack: {
+    renderBadge(tower, p) {
+      const stacks = tower.rageStacks || 0;
+      if (stacks === 0) return null;
+      return { text:`+${stacks * (p.per_enemy||5)}%`, color:'#10b981' };
+    },
+    update(tower, p, dt) {
+      if (tower.isClone) return;
+      const stats    = _passiveCtx.getTowerStats(tower);
+      const inRange  = _passiveCtx.enemies.filter(e => !e.dead && !e.reached_end &&
+                       _passiveCtx.dist2d(tower.x,tower.y,e.x,e.y) <= stats.range);
+      tower.rageStacks = inRange.length;
+      if (inRange.length === 0) {
+        tower._rageFadeTimer = (tower._rageFadeTimer || 0) - dt;
+        if (tower._rageFadeTimer <= 0) tower.rageStacks = 0;
+      } else {
+        tower._rageFadeTimer = _passiveCtx.getPassiveValue(tower, 'fade_time', p.fade_time || 3);
+      }
+    },
+    onHit(tower, p, enemy, dmg) {
+      const stacks  = tower.rageStacks || 0;
+      if (stacks === 0) return dmg;
+      const perEnemy = _passiveCtx.getPassiveValue(tower, 'per_enemy', p.per_enemy || 0.05);
+      const maxBonus = _passiveCtx.getPassiveValue(tower, 'max_bonus', p.max_bonus || 0.50);
+      return dmg * (1 + Math.min(stacks * perEnemy, maxBonus));
+    }
+  },
+
+  // Iron Man — a cada N ataques, dispara um Unibeam (linha, dano massivo)
+  unibeam: {
+    renderBadge(tower, p) {
+      const cnt  = (tower.unibeamCounter || 0);
+      const need = _passiveCtx.getPassiveValue(tower, 'attacks_required', p.attacks_required || 8);
+      return { text:`UB ${cnt}/${need}`, color: cnt >= need - 1 ? '#f59e0b' : '#94a3b8' };
+    },
+    beforeAttack(tower, p, stats) {
+      tower.unibeamCounter = (tower.unibeamCounter || 0) + 1;
+      const need = _passiveCtx.getPassiveValue(tower, 'attacks_required', p.attacks_required || 8);
+      const mult = _passiveCtx.getPassiveValue(tower, 'mult', p.mult || 8);
+      if (tower.unibeamCounter >= need) {
+        tower.unibeamCounter = 0;
+        _passiveCtx.addEffect({ type:'shockwave', x:tower.x, y:tower.y, maxR:50, color:'#fbbf24', timer:0.3, maxTimer:0.3, r:0 });
+        return { ...stats, type:'linha', damage: stats.damage * mult };
+      }
+      return stats;
+    }
+  },
+
+  // World Breaker Hulk — ao matar, explosão AOE com dano crescente por kills consecutivas
+  gamma_burst: {
+    renderBadge(tower, p) {
+      const streak = tower.gammaStreak || 0;
+      if (streak === 0) return null;
+      return { text:`🔥×${streak}`, color:'#10b981' };
+    },
+    update(tower, p, dt) {
+      if ((tower.gammaStreak || 0) === 0) return;
+      tower._gammaStreakTimer = (tower._gammaStreakTimer || 0) - dt;
+      if (tower._gammaStreakTimer <= 0) tower.gammaStreak = 0;
+    },
+    onKill(tower, p, enemy) {
+      const radius   = _passiveCtx.getPassiveValue(tower, 'radius',   p.radius   || 120);
+      const baseMult = _passiveCtx.getPassiveValue(tower, 'burst_mult',p.burst_mult|| 3.0);
+      const streakM  = _passiveCtx.getPassiveValue(tower, 'streak_bonus',p.streak_bonus||0.20);
+      const streakDur= _passiveCtx.getPassiveValue(tower, 'streak_dur', p.streak_dur || 3);
+      tower.gammaStreak = (tower.gammaStreak || 0) + 1;
+      tower._gammaStreakTimer = streakDur;
+      const mult = baseMult + (tower.gammaStreak - 1) * streakM;
+      const stats = _passiveCtx.getTowerStats(tower);
+      let hits = 0;
+      _passiveCtx.enemies.forEach(e => {
+        if (!e.dead && !e.reached_end && _passiveCtx.dist2d(e.x,e.y,enemy.x,enemy.y) <= radius) {
+          _passiveCtx.dealDamage(tower, e, stats.damage * mult);
+          hits++;
+        }
+      });
+      if (hits > 0)
+        _passiveCtx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:radius, color:'#10b981', timer:0.5, maxTimer:0.5, r:0 });
+    }
+  },
 
   none: {}
 };

@@ -687,6 +687,172 @@ const STAGES = [
       buildWave([{type:'hollow_grande',count:3,gap:1.3},{type:'vasto_lorde',count:2,gap:1.5},{type:'espada_regen',count:2,gap:12.0},{type:'aizen_fase1',count:1,gap:0}])
     ]
   },
+// ══════════════════════════════════════════════════════
+//  MV FASE 1 — Manhattan (só invasor normal)
+//  W1–3: invasor puro
+//  W4–7: mais invasores, volume crescente
+//  W8–9: rush
+//  W10: Batroc (dash + velocidade alta)
+// ══════════════════════════════════════════════════════
+{
+  id: 'mv_fase1', name: 'Manhattan', world: 'marvel',
+  drops: [
+    { id: 'avenger_material_1', chance: 70 },
+    { id: 'avenger_material_2', chance: 20 },
+    { id: 'avenger_material_3', chance: 10 }
+  ],
+  waves: [
+    buildWave([{type:'invasor',count:6,gap:1.6}]),
+    buildWave([{type:'invasor',count:7,gap:1.5}]),
+    buildWave([{type:'invasor',count:8,gap:1.4}]),
+    buildWave([{type:'invasor',count:9,gap:1.3}]),
+    buildWave([{type:'invasor',count:10,gap:1.3}]),
+    buildWave([{type:'invasor',count:10,gap:1.2}]),
+    buildWave([{type:'invasor',count:11,gap:1.1}]),
+    buildWave([{type:'invasor',count:13,gap:1.0}]),
+    buildWave([{type:'invasor',count:15,gap:0.9}]),
+    buildWave([{type:'invasor',count:4,gap:1.3},{type:'batroc',count:1,gap:0}])
+  ]
+},
+
+// ══════════════════════════════════════════════════════
+//  MV FASE 2 — Helicarrier (entra SPEED)
+//  W1–3: invasor puro
+//  W4–6: + invasor_veloz (Speed)
+//  W7–9: mix crescente
+//  W10: Crossbones (colete suicida)
+// ══════════════════════════════════════════════════════
+{
+  id: 'mv_fase2', name: 'Helicarrier S.H.I.E.L.D.', world: 'marvel',
+  drops: [
+    { id: 'avenger_material_1', chance: 50 },
+    { id: 'avenger_material_2', chance: 30 },
+    { id: 'avenger_material_3', chance: 15 }
+  ],
+  waves: [
+    buildWave([{type:'invasor',count:6,gap:1.5}]),
+    buildWave([{type:'invasor',count:7,gap:1.4}]),
+    buildWave([{type:'invasor',count:8,gap:1.3}]),
+    buildWave([{type:'invasor',count:6,gap:1.3},{type:'invasor_veloz',count:2,gap:0.8}]),
+    buildWave([{type:'invasor',count:5,gap:1.2},{type:'invasor_veloz',count:3,gap:0.7}]),
+    buildWave([{type:'invasor',count:5,gap:1.1},{type:'invasor_veloz',count:4,gap:0.7}]),
+    buildWave([{type:'invasor',count:4,gap:1.1},{type:'invasor_veloz',count:5,gap:0.6}]),
+    buildWave([{type:'invasor',count:4,gap:1.0},{type:'invasor_veloz',count:5,gap:0.6}]),
+    buildWave([{type:'invasor',count:3,gap:1.0},{type:'invasor_veloz',count:6,gap:0.5}]),
+    buildWave([{type:'invasor',count:3,gap:1.2},{type:'invasor_veloz',count:2,gap:0.7},{type:'crossbones',count:1,gap:0}])
+  ]
+},
+
+// ══════════════════════════════════════════════════════
+//  MV FASE 3 — Sokovia (entra FORTIFIED)
+//  Backbone normal: invasor (maioria)
+//  W1–3: invasor puro
+//  W4–6: + invasor_veloz
+//  W7–9: + invasor_blindado (Fortified)
+//  W10: Ronan (sentencia a melhor torre)
+// ══════════════════════════════════════════════════════
+{
+  id: 'mv_fase3', name: 'Sokovia', world: 'marvel',
+  drops: [
+    { id: 'avenger_material_2', chance: 50 },
+    { id: 'avenger_material_3', chance: 40 }
+  ],
+  waves: [
+    buildWave([{type:'invasor',count:8,gap:1.5}]),
+    buildWave([{type:'invasor',count:9,gap:1.4}]),
+    buildWave([{type:'invasor',count:10,gap:1.3}]),
+    buildWave([{type:'invasor',count:7,gap:1.3},{type:'invasor_veloz',count:3,gap:0.8}]),
+    buildWave([{type:'invasor',count:6,gap:1.2},{type:'invasor_veloz',count:4,gap:0.7}]),
+    buildWave([{type:'invasor',count:6,gap:1.1},{type:'invasor_veloz',count:4,gap:0.7}]),
+    buildWave([{type:'invasor',count:5,gap:1.1},{type:'invasor_veloz',count:4,gap:0.7},{type:'invasor_blindado',count:1,gap:0}]),
+    buildWave([{type:'invasor',count:5,gap:1.0},{type:'invasor_veloz',count:4,gap:0.6},{type:'invasor_blindado',count:2,gap:11.0}]),
+    buildWave([{type:'invasor',count:4,gap:1.0},{type:'invasor_veloz',count:4,gap:0.6},{type:'invasor_blindado',count:3,gap:10.0}]),
+    buildWave([{type:'invasor',count:3,gap:1.2},{type:'invasor_veloz',count:2,gap:0.7},{type:'invasor_blindado',count:1,gap:0},{type:'ronan',count:1,gap:0}])
+  ]
+},
+
+// ══════════════════════════════════════════════════════
+//  MV FASE 4 — Wakanda (entra REGEN)
+//  Backbone normal: invasor (maioria)
+//  W1–3: invasor + invasor_veloz
+//  W4–6: + invasor_blindado
+//  W7–9: + invasor_regen
+//  W10: Corvus Glaive (glaive imortal)
+// ══════════════════════════════════════════════════════
+{
+  id: 'mv_fase4', name: 'Wakanda', world: 'marvel',
+  drops: [
+    { id: 'avenger_material_2', chance: 20 },
+    { id: 'avenger_material_3', chance: 70 }
+  ],
+  waves: [
+    buildWave([{type:'invasor',count:8,gap:1.4},{type:'invasor_veloz',count:2,gap:0.9}]),
+    buildWave([{type:'invasor',count:8,gap:1.3},{type:'invasor_veloz',count:3,gap:0.8}]),
+    buildWave([{type:'invasor',count:7,gap:1.2},{type:'invasor_veloz',count:3,gap:0.8},{type:'invasor_blindado',count:1,gap:0}]),
+    buildWave([{type:'invasor',count:6,gap:1.2},{type:'invasor_veloz',count:3,gap:0.7},{type:'invasor_blindado',count:2,gap:11.0}]),
+    buildWave([{type:'invasor',count:6,gap:1.1},{type:'invasor_veloz',count:3,gap:0.7},{type:'invasor_blindado',count:2,gap:10.0}]),
+    buildWave([{type:'invasor',count:5,gap:1.1},{type:'invasor_veloz',count:4,gap:0.7},{type:'invasor_blindado',count:2,gap:10.0}]),
+    buildWave([{type:'invasor',count:5,gap:1.0},{type:'invasor_veloz',count:3,gap:0.7},{type:'invasor_blindado',count:2,gap:9.0},{type:'invasor_regen',count:1,gap:0}]),
+    buildWave([{type:'invasor',count:4,gap:1.0},{type:'invasor_veloz',count:3,gap:0.6},{type:'invasor_blindado',count:2,gap:9.0},{type:'invasor_regen',count:2,gap:13.0}]),
+    buildWave([{type:'invasor',count:4,gap:1.0},{type:'invasor_veloz',count:3,gap:0.6},{type:'invasor_blindado',count:2,gap:8.0},{type:'invasor_regen',count:3,gap:12.0}]),
+    buildWave([{type:'invasor',count:3,gap:1.2},{type:'invasor_veloz',count:2,gap:0.7},{type:'invasor_regen',count:1,gap:0},{type:'corvus_glaive',count:1,gap:0}])
+  ]
+},
+
+// ══════════════════════════════════════════════════════
+//  MV FASE 5 — Titan (entra BOMB)
+//  Backbone normal: invasor (maioria)
+//  W1–3: invasor + invasor_veloz + invasor_regen
+//  W4–6: + invasor_blindado
+//  W7–9: + invasor_explosivo (Bomb)
+//  W10: Ebony Maw (telecinese)
+// ══════════════════════════════════════════════════════
+{
+  id: 'mv_fase5', name: 'Titan', world: 'marvel',
+  drops: [
+    { id: 'avenger_material_3', chance: 90 }
+  ],
+  waves: [
+    buildWave([{type:'invasor',count:7,gap:1.3},{type:'invasor_veloz',count:2,gap:0.8},{type:'invasor_regen',count:1,gap:0}]),
+    buildWave([{type:'invasor',count:6,gap:1.2},{type:'invasor_veloz',count:3,gap:0.8},{type:'invasor_regen',count:2,gap:13.0}]),
+    buildWave([{type:'invasor',count:6,gap:1.2},{type:'invasor_veloz',count:3,gap:0.7},{type:'invasor_regen',count:2,gap:12.0}]),
+    buildWave([{type:'invasor',count:5,gap:1.1},{type:'invasor_veloz',count:3,gap:0.7},{type:'invasor_regen',count:2,gap:12.0},{type:'invasor_blindado',count:1,gap:0}]),
+    buildWave([{type:'invasor',count:5,gap:1.1},{type:'invasor_veloz',count:3,gap:0.6},{type:'invasor_regen',count:2,gap:11.0},{type:'invasor_blindado',count:2,gap:10.0}]),
+    buildWave([{type:'invasor',count:4,gap:1.0},{type:'invasor_veloz',count:3,gap:0.6},{type:'invasor_regen',count:2,gap:10.0},{type:'invasor_blindado',count:2,gap:9.0}]),
+    buildWave([{type:'invasor',count:4,gap:1.0},{type:'invasor_veloz',count:3,gap:0.6},{type:'invasor_regen',count:2,gap:9.0},{type:'invasor_blindado',count:2,gap:9.0},{type:'invasor_explosivo',count:2,gap:1.5}]),
+    buildWave([{type:'invasor',count:3,gap:1.0},{type:'invasor_veloz',count:3,gap:0.6},{type:'invasor_regen',count:2,gap:9.0},{type:'invasor_blindado',count:2,gap:8.0},{type:'invasor_explosivo',count:3,gap:1.2}]),
+    buildWave([{type:'invasor',count:3,gap:1.0},{type:'invasor_veloz',count:3,gap:0.5},{type:'invasor_regen',count:2,gap:8.0},{type:'invasor_blindado',count:2,gap:8.0},{type:'invasor_explosivo',count:4,gap:1.0}]),
+    buildWave([{type:'invasor',count:2,gap:1.3},{type:'invasor_veloz',count:2,gap:0.7},{type:'invasor_regen',count:1,gap:0},{type:'invasor_blindado',count:1,gap:0},{type:'ebony_maw',count:1,gap:0}])
+  ]
+},
+
+// ══════════════════════════════════════════════════════
+//  MV FASE 6 — O Espaço (gauntlet final, todos os tipos)
+//  W1–3: invasor + invasor_veloz
+//  W4–6: + invasor_blindado + invasor_regen
+//  W7–9: + invasor_explosivo (pressão máxima)
+//  W10: Thanos (2 fases)
+// ══════════════════════════════════════════════════════
+{
+  id: 'mv_fase6', name: 'O Espaço', world: 'marvel', isBoss: true,
+  drops: [
+    { id: 'avenger_material_3', chance: 40 },
+    { id: 'iron_man_mark50',    chance: 0.1, pity: 200 }
+  ],
+  waves: [
+    buildWave([{type:'invasor',count:7,gap:1.3},{type:'invasor_veloz',count:3,gap:0.8}]),
+    buildWave([{type:'invasor',count:7,gap:1.2},{type:'invasor_veloz',count:4,gap:0.7}]),
+    buildWave([{type:'invasor',count:6,gap:1.2},{type:'invasor_veloz',count:5,gap:0.7}]),
+    buildWave([{type:'invasor',count:6,gap:1.1},{type:'invasor_veloz',count:4,gap:0.7},{type:'invasor_blindado',count:1,gap:0}]),
+    buildWave([{type:'invasor',count:5,gap:1.1},{type:'invasor_veloz',count:4,gap:0.6},{type:'invasor_blindado',count:2,gap:10.0},{type:'invasor_regen',count:1,gap:0}]),
+    buildWave([{type:'invasor',count:5,gap:1.0},{type:'invasor_veloz',count:4,gap:0.6},{type:'invasor_blindado',count:2,gap:9.0},{type:'invasor_regen',count:2,gap:12.0}]),
+    buildWave([{type:'invasor',count:4,gap:1.0},{type:'invasor_veloz',count:4,gap:0.6},{type:'invasor_blindado',count:2,gap:9.0},{type:'invasor_regen',count:2,gap:11.0},{type:'invasor_explosivo',count:3,gap:1.2}]),
+    buildWave([{type:'invasor',count:4,gap:0.9},{type:'invasor_veloz',count:4,gap:0.5},{type:'invasor_blindado',count:2,gap:8.0},{type:'invasor_regen',count:2,gap:10.0},{type:'invasor_explosivo',count:4,gap:1.0}]),
+    buildWave([{type:'invasor',count:3,gap:0.9},{type:'invasor_veloz',count:5,gap:0.5},{type:'invasor_blindado',count:2,gap:7.0},{type:'invasor_regen',count:3,gap:9.0},{type:'invasor_explosivo',count:5,gap:0.9}]),
+    buildWave([{type:'invasor',count:3,gap:1.3},{type:'invasor_veloz',count:2,gap:0.7},{type:'invasor_regen',count:2,gap:12.0},{type:'invasor_explosivo',count:2,gap:1.2},{type:'thanos_fase1',count:1,gap:0}])
+  ]
+},
+
   {
     id: 'infinito_partida',
     name: '♾ Modo Infinito',
