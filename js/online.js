@@ -502,8 +502,8 @@ const Online = (() => {
         filter: `id=eq.${missionId}`,
       }, (payload) => {
         _activeMission = { ..._activeMission, ...payload.new };
-        if (typeof CommunityMissionUI !== 'undefined') {
-          CommunityMissionUI.onMissionUpdate(_activeMission);
+        if (typeof MissionsUI !== 'undefined') {
+          MissionsUI.onMissionUpdate(_activeMission);
         }
       })
       .subscribe();

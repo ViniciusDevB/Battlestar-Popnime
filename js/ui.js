@@ -16,7 +16,6 @@ const UI = (() => {
   function showHub() {
     showScreen('hub');
     updateCurrencyDisplay();
-    Missions.renderMissions();
   }
 
   function showEvents() {

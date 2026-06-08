@@ -17,7 +17,6 @@
     <div class="hub-logo">
       <span class="hub-logo-star">⭐</span>
       <span class="hub-logo-text">BATTLESTAR POPNIME</span>
-      <button class="btn-missions-toggle" onclick="document.getElementById('hub-missions-panel').classList.toggle('show')" title="Ver Missões">📋 Missões</button>
     </div>
     <div class="hub-topbar-right">
       <div class="hub-currencies">
@@ -55,6 +54,11 @@
       <span class="hab-label">UNIDADES</span>
       <span class="hab-sub">Gerenciar Time</span>
     </button>
+    <button class="hab hab--missions" onclick="MissionsUI.show()">
+      <span class="hab-icon">📋</span>
+      <span class="hab-label">MISSÕES</span>
+      <span class="hab-sub">Pessoais e Comunidade</span>
+    </button>
     <button class="hab hab--evo" onclick="UI.showInventory('evolution')">
       <span class="hab-icon">🔮</span>
       <span class="hab-label">EVOLUÇÃO</span>
@@ -75,16 +79,6 @@
       <span class="hab-label">TROCAS</span>
       <span class="hab-sub">Trocar Personagens</span>
     </button>
-    <button class="hab hab--missions-online" onclick="CommunityMissionUI.show()">
-      <span class="hab-icon">🎯</span>
-      <span class="hab-label">MISSÃO</span>
-      <span class="hab-sub">Comunidade</span>
-    </button>
-  </div>
-
-  <div id="hub-missions-panel" class="hub-missions-wrap">
-    <div class="hub-missions-hd">📋 Missões Ativas</div>
-    <div id="missions-list"></div>
   </div>
 
 </div>
@@ -365,8 +359,8 @@
   </div>
 </div>
 
-<!-- ══════════ COMMUNITY MISSIONS MODAL ══════════ -->
-<div id="missions-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)CommunityMissionUI.close()">
+<!-- ══════════ MISSIONS MODAL ══════════ -->
+<div id="missions-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)MissionsUI.close()">
   <div class="modal-box missions-modal-box">
     <div id="missions-modal-content"></div>
   </div>

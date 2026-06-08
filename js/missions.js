@@ -103,7 +103,7 @@ const Missions = (() => {
   }
 
   function renderMissions() {
-    const list = document.getElementById('missions-list');
+    const list = document.getElementById('missions-local-list');
     if (!list) return;
     const d = Save.get();
     list.innerHTML = '';

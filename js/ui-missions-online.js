@@ -1,10 +1,21 @@
-// js/ui-missions-online.js — UI de Missões da Comunidade
-const CommunityMissionUI = (() => {
+// js/ui-missions-online.js — Modal unificado de Missões (Pessoais + Comunidade)
+const MissionsUI = (() => {
+  let _activeTab   = 'local';
   let _mission     = null;
   let _contrib     = null;
   let _countdownId = null;
 
-  // ── Helpers ──────────────────────────────────────────────────────────────────
+  // ── Helpers (local) ──────────────────────────────────────────────────────────
+
+  function _rewardLabel(reward) {
+    const parts = [];
+    if (reward.tickets) parts.push(`+${reward.tickets} 🎫`);
+    if (reward.gems)    parts.push(`+${reward.gems} 💎`);
+    if (reward.materials) reward.materials.forEach(m => parts.push(`+${m.qty || 1}× ${m.id}`));
+    return parts.join(' ');
+  }
+
+  // ── Helpers (community) ───────────────────────────────────────────────────────
 
   function _fmt(n) {
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace('.', ',') + 'M';
@@ -24,50 +35,78 @@ const CommunityMissionUI = (() => {
   }
 
   const _goalLabel = {
-    kills:          'inimigos derrotados',
-    damage:         'de dano total',
-    stages_cleared: 'fases concluídas',
-    pulls:          'invocações',
+    kills: 'inimigos derrotados', damage: 'de dano total',
+    stages_cleared: 'fases concluídas', pulls: 'invocações',
   };
-
   const _contribLabel = {
-    kills:          'kills',
-    damage:         'dano',
-    stages_cleared: 'fases',
-    pulls:          'pulls',
+    kills: 'kills', damage: 'dano', stages_cleared: 'fases', pulls: 'pulls',
   };
 
-  // ── HTML builders ────────────────────────────────────────────────────────────
+  // ── HTML: shell com abas ──────────────────────────────────────────────────────
 
-  function _headerHTML() {
-    return `<div class="ms-header">
-      <h3>🎯 Missão da Comunidade</h3>
-      <button class="modal-close" onclick="CommunityMissionUI.close()">✕</button>
+  function _shellHTML() {
+    return `
+      <div class="ms-header">
+        <h3>📋 Missões</h3>
+        <button class="modal-close" onclick="MissionsUI.close()">✕</button>
+      </div>
+      <div class="ms-tabs">
+        <button class="ms-tab ${_activeTab === 'local' ? 'active' : ''}"
+          onclick="MissionsUI.setTab('local')">Pessoais</button>
+        <button class="ms-tab ${_activeTab === 'community' ? 'active' : ''}"
+          onclick="MissionsUI.setTab('community')">Comunidade</button>
+      </div>
+      <div id="ms-tab-content"></div>`;
+  }
+
+  // ── HTML: aba Pessoais ────────────────────────────────────────────────────────
+
+  function _localHTML() {
+    const d      = Save.get();
+    const active = d.missoes_ativas || [];
+    if (active.length === 0) {
+      return `<div class="ms-empty">
+        <div class="ms-empty-icon">🎉</div>
+        <p>Todas as missões pessoais completas!</p>
+      </div>`;
+    }
+    const items = active.map(mId => {
+      const m = getMissionById(mId);
+      if (!m) return '';
+      const prog = Math.min((d.stats && d.stats[m.stat]) || 0, m.target);
+      const pct  = Math.min(100, (prog / m.target) * 100);
+      return `<div class="mission-item">
+        <div class="mission-label">${m.label}</div>
+        <div class="mission-progress-bar"><div class="mission-fill" style="width:${pct}%"></div></div>
+        <div class="mission-meta">
+          <span>${prog.toLocaleString('pt-BR')} / ${m.target.toLocaleString('pt-BR')}</span>
+          <span class="mission-reward">${_rewardLabel(m.reward)}</span>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="ms-local-list">${items}</div>`;
+  }
+
+  // ── HTML: aba Comunidade ─────────────────────────────────────────────────────
+
+  function _offlineHTML() {
+    return `<div class="ms-empty">
+      <div class="ms-empty-icon">🔒</div>
+      <p>Entre na sua conta para ver as missões da comunidade.</p>
+      <button class="btn btn-primary ms-action-btn"
+        onclick="MissionsUI.close();OnlineUI.show()">Entrar / Criar Conta</button>
     </div>`;
   }
 
   function _noMissionHTML() {
-    return _headerHTML() + `
-      <div class="ms-empty">
-        <div class="ms-empty-icon">🏁</div>
-        <p>Nenhuma missão ativa no momento.</p>
-        <p class="ms-empty-sub">Uma nova missão começa em breve!</p>
-      </div>`;
+    return `<div class="ms-empty">
+      <div class="ms-empty-icon">🏁</div>
+      <p>Nenhuma missão ativa no momento.</p>
+      <p class="ms-empty-sub">Uma nova missão começa em breve!</p>
+    </div>`;
   }
 
-  function _offlineHTML() {
-    return _headerHTML() + `
-      <div class="ms-empty">
-        <div class="ms-empty-icon">🔒</div>
-        <p>Entre na sua conta para ver as missões da comunidade.</p>
-        <button class="btn btn-primary ms-action-btn"
-          onclick="CommunityMissionUI.close();OnlineUI.show()">
-          Entrar / Criar Conta
-        </button>
-      </div>`;
-  }
-
-  function _missionHTML() {
+  function _communityBodyHTML() {
     const m   = _mission;
     const pct = Math.min(100, Math.round((m.current_value / m.goal_value) * 100));
 
@@ -82,7 +121,7 @@ const CommunityMissionUI = (() => {
     let actionPart = '';
     if (m.completed) {
       if (_contrib && !_contrib.claimed_at) {
-        actionPart = `<button class="btn ms-claim-btn" onclick="CommunityMissionUI.claim('${m.id}')">
+        actionPart = `<button class="btn ms-claim-btn" onclick="MissionsUI.claim('${m.id}')">
           🎁 Resgatar Recompensa
         </button>`;
       } else if (_contrib?.claimed_at) {
@@ -93,8 +132,7 @@ const CommunityMissionUI = (() => {
     }
 
     const completedBanner = m.completed
-      ? `<div class="ms-completed-banner">🎉 META ALCANÇADA PELA COMUNIDADE!</div>`
-      : '';
+      ? `<div class="ms-completed-banner">🎉 META ALCANÇADA PELA COMUNIDADE!</div>` : '';
 
     const rewardUnits = (m.reward_units || []).map(id => {
       const ch = typeof getCharById !== 'undefined' ? getCharById(id) : null;
@@ -106,11 +144,9 @@ const CommunityMissionUI = (() => {
            <span class="ms-reward-label">Recompensa:</span>
            ${m.reward_gems > 0 ? `<span class="ms-reward-gem">💎 ${m.reward_gems} gemas</span>` : ''}
            ${rewardUnits}
-         </div>`
-      : '';
+         </div>` : '';
 
-    return _headerHTML() + `
-      ${completedBanner}
+    return `${completedBanner}
       <div class="ms-body">
         <div class="ms-title">${m.title}</div>
         ${m.description ? `<div class="ms-desc">${m.description}</div>` : ''}
@@ -124,21 +160,52 @@ const CommunityMissionUI = (() => {
         ${rewardLine}
         ${contribPart}
         ${actionPart}
-        <button class="btn ms-refresh-btn" onclick="CommunityMissionUI.refresh()">🔄 Atualizar</button>
+        <button class="btn ms-refresh-btn" onclick="MissionsUI.refresh()">🔄 Atualizar</button>
       </div>`;
   }
 
-  // ── Lifecycle ────────────────────────────────────────────────────────────────
+  // ── Internals ─────────────────────────────────────────────────────────────────
 
-  function _getModal()   { return document.getElementById('missions-modal'); }
-  function _getContent() { return document.getElementById('missions-modal-content'); }
+  function _getModal()    { return document.getElementById('missions-modal'); }
+  function _getContent()  { return document.getElementById('missions-modal-content'); }
+  function _getTabEl()    { return document.getElementById('ms-tab-content'); }
+
+  async function _renderTab() {
+    const tc = _getTabEl();
+    if (!tc) return;
+
+    if (_activeTab === 'local') {
+      tc.innerHTML = _localHTML();
+      return;
+    }
+
+    // Community tab
+    tc.innerHTML = '<div class="ms-loading">Carregando...</div>';
+    if (!Online.isLoggedIn()) { tc.innerHTML = _offlineHTML(); return; }
+
+    _mission = await Online.fetchActiveMission();
+    _contrib = _mission ? await Online.fetchMissionContribution(_mission.id) : null;
+    tc.innerHTML = _mission ? _communityBodyHTML() : _noMissionHTML();
+    _startCountdown();
+  }
+
+  function _startCountdown() {
+    if (_countdownId) clearInterval(_countdownId);
+    if (!_mission || _mission.completed) return;
+    _countdownId = setInterval(() => {
+      const el = document.getElementById('ms-time-left');
+      if (el) el.textContent = `⏱ ${_fmtTimeLeft(_mission.ends_at)}`;
+    }, 30000);
+  }
+
+  // ── Public API ────────────────────────────────────────────────────────────────
 
   async function show() {
     const modal = _getModal();
     if (!modal) return;
     modal.style.display = 'flex';
-    _getContent().innerHTML = '<div class="ms-loading">Carregando...</div>';
-    await refresh();
+    _getContent().innerHTML = _shellHTML();
+    await _renderTab();
   }
 
   function close() {
@@ -147,43 +214,43 @@ const CommunityMissionUI = (() => {
     if (_countdownId) { clearInterval(_countdownId); _countdownId = null; }
   }
 
-  async function refresh() {
-    if (!Online.isLoggedIn()) {
-      _getContent().innerHTML = _offlineHTML();
-      return;
-    }
-    _mission = await Online.fetchActiveMission();
-    _contrib = _mission ? await Online.fetchMissionContribution(_mission.id) : null;
-
-    const el = _getContent();
-    if (!el) return;
-    el.innerHTML = _mission ? _missionHTML() : _noMissionHTML();
-
-    _startCountdown();
+  async function setTab(tab) {
+    if (_activeTab === tab) return;
+    _activeTab = tab;
+    // Re-render the shell so tab buttons update, then render content
+    _getContent().innerHTML = _shellHTML();
+    await _renderTab();
   }
 
-  function _startCountdown() {
-    if (_countdownId) clearInterval(_countdownId);
-    if (!_mission || _mission.completed) return;
-    _countdownId = setInterval(() => {
-      const timeEl = document.getElementById('ms-time-left');
-      if (timeEl) timeEl.textContent = `⏱ ${_fmtTimeLeft(_mission.ends_at)}`;
-    }, 30000);
+  async function refresh() {
+    if (_activeTab === 'community') {
+      const tc = _getTabEl();
+      if (tc) tc.innerHTML = '<div class="ms-loading">Carregando...</div>';
+      if (!Online.isLoggedIn()) { if (tc) tc.innerHTML = _offlineHTML(); return; }
+      _mission = await Online.fetchActiveMission();
+      _contrib = _mission ? await Online.fetchMissionContribution(_mission.id) : null;
+      if (tc) tc.innerHTML = _mission ? _communityBodyHTML() : _noMissionHTML();
+      _startCountdown();
+    } else {
+      const tc = _getTabEl();
+      if (tc) tc.innerHTML = _localHTML();
+    }
   }
 
   function onMissionUpdate(updatedMission) {
     _mission = updatedMission;
+    if (_activeTab !== 'community') return;
     const modal = _getModal();
     if (!modal || modal.style.display === 'none') return;
-    const el = _getContent();
-    if (!el) return;
+    const tc = _getTabEl();
+    if (!tc) return;
     if (updatedMission.completed && Online.isLoggedIn()) {
       Online.fetchMissionContribution(updatedMission.id).then(c => {
         _contrib = c;
-        el.innerHTML = _missionHTML();
+        tc.innerHTML = _communityBodyHTML();
       });
     } else {
-      el.innerHTML = _missionHTML();
+      tc.innerHTML = _communityBodyHTML();
     }
   }
 
@@ -199,15 +266,15 @@ const CommunityMissionUI = (() => {
       await refresh();
     } else {
       const msgs = {
-        already_claimed:       'Recompensa já resgatada.',
-        no_contribution:       'Você não participou desta missão.',
+        already_claimed: 'Recompensa já resgatada.',
+        no_contribution: 'Você não participou desta missão.',
         mission_not_completed: 'A missão ainda não foi concluída.',
-        not_logged_in:         'Faça login para resgatar.',
+        not_logged_in: 'Faça login para resgatar.',
       };
       if (typeof UI !== 'undefined') UI.toast('❌ ' + (msgs[result.error] || result.error), 3000);
       if (btn) { btn.disabled = false; btn.textContent = '🎁 Resgatar Recompensa'; }
     }
   }
 
-  return { show, close, refresh, onMissionUpdate, claim };
+  return { show, close, setTab, refresh, onMissionUpdate, claim };
 })();
