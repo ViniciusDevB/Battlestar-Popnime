@@ -81,21 +81,21 @@ const CHARACTERS = {
     image: 'assets/towers/update0/L.png',
     is_farm_unit: true,
     passive: {
-      type: 'wave_gold', base: 60, perLevel: 3,
-      label: 'Análise Dedutiva: gera ouro ao fim de cada wave (escala com nível e upgrades)'
+      type: 'wave_gold', base: 50, perLevel: 2, prestigeMultPerLevel: 0.4,
+      label: 'Análise Dedutiva: gera ouro ao fim de cada wave (escala com nível, upgrades e prestígio)'
     },
     base_stats: { damage: 0, range: 136, attack_speed: 0, type: 'none' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'gold_detector', bonus: 8, label: 'Análise Criminal: +8 ouro extra quando torres aliadas matam no alcance de L' },
-      5: { type: 'field_commander', bonus: 0.12, label: 'Estratégia Mestre: presença de L concede +12% de dano a todas as torres' },
-      10: { type: 'field_commander', bonus: 0.20, label: 'Identificação Final: +20% de dano a todas as torres (acumula com P5)' }
+      5: { type: 'farm_aura', bonus_pct: 0.20, label: 'Rede de Influência: torres de farm aliadas no alcance geram +20% de ouro extra por wave' },
+      10: { type: 'gold_detector', bonus: 20, label: 'Identificação Final: kill bonus de aliados no alcance sobe para +20 ouro (substitui P1)' }
     },
     upgrades: [
-      { name: 'Planejamento', desc: '+30 ouro/wave | Alcance ×1.2', gold_bonus: 30, range_mult: 1.28, cost: 160 },
-      { name: 'Rede de Espionagem', desc: '+40 ouro/wave | +5 ouro por kill na área', gold_bonus: 40, kill_gold: 5, cost: 300 },
-      { name: 'Investigação Avançada', desc: '+50 ouro/wave | kill bonus → 10 ouro', gold_bonus: 50, kill_gold: 10, cost: 500 },
-      { name: 'Kira Identificado', desc: '+80 ouro/wave | kill bonus → 15 ouro | Alcance ×1.3', gold_bonus: 80, kill_gold: 15, range_mult: 1.35, cost: 750 }
+      { name: 'Planejamento', desc: '+50 ouro/wave | Alcance ×1.2', gold_bonus: 50, range_mult: 1.28, cost: 160 },
+      { name: 'Rede de Espionagem', desc: '+100 ouro/wave | +5 ouro por kill na área', gold_bonus: 100, kill_gold: 5, cost: 300 },
+      { name: 'Investigação Avançada', desc: '+150 ouro/wave | kill bonus → 10 ouro', gold_bonus: 150, kill_gold: 10, cost: 500 },
+      { name: 'Kira Identificado', desc: '+150 ouro/wave | kill bonus → 15 ouro | Alcance ×1.3', gold_bonus: 150, kill_gold: 15, range_mult: 1.35, cost: 750 }
     ]
   },
 
@@ -445,8 +445,8 @@ const CHARACTERS = {
     deploy_cost: 210, max_level: 50,
     prestige_passives: {
       1: { type: 'gold_detector', bonus: 6, label: 'Cura de Campo: +6 ouro extra quando torres aliadas matam no alcance de Orihime' },
-      5: { type: 'damage_pulse', interval: 5.5, dmg_mult: 0.35, label: 'Barreira Ofensiva: campo de rejeição pulsa dano a cada 5.5s em área' },
-      10: { type: 'field_commander', bonus: 0.10, label: 'Sōten Kisshun: presença de Orihime protege o time, +10% de dano a todas as torres' }
+      5: { type: 'damage_aura', bonus: 0.20, label: 'Escudo Amplificador: torres aliadas no alcance de Orihime causam +20% de dano' },
+      10: { type: 'bankai_pressure', mult: 1.25, label: 'Campo de Rejeição Total: inimigos no alcance de Orihime recebem +25% de dano de todas as fontes' }
     },
     upgrades: [
       { name: 'Koten Zanshun', desc: 'Dano ×1.35 | Alcance do escudo ×1.2', damage_mult: 1.35, cost: 320 },
@@ -861,7 +861,7 @@ const CHARACTERS = {
     base_stats: { damage: 480, range: 75, attack_speed: 0.6, type: 'aoe' },
     deploy_cost: 600, max_level: 50,
     prestige_passives: {
-      1: { type: 'ally_damage_aura', bonus: 0.06, label: 'Vontade de Ferro: todas as torres em campo ganham +6% de dano enquanto Tsunade está ativa' },
+      1: { type: 'field_commander', bonus: 0.10, label: 'Vontade de Ferro: presença de Tsunade inspira o time, +10% de dano a todas as torres' },
       5: { type: 'byakugou_shield', stun_immune_duration: 2, label: 'Cura da Hokage: ativação do Byakugou também concede 2s de imunidade a stun para todas as torres' },
       10: { type: 'last_stand', restore_lives: 3, label: 'Renascimento: uma vez por sessão, quando lives chegam a 0, Tsunade restaura 3 vidas' }
     },

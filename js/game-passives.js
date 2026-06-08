@@ -267,6 +267,8 @@ const PASSIVE_ENTRIES = {
       if (tower.isClone) return;
       let wg = p.base + (tower.level - 1) * (p.perLevel || 0);
       for (let i = 0; i < tower.upgradeLevel; i++) wg += tower.charData.upgrades[i]?.gold_bonus || 0;
+      const prestigeMult = 1 + (tower.prestige || 0) * (p.prestigeMultPerLevel || 0);
+      wg = Math.round(wg * prestigeMult);
       if (wg > 0) { _passiveCtx.gold += wg; _passiveCtx.updateHUD(); UI.toast(`💰 L gerou +${wg} ouro!`, 2500); }
     },
     onAnyKill(tower, p, deadEnemy) {
@@ -276,6 +278,26 @@ const PASSIVE_ENTRIES = {
       if (killGold > 0 && _passiveCtx.distSq(tower.x, tower.y, deadEnemy.x, deadEnemy.y) <= _passiveCtx.getTowerStats(tower).range ** 2) {
         _passiveCtx.gold += killGold; _passiveCtx.updateHUD();
       }
+    }
+  },
+
+  // Farm aura: ao fim de cada wave, gera 20% do output de farms aliadas no alcance
+  farm_aura: {
+    onWaveEnd(tower, p) {
+      if (tower.disabled) return;
+      const range = _passiveCtx.getTowerStats(tower).range;
+      let bonus = 0;
+      _passiveCtx.towers.forEach(t => {
+        if (t === tower || !t.charData?.is_farm_unit) return;
+        if (_passiveCtx.distSq(tower.x, tower.y, t.x, t.y) > range * range) return;
+        const tp = t.charData?.passive;
+        if (!tp || tp.type !== 'wave_gold') return;
+        let wg = tp.base + (t.level - 1) * (tp.perLevel || 0);
+        for (let i = 0; i < t.upgradeLevel; i++) wg += t.charData.upgrades[i]?.gold_bonus || 0;
+        const tMult = 1 + (t.prestige || 0) * (tp.prestigeMultPerLevel || 0);
+        bonus += Math.round(wg * tMult * (p.bonus_pct || 0.20));
+      });
+      if (bonus > 0) { _passiveCtx.gold += bonus; _passiveCtx.updateHUD(); UI.toast(`💰 Aura de Farm! +${bonus} ouro`, 2000); }
     }
   },
 

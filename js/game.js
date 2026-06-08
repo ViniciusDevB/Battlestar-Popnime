@@ -16,6 +16,7 @@ const Game = (() => {
   let waveActive, spawnQueue, betweenWaves, betweenTimer, waveElapsed;
   let _lastPlacedTower = null;
   let activeWavesCount = 1;
+  let skipMultiplier = 2;
   let selectedTowerIdx, deployingCharId;
   let shinraTenseiActive, shinraTenseiTimer, stageModifierTimer;
   let _sandStormTimer, _sandStormActive, _sandStormDuration, _lightningTimer;
@@ -575,7 +576,8 @@ const Game = (() => {
     // Reset state
     isInfiniteMode = !!(stage.isInfinite);
     lives = stage.base_hp || 20;
-    gold = isInfiniteMode ? 400 : 300;
+    gold = 300;
+    skipMultiplier = 2;
     wave = 0;
     totalWaves = isInfiniteMode ? Infinity : stage.waves.length;
     activeWavesCount = 1;
@@ -837,7 +839,8 @@ const Game = (() => {
       return;
     }
 
-    const bonus = wave * 11;
+    const bonus = 100 * skipMultiplier;
+    skipMultiplier++;
     gold += bonus;
     towers.forEach(t => PASSIVE_SYSTEM.onWaveEnd(t));
 
@@ -851,7 +854,7 @@ const Game = (() => {
     spawnQueue.sort((a, b) => a.delay - b.delay);
 
     updateHUD();
-    UI.toast(`⏭️ Wave ${wave} chamada! +${bonus}💰`);
+    UI.toast(`⏭️ Wave ${wave} chamada! +${bonus}💰 (×${skipMultiplier - 1})`);
   }
 
   function updateSpawn(dt) {
@@ -1168,7 +1171,7 @@ const Game = (() => {
   function killEnemy(enemy, killingTower = null) {
     if (enemy.dead) return;
     enemy.dead = true;
-    gold += enemy.gold;
+    gold += 50;
     sessionKills++;
     if (enemy.is_miniboss) sessionMinibosses++;
     if (enemy.is_boss) sessionBossKilled = true;
