@@ -100,7 +100,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Initialize systems
   try {
-    Missions.init();
+    Missions.init();       // inicia conquistas + reseta diárias se necessário
     Game.init();
 
     // Start at hub

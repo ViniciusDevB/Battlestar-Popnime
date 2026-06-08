@@ -2183,14 +2183,52 @@ select:hover{border-color:var(--bd3);}
 }
 .ms-tab:hover:not(.active) { color: var(--t2); background: var(--gs2); }
 
-/* Local missions list */
+/* Local / daily mission lists */
 .ms-local-list {
   padding: 12px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
-  max-height: calc(88vh - 140px);
+  max-height: calc(88vh - 160px);
+}
+
+/* Daily header: reset countdown + all-done badge */
+.ms-daily-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 4px;
+  flex-shrink: 0;
+}
+.ms-daily-reset { font-size: 11px; color: var(--t3); }
+.ms-daily-complete { font-size: 12px; color: #4ade80; font-weight: 700; }
+
+/* Completed mission item */
+.mission-done { opacity: .55; }
+.mission-done .mission-fill { background: linear-gradient(90deg, #4ade80, #22d3ee); }
+
+/* Community tab — update badge */
+.ms-update-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: rgba(94,234,212,.15);
+  border: 1px solid rgba(94,234,212,.35);
+  color: #5eead4;
+  border-radius: 99px;
+  padding: 3px 10px;
+  margin-bottom: 6px;
+}
+
+/* Random 5-star reward pill */
+.ms-reward-random {
+  background: linear-gradient(135deg, rgba(250,204,21,.18), rgba(251,146,60,.18));
+  border-color: rgba(251,146,60,.45);
+  color: #fde68a;
+  font-weight: 800;
 }
 
 /* Completed top banner */
