@@ -686,9 +686,18 @@ html,body{
 /* ══════════════════════════════
    GACHA
 ══════════════════════════════ */
+#screen-gacha {
+  background: url('assets/bg_gacha.png') center/cover no-repeat;
+  animation: gacha-bg-fade 1.2s var(--ease) forwards;
+}
+@keyframes gacha-bg-fade {
+  from { opacity: 0; transform: scale(1.03); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 .gacha-body{display:flex;flex:1;overflow:hidden;}
 .gacha-banner-art{
-  flex:1;background:linear-gradient(155deg,#0a0420 0%,#150830 45%,#0d0820 100%);
+  flex:1;background:transparent;
   border-right:1px solid var(--bd);display:flex;flex-wrap:wrap;gap:10px;
   padding:24px;align-items:center;justify-content:center;position:relative;overflow:hidden;
 }
@@ -711,7 +720,7 @@ html,body{
 @keyframes glow-pulse{0%,100%{box-shadow:0 0 22px rgba(255,200,70,0.2);}50%{box-shadow:0 0 40px rgba(255,200,70,0.38);}}
 .gacha-pity{position:absolute;bottom:14px;right:14px;font-size:11px;background:rgba(0,0,0,0.6);padding:5px 14px;border-radius:99px;color:var(--t2);border:1px solid var(--bd2);}
 
-.gacha-info{width:290px;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.gacha-info{width:290px;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;background:rgba(6, 6, 14, 0.85);backdrop-filter:blur(10px);}
 .gacha-info-section{padding:17px 20px;border-bottom:1px solid var(--bd);}
 .gacha-currencies{display:flex;gap:8px;margin-bottom:10px;}
 .gacha-rates{display:flex;gap:7px;}
