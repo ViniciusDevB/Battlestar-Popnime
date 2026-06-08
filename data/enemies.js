@@ -1041,7 +1041,7 @@ const ENEMY_DEFS = {
     ptype:'powerful2', size:24, col:'#34495e', image:'assets/inimigos/world2/Marinheiro Elite.png'
   },
   akainu: {
-    name:'Akainu', hp:50000, speed:40, gold:2500,
+    name:'Akainu', hp:35000, speed:40, gold:2500,
     ptype:['powerful3','bomber'], bomberRadius:150, bomberStun:2,
     size:48, col:'#c0392b', is_boss:true, image:'assets/inimigos/world2/Akainu.png'
   },
@@ -1142,7 +1142,7 @@ const ENEMY_DEFS = {
 
   // ── Miniboss 4: Nnoitra (Fase 4) ─────────────────────────────────────────
   nnoitra: {
-    name:'Nnoitra Gilga', hp:65000, speed:42, gold:3200,
+    name:'Nnoitra Gilga', hp:40000, speed:42, gold:3200,
     ptype:['powerful3','fortified'], size:48, col:'#1c2833',
     image:'assets/inimigos/world3/Nnoitra.png',
     is_miniboss:true, special:'nnoitra_special',
@@ -1151,7 +1151,7 @@ const ENEMY_DEFS = {
 
   // ── Miniboss 5: Ulquiorra (Fase 5) ───────────────────────────────────────
   ulquiorra: {
-    name:'Ulquiorra Cifer', hp:80000, speed:55, gold:4200,
+    name:'Ulquiorra Cifer', hp:50000, speed:55, gold:4200,
     ptype:['powerful3','regenerator'], size:46, col:'#1a252f',
     image:'assets/inimigos/world3/Ulquiorra.png',
     is_miniboss:true, special:'base_drain',
@@ -1162,7 +1162,7 @@ const ENEMY_DEFS = {
   // Lento e durão. Kyoka Suigetsu trava torres + escudo Hogyoku regenerativo.
   // Ao morrer spawna a Fase 2.
   aizen_fase1: {
-    name:'Aizen — Estrategista', hp:200000, speed:22, gold:7000,
+    name:'Aizen — Estrategista', hp:75000, speed:22, gold:7000,
     ptype:['powerful3','fortified'], size:54, col:'#1a1a2e',
     image:'assets/inimigos/world3/Aizen Hogyoku.png',
     is_boss:true, special:'aizen_hogyoku_phase1',
@@ -1173,7 +1173,7 @@ const ENEMY_DEFS = {
   // ── Boss Fase 2: Aizen — Hogyoku Desperto ────────────────────────────────
   // Rápido, sem escudo, imune a lentidão, drena base e recupera 100 HP por drenagem.
   aizen_fase2: {
-    name:'Aizen — Hogyoku Desperto', hp:200000, speed:90, gold:5000,
+    name:'Aizen — Hogyoku Desperto', hp:85000, speed:90, gold:5000,
     ptype:'powerful3', size:54, col:'#4c1d95',
     image:'assets/inimigos/world3/Aizen Hogyoku.png',
     is_boss:true, special:'aizen_hogyoku_phase2',
@@ -1253,7 +1253,7 @@ const ENEMY_DEFS = {
 
   // ── Miniboss 4: Corvus Glaive — Fase 4 ───────────────────────────────────────
   corvus_glaive: {
-    name:'Corvus Glaive', hp:65000, speed:55, gold:3200,
+    name:'Corvus Glaive', hp:55000, speed:55, gold:3200,
     ptype:['powerful3','fortified'], shieldHp:38000,
     size:46, col:'#0f172a', is_miniboss:true,
     special:'corvus_glaive_special',
@@ -1263,7 +1263,7 @@ const ENEMY_DEFS = {
 
   // ── Miniboss 5: Ebony Maw — Fase 5 ───────────────────────────────────────────
   ebony_maw: {
-    name:'Ebony Maw', hp:80000, speed:48, gold:4200,
+    name:'Ebony Maw', hp:65000, speed:48, gold:4200,
     ptype:['powerful3','regenerator'], regenRate:300,
     size:46, col:'#1e3a5f', is_miniboss:true,
     special:'ebony_maw_special',
@@ -1274,7 +1274,7 @@ const ENEMY_DEFS = {
 
   // ── Boss Fase 1: Thanos — O Eterno ───────────────────────────────────────────
   thanos_fase1: {
-    name:'Thanos — O Eterno', hp:300000, speed:20, gold:9000,
+    name:'Thanos — O Eterno', hp:100000, speed:20, gold:9000,
     ptype:['powerful3','fortified'], shieldHp:100000,
     size:58, col:'#581c87', is_boss:true,
     special:'thanos_fase1_special',
@@ -1285,7 +1285,7 @@ const ENEMY_DEFS = {
 
   // ── Boss Fase 2: Thanos — Manopla Completa ────────────────────────────────────
   thanos_manopla: {
-    name:'Thanos — Manopla Completa', hp:300000, speed:55, gold:6000,
+    name:'Thanos — Manopla Completa', hp:120000, speed:55, gold:6000,
     ptype:'powerful3', size:58, col:'#7c3aed', is_boss:true,
     special:'thanos_manopla_special',
     snapInterval:10, snapDuration:3,
@@ -1309,13 +1309,13 @@ const ENEMY_DEFS = {
     image:'assets/inimigos/eventos/op_ressureicao/Areia Marionete.png'
   },
   areia_golem: {
-    name:'Golem de Areia', hp:60000, speed:38, gold:1800,
+    name:'Golem de Areia', hp:30000, speed:38, gold:1800,
     ptype:['powerful2','fortified'], shieldHp:20000,
     size:40, col:'#78350f',
     image:'assets/inimigos/eventos/op_ressureicao/Areia Golem.png'
   },
   replicante_kazekage: {
-    name:'Replicante do Kazekage', hp:180000, speed:48, gold:5000,
+    name:'Replicante do Kazekage', hp:50000, speed:48, gold:5000,
     ptype:['powerful3','fortified'], shieldHp:60000,
     size:52, col:'#92400e', is_boss:true,
     special:'base_drain',
@@ -1342,7 +1342,7 @@ const ENEMY_DEFS = {
     image:'assets/inimigos/eventos/op_ressureicao/Zumbi Kaguya.png'
   },
   replicante_mizukage: {
-    name:'Replicante do Mizukage', hp:220000, speed:70, gold:6000,
+    name:'Replicante do Mizukage', hp:65000, speed:70, gold:6000,
     ptype:'powerful3', size:54, col:'#1e3a5f', is_boss:true,
     special:'mizukage_special',
     genjutsuInterval:20, genjutsuDuration:5,
@@ -1362,13 +1362,13 @@ const ENEMY_DEFS = {
     image:'assets/inimigos/eventos/op_ressureicao/Explosao Terra.png'
   },
   golem_terra: {
-    name:'Golem de Terra', hp:80000, speed:35, gold:2200,
+    name:'Golem de Terra', hp:40000, speed:35, gold:2200,
     ptype:['powerful2','fortified'], shieldHp:35000,
     size:44, col:'#292524',
     image:'assets/inimigos/eventos/op_ressureicao/Golem Terra.png'
   },
   replicante_tsuchikage: {
-    name:'Replicante do Tsuchikage', hp:260000, speed:42, gold:7000,
+    name:'Replicante do Tsuchikage', hp:80000, speed:42, gold:7000,
     ptype:'powerful3', size:52, col:'#1c1917', is_boss:true,
     special:'tsuchikage_special',
     spawnInterval:15, spawnCount:2,
@@ -1393,7 +1393,7 @@ const ENEMY_DEFS = {
     image:'assets/inimigos/eventos/op_ressureicao/Jinchuuriki Corrompido.png'
   },
   replicante_killerbee: {
-    name:'Replicante de Killer Bee', hp:300000, speed:60, gold:8000,
+    name:'Replicante de Killer Bee', hp:100000, speed:60, gold:8000,
     ptype:'powerful3', size:56, col:'#581c87', is_boss:true,
     special:'killerbee_replica_special',
     jinchuurikiImmuneType: 'single',

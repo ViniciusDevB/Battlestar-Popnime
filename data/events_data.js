@@ -94,7 +94,12 @@ const EVENTS_DATA = [
           evtWave([{ type: 'ninja_comum', count: 18, gap: 1.2 }]),
           evtWave([{ type: 'ninja_ambu', count: 15, gap: 1.0 }]),
           evtWave([{ type: 'ninja_comum', count: 25, gap: 0.8 }, { type: 'ninja_ambu', count: 10, gap: 0.8, delay: 5 }]),
-          evtWave([{ type: 'ninja_ambu', count: 30, gap: 0.6 }])
+          evtWave([{ type: 'ninja_ambu', count: 30, gap: 0.6 }]),
+          evtWave([{ type: 'ninja_comum', count: 35, gap: 0.6 }]),
+          evtWave([{ type: 'ninja_ambu', count: 35, gap: 0.6 }]),
+          evtWave([{ type: 'ninja_comum', count: 40, gap: 0.5 }, { type: 'ninja_ambu', count: 20, gap: 0.5, delay: 2 }]),
+          evtWave([{ type: 'ninja_ambu', count: 45, gap: 0.5 }]),
+          evtWave([{ type: 'ninja_ambu', count: 50, gap: 0.4 }])
         ]
       },
       {
@@ -116,7 +121,12 @@ const EVENTS_DATA = [
           evtWave([{ type: 'ninja_ambu', count: 12, gap: 1.0 }]),
           evtWave([{ type: 'caminho_animal', count: 8, gap: 1.5 }]),
           evtWave([{ type: 'caminho_animal', count: 12, gap: 1.2 }, { type: 'ninja_ambu', count: 15, gap: 0.8, delay: 5 }]),
-          evtWave([{ type: 'caminho_humano', count: 15, gap: 1.0 }])
+          evtWave([{ type: 'caminho_humano', count: 15, gap: 1.0 }]),
+          evtWave([{ type: 'ninja_ambu', count: 25, gap: 0.9 }]),
+          evtWave([{ type: 'caminho_animal', count: 20, gap: 1.0 }]),
+          evtWave([{ type: 'caminho_humano', count: 25, gap: 0.9 }]),
+          evtWave([{ type: 'caminho_animal', count: 25, gap: 0.8 }, { type: 'ninja_ambu', count: 20, gap: 0.7, delay: 4 }]),
+          evtWave([{ type: 'caminho_humano', count: 35, gap: 0.8 }])
         ]
       },
       {
@@ -138,6 +148,12 @@ const EVENTS_DATA = [
           evtWave([{ type: 'caminho_animal', count: 15, gap: 1.0 }]),
           evtWave([{ type: 'caminho_humano', count: 20, gap: 0.8 }]),
           evtWave([{ type: 'caminho_asura', count: 15, gap: 0.8 }]),
+          evtWave([{ type: 'ninja_ambu', count: 35, gap: 0.8 }]),
+          evtWave([{ type: 'caminho_animal', count: 30, gap: 0.9 }]),
+          evtWave([{ type: 'caminho_humano', count: 35, gap: 0.7 }]),
+          evtWave([{ type: 'caminho_asura', count: 25, gap: 0.7 }]),
+          evtWave([{ type: 'caminho_humano', count: 40, gap: 0.6 }]),
+          evtWave([{ type: 'caminho_asura', count: 35, gap: 0.6 }]),
           evtWave([{ type: 'pain', count: 1, gap: 1 }])
         ]
       }
@@ -181,6 +197,11 @@ const EVENTS_DATA = [
           evtWave([{ type:'areia_golem', count:5, gap:4 }, { type:'areia_marionete', count:10, gap:0.8, delay:2 }]),
           evtWave([{ type:'areia_soldado', count:25, gap:0.7 }, { type:'areia_golem', count:3, gap:5, delay:5 }]),
           evtWave([{ type:'areia_marionete', count:15, gap:0.9 }, { type:'areia_golem', count:4, gap:4, delay:4 }]),
+          evtWave([{ type:'areia_soldado', count:35, gap:0.6 }]),
+          evtWave([{ type:'areia_marionete', count:25, gap:0.8 }, { type:'areia_golem', count:3, gap:4, delay:3 }]),
+          evtWave([{ type:'areia_golem', count:7, gap:3.5 }]),
+          evtWave([{ type:'areia_soldado', count:45, gap:0.5 }, { type:'areia_marionete', count:20, gap:0.7, delay:5 }]),
+          evtWave([{ type:'areia_marionete', count:35, gap:0.7 }, { type:'areia_golem', count:6, gap:3, delay:4 }]),
           evtWave([{ type:'replicante_kazekage', count:1, gap:1 }])
         ]
       },
@@ -211,6 +232,11 @@ const EVENTS_DATA = [
           evtWave([{ type:'zumbi_kaguya', count:5, gap:4.5 }, { type:'espada_nebulosa', count:10, gap:0.9, delay:2 }]),
           evtWave([{ type:'nebulino', count:28, gap:0.65 }, { type:'zumbi_kaguya', count:3, gap:5, delay:5 }]),
           evtWave([{ type:'espada_nebulosa', count:16, gap:0.85 }, { type:'zumbi_kaguya', count:4, gap:4.5, delay:3 }]),
+          evtWave([{ type:'nebulino', count:38, gap:0.6 }]),
+          evtWave([{ type:'espada_nebulosa', count:25, gap:0.8 }, { type:'zumbi_kaguya', count:3, gap:4.5, delay:4 }]),
+          evtWave([{ type:'zumbi_kaguya', count:7, gap:4 }]),
+          evtWave([{ type:'nebulino', count:45, gap:0.5 }, { type:'espada_nebulosa', count:20, gap:0.7, delay:5 }]),
+          evtWave([{ type:'espada_nebulosa', count:35, gap:0.7 }, { type:'zumbi_kaguya', count:6, gap:3.5, delay:4 }]),
           evtWave([{ type:'replicante_mizukage', count:1, gap:1 }])
         ]
       },
@@ -250,6 +276,11 @@ const EVENTS_DATA = [
           evtWave([{ type:'golem_terra', count:5, gap:4 }, { type:'explosao_terra', count:10, gap:0.85, delay:2 }]),
           evtWave([{ type:'guerreiro_pedra', count:30, gap:0.65 }, { type:'golem_terra', count:3, gap:5, delay:5 }]),
           evtWave([{ type:'explosao_terra', count:15, gap:0.8 }, { type:'golem_terra', count:4, gap:4, delay:3 }]),
+          evtWave([{ type:'guerreiro_pedra', count:40, gap:0.6 }]),
+          evtWave([{ type:'explosao_terra', count:25, gap:0.75 }, { type:'golem_terra', count:3, gap:4.5, delay:4 }]),
+          evtWave([{ type:'golem_terra', count:7, gap:3.5 }]),
+          evtWave([{ type:'guerreiro_pedra', count:50, gap:0.5 }, { type:'explosao_terra', count:20, gap:0.7, delay:5 }]),
+          evtWave([{ type:'explosao_terra', count:35, gap:0.6 }, { type:'golem_terra', count:6, gap:3, delay:4 }]),
           evtWave([{ type:'replicante_tsuchikage', count:1, gap:1 }])
         ]
       },
@@ -283,6 +314,11 @@ const EVENTS_DATA = [
           evtWave([{ type:'jinchuuriki_corrompido', count:4, gap:5 }, { type:'kumo_rapido', count:10, gap:0.85, delay:2 }]),
           evtWave([{ type:'kumo_ninja', count:28, gap:0.65 }, { type:'jinchuuriki_corrompido', count:3, gap:5, delay:5 }]),
           evtWave([{ type:'kumo_rapido', count:16, gap:0.8 }, { type:'jinchuuriki_corrompido', count:4, gap:4.5, delay:3 }]),
+          evtWave([{ type:'kumo_ninja', count:40, gap:0.6 }]),
+          evtWave([{ type:'kumo_rapido', count:25, gap:0.75 }, { type:'jinchuuriki_corrompido', count:3, gap:4.5, delay:4 }]),
+          evtWave([{ type:'jinchuuriki_corrompido', count:7, gap:3.5 }]),
+          evtWave([{ type:'kumo_ninja', count:50, gap:0.5 }, { type:'kumo_rapido', count:20, gap:0.7, delay:5 }]),
+          evtWave([{ type:'kumo_rapido', count:35, gap:0.6 }, { type:'jinchuuriki_corrompido', count:6, gap:3, delay:4 }]),
           evtWave([{ type:'replicante_killerbee', count:1, gap:1 }])
         ]
       }

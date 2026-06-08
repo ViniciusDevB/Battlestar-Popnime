@@ -25,9 +25,9 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Nenhuma instal
 
 **Gameplay:**
 - **Tower Defense Dinâmico** — posicione unidades estrategicamente no canvas. Cada personagem tem tipo de ataque único (Single, Linha, Cone, AOE, Pierce, Scatter), passivas e upgrades exclusivos.
-- **Mundos e Fases** — 4 mundos temáticos (Naruto, One Piece, Bleach, Marvel) com 6 fases cada, 10 waves por fase. Três dificuldades por fase (Normal, Difícil, Lendário).
+- **Mundos e Fases** — 4 mundos temáticos (Naruto, One Piece, Bleach, Marvel) com progressão linear de HP ajustada. 6 fases cada, 10 waves por fase. Três dificuldades por fase (Normal, Difícil, Lendário).
 - **♾ Modo Infinito** — waves sem fim com dificuldade escalável (8 tiers). Farm de Star Experience e Gemas. Limite de 3 cópias por unidade por partida.
-- **Sagas de Eventos** — capítulos narrativos com modificadores únicos e personagens exclusivos.
+- **Sagas de Eventos** — capítulos narrativos estendidos (10 a 15 waves) para maior farm de ouro, com modificadores únicos e personagens exclusivos.
 
 **Progressão:**
 - **Gacha ⚡** — invoque personagens (3⭐ a 5⭐) com pity garantido no 150º pull. Banners rotativos a cada 30 minutos com pool diferente. Chance de 5⭐: 1%.
@@ -127,13 +127,14 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Nenhuma instal
 **Minibosses:** Batroc (F1), Crossbones (F2), Ronan (F3), Corvus Glaive (F4), Ebony Maw (F5).
 
 **Boss — Thanos (F6 W10):**
-- Fase 1 — 300k HP + escudo 100k. Snap stuna torres a cada 25s. Drena 1 vida a cada 3s.
-- Fase 2 — 300k HP, speed 55. Imune a slow. Ativa 1 das 6 Gemas do Infinito a cada 20s em rotação.
+- Fase 1 — 100k HP + escudo 100k. Snap stuna torres a cada 25s. Drena 1 vida a cada 3s.
+- Fase 2 — 120k HP, speed 55. Imune a slow. Ativa 1 das 6 Gemas do Infinito a cada 20s em rotação.
 
 **8 novos personagens** (3⭐ a 5⭐): Homem-Aranha, Viúva Negra, Gavião Arqueiro, Pantera Negra, Thor, Hulk, Iron Man Mark 50 (5⭐ Gacha), World Breaker Hulk (5⭐ Evolução).
 
-**Evento — Operação: Ressurreição** (4 capítulos):
+**Evento — Operação: Ressurreição** (4 capítulos, 15 waves cada):
 - Escudo de Areia, Nevoeiro Mortal, Frente Dupla, Modo Jinchuuriki.
+- Chefes Replicantes balanceados (50k a 100k HP) para escalar com o ouro fixo da economia.
 - Personagens exclusivos: Tsunade (4⭐) e Killer Bee (5⭐, pity 80 runs).
 
 **Qualidade de Vida:** Auto-Place (3 slots), Undo de posicionamento (tecla `Z`), Preview expandido de wave, Filtro múltiplo no inventário, Comparação de torres no upgrade, Barra de pity colorida.
@@ -157,7 +158,7 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Nenhuma instal
 ---
 
 ### ✅ Update 0.6: Evento — A Anomalia de Konoha *(Lançado)*
-Saga em 3 capítulos, Orochimaru (4⭐) e Pain (5⭐), modificadores exclusivos de fase.
+Saga em 3 capítulos estendidos (10 a 12 waves), Orochimaru (4⭐) e Pain (5⭐), modificadores exclusivos de fase.
 
 ### ✅ Update 0.5: Grand Line *(Lançado)*
 Mundo 2 de One Piece com 9 personagens, atalhos de teclado, QoL geral.
