@@ -651,7 +651,7 @@ const CHARACTERS = {
   nami_3: {
     id: 'nami_3', name: 'Nami', rarity: 3, series: 'onepiece', playable: true, xp_value: 1000, initials: 'NA',
     image: 'assets/towers/update1/Nami.png',
-    passive: { type: 'slow_aura', slow_pct: 0.20, label: 'Clima-Tact: controla o clima ao redor, desacelerando inimigos próximos em 20%' },
+    passive: { type: 'tempo_acumulado', max_charges: 8, slow_pct: 0.40, slow_duration: 2.5, label: 'Tempestade Acumulada: a cada 8 ataques desencadeia tempestade global — desacelera TODOS os inimigos em tela em 40% por 2.5s' },
     base_stats: { damage: 79, range: 90, attack_speed: 1.1, type: 'cone' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {

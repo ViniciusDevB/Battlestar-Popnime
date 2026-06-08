@@ -78,6 +78,33 @@ const PASSIVE_ENTRIES = {
     }
   },
 
+  // Nami: carrega energia atmosférica a cada ataque; ao atingir o limite
+  // desencadeia tempestade global que desacelera TODOS os inimigos em tela.
+  tempo_acumulado: {
+    renderBadge(tower, p) {
+      const charges = tower.tempCharges || 0;
+      const max = _passiveCtx.getPassiveValue(tower, 'max_charges', p.max_charges || 8);
+      if (charges === 0) return null;
+      return { text: `⚡${charges}/${max}`, color: charges >= max - 1 ? '#fbbf24' : '#93c5fd' };
+    },
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      if (tower.disabled || hitEnemies.length === 0) return;
+      const max      = _passiveCtx.getPassiveValue(tower, 'max_charges', p.max_charges || 8);
+      const slowPct  = p.slow_pct  || 0.40;
+      const slowDur  = p.slow_duration || 2.5;
+      tower.tempCharges = (tower.tempCharges || 0) + 1;
+      if (tower.tempCharges >= max) {
+        tower.tempCharges = 0;
+        _passiveCtx.enemies.forEach(e => {
+          if (e.dead || e.reached_end) return;
+          applyStatus(e, 'freeze', { slow_pct: slowPct, duration: slowDur });
+        });
+        _passiveCtx.addEffect({ type: 'ring', x: tower.x, y: tower.y, maxR: 80, color: '#60a5fa', timer: 0.6, maxTimer: 0.6, r: 0 });
+        UI.toast(`⛈️ Tempestade Global! −${(slowPct * 100).toFixed(0)}% vel em todos!`, 2200);
+      }
+    }
+  },
+
   // Template: aura de área que aplica debuff passivamente a cada frame.
   slow_aura: {
     update(tower, p, dt) {
