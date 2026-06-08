@@ -12,6 +12,11 @@ const CHARACTERS = {
   ninja_generico_2: { id: 'ninja_generico_2', name: 'Ninja Genérico II', rarity: 1, series: 'naruto', playable: false, xp_value: 150, initials: 'NG2', image: 'assets/ingredients/world1/Ninja 2.png', upgrades_to: 'ninja_generico_3', upgrade_cost: 3 },
   ninja_generico_3: { id: 'ninja_generico_3', name: 'Ninja Genérico III', rarity: 2, series: 'naruto', playable: false, xp_value: 400, initials: 'NG3', image: 'assets/ingredients/world1/Ninja 3.png' },
 
+  // ── Materials Marvel ──
+  avenger_material_1: { id: 'avenger_material_1', name: 'Material Vingador I', rarity: 0, series: 'marvel', playable: false, xp_value: 50, initials: 'AM1', image: 'assets/ingredients/world4/Avenger 1.png', upgrades_to: 'avenger_material_2', upgrade_cost: 3 },
+  avenger_material_2: { id: 'avenger_material_2', name: 'Material Vingador II', rarity: 1, series: 'marvel', playable: false, xp_value: 150, initials: 'AM2', image: 'assets/ingredients/world4/Avenger 2.png', upgrades_to: 'avenger_material_3', upgrade_cost: 3 },
+  avenger_material_3: { id: 'avenger_material_3', name: 'Material Vingador III', rarity: 2, series: 'marvel', playable: false, xp_value: 400, initials: 'AM3', image: 'assets/ingredients/world4/Avenger 3.png' },
+
   // ══════════════════════════════════════════════════════════════════════════
   //  3⭐  —  Sem AOE. Poder vem de passivas, status effects e multiplicadores.
   //  Tipos permitidos: single_target, linha, cone (1-2 unidades), AOE só L.
@@ -1043,7 +1048,17 @@ const CHARACTERS = {
   world_breaker_hulk: {
     id: 'world_breaker_hulk', name: 'Hulk Quebra-Mundo', rarity: 5, series: 'marvel', playable: true, xp_value: 10000, initials: 'WBH',
     image: 'assets/towers/update2/Hulk Quebra Mundo.png',
-    evolution: { source: 'hulk_base', requires: [{ id: 'hulk_base', count: 3 }] },
+    evolution: {
+      source: 'hulk_base',
+      requires: [
+        { id: 'hulk_base', quantity: 2 },
+        { id: 'thor', quantity: 1 },
+        { id: 'black_panther', quantity: 1 },
+        { id: 'avenger_material_3', quantity: 3 },
+        { id: 'avenger_material_2', quantity: 5 },
+        { id: 'avenger_material_1', quantity: 10 }
+      ]
+    },
     passive: {
       type: 'gamma_burst', burst_mult: 3.0, streak_bonus: 0.20, streak_dur: 3, radius: 120,
       label: 'Explosão Gamma: kills causam explosão em área (3× dano / raio 120px; +20% por kill consecutiva em 3s)'

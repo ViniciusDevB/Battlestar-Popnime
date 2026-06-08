@@ -1152,6 +1152,7 @@ const Game = (() => {
   }
 
   function endGame(victory) {
+    if (!running) return;
     running = false;
     // Update stats
     Save.incStat('dano_total_causado', Math.round(sessionDmg));
