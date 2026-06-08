@@ -6,10 +6,15 @@ const MISSION_CHECKERS = {
     const snap = d.missoes_diarias?.snapshot || {};
     return ((d.stats[m.stat] || 0) - (snap[m.stat] || 0)) >= m.target;
   },
+  // Conquista: número de personagens únicos no inventário
+  unit_count: (m, d) => {
+    const ids = new Set((d.inventario?.unidades || []).map(u => u.id));
+    return ids.size >= m.target;
+  },
 };
 
 const Missions = (() => {
-  const MAX_FIXED = 5;
+  const MAX_FIXED = 8;
 
   // ── Init ─────────────────────────────────────────────────────────────────────
 
@@ -83,6 +88,9 @@ const Missions = (() => {
         pulls_realizados:      s.pulls_realizados       || 0,
         torres_colocadas:      s.torres_colocadas       || 0,
         minibosses_derrotados: s.minibosses_derrotados  || 0,
+        ondas_infinito:        s.ondas_infinito         || 0,
+        evolucoes_realizadas:  s.evolucoes_realizadas   || 0,
+        feeds_realizados:      s.feeds_realizados       || 0,
       },
       ativas: getDailyMissions(today).map(m => m.id),
     };
@@ -138,6 +146,10 @@ const Missions = (() => {
     if (m.type === 'stat_delta') {
       const snap = d.missoes_diarias?.snapshot || {};
       return Math.min(Math.max(0, (d.stats[m.stat] || 0) - (snap[m.stat] || 0)), m.target);
+    }
+    if (m.type === 'unit_count') {
+      const ids = new Set((d.inventario?.unidades || []).map(u => u.id));
+      return Math.min(ids.size, m.target);
     }
     return 0;
   }
