@@ -11,6 +11,57 @@ function evtWave(spawns) {
   return wave;
 }
 
+// ── Caminhos exclusivos do Evento 2 ───────────────────────────────────────────
+// Canvas: 1024 × 600
+
+// Cap.1 — Areia: S-duplo aberto, amplas áreas para posicionar torres
+const PATH_EVT2_P1 = [
+  {x:-20,  y:480},
+  {x:220,  y:480},
+  {x:220,  y:180},
+  {x:530,  y:180},
+  {x:530,  y:440},
+  {x:820,  y:440},
+  {x:820,  y:160},
+  {x:1044, y:160}
+];
+
+// Cap.2 — Névoa: ziguezague fechado, muitas curvas, difícil de cobrir
+const PATH_EVT2_P2 = [
+  {x:-20,  y:100},
+  {x:150,  y:100},
+  {x:150,  y:460},
+  {x:390,  y:460},
+  {x:390,  y:185},
+  {x:640,  y:185},
+  {x:640,  y:490},
+  {x:880,  y:490},
+  {x:880,  y:130},
+  {x:1044, y:130}
+];
+
+// Cap.3 — Pedra: U profundo — com dualFront, Grupo B entra no fundo do U
+const PATH_EVT2_P3 = [
+  {x:-20,  y:110},
+  {x:200,  y:110},
+  {x:200,  y:490},
+  {x:830,  y:490},
+  {x:830,  y:110},
+  {x:1044, y:110}
+];
+
+// Cap.4 — Trovões: montanha dramática, sobe-desce-sobe
+const PATH_EVT2_P4 = [
+  {x:-20,  y:300},
+  {x:160,  y:300},
+  {x:160,  y:80},
+  {x:500,  y:80},
+  {x:500,  y:520},
+  {x:840,  y:520},
+  {x:840,  y:180},
+  {x:1044, y:180}
+];
+
 const EVENTS_DATA = [
   {
     id: 'evento_1',
@@ -104,19 +155,22 @@ const EVENTS_DATA = [
     stages: [
 
       // ── Capítulo 1: A Queda da Areia ────────────────────────────────────────
+      // Mapa: S-duplo — inimigos percorrem 3 corredores horizontais separados
+      // Mecânica: Tempestade de Areia — a cada 25s reduz alcance de todas as torres
+      //           por 6s. Inimigos com escudo de areia (sandShield).
       {
         id: 'evt2_p1',
         name: 'Capítulo 1: A Queda da Areia',
         world: 'naruto',
         difficulty: 'hard',
         story: 'A Aldeia da Areia caiu silenciosamente. Um replicante do Kazekage governa com punho de ferro — e cada soldado sob seu comando carrega um escudo de areia que resiste a ataques ordinários. Apenas um dano concentrado e explosivo consegue quebrar essa proteção. Gaara está desaparecido. Temari e Kankuro pedem ajuda.',
-        description: '⚠️ Escudo de Areia — todos os inimigos nascem protegidos. Apenas burst damage (>800 em 1.5s) destrói o escudo. DoTs e slows não quebram o escudo.',
+        description: '⚠️ Escudo de Areia — inimigos só tomam dano por burst (>800 em 1.5s). DoTs e slows não quebram. Tempestade de Areia a cada 25s reduz alcance das torres por 6s.',
+        paths: [PATH_EVT2_P1],
         modifiers: {
-          sandShield: true
+          sandShield: true,
+          sandStorm: true
         },
-        drops: [
-          { id: 'tsunade_piece_1', chance: 100 }
-        ],
+        drops: [],
         waves: [
           evtWave([{ type:'areia_soldado', count:14, gap:1.4 }]),
           evtWave([{ type:'areia_soldado', count:20, gap:1.1 }]),
@@ -132,19 +186,21 @@ const EVENTS_DATA = [
       },
 
       // ── Capítulo 2: Névoa Sangrenta ──────────────────────────────────────────
+      // Mapa: ziguezague fechado simulando ruas estreitas da Aldeia da Névoa
+      // Mecânica: Fog of War (oculta HP/nomes) + inimigos 22% mais rápidos no nevoeiro
       {
         id: 'evt2_p2',
         name: 'Capítulo 2: Névoa Sangrenta',
         world: 'naruto',
         difficulty: 'hard',
         story: 'Uma névoa densa e impenetrável cobre a Aldeia da Névoa. Os inimigos são invisíveis — suas formas surgem apenas como sombras. Nomes, tipos e vida: nada pode ser lido. O Replicante do Mizukage usa genjutsu para confundir e paralisar. Apenas o instinto e a agilidade podem prevalecer.',
-        description: '⚠️ Nevoeiro Mortal — HP, nomes e tipos de todos os inimigos estão ocultos. Apenas silhuetas visíveis no caminho. O Mizukage usa genjutsu para paralisar torres.',
+        description: '⚠️ Nevoeiro Mortal — HP, nomes e tipos ocultos. Silhuetas apenas. Inimigos se movem 22% mais rápido amparados pela névoa. O Mizukage usa genjutsu para paralisar torres.',
+        paths: [PATH_EVT2_P2],
         modifiers: {
-          fogOfWar: true
+          fogOfWar: true,
+          fogSpeedBonus: 0.22
         },
-        drops: [
-          { id: 'tsunade_piece_2', chance: 100 }
-        ],
+        drops: [],
         waves: [
           evtWave([{ type:'nebulino', count:16, gap:1.3 }]),
           evtWave([{ type:'nebulino', count:22, gap:1.0 }]),
@@ -160,18 +216,29 @@ const EVENTS_DATA = [
       },
 
       // ── Capítulo 3: O Coração de Pedra ──────────────────────────────────────
+      // Mapa: U profundo — Grupo B (dualFront) nasce no fundo do U
+      // Mecânica: Formações rochosas bloqueiam posicionamento em zonas centrais
+      // Recompensa: Tsunade desbloqueada automaticamente ao concluir
       {
         id: 'evt2_p3',
         name: 'Capítulo 3: O Coração de Pedra',
         world: 'naruto',
         difficulty: 'hard',
         story: 'A Aldeia da Pedra resiste — mas o Replicante do Tsuchikage abriu duas frentes simultâneas. Enquanto um exército avança pelo caminho principal, reforços surgem já a meio percurso, usando jutsu de partícula para se teletransportar. Dividir as forças defensivas ou concentrá-las é a grande decisão.',
-        description: '⚠️ Frente Dupla — cada wave tem dois grupos. O Grupo B surge a 50% do caminho. O Tsuchikage invoca guerreiros a cada 15s.',
+        description: '⚠️ Frente Dupla — Grupo B surge a 50% do caminho. Formações rochosas no centro do mapa bloqueiam posicionamento. Concluir este capítulo desbloqueia Tsunade.',
+        paths: [PATH_EVT2_P3],
         modifiers: {
-          dualFront: true
+          dualFront: true,
+          blockZones: [
+            { x: 512, y: 300, r: 70 },
+            { x: 340, y: 400, r: 50 },
+            { x: 680, y: 400, r: 50 },
+            { x: 340, y: 200, r: 45 },
+            { x: 680, y: 200, r: 45 }
+          ]
         },
         drops: [
-          { id: 'tsunade_piece_3', chance: 100 }
+          { id: 'tsunade', chance: 100, oneTime: true }
         ],
         waves: [
           evtWave([{ type:'guerreiro_pedra', count:16, gap:1.2 }]),
@@ -188,19 +255,23 @@ const EVENTS_DATA = [
       },
 
       // ── Capítulo 4: Tempestade de Trovões ───────────────────────────────────
+      // Mapa: montanha dramática — sobe ao pico, desce ao vale, sobe à saída
+      // Mecânica: Raio Errante a cada 12s acerta inimigos em área; boss alterna imunidades
+      // Recompensa: Farm de Killer Bee (10% por run, pity 80)
       {
         id: 'evt2_p4',
         name: 'Capítulo 4: Tempestade de Trovões',
         world: 'naruto',
         difficulty: 'very_hard',
-        story: 'A Aldeia das Nuvens. O Replicante de Killer Bee usa o poder do Gyuki corrompido para alternar imunidades a tipos de ataque. Seus olhos brilham em tons roxos — cada 30 segundos, muda o que pode machucá-lo. Adapte-se ou perca. Ao derrotar o Replicante, as peças de Tsunade são completadas — e o verdadeiro Killer Bee aparece como aliado.',
-        description: '⚠️ Modo Jinchuuriki — o boss alterna imunidade a tipos de ataque a cada 30s. Ícone sobre o boss indica o tipo imunizado. Adapte suas torres!',
+        story: 'A Aldeia das Nuvens. O Replicante de Killer Bee usa o poder do Gyuki corrompido para alternar imunidades a tipos de ataque. Seus olhos brilham em tons roxos — cada 30 segundos, muda o que pode machucá-lo. Raios errantes caem sobre o campo de batalha, tornando o combate ainda mais caótico. Tsunade está com você. Adapte-se ou perca.',
+        description: '⚠️ Modo Jinchuuriki — boss alterna imunidade a tipos de ataque a cada 30s. Raio Errante a cada 12s atinge inimigos em área. Farm de Killer Bee (10% por conclusão, pity 80).',
+        paths: [PATH_EVT2_P4],
         modifiers: {
-          jinchuurikiMode: true
+          jinchuurikiMode: true,
+          lightningStrike: true
         },
         drops: [
-          { id: 'tsunade_piece_4', chance: 100 },
-          { id: 'killer_bee', chance: 0.10, pity: 80 }
+          { id: 'killer_bee', chance: 1, pity: 80 }
         ],
         waves: [
           evtWave([{ type:'kumo_ninja', count:14, gap:1.2 }]),

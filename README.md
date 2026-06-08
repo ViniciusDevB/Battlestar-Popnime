@@ -96,10 +96,10 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 - 5⭐ Evolução: World Breaker Hulk — evolui do Hulk. Gamma Burst ao atingir 60 stacks.
 
 **Evento — Operação: Ressurreição** (4 capítulos, continuação de "A Anomalia de Konoha"):
-- **Capítulo 1 — A Queda da Areia**: Modificador *Escudo de Areia* — todos os inimigos só tomam dano por burst (>800 em 1.5s). Drop: Peça Tsunade 1/4.
-- **Capítulo 2 — Névoa Sangrenta**: Modificador *Nevoeiro Mortal* — HP bars, nomes e tipos ocultos (só silhuetas). Drop: Peça Tsunade 2/4.
-- **Capítulo 3 — O Coração de Pedra**: Modificador *Frente Dupla* — metade da wave surge a 50% do caminho simultaneamente. Drop: Peça Tsunade 3/4.
-- **Capítulo 4 — Tempestade de Trovões**: Modificador *Modo Jinchuuriki* — boss alterna imunidade de tipo de ataque a cada 30s (ícone visível). Drop: Peça Tsunade 4/4 + roll Killer Bee.
+- **Capítulo 1 — A Queda da Areia**: Modificador *Escudo de Areia* — todos os inimigos só tomam dano por burst (>800 em 1.5s).
+- **Capítulo 2 — Névoa Sangrenta**: Modificador *Nevoeiro Mortal* — HP bars, nomes e tipos ocultos (só silhuetas).
+- **Capítulo 3 — O Coração de Pedra**: Modificador *Frente Dupla* — metade da wave surge a 50% do caminho simultaneamente. Recompensa de conclusão: **Tsunade** (desbloqueio garantido).
+- **Capítulo 4 — Tempestade de Trovões**: Modificador *Modo Jinchuuriki* — boss alterna imunidade de tipo de ataque a cada 30s (ícone visível). Drop farmável: **Killer Bee** (1% chance, pity 80).
 
 **2 personagens exclusivos do evento** (não dropam no gacha):
 - **Tsunade** (4⭐): AOE corpo-a-corpo. Passiva dupla — *Cem Sobrancelhas* (inimigos com base_drain drenam mais lentamente) + *Byakugou* (restaura 1 vida após 40s de wave ativa, 1× por wave).

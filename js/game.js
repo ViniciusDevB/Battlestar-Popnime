@@ -17,6 +17,7 @@ const Game = (() => {
   let activeWavesCount = 1;
   let selectedTowerIdx, deployingCharId;
   let shinraTenseiActive, shinraTenseiTimer, stageModifierTimer;
+  let _sandStormTimer, _sandStormActive, _sandStormDuration, _lightningTimer;
   let stage, team;
   let difficulty;
   let _gojoBuffedSet = new Set();
@@ -583,12 +584,14 @@ const Game = (() => {
     spawnQueue = [];
 
     betweenWaves = true;
-    betweenTimer = 3;
+    betweenTimer = -1; // fase de preparação — aguarda jogador pressionar S
     selectedTowerIdx = -1;
     deployingCharId = null;
     shinraTenseiActive = false;
     shinraTenseiTimer = 0;
     stageModifierTimer = 0;
+    _sandStormTimer = 0; _sandStormActive = false; _sandStormDuration = 0;
+    _lightningTimer = 0;
     waveElapsed = 0;
     sessionDmg = 0; sessionKills = 0; sessionTowersPlaced = 0;
     sessionMinibosses = 0; sessionBossKilled = false;
@@ -631,10 +634,12 @@ const Game = (() => {
 
     // Between waves countdown
     if (betweenWaves) {
-      betweenTimer -= dt;
-      if (betweenTimer <= 0) {
-        betweenWaves = false;
-        startWave();
+      if (betweenTimer >= 0) {
+        betweenTimer -= dt;
+        if (betweenTimer <= 0) {
+          betweenWaves = false;
+          startWave();
+        }
       }
       return;
     }
@@ -650,6 +655,35 @@ const Game = (() => {
       if (stageModifierTimer >= 20) {
         stageModifierTimer = 0;
         triggerMeteorAndShinra();
+      }
+    }
+
+    // sandStorm (Cap.1 Evento 2): a cada 25s reduz alcance 40% por 6s
+    if (stage?.modifiers?.sandStorm) {
+      if (_sandStormActive) {
+        _sandStormDuration -= dt;
+        if (_sandStormDuration <= 0) {
+          _sandStormActive = false;
+          _sandStormDuration = 0;
+          UI.toast('🌬️ Tempestade de Areia dissipada! Alcance restaurado.', 2000);
+        }
+      } else {
+        _sandStormTimer += dt;
+        if (_sandStormTimer >= 25) {
+          _sandStormTimer = 0;
+          _sandStormActive = true;
+          _sandStormDuration = 6;
+          UI.toast('🌪️ TEMPESTADE DE AREIA! Alcance das torres −40% por 6s!', 3500);
+        }
+      }
+    }
+
+    // lightningStrike (Cap.4 Evento 2): a cada 12s raio acerta cluster de inimigos
+    if (stage?.modifiers?.lightningStrike) {
+      _lightningTimer += dt;
+      if (_lightningTimer >= 12) {
+        _lightningTimer = 0;
+        triggerLightningStrike();
       }
     }
 
@@ -733,6 +767,23 @@ const Game = (() => {
     });
   }
 
+  function triggerLightningStrike() {
+    const alive = enemies.filter(e => !e.dead && !e.reached_end);
+    if (alive.length === 0) return;
+    const target = alive[Math.floor(Math.random() * alive.length)];
+    const strikeR = 80;
+    const dmg = Math.round(800 + Math.random() * 400);
+    // Flash branco descendente + anel dourado
+    addEffect({ type:'ring', x:target.x, y:target.y, maxR:strikeR, color:'#fde047', timer:0.5, maxTimer:0.5, r:4 });
+    addEffect({ type:'ring', x:target.x, y:target.y, maxR:strikeR * 0.5, color:'#fafafa', timer:0.25, maxTimer:0.25, r:2 });
+    alive.forEach(e => {
+      if (dist2d(e.x, e.y, target.x, target.y) <= strikeR) {
+        dealDamage({ _currentAttackType: 'aoe', charData: {} }, e, dmg);
+      }
+    });
+    UI.toast(`⚡ Raio Errante! ${dmg} dano em área!`, 2000);
+  }
+
   function startWave() {
     wave++;
     activeWavesCount = 1;
@@ -759,7 +810,13 @@ const Game = (() => {
 
   function skipWave() {
     if (betweenWaves) {
-      betweenTimer = 0;
+      if (betweenTimer < 0) {
+        // Fase de preparação — inicia wave imediatamente
+        betweenWaves = false;
+        startWave();
+      } else {
+        betweenTimer = 0;
+      }
       return;
     }
     if (!waveActive || wave >= totalWaves) return;
@@ -848,7 +905,8 @@ const Game = (() => {
       }
 
       // Movement
-      const spd = getEffectiveSpeed(e) * dt;
+      const fogMult = (!isInfiniteMode && stage?.modifiers?.fogSpeedBonus) ? (1 + stage.modifiers.fogSpeedBonus) : 1;
+      const spd = getEffectiveSpeed(e) * fogMult * dt;
       e.dist += spd;
       const pos = getPosOnPath(e.dist, e.pathArr);
       e.x = pos.x;
@@ -860,6 +918,16 @@ const Game = (() => {
         updateHUD();
         toRemove.push(e);
         if (lives <= 0) {
+          const tsunadeTower = towers.find(t => PASSIVE_SYSTEM._getPassives(t).find(p => p.type === 'last_stand'));
+          if (tsunadeTower && !tsunadeTower._lastStandUsed) {
+            const lsPassive = PASSIVE_SYSTEM._getPassives(tsunadeTower).find(p => p.type === 'last_stand');
+            tsunadeTower._lastStandUsed = true;
+            lives += lsPassive.restore_lives || 3;
+            updateHUD();
+            addEffect({ type:'shockwave', x:tsunadeTower.x, y:tsunadeTower.y, maxR:900, color:'#f9a8d4', timer:1.5, maxTimer:1.5, r:0 });
+            UI.toast(`🌸 RENASCIMENTO DE TSUNADE! +${lsPassive.restore_lives || 3} Vidas Restauradas!`, 4000);
+            return;
+          }
           endGame(false);
         } else if (e.is_boss || e.is_miniboss) {
           UI.toast(`O Boss ${e.name} escapou! Missão Falhou!`, 4000);
@@ -946,7 +1014,8 @@ const Game = (() => {
   }
 
   function tryAttack(tower, stats) {
-    const inRange = enemies.filter(e => !e.dead && !e.reached_end && dist2d(tower.x, tower.y, e.x, e.y) <= stats.range);
+    const stormMult = (_sandStormActive && stage?.modifiers?.sandStorm) ? 0.6 : 1;
+    const inRange = enemies.filter(e => !e.dead && !e.reached_end && dist2d(tower.x, tower.y, e.x, e.y) <= stats.range * stormMult);
     if (inRange.length === 0) return;
 
     // Passiva pré-ataque: pode modificar stats ou retornar null para pular
@@ -1244,15 +1313,21 @@ const Game = (() => {
       let hasPityRule = false;
       
       for (const drop of stage.drops) {
+        // oneTime: só entrega se jogador ainda não possui a unidade
+        if (drop.oneTime) {
+          if (Save.getUnitQty(drop.id) === 0) dropsAcheived.push(drop.id);
+          continue;
+        }
+
         if (drop.pity) hasPityRule = true;
-        
+
         // Check pity
         if (drop.pity && currentPity + 1 >= drop.pity && !pityTriggered) {
           dropsAcheived.push(drop.id);
           pityTriggered = true;
           continue;
         }
-        
+
         // Independent Roll
         const roll = Math.random() * 100;
         if (roll <= drop.chance) {
@@ -1277,20 +1352,13 @@ const Game = (() => {
       const charDrop = typeof getCharById !== 'undefined' ? getCharById(matId) : null;
       if (charDrop && charDrop.playable) {
         Save.addUnit(matId);
+        const isOneTime = stage.drops?.find(d => d.id === matId)?.oneTime;
+        if (isOneTime) UI.toast(`✨ ${charDrop.name.toUpperCase()} DESBLOQUEADA! Capítulo 4 concluído!`, 6000);
       } else {
         Save.addMaterial(matId);
       }
     });
 
-    // Desbloqueio automático de Tsunade ao coletar todos os 4 fragmentos
-    if (typeof getCharById !== 'undefined') {
-      const allPieces = ['tsunade_piece_1','tsunade_piece_2','tsunade_piece_3','tsunade_piece_4'];
-      const hasTsunade = Save.getUnitQty('tsunade') > 0;
-      if (!hasTsunade && allPieces.every(p => Save.getMaterialQty(p) >= 1)) {
-        Save.addUnit('tsunade');
-        UI.toast('✨ TSUNADE DESBLOQUEADA! Todos os fragmentos coletados!', 6000);
-      }
-    }
 
     Save.addGems(gems);
     Save.markStageComplete(stageId, difficulty);
@@ -1499,11 +1567,17 @@ const Game = (() => {
     const totalUpgradesCount = char?.upgrades?.length || 0;
     const isMaximized = tower.upgradeLevel >= totalUpgradesCount && totalUpgradesCount > 0;
 
+    const _dpsVal = tower.realtimeDPS || 0;
+    const _dpsRow = waveActive && _dpsVal > 0
+      ? `<div class="upg-stat-row"><span>📊 DPS</span><span style="color:#fbbf24;font-weight:700">${_dpsVal >= 1000 ? (_dpsVal/1000).toFixed(1)+'k' : Math.round(_dpsVal)}</span></div>`
+      : '';
+
     statsEl.innerHTML = `
       ${statRow('⚔ Dano', Math.round(stats.damage), nextStats ? Math.round(nextStats.damage) : null)}
       ${statRow('🎯 Alcance', Math.round(stats.range) + 'px', nextStats ? Math.round(nextStats.range) + 'px' : null)}
       ${statRow('⚡ Vel. Ataque', stats.attack_speed.toFixed(2) + '/s' + frenzyMult, nextStats ? nextStats.attack_speed.toFixed(2) + '/s' : null)}
       <div class="upg-stat-row"><span>🗡 Tipo</span><span>${typeLabels[stats.type] || stats.type}</span></div>
+      ${_dpsRow}
       ${prestigeRow}
       ${isMaximized ? '<div class="upg-stat-row" style="color:#fbbf24;font-weight:700;text-align:center">✦ MAXIMIZADO ✦</div>' : ''}`;
     optsEl.appendChild(statsEl);
@@ -1795,6 +1869,7 @@ const Game = (() => {
 
     drawBackground();
     drawPath();
+    drawBlockZones();
     drawTowerRangePreview();
     drawPlacementPreview();
     drawTowers();
@@ -1892,6 +1967,38 @@ const Game = (() => {
     drawOverlay();
 
     ctx.restore();
+  }
+
+  function drawBlockZones() {
+    const zones = stage?.modifiers?.blockZones;
+    if (!zones || !Array.isArray(zones)) return;
+    zones.forEach(z => {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(90,65,45,0.62)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(190,150,90,0.75)';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      // hatch lines inside zone
+      ctx.clip();
+      ctx.strokeStyle = 'rgba(50,30,10,0.30)';
+      ctx.lineWidth = 1;
+      for (let i = -z.r * 2; i < z.r * 2; i += 12) {
+        ctx.beginPath();
+        ctx.moveTo(z.x + i, z.y - z.r);
+        ctx.lineTo(z.x + i + z.r, z.y + z.r);
+        ctx.stroke();
+      }
+      ctx.restore();
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `${Math.round(z.r * 0.5)}px sans-serif`;
+      ctx.fillText('🪨', z.x, z.y - 4);
+      ctx.font = 'bold 7px Inter,sans-serif';
+      ctx.fillStyle = 'rgba(255,220,140,0.85)';
+      ctx.fillText('BLOQUEADO', z.x, z.y + z.r * 0.45);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    });
   }
 
   function drawBackground() {
@@ -2300,6 +2407,18 @@ const Game = (() => {
         ctx.font = 'bold 7px Inter,sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(`P${t.prestige}`, t.x, t.y + 28);
+      }
+
+      // DPS label — exibe abaixo da torre durante wave ativa
+      if (waveActive && !t.isClone && (t.realtimeDPS || 0) > 0) {
+        const _dv = t.realtimeDPS;
+        const _ds = _dv >= 1000 ? (_dv/1000).toFixed(1)+'k' : Math.round(_dv).toString();
+        ctx.font = '600 7px Inter,sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = 'rgba(0,0,0,0.65)';
+        ctx.fillText(_ds, t.x+1, t.y+38);
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillText(_ds, t.x, t.y+37);
       }
 
       ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
@@ -2727,6 +2846,25 @@ const Game = (() => {
   }
 
   function drawOverlay() {
+    // Fase de preparação (antes da Wave 1 ou ao recarregar setup)
+    if (betweenWaves && betweenTimer < 0 && wave < totalWaves) {
+      ctx.fillStyle = 'rgba(6,6,14,0.42)';
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      const cx = CANVAS_W/2, cy = CANVAS_H/2;
+      ctx.fillStyle = 'rgba(10,10,26,0.88)';
+      ctx.beginPath(); ctx.roundRect(cx-165, cy-36, 330, 76, 14); ctx.fill();
+      ctx.strokeStyle = 'rgba(74,222,128,0.35)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.roundRect(cx-165, cy-36, 330, 76, 14); ctx.stroke();
+      ctx.fillStyle = '#4ade80';
+      ctx.font = 'bold 17px Inter,sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('PREPARE-SE!', cx, cy - 8);
+      ctx.fillStyle = 'rgba(238,240,255,0.65)';
+      ctx.font = '500 10px Inter,sans-serif';
+      ctx.fillText('Posicione torres • Carregue setup (💾A/B/C) • [S] para iniciar', cx, cy + 15);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    }
     if (betweenWaves && betweenTimer > 0 && wave < totalWaves) {
       ctx.fillStyle = 'rgba(6,6,14,0.55)';
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
@@ -2771,6 +2909,16 @@ const Game = (() => {
       ctx.fillText(`⚡ SHINRA TENSEI  ${Math.ceil(shinraTenseiTimer)}s`, CANVAS_W/2, 28);
       ctx.textAlign = 'left';
     }
+    // sandStorm overlay (Cap.1 Evento 2)
+    if (_sandStormActive) {
+      ctx.fillStyle = 'rgba(180,110,20,0.18)';
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      ctx.fillStyle = 'rgba(230,170,50,0.9)';
+      ctx.font = 'bold 12px Inter,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`🌪️ TEMPESTADE DE AREIA  ${Math.ceil(_sandStormDuration)}s  (alcance −40%)`, CANVAS_W/2, 44);
+      ctx.textAlign = 'left';
+    }
   }
 
   function useAbility(slotIdx) {
@@ -2812,6 +2960,12 @@ const Game = (() => {
       for (let i = 1; i < pArr.length; i++) {
         const p1 = pArr[i-1], p2 = pArr[i];
         if (distToSegment(x, y, p1.x, p1.y, p2.x, p2.y) < 35) return false;
+      }
+    }
+    const zones = stage?.modifiers?.blockZones;
+    if (zones && Array.isArray(zones)) {
+      for (const z of zones) {
+        if (dist2d(x, y, z.x, z.y) < z.r) return false;
       }
     }
     for (const t of towers) {

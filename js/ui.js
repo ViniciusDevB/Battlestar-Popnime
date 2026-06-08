@@ -33,48 +33,79 @@ const UI = (() => {
     const grid = document.getElementById('events-grid');
     if (!grid) return;
     grid.innerHTML = '';
-    
-    EVENTS_DATA.forEach(evt => {
-      const card = document.createElement('div');
-      card.style.cssText = `
-        width: 100%; max-width: 800px; background: #1a1a1a; 
-        border: 2px solid var(--gold); border-radius: 12px; overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column;
-      `;
-      card.innerHTML = `
-        <div style="height: 250px; background-image: url('${evt.flyer}'); background-size: cover; background-position: center; position: relative;">
-          <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.9));">
-            <h3 style="color: var(--gold); font-size: 24px; margin: 0; font-family: 'Cinzel', serif;">${evt.name}</h3>
-          </div>
-        </div>
-        <div style="padding: 20px;">
-          <p style="color: #ccc; font-size: 14px; margin-bottom: 20px;">${evt.desc}</p>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            ${evt.stages.map((st, i) => {
-              const isDone = Save.isStageComplete(st.id, 'normal');
-              const isLocked = i > 0 && !Save.isStageComplete(evt.stages[i-1].id, 'normal');
-              return `
-                <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; ${isLocked ? 'opacity: 0.5; pointer-events: none;' : ''}">
-                  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
-                    <div style="flex: 1;">
-                      <div style="font-weight: bold; font-size: 16px; margin-bottom: 8px;">${st.name}</div>
-                      ${st.story ? `<div style="font-style: italic; font-size: 12px; color: #ccc; line-height: 1.6; margin-bottom: 8px;">${st.story}</div>` : ''}
-                      <div style="font-size: 11px; color: rgba(255,200,70,0.6); line-height: 1.4;">${st.description}</div>
-                    </div>
-                    <div style="flex-shrink: 0;">
-                      <button class="btn btn-primary" onclick="UI.showPreBattle('${st.id}')" ${isLocked ? 'disabled' : ''}>
-                        ${isLocked ? '🔒 Bloqueado' : isDone ? '⭐ Concluído' : 'Jogar Capítulo'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-      `;
-      grid.appendChild(card);
+
+    // ── Tab bar ──────────────────────────────────────────────────────────────
+    const tabBar = document.createElement('div');
+    tabBar.style.cssText = 'display:flex;flex-shrink:0;background:rgba(0,0,0,0.35);border-bottom:1px solid rgba(255,200,70,0.18);padding:0 20px;overflow-x:auto;';
+
+    // ── Scrollable content area ───────────────────────────────────────────────
+    const content = document.createElement('div');
+    content.style.cssText = 'flex:1;overflow-y:auto;padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:0;';
+
+    function renderEvt(idx) {
+      const evt = EVENTS_DATA[idx];
+      content.innerHTML = '';
+
+      // Flyer header
+      const header = document.createElement('div');
+      header.style.cssText = 'width:100%;max-width:760px;height:180px;border-radius:12px 12px 0 0;background-image:url(\'' + evt.flyer + '\');background-size:cover;background-position:center;position:relative;overflow:hidden;';
+      header.innerHTML = '<div style="position:absolute;bottom:0;left:0;width:100%;padding:14px 20px;background:linear-gradient(transparent,rgba(0,0,0,0.88));"><h3 style="color:var(--gold);font-size:20px;margin:0;font-family:\'Cinzel\',serif;">' + evt.name + '</h3></div>';
+
+      // Description
+      const desc = document.createElement('div');
+      desc.style.cssText = 'width:100%;max-width:760px;background:rgba(20,20,35,0.92);padding:14px 20px;border-left:2px solid rgba(255,200,70,0.25);border-right:2px solid rgba(255,200,70,0.25);';
+      desc.innerHTML = '<p style="color:#bbb;font-size:13px;margin:0;line-height:1.6;">' + evt.desc + '</p>';
+
+      // Chapters
+      const chaps = document.createElement('div');
+      chaps.style.cssText = 'width:100%;max-width:760px;background:rgba(15,15,28,0.95);border:2px solid rgba(255,200,70,0.25);border-top:none;border-radius:0 0 12px 12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;';
+
+      evt.stages.forEach((st, i) => {
+        const isDone = Save.isStageComplete(st.id, 'normal');
+        const isLocked = i > 0 && !Save.isStageComplete(evt.stages[i-1].id, 'normal');
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;' + (isLocked ? 'opacity:0.45;pointer-events:none;' : '');
+        row.innerHTML = '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;"><div style="flex:1;">'
+          + '<div style="font-weight:700;font-size:14px;margin-bottom:5px;color:' + (isDone ? 'var(--gold)' : '#eef') + ';">' + st.name + '</div>'
+          + (st.story ? '<div style="font-style:italic;font-size:12px;color:#aaa;line-height:1.6;margin-bottom:6px;">' + st.story.slice(0, 140) + (st.story.length > 140 ? '…' : '') + '</div>' : '')
+          + '<div style="font-size:11px;color:rgba(255,200,70,0.55);line-height:1.4;">' + st.description + '</div>'
+          + '</div><div style="flex-shrink:0;">'
+          + '<button class="btn btn-primary" onclick="UI.showPreBattle(\'' + st.id + '\')" ' + (isLocked ? 'disabled' : '') + '>'
+          + (isLocked ? '🔒 Bloqueado' : isDone ? '⭐ Concluído' : 'Jogar Capítulo')
+          + '</button></div></div>';
+        chaps.appendChild(row);
+      });
+
+      content.appendChild(header);
+      content.appendChild(desc);
+      content.appendChild(chaps);
+    }
+
+    // Build tabs
+    EVENTS_DATA.forEach((evt, i) => {
+      const btn = document.createElement('button');
+      const setActive = (active) => {
+        btn.style.cssText = 'padding:11px 18px;border:none;border-bottom:2px solid ' + (active ? 'var(--gold)' : 'transparent') + ';background:' + (active ? 'rgba(255,200,70,0.08)' : 'transparent') + ';color:' + (active ? 'var(--gold)' : 'rgba(238,240,255,0.5)') + ';font-size:13px;font-weight:' + (active ? '700' : '500') + ';cursor:pointer;transition:all 130ms;white-space:nowrap;';
+      };
+      setActive(i === 0);
+      btn.textContent = evt.name;
+      btn.addEventListener('click', () => {
+        tabBar.querySelectorAll('button').forEach((b, bi) => {
+          const isActive = bi === i;
+          b.style.borderBottom = isActive ? '2px solid var(--gold)' : '2px solid transparent';
+          b.style.background = isActive ? 'rgba(255,200,70,0.08)' : 'transparent';
+          b.style.color = isActive ? 'var(--gold)' : 'rgba(238,240,255,0.5)';
+          b.style.fontWeight = isActive ? '700' : '500';
+        });
+        content.scrollTop = 0;
+        renderEvt(i);
+      });
+      tabBar.appendChild(btn);
     });
+
+    grid.appendChild(tabBar);
+    grid.appendChild(content);
+    renderEvt(0);
   }
 
   function showWorldSelect() {
@@ -158,15 +189,28 @@ const UI = (() => {
     stage.drops.forEach(drop => {
       const char = getCharById(drop.id);
       if (!char) return;
+      const alreadyOwned = drop.oneTime && Save.getUnitQty(drop.id) > 0;
       const el = document.createElement('div');
       el.className = 'pb-reward-card';
-      el.style.cssText = `background: #1e1e1e; padding: 5px; border-radius: 5px; border: 1px solid ${RARITY_COLORS[char.rarity||0]}; display: flex; flex-direction: column; align-items: center; width: 60px; font-size: 10px; text-align: center;`;
+      el.style.cssText = `background: #1e1e1e; padding: 5px; border-radius: 5px; border: 1px solid ${alreadyOwned ? 'rgba(100,100,100,0.4)' : RARITY_COLORS[char.rarity||0]}; display: flex; flex-direction: column; align-items: center; width: 60px; font-size: 10px; text-align: center; position: relative; ${alreadyOwned ? 'opacity:0.55;' : ''}`;
+
+      let chanceLabel;
+      if (drop.oneTime) {
+        chanceLabel = alreadyOwned
+          ? `<div style="color:#4ade80;font-weight:700;">✓ Obtida</div>`
+          : `<div style="color:#fbbf24;font-weight:700;">1ª vez</div>`;
+      } else if (drop.pity) {
+        chanceLabel = `<div style="color:#ffaa00;">${drop.chance * 100}% <span style="color:#a78bfa;font-size:9px;">(pity ${drop.pity})</span></div>`;
+      } else {
+        chanceLabel = `<div style="color:#ffaa00;">${drop.chance}%</div>`;
+      }
+
       el.innerHTML = `
         <div style="background:${RARITY_COLORS[char.rarity||0]}; width: 40px; height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-bottom: 3px; font-weight: bold; overflow: hidden;">
           ${charIconInner(char)}
         </div>
         <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">${char.name}</div>
-        <div style="color: #ffaa00;">${drop.chance}%</div>
+        ${chanceLabel}
       `;
       container.appendChild(el);
     });

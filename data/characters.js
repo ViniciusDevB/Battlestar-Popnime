@@ -17,12 +17,6 @@ const CHARACTERS = {
   avenger_material_2: { id: 'avenger_material_2', name: 'Material Vingador II', rarity: 1, series: 'marvel', playable: false, xp_value: 150, initials: 'AM2', image: 'assets/ingredients/world4/Avenger 2.png', upgrades_to: 'avenger_material_3', upgrade_cost: 3 },
   avenger_material_3: { id: 'avenger_material_3', name: 'Material Vingador III', rarity: 2, series: 'marvel', playable: false, xp_value: 400, initials: 'AM3', image: 'assets/ingredients/world4/Avenger 3.png' },
 
-  // ── Peças de Tsunade (Evento 2) ───────────────────────────────────────────
-  tsunade_piece_1: { id: 'tsunade_piece_1', name: 'Fragmento de Tsunade I', rarity: 3, series: 'naruto', playable: false, xp_value: 0, initials: 'TN1', image: 'assets/ingredients/eventos/op_ressureicao/Tsunade Piece 1.png', tsunade_piece: 1 },
-  tsunade_piece_2: { id: 'tsunade_piece_2', name: 'Fragmento de Tsunade II', rarity: 3, series: 'naruto', playable: false, xp_value: 0, initials: 'TN2', image: 'assets/ingredients/eventos/op_ressureicao/Tsunade Piece 2.png', tsunade_piece: 2 },
-  tsunade_piece_3: { id: 'tsunade_piece_3', name: 'Fragmento de Tsunade III', rarity: 3, series: 'naruto', playable: false, xp_value: 0, initials: 'TN3', image: 'assets/ingredients/eventos/op_ressureicao/Tsunade Piece 3.png', tsunade_piece: 3 },
-  tsunade_piece_4: { id: 'tsunade_piece_4', name: 'Fragmento de Tsunade IV', rarity: 3, series: 'naruto', playable: false, xp_value: 0, initials: 'TN4', image: 'assets/ingredients/eventos/op_ressureicao/Tsunade Piece 4.png', tsunade_piece: 4 },
-
   // ══════════════════════════════════════════════════════════════════════════
   //  3⭐  —  Sem AOE. Poder vem de passivas, status effects e multiplicadores.
   //  Tipos permitidos: single_target, linha, cone (1-2 unidades), AOE só L.

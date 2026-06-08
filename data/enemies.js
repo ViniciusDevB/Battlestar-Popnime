@@ -862,6 +862,10 @@ const ENEMY_DEFS = {
     name:'Caminho Humano', hp:2000, speed:64, gold:95,
     ptype:'powerful1', size:24, col:'#6c3483', image:'assets/inimigos/world1/Pain Caminho Humano.png'
   },
+  caminho_asura: {
+    name:'Caminho Asura', hp:2800, speed:60, gold:110,
+    ptype:'powerful1', size:24, col:'#4a235a', image:'assets/inimigos/world1/Pain Caminho Asura.png'
+  },
 
   // Fase 5
   invocacao_slug: {

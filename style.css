@@ -806,6 +806,29 @@ html,body{
   display:flex;gap:9px;padding:9px 18px;
   background:rgba(0,0,0,0.12);border-bottom:1px solid var(--bd);flex-shrink:0;
 }
+.inv-filter-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.inv-chip{
+  display:inline-flex;align-items:center;padding:4px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.13);
+  color:rgba(238,240,255,0.55);
+  font-size:12px;font-weight:500;line-height:1.4;
+  cursor:pointer;
+  transition:background 110ms,border-color 110ms,color 110ms;
+  white-space:nowrap;
+}
+.inv-chip:hover{
+  background:rgba(255,200,70,0.09);
+  border-color:rgba(255,200,70,0.3);
+  color:rgba(255,200,70,0.85);
+}
+.inv-chip.active{
+  background:rgba(255,200,70,0.15);
+  border-color:var(--gold);
+  color:var(--gold);
+  font-weight:700;
+}
 select{
   background:var(--gs2);color:var(--t1);border:1px solid var(--bd2);
   border-radius:9px;padding:6px 11px;font-size:12px;cursor:pointer;transition:border-color 130ms;

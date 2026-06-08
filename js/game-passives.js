@@ -893,6 +893,8 @@ var PASSIVE_ENTRIES = {
         const restore = _passiveCtx.getPassiveValue(tower, 'restore', p.restore || 1);
         _passiveCtx.restoreLife(restore);
         _passiveCtx.addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:80, color:'#f9a8d4', timer:1.0, maxTimer:1.0, r:0 });
+        const pp = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower).find(x => x.type === 'byakugou_shield');
+        if (pp) { _passiveCtx.towers.forEach(t => { t.stunCooldown = Math.max(t.stunCooldown || 0, pp.stun_immune_duration || 2); }); _passiveCtx.toast(`🛡️ Cura da Hokage: Imunidade a Stun por ${pp.stun_immune_duration}s!`, 2000); }
         UI.toast(`✨ Byakugou de Tsunade! +${restore} vida restaurada!`, 3500);
 
         // Imunidade a stun para todas as torres (prestígio 5)
@@ -932,16 +934,15 @@ var PASSIVE_ENTRIES = {
       if (tower.isClone) return;
       tower._bijuuTimer = (tower._bijuuTimer || 0) + dt;
 
-      const baseCd  = _passiveCtx.getPassiveValue(tower, 'cooldown', p.cooldown || 20);
-      const cdBonus = _passiveCtx.getPassiveValue(tower, 'cooldown_bonus', 0);
-      const cd      = Math.max(8, baseCd + cdBonus);
+      const bFast = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower).find(x => x.type === 'bijuu_fast');
+      const baseCd = bFast ? (bFast.cooldown_override || 12) : _passiveCtx.getPassiveValue(tower, 'cooldown', p.cooldown || 20);
+      const cd = Math.max(8, baseCd);
 
       if (tower._bijuuTimer >= cd) {
         tower._bijuuTimer = 0;
-        const dur     = _passiveCtx.getPassiveValue(tower, 'duration', p.duration || 3)
-                      + _passiveCtx.getPassiveValue(tower, 'duration_bonus', 0);
-        const dmgMult = _passiveCtx.getPassiveValue(tower, 'damage_mult', p.damage_mult || 3.0)
-                      * (1 + _passiveCtx.getPassiveValue(tower, 'damage_bonus', 0));
+        const bBoost = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower).find(x => x.type === 'bijuu_boost');
+        const dur = _passiveCtx.getPassiveValue(tower, 'duration', p.duration || 3) + (bBoost ? bBoost.duration_bonus || 2 : 0);
+        const dmgMult = _passiveCtx.getPassiveValue(tower, 'damage_mult', p.damage_mult || 3.0) + (bBoost ? bBoost.damage_bonus || 0.5 : 0);
         const stats   = _passiveCtx.getTowerStats(tower);
 
         // Paralisa todos os inimigos por 1.5s
@@ -974,5 +975,33 @@ var PASSIVE_ENTRIES = {
     }
   },
 
+  
+  ally_damage_aura: {
+    isAura: true,
+    auraEffect(auraTower, p, attackingTower, dmg, enemy) {
+      if (auraTower.disabled) return dmg;
+      return dmg * (1 + (p.bonus || 0.06));
+    }
+  },
+  byakugou_shield: {},
+  last_stand: {},
+  mark_on_nth_hit: {
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      if (hitEnemies.length === 0) return;
+      tower._markCount = (tower._markCount || 0) + 1;
+      if (tower._markCount >= (p.n || 5)) {
+        tower._markCount = 0;
+        const target = hitEnemies[0];
+        if (!target.dead && !target.reached_end) {
+          target.crossMarked = true;
+          target.crossMarkTimer = p.duration || 3;
+          target.crossMarkBonus = p.bonus || 0.30;
+          _passiveCtx.addEffect({ type:'ring', x:target.x, y:target.y, maxR:40, color:'#fbbf24', timer:0.5, maxTimer:0.5, r:0 });
+        }
+      }
+    }
+  },
+  bijuu_boost: {},
+  bijuu_fast: {},
   none: {}
 };
