@@ -1,14 +1,12 @@
 # 🌟 Battlestar Popnime
 
-**Battlestar Popnime** é um web-game no estilo **Tower Defense** que reúne personagens icônicos de diversos universos dos animes (Naruto, Bleach, Dragon Ball, One Piece, entre outros). O jogo conta com um sistema completo de progressão, incluindo mecânicas de **Gacha**, missões, gerenciamento de inventário, evolução e prestígio de personagens.
+**Battlestar Popnime** é um web-game no estilo **Tower Defense** que reúne personagens icônicos de diversos universos de anime e quadrinhos (Naruto, Bleach, One Piece, Marvel, entre outros). O jogo conta com um sistema completo de progressão, incluindo **Gacha**, missões, inventário, evolução, prestígio e recursos online.
 
 ---
 
----
+## 🚀 Como Jogar / Executar
 
-## 🚀 Como Jogar / Executar o Projeto
-
-O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necessário configurar nenhum ambiente complexo para rodar o jogo:
+O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Nenhuma instalação necessária:
 
 1. Clone o repositório:
    ```bash
@@ -19,68 +17,100 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 
 *(Recomendado: usar Live Server do VS Code para melhor experiência de desenvolvimento.)*
 
+> **Online**: os recursos online (leaderboard, trocas, missões da comunidade) requerem a configuração do Supabase em `data/online_config.js`.
+
 ---
 
 ## ✨ Funcionalidades
 
-- **Tower Defense Dinâmico**: Posicione unidades estrategicamente para defender sua base. Cada personagem possui tipo de ataque único (Single, Linha, Cone, AOE, Pierce, Scatter), sistema de passivas e upgrades exclusivos.
-- **Sistema de Gacha ⚡**: Invoque personagens (3⭐ a 5⭐) com sistema de *pity* (garantia no 150º pull) e banners rotativos a cada 30 minutos. Chance de 5⭐: **1%** em ambos os banners.
-- **Gerenciamento e Evolução 🔮**: Suba de nível unidades via Feed e evolua-as para formas superiores com materiais dropados nas fases.
-- **Sistema de Prestígio ✦**: Ao atingir o nível máximo, transmute uma unidade para Prestígio (máx P10). Cada nível de Prestígio concede +20% de dano e +6% de alcance permanentes, além de desbloquear passivas exclusivas nos níveis P1, P5 e P10.
-- **Missões 📋**: Sistema de missões progressivas com recompensas em Gemas e Tickets.
-- **Sagas de Eventos 🌟**: Capítulos narrativos com modificadores únicos e personagens exclusivos.
-- **Mundos e Fases 🗺️**: Fases por mundos temáticos com três dificuldades (Normal, Difícil, Lendário).
-- **♾ Modo Infinito**: Waves sem fim com dificuldade escalável (Fácil → Lendário → Além do Limite). Farm de **Star Experience** e Gemas. Limite de 3 cópias por torre por partida.
-- **Star Experience ✨**: Materiais exclusivos do Modo Infinito (Nv1–5) com XP massivo. Podem ser usados diretamente no **Feed** de qualquer personagem. Chance de drop que cresce com o número da wave.
-- **Sistema de Salvamento 💾**: Progresso salvo automaticamente no LocalStorage.
+**Gameplay:**
+- **Tower Defense Dinâmico** — posicione unidades estrategicamente no canvas. Cada personagem tem tipo de ataque único (Single, Linha, Cone, AOE, Pierce, Scatter), passivas e upgrades exclusivos.
+- **Mundos e Fases** — 4 mundos temáticos (Naruto, One Piece, Bleach, Marvel) com 6 fases cada, 10 waves por fase. Três dificuldades por fase (Normal, Difícil, Lendário).
+- **♾ Modo Infinito** — waves sem fim com dificuldade escalável (8 tiers). Farm de Star Experience e Gemas. Limite de 3 cópias por unidade por partida.
+- **Sagas de Eventos** — capítulos narrativos com modificadores únicos e personagens exclusivos.
+
+**Progressão:**
+- **Gacha ⚡** — invoque personagens (3⭐ a 5⭐) com pity garantido no 150º pull. Banners rotativos a cada 30 minutos com pool diferente. Chance de 5⭐: 1%.
+- **Feed & Evolução 🔮** — suba de nível unidades via Feed e evolua-as para formas superiores com materiais dropados em fases.
+- **Prestígio ✦** — ao atingir Lv50, transmute uma unidade para Prestígio (máx P10). Cada nível concede +20% de dano e +6% de alcance, além de passivas exclusivas em P1, P5 e P10.
+- **Star Experience ✨** — materiais exclusivos do Modo Infinito (Nv1–5) com XP massivo, usáveis no Feed de qualquer personagem.
+
+**Missões 📋** — modal unificado com três abas:
+- **Diárias** — 10 missões sorteadas por dia (resets automático à meia-noite), recompensas em Gemas e Tickets.
+- **Conquistas** — 55 missões permanentes cobrindo todos os mundos, kills, dano, gacha, coleção de personagens, modo infinito e progressão. Exibe 8 por vez em fila.
+- **Comunidade** — missão online coletiva com meta global, barra de progresso em tempo real e recompensa de personagem 5⭐ aleatório para quem contribuiu.
+
+**Online (via Supabase):**
+- **Contas e Perfil** — registro/login com username e senha. Barra de status online no HUD. Contas novas iniciam com 500 💎 e os 3 personagens 3⭐ do banner ativo.
+- **Leaderboard e Rankings** — envio de scores (infinito e fases), ranking global paginado com destaque do próprio rank.
+- **Trocas** — ofertas assíncronas de personagens entre jogadores com até 3 unidades, pedido opcional e expiração automática (7 dias).
+- **Save Sync** — save automático na nuvem com merge inteligente (último timestamp vence em inventário/moedas; stats e completões de fases fazem union).
+- **Reset de Conta** — o botão ⚙ apaga o save local e, se logado, remove o save do servidor e faz logout.
+- **Integridade** — HMAC do save + validação de plausibilidade bloqueiam scores e trocas com saves adulterados.
+
+**Qualidade de Vida:**
+- Auto-Place com 3 slots por fase (salva e recarrega posicionamento).
+- Undo da última torre colocada (tecla `Z`), bloqueado após spawn de inimigos.
+- Filtro múltiplo no inventário (mundo, raridade) persistido no localStorage.
+- Preview de wave com ícones de ptype e alerta de miniboss/boss.
+- Comparação de stats no painel de upgrade (atual → próximo nível em verde).
+- Barra de pity colorida (azul → amarelo → vermelho).
+- Atalhos de teclado: `Space` pausar, `S` skip wave, `F` velocidade, `U` upgrade, `Z` undo, `Del` vender, `1–6` selecionar torre.
 
 ---
 
 ## 📁 Estrutura do Projeto
 
-- `/` — `index.html` (estrutura) e `style.css` (estilos).
-- `/js` — Lógica do jogo:
-  - `game.js` — Loop principal, canvas, passivas, tipos de ataque, modo infinito.
-  - `game-projectile-render.js` — Renderização visual dos projéteis de cada personagem.
-  - `gacha.js` / `banner.js` — Sistema de invocação e banner rotativo.
-  - `save.js` — Persistência via `localStorage` (inclui prestígio).
-  - `inventory.js` — Inventário, feed, evolução, prestígio (botão Transmutar).
-  - `ui.js` — Controle de telas e DOM.
-  - `missions.js` / `main.js` — Missões e entry-point.
-- `/data` — Dados do universo:
-  - `characters.js` — Personagens, passivas, upgrades, prestígio passives, Star Experience.
-  - `enemies.js` — Inimigos dos 3 mundos + handlers especiais.
-  - `events_data.js` — Sagas de eventos.
-  - `stages.js` — Fases de todos os mundos + estágio infinito.
-  - `world.js` — Mundos, caminhos e paths (W1, W2, W3, Infinito).
+```
+/
+├── index.html              — estrutura e layout principal
+├── style.css               — estilos globais e componentes de UI
+├── js/
+│   ├── game.js             — loop principal, canvas, IA de inimigos, passivas, infinito
+│   ├── game-passives.js    — sistema de passivas modular
+│   ├── game-projectile-render.js — renderização visual de projéteis
+│   ├── gacha.js            — sistema de invocação
+│   ├── banner.js           — banners rotativos com seed determinístico
+│   ├── save.js             — persistência via localStorage + API de save
+│   ├── inventory.js        — inventário, feed, evolução, prestígio
+│   ├── missions.js         — checkers e lógica de conquistas e diárias
+│   ├── ui.js               — controle de telas, DOM e hub
+│   ├── ui-missions-online.js — modal unificado de missões (3 abas)
+│   ├── online.js           — camada Supabase (auth, sync, leaderboard, trocas)
+│   ├── ui-online.js        — UI de login/registro/perfil
+│   ├── ui-leaderboard.js   — UI do ranking global
+│   ├── ui-trades.js        — UI do sistema de trocas
+│   ├── integrity.js        — HMAC, validação de plausibilidade, DevTools guard
+│   └── main.js             — entry-point, inicialização e atalhos globais
+├── data/
+│   ├── characters.js       — personagens, passivas, upgrades, prestígio, Star Exp
+│   ├── enemies.js          — inimigos de todos os mundos + handlers especiais
+│   ├── stages.js           — fases de todos os mundos + estágio infinito
+│   ├── world.js            — mundos, caminhos e paths
+│   ├── events_data.js      — sagas de eventos
+│   ├── missions_data.js    — pool de conquistas (55) e diárias (24)
+│   └── online_config.js    — credenciais Supabase (não versionado)
+└── supabase/
+    ├── migrate_trades_v2.sql      — schema completo (players, saves, trades, etc.)
+    └── community_missions_seed.sql — seed das missões da comunidade
+```
 
 ---
 
 ## 📈 Histórico de Updates
 
-### 🔄 Update 2.5: Sistema Online *(Em desenvolvimento)*
+### ✅ Update 2.5: Sistema Online *(Lançado)*
 
-**Camada online assíncrona via Supabase — sem PvP/co-op, foco em comunidade:**
+**Camada online assíncrona via Supabase — foco em comunidade, sem PvP/co-op:**
 
-- **Contas e Perfil**: registro e login com username/senha (email sintético interno). Barra de status online persistente no HUD.
-- **Leaderboard e Rankings**: envio de scores (modo infinito e fases), ranking global com paginação, destaque do rank do próprio jogador.
-- **Sistema de Trocas**: ofertas públicas assíncronas de personagens entre jogadores.
-  - Criação de ofertas com até 3 unidades (3★+), pedidos opcionais e mensagem.
-  - Bloqueio local da unidade durante a oferta (cadeado no inventário).
-  - Aceitação com picker por tipo de personagem pedido.
-  - Transferência atômica via função SQL `accept_trade` (sem race condition).
-  - Cancelamento com desbloqueio automático e reconciliação de estado.
-  - Expiração automática (7 dias) via cron job Supabase.
-- **Integridade**: HMAC do save + validação de plausibilidade bloqueiam scores e trocas de saves adulterados.
-- **Novos arquivos**: `js/online.js`, `js/ui-online.js`, `js/ui-leaderboard.js`, `js/ui-trades.js`, `js/integrity.js`, `data/online_config.js`.
+- **Contas**: registro e login com username/senha. Novas contas recebem 500 💎 e os 3 personagens 3⭐ do banner ativo no momento do cadastro.
+- **Leaderboard**: scores do modo infinito e fases enviados automaticamente, ranking global paginado.
+- **Sistema de Trocas**: ofertas públicas assíncronas com até 3 unidades (3⭐+), pedido opcional, aceite com picker, cancelamento com desbloqueio automático e expiração de 7 dias.
+- **Missões unificadas**: modal com três abas — Diárias (10/dia, reset automático), Conquistas (55 permanentes cobrindo todos os mundos) e Comunidade (meta global com recompensa de 5⭐ aleatório).
+- **Missão de Comunidade**: meta coletiva visível a todos os jogadores com barra de progresso em tempo real via Realtime do Supabase.
+- **Reset de conta**: apaga save local e, se logado, remove o save remoto e faz logout.
+- **Integridade**: HMAC + validação de plausibilidade bloqueiam adulteração de saves.
 - **Banco de dados**: schema e migrations em `/supabase/`.
-
-**Correções do sistema de Trocas (fixes incluídos neste commit):**
-- Cancelamento de oferta não desbloqueava a unidade quando o cache de UIDs estava vazio — agora busca do banco como fallback.
-- Save remoto com `in_trade: true` podia sobrescrever o desbloqueio local em sincronizações futuras — agora o save é enviado ao remoto imediatamente após cancelar.
-- Reconciliação automática na aba "Minhas Ofertas": unidades travadas sem trade aberta associada são desbloqueadas automaticamente.
-- `startAccept` passava `wantedIds`/`offeredNames` por atributos HTML (encoding problemático) — agora lê do cache em memória.
-- **Migration necessária**: executar `supabase/migrate_trades_v2.sql` no SQL Editor do Supabase para migrar o schema de colunas singulares para arrays e corrigir o `CHECK` constraint de status.
 
 ---
 
@@ -88,186 +118,80 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Não é necess
 
 **Universo Marvel entra no Battlestar Popnime + Evento narrativo shinobi:**
 
-**Mundo 4 — Nova York** com caminho temático de Manhattan (cruzamentos em Z):
-- **6 fases completas** com 10 waves cada:
-  - Fase 1 — **Manhattan (Hydra)**: backbone de invasores padrão.
-  - Fase 2 — **Helicarrier SHIELD**: introduz Invasor Speed (ptype Speed).
-  - Fase 3 — **Sokovia (Ultron)**: adiciona Invasor Fortified (escudo + ptype Fortified).
-  - Fase 4 — **Wakanda**: adiciona Invasor Regen (regeneração passiva).
-  - Fase 5 — **Titan**: adiciona Invasor Bomb (explosor com AOE de atordoamento).
-  - Fase 6 — **O Espaço (Gauntlet)**: todos os tipos simultâneos + Boss Thanos em 2 fases.
+**Mundo 4 — Nova York** com caminho temático de Manhattan:
+- **6 fases** com 10 waves cada, miniboss na W10 e Boss Thanos em 2 fases na F6.
 
-**Novos inimigos comuns:**
-- `Invasor` — backbone das 6 fases, ptype normal.
-- `Invasor Speed` — rápido (speed 155), introduzido na Fase 2.
-- `Invasor Fortified` — tanque blindado (HP 20k + escudo 10k).
-- `Invasor Regen` — regenera 210 HP/s.
-- `Invasor Bomb` — explosor com raio de 125px e stun de 1.8s.
+**Inimigos:**
+- `Invasor`, `Invasor Speed` (speed 155), `Invasor Fortified` (HP 20k + escudo 10k), `Invasor Regen` (210 HP/s), `Invasor Bomb` (AOE stun 1.8s).
 
-**Minibosses (W10 de cada fase):**
-- **Batroc** (F1): avança ativamente no caminho pelo Golpe de Savate a cada 12s.
-- **Crossbones** (F2): Colete Suicida — mata rápido (explosão colossal) ou ele entra em Berserk.
-- **Ronan** (F3): O Veredito — bloqueia a torre de maior DPS por 7s a cada 22s.
-- **Corvus Glaive** (F4): Imortal enquanto o escudo estiver ativo; escudo regenera se inimigos suficientes estiverem em campo.
-- **Ebony Maw** (F5): Telecinese Dupla — empurra todos os inimigos no caminho + inverte targeting de torres aleatórias.
+**Minibosses:** Batroc (F1), Crossbones (F2), Ronan (F3), Corvus Glaive (F4), Ebony Maw (F5).
 
-**Boss de duas fases — Thanos (F6 W10):**
-- **Thanos — O Eterno**: 300k HP + escudo 100k. Snap stuna todas as torres a cada 25s. Drena 1 vida da base a cada 3s.
-- **Thanos — Manopla Completa**: 300k HP, speed 55. Imune a slow. Snap a cada 10s. Ativa 1 das 6 Gemas do Infinito a cada 20s em rotação (Espaço, Mente, Realidade, Poder, Tempo, Alma).
+**Boss — Thanos (F6 W10):**
+- Fase 1 — 300k HP + escudo 100k. Snap stuna torres a cada 25s. Drena 1 vida a cada 3s.
+- Fase 2 — 300k HP, speed 55. Imune a slow. Ativa 1 das 6 Gemas do Infinito a cada 20s em rotação.
 
-**8 novos personagens jogáveis** (3⭐ a 5⭐):
-- 3⭐: Homem-Aranha (slow de teia por hit), Viúva Negra (marca inimigos ao matar), Gavião Arqueiro (rotação de 4 tipos de flecha).
-- 4⭐: Pantera Negra (ricochet 2–4 bounces + aura), Thor (chain lightning em cascata), Hulk (stacks de Raiva crescentes).
-- 5⭐ Gacha: Iron Man Mark 50 — drop exclusivo da Fase 6. Multi-míssil + Unibeam ao detectar boss.
-- 5⭐ Evolução: World Breaker Hulk — evolui do Hulk. Gamma Burst ao atingir 60 stacks.
+**8 novos personagens** (3⭐ a 5⭐): Homem-Aranha, Viúva Negra, Gavião Arqueiro, Pantera Negra, Thor, Hulk, Iron Man Mark 50 (5⭐ Gacha), World Breaker Hulk (5⭐ Evolução).
 
-**Evento — Operação: Ressurreição** (4 capítulos, continuação de "A Anomalia de Konoha"):
-- **Capítulo 1 — A Queda da Areia**: Modificador *Escudo de Areia* — todos os inimigos só tomam dano por burst (>800 em 1.5s).
-- **Capítulo 2 — Névoa Sangrenta**: Modificador *Nevoeiro Mortal* — HP bars, nomes e tipos ocultos (só silhuetas).
-- **Capítulo 3 — O Coração de Pedra**: Modificador *Frente Dupla* — metade da wave surge a 50% do caminho simultaneamente. Recompensa de conclusão: **Tsunade** (desbloqueio garantido).
-- **Capítulo 4 — Tempestade de Trovões**: Modificador *Modo Jinchuuriki* — boss alterna imunidade de tipo de ataque a cada 30s (ícone visível). Drop farmável: **Killer Bee** (1% chance, pity 80).
+**Evento — Operação: Ressurreição** (4 capítulos):
+- Escudo de Areia, Nevoeiro Mortal, Frente Dupla, Modo Jinchuuriki.
+- Personagens exclusivos: Tsunade (4⭐) e Killer Bee (5⭐, pity 80 runs).
 
-**2 personagens exclusivos do evento** (não dropam no gacha):
-- **Tsunade** (4⭐): AOE corpo-a-corpo. Passiva dupla — *Cem Sobrancelhas* (inimigos com base_drain drenam mais lentamente) + *Byakugou* (restaura 1 vida após 40s de wave ativa, 1× por wave).
-- **Killer Bee** (5⭐, pity 80 runs): 8 Estilos de Espada em 360° (único ataque omnidirecional). Passiva *Modo Bijuu (Gyuki)* — a cada 20s, paralisa todos os inimigos e causa 3× dano base.
-
-**Qualidade de Vida:**
-- **Auto-Place**: 3 slots (A, B, C) para salvar e recarregar posicionamento de torres por fase.
-- **Undo de Posicionamento**: desfaz a última torre colocada (tecla `Z`), bloqueado após inimigos spawnar.
-- **Preview Expandido de Wave**: overlay mostra ícones coloridos de cada ptype da próxima wave com contagem. Alerta vermelho para miniboss/boss.
-- **Filtro no Inventário**: chips de filtro múltiplo (Naruto, One Piece, Bleach, Marvel, Evento, ⭐⭐⭐ a ⭐⭐⭐⭐⭐). Estado persiste no localStorage.
-- **Comparação de Torres**: painel de upgrade mostra stats atuais → próximo nível (números melhores em verde).
-- **Barra de Pity colorida**: azul (0–99) → amarelo (100–130) → vermelho (131–150) com texto "X/150 pulls — Pity em Y pulls".
+**Qualidade de Vida:** Auto-Place (3 slots), Undo de posicionamento (tecla `Z`), Preview expandido de wave, Filtro múltiplo no inventário, Comparação de torres no upgrade, Barra de pity colorida.
 
 ---
 
 ### ✅ Update 1: Soul Society *(Lançado)*
 
-**Bleach — Mundo 3 completo com 6 fases e sistema de inimigos redesenhado:**
+**Bleach — Mundo 3 com 6 fases e sistema de prestígio:**
 
-- **Mundo 3: Soul Society** com caminho exclusivo (curva em S tripla).
-- **6 fases completas** com 10 waves cada, miniboss na W10 de cada fase e boss de duas fases na fase 6:
-  - Fase 1 — **Karakura**: backbone de Hollows, abertura suave sem mecânicas especiais.
-  - Fase 2 — **Seireitei**: introduz inimigos Speed (`Hollow Speed`).
-  - Fase 3 — **Hueco Mundo**: combinação de Speed e tanques velozes (`Vasto Lorde`).
-  - Fase 4 — **Las Noches**: introduz Fortified (`Hollow Fortified` com escudo).
-  - Fase 5 — **Cúpula de Las Noches**: introduz Regenerator (`Hollow Regen`).
-  - Fase 6 — **Fake Karakura**: gauntlet com todos os tipos + Boss de 2 fases.
-
-**Novos inimigos comuns (com tags visuais de buff):**
-- `Hollow` — inimigo base, ptype normal.
-- `Hollow Powerful` — normal mais resistente.
-- `Hollow Shield` — Powerful 1, aparência mascarada.
-- `Arrancar` — Powerful 1, velocidade elevada.
-- `Hollow Speed` — Powerful 1 + Speed, 150 de velocidade.
-- `Vasto Lorde` — Powerful 2, tank veloz.
-- `Hollow Fortified` — Powerful 2 + Fortified, escudo de 9.000 HP.
-- `Hollow Regen` — Powerful 2 + Regenerator, regen de 200 HP/s.
-- `Hollow Explosion` — Powerful 1 + Bomber, spawnable pelo Grimmjow.
-
-**Minibosses (W10 de cada fase):**
-- **Grand Fisher** (F1): stuna todas as torres ao surgir + spawna Hollows periodicamente a partir de si.
-- **Gin Ichimaru** (F2): drena 1 HP da base a cada 3s enquanto vivo.
-- **Grimmjow** (F3): velocidade 98, spawna 2 Hollow Explosions a cada 10s.
-- **Nnoitra** (F4): Powerful 3 + Fortified com escudo de 45.000 HP que regenera após 40s.
-- **Ulquiorra** (F5): Powerful 3 + Regenerator (350 HP/s) + drena a base a cada 2s.
-
-**Boss de duas fases — Aizen/Hogyoku (F6 W10):**
-- **Fase 1 — Estrategista**: 200.000 HP + escudo Hogyoku de 80.000 HP regenerativo (35s). Kyoka Suigetsu trava todas as torres por 3s a cada 18s. Lento (speed 22).
-- **Fase 2 — Hogyoku Desperto**: ao morrer na Fase 1, ressurge com HP resetado e speed 90. Sem escudo, imune a lentidão (freeze/paralisia). Drena 1 HP da base a cada 2s e se cura 100 HP por drenagem.
-
-**10 novos personagens jogáveis** (3⭐ a 5⭐) com passivas únicas:
-- 3⭐: Rukia Kuchiki, Renji Abarai, Uryu Ishida, Orihime Inoue, Chad Yasutora.
-- 4⭐: Byakuya Kuchiki, Toshiro Hitsugaya, Kenpachi Zaraki.
-- 5⭐ Gacha: Ichigo (Bankai) — drop exclusivo da Fase 6.
-- 5⭐ Evolução: Ichigo (Vizard) — evolui do Bankai.
-- Novos tipos de ataque: `pierce` (Uryu), `scatter` (Byakuya).
-- Novos tipos de passiva: `freeze_on_hit`, `boss_slayer`, `snake_venom`, `santen_kesshun`, `petal_mark`, `berserker`, `bankai_pressure`, `hollow_sync`.
-
-**Sistema de Prestígio ✦:**
-- Máximo de **Prestígio 10** por personagem.
-- Transmutação requer nível máximo (Lv50).
-- Bônus base: **+20% dano** e **+6% alcance** por nível de Prestígio.
-- Passivas exclusivas em P1, P5 e P10 únicas por personagem.
-- Anel dourado pulsante + indicador `P1`–`P10` na torre.
-- Painel de inventário mostra passivas ativas (✦) e futuras (🔒) com valores exatos.
-
-**♾ Modo Infinito:**
-- Waves geradas dinamicamente com 8 tiers de dificuldade (Fácil → Além do Limite).
-- Escalonamento de HP: 1× → 1.8× → 3.2× → 5.5× → 9× → 15× → 25× → 40×+.
-- Miniboss a cada 10 waves; boss a cada 30 waves.
-- Recompensas a cada 5 waves: Gemas escalando por tier (15–200💎).
-- Limite de 3 cópias da mesma unidade por partida.
-
-**Star Experience ✨:**
-- Materiais exclusivos do Modo Infinito, Nv1 a Nv5.
-- XP: Nv1=3.000 · Nv2=7.000 · Nv3=16.000 · Nv4=38.000 · Nv5=90.000.
-- Usáveis diretamente no Feed de qualquer personagem.
-
-**Sistema de tags visuais de buff corrigido:**
-- `fortified`, `regenerator`, `bomber`, `clooner` e `kamikaze` agora exibem corretamente suas tags (`SHLD`, `REG`, `BOOM`, `CLN`, `KMK`) pois foram movidos para a seção `ptype` do `TAG_DEFS`.
-- Novos specials com tags dedicadas: `SPWN` (Grand Fisher, Grimmjow), `SHLD+` (Nnoitra), `ILSN` (Aizen F1), `DRN` (Gin, Ulquiorra, Aizen F2).
-
-**Regra de drops padronizada:**
-- Fases 1–5 de cada mundo dropam apenas ingredientes (materiais de progressão).
-- Personagens raros são drop exclusivo da Fase 6 de cada mundo: `naruto_sage` (Naruto), `barbabranca_5` (One Piece), `ichigo_bankai` (Bleach).
-
-**Qualidade de Vida:**
-- Overlay "Próxima Wave" com bônus de ouro e atalho `[S]`.
-- Indicador de imunidade a stun nas torres (badge azul com countdown).
-- Indicador `✦ MAXIMIZADO` no painel de upgrade.
-- Velocidade colorida: 1× branco, 2× amarelo, 3× vermelho.
-- Status completo da torre no painel de upgrade.
-- Projéteis de todos os personagens extraídos para `game-projectile-render.js`.
+- Mundo 3: Soul Society com caminho exclusivo (curva em S tripla).
+- 6 fases com 10 waves cada, miniboss na W10 e Boss Aizen em 2 fases na F6.
+- **Inimigos:** Hollow, Arrancar, Vasto Lorde, Hollow Fortified, Hollow Regen, Hollow Explosion.
+- **Minibosses:** Grand Fisher, Gin Ichimaru, Grimmjow, Nnoitra, Ulquiorra.
+- **Boss Aizen/Hogyoku:** Fase 1 com escudo regenerativo e Kyoka Suigetsu. Fase 2 sem escudo, imune a slow, drena base e se cura.
+- **10 novos personagens** (3⭐ a 5⭐): Rukia, Renji, Uryu, Orihime, Chad, Byakuya, Hitsugaya, Kenpachi, Ichigo Bankai (Gacha), Ichigo Vizard (Evolução).
+- **Sistema de Prestígio ✦** — até P10, +20% dano e +6% alcance por nível, passivas em P1/P5/P10.
+- **♾ Modo Infinito** — 8 tiers de dificuldade, miniboss a cada 10 waves, boss a cada 30 waves.
+- **Star Experience** — Nv1–5 com XP 3k→90k, drop exclusivo do Modo Infinito.
 
 ---
 
-### Update 0 (Base): Fundação Ninja *(Lançado)*
-- Loop principal, canvas, sistema de defesa, Gacha, Save, Missões.
-- Mundo de Naruto + primeiros heróis (Bleach, JJK, Dragon Ball, HxH, Kimetsu).
+### ✅ Update 0.6: Evento — A Anomalia de Konoha *(Lançado)*
+Saga em 3 capítulos, Orochimaru (4⭐) e Pain (5⭐), modificadores exclusivos de fase.
 
-### Update 0.5: Grand Line *(Lançado)*
-- Mundo de One Piece com 9 personagens, atalhos de teclado, QoL geral.
+### ✅ Update 0.5: Grand Line *(Lançado)*
+Mundo 2 de One Piece com 9 personagens, atalhos de teclado, QoL geral.
 
-### Update 0.6: Evento — A Anomalia de Konoha *(Lançado)*
-- Saga em 3 capítulos, Orochimaru (4⭐) e Pain (5⭐), modificadores de fase exclusivos.
+### ✅ Update 0: Fundação Ninja *(Lançado)*
+Loop principal, canvas, sistema de defesa, Gacha, Save, Missões, Mundo Naruto.
 
 ---
 
 ## 🗺️ Roadmap
 
-> As atualizações abaixo estão planejadas e em fase de concepção. Detalhes de personagens, mecânicas e conteúdo serão definidos conforme o desenvolvimento avança.
-
----
-
 ### 🔜 Update 3: Crise nas Infinitas Terras *(Planejado)*
 
-**O universo DC chega com força total.**
+O universo DC chega ao Battlestar Popnime.
 
-- **Novo Mundo**: um mundo temático DC com caminho e fases exclusivas.
-- **Novos Personagens**: heróis e vilões do universo DC (3⭐ a 5⭐), com passivas e sinergias próprias.
-- **Qualidade de Vida**: novas mecânicas e refinamentos gerais.
+- Novo mundo temático DC com caminho e fases exclusivas.
+- Novos personagens (3⭐ a 5⭐) com passivas e sinergias próprias.
 
-> ⚠️ Detalhes de personagens, inimigos e mecânicas a definir.
-
----
+> ⚠️ Personagens, inimigos e mecânicas a definir.
 
 ### 🔜 Update 4: Marvel vs DC *(Planejado)*
 
-**O confronto dos universos — sem novo mundo, mas com o maior evento já visto no jogo.**
+Evento especial centrado no confronto entre os universos Marvel e DC, sem novo mundo.
 
-- **Evento Especial**: ao invés de um mundo novo, esta atualização traz um **evento inédito** centrado no conflito direto entre os universos Marvel e DC.
-- O formato do evento, recompensas e mecânicas exclusivas ainda serão definidos.
-
-> ⚠️ Conceito em discussão — detalhes a definir.
+> ⚠️ Formato, recompensas e mecânicas a definir.
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Tecnologias
 
 - **HTML5 Canvas** — renderização 2D do gameplay.
 - **CSS3** — variáveis e animações para UI rica.
 - **Vanilla JavaScript** — sem frameworks, controle total e leveza máxima.
+- **Supabase** — backend online (Postgres, Auth, Realtime) para contas, leaderboard, trocas e missões da comunidade.
 
 ---
 
