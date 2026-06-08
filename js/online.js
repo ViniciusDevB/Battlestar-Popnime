@@ -2,11 +2,13 @@
 // Requer: data/online_config.js (SUPABASE_URL, SUPABASE_ANON_KEY) carregado antes.
 
 const Online = (() => {
-  let _client         = null;
-  let _session        = null;
-  let _profile        = null;
-  let _ready          = false;
-  let _profilePromise = null;   // Promise pendente de _loadProfile (evita race condition)
+  let _client          = null;
+  let _session         = null;
+  let _profile         = null;
+  let _ready           = false;
+  let _profilePromise  = null;   // Promise pendente de _loadProfile (evita race condition)
+  let _activeMission   = null;
+  let _missionChannel  = null;
 
   // ── Init ──────────────────────────────────────────────────────────────────
 
@@ -432,30 +434,79 @@ const Online = (() => {
       .subscribe();
   }
 
-  // ── Community Missions (Phase 5 — stub) ───────────────────────────────────
+  // ── Community Missions (Phase 5) ─────────────────────────────────────────
 
+  // Busca missão ativa OU recentemente concluída (últimos 7 dias, para resgate).
+  // Ordena: ativa primeiro (completed=false < true), depois mais recente.
   async function fetchActiveMission() {
     if (!_ready) return null;
-    const now = new Date().toISOString();
+    const now        = new Date().toISOString();
+    const recentPast = new Date(Date.now() - 7 * 86400000).toISOString();
     const { data } = await _client.from('community_missions')
       .select('*')
-      .eq('completed', false)
       .lte('starts_at', now)
-      .gte('ends_at', now)
-      .order('starts_at', { ascending: false })
+      .gte('ends_at',   recentPast)
+      .order('completed',  { ascending: true  })
+      .order('starts_at',  { ascending: false })
       .limit(1)
       .single();
+    _activeMission = data || null;
+    if (_activeMission && !_activeMission.completed) {
+      _setupMissionRealtime(_activeMission.id);
+    }
+    return _activeMission;
+  }
+
+  function getActiveMission() { return _activeMission; }
+
+  async function fetchMissionContribution(missionId) {
+    if (!_ready || !_session || !_profile) return null;
+    const { data } = await _client
+      .from('community_contributions')
+      .select('value, claimed_at')
+      .eq('mission_id', missionId)
+      .eq('player_id',  _profile.id)
+      .single();
     return data || null;
+  }
+
+  async function claimMissionReward(missionId) {
+    if (!_ready || !_session || !_profile) return { error: 'not_logged_in' };
+    const { data, error } = await _client.rpc('claim_mission_reward', {
+      p_mission_id: missionId,
+    });
+    if (error) return { error: error.message };
+    if (data !== 'ok') return { error: data };
+    await syncSave();
+    if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
+    return { ok: true };
   }
 
   async function contributeToMission(missionId, value) {
     if (!_ready || !_session) return;
     if (!Integrity.isClean()) return;
-    // p_player_id removido — a função SQL usa get_my_player_id() internamente (seguro)
     await _client.rpc('contribute_to_mission', {
       p_mission_id: missionId,
       p_value:      value,
     });
+  }
+
+  function _setupMissionRealtime(missionId) {
+    if (_missionChannel) _client.removeChannel(_missionChannel);
+    _missionChannel = _client
+      .channel('community-mission-' + missionId)
+      .on('postgres_changes', {
+        event:  'UPDATE',
+        schema: 'public',
+        table:  'community_missions',
+        filter: `id=eq.${missionId}`,
+      }, (payload) => {
+        _activeMission = { ..._activeMission, ...payload.new };
+        if (typeof CommunityMissionUI !== 'undefined') {
+          CommunityMissionUI.onMissionUpdate(_activeMission);
+        }
+      })
+      .subscribe();
   }
 
   // ── Public API ─────────────────────────────────────────────────────────────
@@ -467,6 +518,7 @@ const Online = (() => {
     syncSave,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,
-    fetchActiveMission, contributeToMission,
+    fetchActiveMission, getActiveMission, contributeToMission,
+    fetchMissionContribution, claimMissionReward,
   };
 })();

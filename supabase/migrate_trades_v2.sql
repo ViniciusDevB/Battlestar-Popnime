@@ -182,8 +182,53 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- ── Habilitar Realtime (rodar no Dashboard → Database → Replication) ──────────
+-- ── Habilitar Realtime para trades (Dashboard → Database → Replication) ──────
 -- ALTER PUBLICATION supabase_realtime ADD TABLE trades;
+
+-- ── 8. Missões Comunitárias: claimed_at e função de resgate ───────────────────
+ALTER TABLE community_contributions
+  ADD COLUMN IF NOT EXISTS claimed_at TIMESTAMPTZ DEFAULT NULL;
+
+-- Valida contribuição, marca claimed_at e concede gemas no save do jogador.
+-- reward_units são tratadas no cliente após retorno 'ok'.
+CREATE OR REPLACE FUNCTION claim_mission_reward(p_mission_id UUID) RETURNS TEXT AS $$
+DECLARE
+  v_player_id UUID;
+  v_mission   community_missions%ROWTYPE;
+  v_contrib   community_contributions%ROWTYPE;
+BEGIN
+  v_player_id := get_my_player_id();
+  IF v_player_id IS NULL THEN RETURN 'not_authenticated'; END IF;
+
+  SELECT * INTO v_mission FROM community_missions WHERE id = p_mission_id;
+  IF NOT FOUND               THEN RETURN 'mission_not_found';      END IF;
+  IF NOT v_mission.completed THEN RETURN 'mission_not_completed';  END IF;
+
+  SELECT * INTO v_contrib FROM community_contributions
+  WHERE mission_id = p_mission_id AND player_id = v_player_id;
+  IF NOT FOUND                        THEN RETURN 'no_contribution'; END IF;
+  IF v_contrib.claimed_at IS NOT NULL THEN RETURN 'already_claimed'; END IF;
+
+  UPDATE community_contributions
+  SET claimed_at = now()
+  WHERE mission_id = p_mission_id AND player_id = v_player_id;
+
+  IF v_mission.reward_gems > 0 THEN
+    UPDATE saves
+    SET data = jsonb_set(
+          data, '{gemas}',
+          to_jsonb(COALESCE((data->>'gemas')::bigint, 0) + v_mission.reward_gems)
+        ),
+        updated_at = now()
+    WHERE player_id = v_player_id;
+  END IF;
+
+  RETURN 'ok';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ── Habilitar Realtime para community_missions ────────────────────────────────
+-- ALTER PUBLICATION supabase_realtime ADD TABLE community_missions;
 
 -- =============================================================================
 -- FIM DA MIGRAÇÃO

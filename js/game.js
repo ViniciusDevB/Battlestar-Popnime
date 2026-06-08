@@ -1314,6 +1314,7 @@ const Game = (() => {
         if (wave > best) Save.setStat('melhor_onda_infinita', wave);
         Save.incStat('ondas_infinito', wave);
         _submitScore('infinite');
+        _contributeMissionStats(false);
       }
       Missions.check();
       UI.showPostBattle({
@@ -1411,6 +1412,7 @@ const Game = (() => {
     }
 
     _submitScore('stage');
+    _contributeMissionStats(true);
     Missions.check();
     UI.showPostBattle({ victory: true, gems, materials: dropsAcheived, bonusGems: firstTime ? Math.max(50, bonusGems) : 0 });
   }
@@ -1443,6 +1445,19 @@ const Game = (() => {
         units_used,
       });
     }
+  }
+
+  function _contributeMissionStats(victory) {
+    if (typeof Online === 'undefined' || !Online.isLoggedIn()) return;
+    const mission = Online.getActiveMission();
+    if (!mission || mission.completed) return;
+    let value = 0;
+    switch (mission.goal_type) {
+      case 'kills':          value = sessionKills;           break;
+      case 'damage':         value = Math.round(sessionDmg); break;
+      case 'stages_cleared': value = victory ? 1 : 0;        break;
+    }
+    if (value > 0) Online.contributeToMission(mission.id, value);
   }
 
   // Tower management
