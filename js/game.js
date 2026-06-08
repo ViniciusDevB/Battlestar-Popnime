@@ -1250,6 +1250,7 @@ const Game = (() => {
       const bonus = 100;
       gold += bonus;
       updateHUD();
+      renderWavePreview();
       if (bonus > 0) UI.toast(`Wave ${wave} completa! +${bonus} 💰`);
 
       // Passiva onWaveEnd de cada torre (wave_gold, etc.)
