@@ -1134,7 +1134,7 @@ const ENEMY_DEFS = {
   invasor: {
     name:'Invasor', hp:1500, speed:85, gold:55,
     ptype:'normal', size:20, col:'#374151',
-    image:'assets/inimigos/world4/Invasor.png'
+    image:'assets/inimigos/world4/Invasor Comum.png'
   },
 
   // ── Invasor Speed (Fase 2+) ───────────────────────────────────────────────────
@@ -1236,7 +1236,7 @@ const ENEMY_DEFS = {
     special:'thanos_manopla_special',
     snapInterval:10, snapDuration:3,
     gemInterval:20,
-    image:'assets/inimigos/world4/Thanos Manopla.png'
+    image:'assets/inimigos/world4/Thanos Full Power.png'
   },
 };
 
