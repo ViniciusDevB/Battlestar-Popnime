@@ -1,4 +1,4 @@
-﻿// Contexto compartilhado com game-passives.js â€” populado durante init do mÃ³dulo Game.
+// Contexto compartilhado com game-passives.js â€” populado durante init do mÃ³dulo Game.
 const _passiveCtx = {};
 
 const Game = (() => {
@@ -155,6 +155,8 @@ const Game = (() => {
   })();
   Object.assign(PASSIVE_SYSTEM, PASSIVE_ENTRIES);
   _passiveCtx.PASSIVE_SYSTEM = PASSIVE_SYSTEM;
+  window.PASSIVE_SYSTEM = PASSIVE_SYSTEM;
+
 
   // Contexto de renderizaÃ§Ã£o â€” expÃµe estado do jogo para game-renderer.js
   Object.defineProperties(_renderCtx, {
@@ -431,9 +433,9 @@ const Game = (() => {
     gameSpeed = 1;
     lastTime = 0;
     const pauseBtn = document.getElementById('btn-pause');
-    if (pauseBtn) pauseBtn.textContent = 'â¸';
+    if (pauseBtn) pauseBtn.textContent = '⏸';
     const speedEl = document.getElementById('speed-indicator');
-    if (speedEl) speedEl.textContent = '1Ã—';
+    if (speedEl) speedEl.textContent = '1×';
     requestAnimationFrame(loop);
   }
 
@@ -468,7 +470,7 @@ const Game = (() => {
     updateSpawn(dt);
     updateEnemiesLoop(dt);
 
-    // Rebuild alive enemies cache once per tick â€” tryAttack reads this instead of re-filtering enemies[]
+    // Rebuild alive enemies cache once per tick — tryAttack reads this instead of re-filtering enemies[]
     _aliveEnemies.length = 0;
     for (let i = 0; i < enemies.length; i++) {
       const e = enemies[i];
@@ -493,7 +495,7 @@ const Game = (() => {
         if (_sandStormDuration <= 0) {
           _sandStormActive = false;
           _sandStormDuration = 0;
-          UI.toast('ðŸŒ¬ï¸ Tempestade de Areia dissipada! Alcance restaurado.', 2000);
+          UI.toast('🌪️ Tempestade de Areia dissipada! Alcance restaurado.', 2000);
         }
       } else {
         _sandStormTimer += dt;
@@ -501,7 +503,7 @@ const Game = (() => {
           _sandStormTimer = 0;
           _sandStormActive = true;
           _sandStormDuration = 6;
-          UI.toast('ðŸŒªï¸ TEMPESTADE DE AREIA! Alcance das torres âˆ’40% por 6s!', 3500);
+          UI.toast('🌅 TEMPESTADE DE AREIA! Alcance das torres −40% por 6s!', 3500);
         }
       }
     }
@@ -560,14 +562,14 @@ const Game = (() => {
             e.shieldHp = 0;
             const ringCol = (e.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
             addEffect({ type:'ring', x:e.x, y:e.y, maxR:60, color:ringCol, timer:0.55, maxTimer:0.55, r:0 });
-            UI.toast(`ðŸ›¡ Escudo de ${e.name} destruÃ­do!`, 2500);
+            UI.toast(`🛡 Escudo de ${e.name} destruído!`, 2500);
           }
         }
         e.hp -= remaining;
         if (e.hp <= 0) { killEnemy(e); toRemove.push(e); return; }
       }
 
-      // Special periÃ³dico do inimigo (shinra_tensei, base_drain, etc.)
+      // Special periódico do inimigo (shinra_tensei, base_drain, etc.)
       dispatchSpecialUpdate(e, dt);
       // Behaviors por ptype (regenerator, etc.)
       dispatchPtypeUpdate(e, dt);
@@ -603,12 +605,12 @@ const Game = (() => {
             lives += lsPassive.restore_lives || 3;
             updateHUD();
             addEffect({ type:'shockwave', x:tsunadeTower.x, y:tsunadeTower.y, maxR:900, color:'#f9a8d4', timer:1.5, maxTimer:1.5, r:0 });
-            UI.toast(`ðŸŒ¸ RENASCIMENTO DE TSUNADE! +${lsPassive.restore_lives || 3} Vidas Restauradas!`, 4000);
+            UI.toast(`🌸 RENASCIMENTO DE TSUNADE! +${lsPassive.restore_lives || 3} Vidas Restauradas!`, 4000);
             return;
           }
           endGame(false);
         } else if (e.is_boss || e.is_miniboss) {
-          UI.toast(`O Boss ${e.name} escapou! MissÃ£o Falhou!`, 4000);
+          UI.toast(`O Boss ${e.name} escapou! Missão Falhou!`, 4000);
           endGame(false);
         }
       }
@@ -637,7 +639,7 @@ const Game = (() => {
       // Ability cooldown tick
       if ((t.abilityTimer || 0) > 0) t.abilityTimer = Math.max(0, t.abilityTimer - dt);
 
-      // Mini stun timer â€” genjutsu, mini_shinra_tensei
+      // Mini stun timer — genjutsu, mini_shinra_tensei
       if ((t.miniStunTimer || 0) > 0 && !t.isClone) {
         t.miniStunTimer -= dt;
         if (t.miniStunTimer <= 0) {
@@ -648,23 +650,23 @@ const Game = (() => {
         }
       }
       if ((t.stunCooldown || 0) > 0) t.stunCooldown = Math.max(0, t.stunCooldown - dt);
-      // Stun immunity (Tsunade P5 â€” Byakugou)
+      // Stun immunity (Tsunade P5 — Byakugou)
       if (t._stunImmune) {
         t._stunImmuneTimer = (t._stunImmuneTimer || 0) - dt;
         if (t._stunImmuneTimer <= 0) { t._stunImmune = false; t._stunImmuneTimer = 0; }
         else { t.miniStunTimer = 0; t.disabled = false; }
       }
-      // Verdict timer â€” Ronan: silencia a torre com maior DPS
+      // Verdict timer — Ronan: silencia a torre com maior DPS
       if (t.verdictActive) {
         t.verdictTimer = (t.verdictTimer || 0) - dt;
         if (t.verdictTimer <= 0) { t.verdictActive = false; t.verdictTimer = 0; }
       }
-      // Inverted targeting timer â€” Ebony Maw: inverte o alvo
+      // Inverted targeting timer — Ebony Maw: inverte o alvo
       if (t.invertedTargeting) {
         t.invertedTimer = (t.invertedTimer || 0) - dt;
         if (t.invertedTimer <= 0) { t.invertedTargeting = false; t.invertedTimer = 0; }
       }
-      // DPS tracking (janela de 1s) â€” usado pela mecÃ¢nica do Ronan
+      // DPS tracking (janela de 1s) — usado pela mecânica do Ronan
       t._dpsTimer = (t._dpsTimer || 0) + dt;
       if (t._dpsTimer >= 1.0) {
         t.realtimeDPS = (t._dmgAccum || 0) / t._dpsTimer;
@@ -682,7 +684,7 @@ const Game = (() => {
       }
     });
     if (expired.length) towers = towers.filter(t => !expired.includes(t));
-    // Atualiza set de torres buffadas pela aura do Gojo (uma vez por tick, nÃ£o por frame)
+    // Atualiza set de torres buffadas pela aura do Gojo (uma vez por tick, não por frame)
     _gojoBuffedSet.clear();
     towers.forEach(gt => {
       const gp = gt.charData?.passive;
@@ -709,7 +711,7 @@ const Game = (() => {
     }
     if (inRange.length === 0) return;
 
-    // Passiva prÃ©-ataque: pode modificar stats ou retornar null para pular
+    // Passiva pré-ataque: pode modificar stats ou retornar null para pular
     const modStats = PASSIVE_SYSTEM.onBeforeAttack(tower, stats);
     if (modStats === null) return;
     stats = modStats;
@@ -726,7 +728,7 @@ const Game = (() => {
       hitEnemies.forEach(e => applyStatus(e, tower.statusEffect.type, tower.statusEffect));
     }
 
-    // Passiva pÃ³s-ataque: double hit, clone spawning, etc.
+    // Passiva pós-ataque: double hit, clone spawning, etc.
     PASSIVE_SYSTEM.onAfterAttack(tower, hitEnemies, stats.type, stats);
 
     // Efeito visual do tipo de ataque
@@ -749,7 +751,7 @@ const Game = (() => {
   function dealDamage(tower, enemy, damage) {
     if (enemy.dead || enemy.reached_end) return;
 
-    // Jinchuuriki â€” Replicante de Killer Bee: imune ao tipo de ataque atual
+    // Jinchuuriki — Replicante de Killer Bee: imune ao tipo de ataque atual
     if (enemy.jinchuurikiImmuneType && tower && tower._currentAttackType === enemy.jinchuurikiImmuneType) {
       addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:30, color:'#7c3aed', timer:0.3, maxTimer:0.3, r:0 });
       return;
@@ -758,17 +760,17 @@ const Game = (() => {
     // Passiva do atacante (multiplicadores, status, efeitos colaterais)
     let dmg = PASSIVE_SYSTEM.onHit(tower, enemy, damage);
 
-    // Auras de torres aliadas prÃ³ximas
+    // Auras de torres aliadas próximas
     dmg = PASSIVE_SYSTEM.applyAuras(tower, enemy, dmg);
 
     // Medo (Cero Oscuras): +25% dano recebido de toda fonte
     if (enemy.status?.medo?.active) dmg *= 1.25;
-    // Cross Mark (Black Widow): inimigo marcado recebe bÃ´nus de dano de todas as fontes
+    // Cross Mark (Black Widow): inimigo marcado recebe bônus de dano de todas as fontes
     if (enemy.crossMarked) dmg *= (1 + (enemy.crossMarkBonus || 0.25));
-    // Gyuki Ink (Killer Bee): inimigo marcado com tinta recebe bÃ´nus de dano de todas as fontes
+    // Gyuki Ink (Killer Bee): inimigo marcado com tinta recebe bônus de dano de todas as fontes
     if (enemy.gyukiInked) dmg *= (1 + (enemy.gyukiInkBonus || 0.55));
 
-    // Escudo de Areia (Cap.1): sÃ³ quebra por burst (>800 dmg em janela de 1.5s)
+    // Escudo de Areia (Cap.1): só quebra por burst (>800 dmg em janela de 1.5s)
     if (enemy.sandShield) {
       const now = performance.now() / 1000;
       if (!enemy._sandBurstStart || (now - enemy._sandBurstStart) > 1.5) {
@@ -779,7 +781,7 @@ const Game = (() => {
       if (enemy._sandBurst >= 800) {
         enemy.sandShield = false;
         addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:55, color:'#d97706', timer:0.7, maxTimer:0.7, r:0 });
-        UI.toast(`ðŸ’¥ Escudo de Areia destruÃ­do!`, 2000);
+        UI.toast(`💥 Escudo de Areia destruído!`, 2000);
       } else {
         enemy.hitFlash = 0.1;
         return;
@@ -794,7 +796,7 @@ const Game = (() => {
         enemy.shieldHp = 0;
         const ringCol = (enemy.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
         addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:60, color:ringCol, timer:0.55, maxTimer:0.55, r:0 });
-        UI.toast(`ðŸ›¡ Escudo de ${enemy.name} destruÃ­do!`, 2500);
+        UI.toast(`🛡 Escudo de ${enemy.name} destruído!`, 2500);
       }
       if (dmg <= 0) { enemy.hitFlash = 0.1; return; }
     }
@@ -913,7 +915,7 @@ const Game = (() => {
       });
       return;
     }
-    if (isInfiniteMode) return; // modo infinito nÃ£o tem vitÃ³ria, apenas derrota
+    if (isInfiniteMode) return; // modo infinito não tem vitória, apenas derrota
 
     // Victory rewards
     const gemMap = { normal:50, dificil:80, lendario:120 };
@@ -933,7 +935,7 @@ const Game = (() => {
       let hasPityRule = false;
       
       for (const drop of stage.drops) {
-        // oneTime: sÃ³ entrega se jogador ainda nÃ£o possui a unidade
+        // oneTime: só entrega se jogador ainda não possui a unidade
         if (drop.oneTime) {
           if (Save.getUnitQty(drop.id) === 0) dropsAcheived.push(drop.id);
           continue;
@@ -964,7 +966,7 @@ const Game = (() => {
         }
       }
     } else {
-      // Fallback para fases sem lista de drops explÃ­cita
+      // Fallback para fases sem lista de drops explícita
       dropsAcheived.push('ninja_generico_1');
     }
 
@@ -973,7 +975,7 @@ const Game = (() => {
       if (charDrop && charDrop.playable) {
         Save.addUnit(matId);
         const isOneTime = stage.drops?.find(d => d.id === matId)?.oneTime;
-        if (isOneTime) UI.toast(`âœ¨ ${charDrop.name.toUpperCase()} DESBLOQUEADA! CapÃ­tulo 4 concluÃ­do!`, 6000);
+        if (isOneTime) UI.toast(`✨ ${charDrop.name.toUpperCase()} DESBLOQUEADA! Capítulo 4 concluído!`, 6000);
       } else {
         Save.addMaterial(matId);
       }
@@ -984,7 +986,7 @@ const Game = (() => {
     Save.markStageComplete(stageId, difficulty);
     Save.setStat('fases_completas', Object.keys(Save.get().fases_completas).length);
 
-    // Completude de mundo â€” data-driven via WORLDS[].completionStat
+    // Completude de mundo — data-driven via WORLDS[].completionStat
     WORLDS.forEach(w => {
       if (!w.completionStat) return;
       const worldStages = getStagesByWorld(w.id);
@@ -1077,14 +1079,14 @@ const Game = (() => {
 
   function togglePause() {
     paused = !paused;
-    document.getElementById('btn-pause').textContent = paused ? 'â–¶' : 'â¸';
+    document.getElementById('btn-pause').textContent = paused ? '▶' : '⏸';
   }
 
   function toggleSpeed() {
     gameSpeed = gameSpeed === 1 ? 2 : gameSpeed === 2 ? 3 : 1;
     const ind = document.getElementById('speed-indicator');
     if (ind) {
-      ind.textContent = gameSpeed + 'Ã—';
+      ind.textContent = gameSpeed + '×';
       ind.style.color = gameSpeed === 1 ? '' : gameSpeed === 2 ? '#fbbf24' : '#f87171';
     }
   }
@@ -1106,7 +1108,7 @@ const Game = (() => {
         if (!e.dead && !e.reached_end) applyStatus(e, 'paralisia', { duration: stunDur });
       });
       addEffect({ type:'shockwave', x:CANVAS_W/2, y:CANVAS_H/2, maxR:820, color:'#5b9cf6', timer:1.0, maxTimer:1.0, r:0 });
-      UI.toast(`â„ï¸ DomÃ­nio Expandido! Todos os inimigos paralisados por ${stunDur}s!`, 3000);
+      UI.toast(`❄️ Domínio Expandido! Todos os inimigos paralisados por ${stunDur}s!`, 3000);
       tower.abilityTimer = aa.cooldown;
     }
   }

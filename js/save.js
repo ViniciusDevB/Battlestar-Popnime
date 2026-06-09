@@ -77,6 +77,10 @@ const Save = (() => {
 
         // Integrity: HMAC async (fire-and-forget) + plausibility sync
         if (typeof Integrity !== 'undefined') {
+          // Plausibility roda em sincrono para estar disponível antes do .then()
+          const plViolations = Integrity.validateSavePlausibility(_data);
+          plViolations.forEach(v => Integrity.recordViolation(v, {}));
+
           Integrity.verify(raw).then(verdict => {
             if (verdict === 'tampered') {
               Integrity.recordViolation('hmac_mismatch', {});
@@ -84,12 +88,19 @@ const Save = (() => {
                 UI.toast('⚠️ Save modificado detectado — leaderboard bloqueado nesta sessão.', 8000);
               }
             } else if (verdict === 'no_seal') {
-              Integrity.seal(raw); // gera HMAC para saves pré-2.5
+              // Antes de selar um save sem HMAC (saves pré-2.5 ou HMAC deletado),
+              // verifica plausibilidade. Se houver violações, não sela — isso fecha
+              // o bypass de deletar HMAC_KEY + editar o save manualmente.
+              if (plViolations.length > 0) {
+                Integrity.recordViolation('hmac_mismatch', { reason: 'no_seal_with_violations' });
+                if (typeof UI !== 'undefined' && UI.toast) {
+                  UI.toast('⚠️ Save modificado detectado — leaderboard bloqueado nesta sessão.', 8000);
+                }
+              } else {
+                Integrity.seal(raw); // só sela se o save passar na plausibilidade
+              }
             }
           }).catch(() => {});
-
-          const plViolations = Integrity.validateSavePlausibility(_data);
-          plViolations.forEach(v => Integrity.recordViolation(v, {}));
         }
       } else {
         _data = defaultSave();

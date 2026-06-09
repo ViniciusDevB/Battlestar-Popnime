@@ -167,26 +167,37 @@ const Integrity = (() => {
 
   const DevToolsGuard = (() => {
     let _open = false;
+    let _consecutiveHits = 0;
+    // Threshold elevado para evitar falsos positivos causados por:
+    // zoom do browser, painéis laterais (Edge/Firefox), extensões, monitores com DPI alto.
+    // Exige 2 checagens consecutivas para confirmar, eliminando transientes.
+    const SIZE_THRESHOLD   = 300;
+    const CONFIRM_REQUIRED = 2;
 
     function _check() {
-      const w = window.outerWidth  - window.innerWidth  > 180;
-      const h = window.outerHeight - window.innerHeight > 180;
+      const w = window.outerWidth  - window.innerWidth  > SIZE_THRESHOLD;
+      const h = window.outerHeight - window.innerHeight > SIZE_THRESHOLD;
       return w || h;
     }
 
     function startMonitoring() {
       setInterval(() => {
         const nowOpen = _check();
-        if (nowOpen && !_open) {
-          _open = true;
-          recordViolation('devtools_opened', { ts: Date.now() });
-          console.warn(
-            '%c⚠ ASTD Integrity Monitor',
-            'color:#f87171;font-size:16px;font-weight:bold',
-            '\nDevTools detectado. Submissões ao leaderboard serão marcadas para revisão.'
-          );
+        if (nowOpen) {
+          _consecutiveHits++;
+          if (_consecutiveHits >= CONFIRM_REQUIRED && !_open) {
+            _open = true;
+            recordViolation('devtools_opened', { ts: Date.now() });
+            console.warn(
+              '%c⚠ ASTD Integrity Monitor',
+              'color:#f87171;font-size:16px;font-weight:bold',
+              '\nDevTools detectado. Submissões ao leaderboard serão marcadas para revisão.'
+            );
+          }
+        } else {
+          _consecutiveHits = 0;
+          _open = false;
         }
-        if (!nowOpen) _open = false;
       }, 3000);
     }
 

@@ -974,6 +974,30 @@ const PASSIVE_ENTRIES = {
     }
   },
 
+  // ── Killer Bee — Tinta do Gyuki ───────────────────────────────────────────
+  // Quando um scatter acerta N+ inimigos diferentes ao mesmo tempo, todos ficam
+  // marcados com tinta: recebem +bonus% de dano de TODAS as fontes por X segundos.
+  gyuki_ink: {
+    renderBadge(tower, p) {
+      const inked = _passiveCtx.enemies.filter(e => !e.dead && !e.reached_end && e.gyukiInked).length;
+      if (inked === 0) return null;
+      return { text: `🐙×${inked}`, color: '#7c3aed' };
+    },
+    afterAttack(tower, p, hitEnemies, attackType, stats) {
+      if (hitEnemies.length === 0) return;
+      const minHits = _passiveCtx.getPassiveValue(tower, 'min_hits', p.min_hits || 3);
+      if (hitEnemies.length < minHits) return;
+      const dur   = _passiveCtx.getPassiveValue(tower, 'ink_duration', p.duration || 5);
+      const bonus = _passiveCtx.getPassiveValue(tower, 'bonus', p.bonus || 0.55);
+      hitEnemies.forEach(e => {
+        e.gyukiInked    = true;
+        e.gyukiInkTimer = dur;
+        e.gyukiInkBonus = bonus;
+        _passiveCtx.addEffect({ type: 'ring', x: e.x, y: e.y, maxR: 22, color: '#7c3aed', timer: 0.4, maxTimer: 0.4, r: 0 });
+      });
+    }
+  },
+
   // ── Killer Bee — Modo Bijuu Gyuki ────────────────────────────────────────
   modo_bijuu_gyuki: {
     renderBadge(tower, p) {
@@ -988,20 +1012,28 @@ const PASSIVE_ENTRIES = {
       tower._bijuuTimer = (tower._bijuuTimer || 0) + dt;
 
       const bFast = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower).find(x => x.type === 'bijuu_fast');
-      const baseCd = bFast ? (bFast.cooldown_override || 12) : _passiveCtx.getPassiveValue(tower, 'cooldown', p.cooldown || 20);
+      const baseCd = bFast ? (bFast.cooldown_override || 10) : _passiveCtx.getPassiveValue(tower, 'cooldown', p.cooldown || 15);
       const cd = Math.max(8, baseCd);
 
       if (tower._bijuuTimer >= cd) {
         tower._bijuuTimer = 0;
         const bBoost = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower).find(x => x.type === 'bijuu_boost');
-        const dur = _passiveCtx.getPassiveValue(tower, 'duration', p.duration || 3) + (bBoost ? bBoost.duration_bonus || 2 : 0);
-        const dmgMult = _passiveCtx.getPassiveValue(tower, 'damage_mult', p.damage_mult || 3.0) + (bBoost ? bBoost.damage_bonus || 0.5 : 0);
+        const dur     = _passiveCtx.getPassiveValue(tower, 'duration', p.duration || 4) + (bBoost ? bBoost.duration_bonus || 2 : 0);
+        const dmgMult = _passiveCtx.getPassiveValue(tower, 'damage_mult', p.damage_mult || 4.0) + (bBoost ? bBoost.damage_bonus || 0.5 : 0);
         const stats   = _passiveCtx.getTowerStats(tower);
 
-        // Paralisa todos os inimigos por 1.5s
+        // Busca passiva gyuki_ink para extrair bonus e duração da tinta
+        const inkP   = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower).find(x => x.type === 'gyuki_ink');
+        const inkDur = inkP ? _passiveCtx.getPassiveValue(tower, 'ink_duration', inkP.duration || 5) : 5;
+        const inkBonus = inkP ? _passiveCtx.getPassiveValue(tower, 'bonus', inkP.bonus || 0.55) : 0.55;
+
+        // Paralisa todos os inimigos por 1.5s E marca com Tinta do Gyuki
         _passiveCtx.enemies.forEach(e => {
           if (!e.dead && !e.reached_end) {
             STATUS_TYPES.paralisia.apply(e.status, { duration: 1.5 });
+            e.gyukiInked    = true;
+            e.gyukiInkTimer = inkDur;
+            e.gyukiInkBonus = inkBonus;
           }
         });
 
@@ -1022,8 +1054,8 @@ const PASSIVE_ENTRIES = {
         }
 
         _passiveCtx.addEffect({ type:'shockwave', x:tower.x, y:tower.y, maxR:600, color:'#7c3aed', timer:0.9, maxTimer:0.9, r:0 });
-        _passiveCtx.screenShakeAmount = 12;
-        UI.toast(`🐙 Modo Bijuu (Gyuki)! Killer Bee transforma por ${dur}s — todos os inimigos paralisados!`, 3500);
+        _passiveCtx.screenShakeAmount = 18;
+        UI.toast(`🐙 MODO BIJUU! Killer Bee transforma por ${dur}s — todos paralisados e marcados com Tinta!`, 3500);
       }
     }
   },

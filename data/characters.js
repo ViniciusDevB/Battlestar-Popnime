@@ -878,21 +878,28 @@ const CHARACTERS = {
     image: 'assets/towers/events/Killer Bee.png',
     event_exclusive: true,
     passive: [
-      { type: 'modo_bijuu_gyuki', cooldown: 20, duration: 3, damage_mult: 3.0, label: 'Modo Bijuu (Gyuki): a cada 20s transforma por 3s — paralisa todos os inimigos em tela por 1.5s e causa 3× dano base' }
+      {
+        type: 'gyuki_ink', min_hits: 3, bonus: 0.55, duration: 5,
+        label: 'Tinta do Gyuki: quando um scatter acerta 3+ inimigos ao mesmo tempo, todos ficam Marcados por 5s — recebem +55% de dano de TODAS as fontes'
+      },
+      {
+        type: 'modo_bijuu_gyuki', cooldown: 15, duration: 4, damage_mult: 4.0,
+        label: 'Modo Bijuu (Gyuki): a cada 15s transforma por 4s — paralisa todos por 1.5s, marca TODOS com Tinta do Gyuki e causa 4× dano base'
+      }
     ],
-    base_stats: { damage: 250, range: 130, attack_speed: 1.1, type: 'scatter' },
+    base_stats: { damage: 320, range: 145, attack_speed: 1.2, type: 'scatter' },
     deploy_cost: 800, max_level: 50,
     prestige_passives: {
       1: { type: 'mark_on_nth_hit', n: 5, bonus: 0.30, duration: 3, label: 'Mestre do Enka: a cada 5ª espada que acerta, o inimigo fica Marcado (+30% dano por 3s)' },
       5: { type: 'bijuu_boost', duration_bonus: 2, damage_bonus: 0.5, label: 'Bijuu Completo: duração do Modo Bijuu +2s e dano +50%' },
-      10: { type: 'bijuu_fast', cooldown_override: 12, label: 'Oito Caudas Liberadas: Modo Bijuu a cada 12s com onda de choque global ao transformar' }
+      10: { type: 'bijuu_fast', cooldown_override: 10, label: 'Oito Caudas Liberadas: Modo Bijuu a cada 10s com Tinta global ao transformar' }
     },
     upgrades: [
       { name: 'Sete Espadas', desc: '+2 projéteis (→ 9) | Dano ×1.2', damage_mult: 1.2, passive_override: { extra_projectiles: 2 }, cost: 1000 },
-      { name: 'Pierce Total', desc: 'Cada espada perfura +1 inimigo extra', passive_override: { pierce: 1 }, cost: 1600 },
-      { name: 'Tinta de Octópus', desc: 'Bijuu aplica burn 100 DPS / 3s em todos', passive_override: { bijuu_burn_dps: 100, bijuu_burn_dur: 3 }, cost: 2300 },
-      { name: 'Oito Estilos Plenos', desc: 'Dano ×1.8 | Bijuu CD -4s', damage_mult: 1.8, passive_override: { cooldown_bonus: -4 }, cost: 3000 },
-      { name: 'Mestre Shinobi', desc: 'Vel ×1.2 | Alcance ×1.15', speed_mult: 1.2, range_mult: 1.15, cost: 4000 }
+      { name: 'Tinta Corrosiva', desc: 'Tinta ativa com 2+ hits | Bônus → +80% dano | Dura 6s', passive_override: { min_hits: 2, bonus: 0.80, ink_duration: 6 }, cost: 1600 },
+      { name: 'Pierce Total', desc: 'Cada espada perfura +1 inimigo extra', passive_override: { pierce: 1 }, cost: 2300 },
+      { name: 'Oito Estilos Plenos', desc: 'Dano ×1.8 | Bijuu CD → 12s', damage_mult: 1.8, passive_override: { cooldown: 12 }, cost: 3000 },
+      { name: 'Mestre Shinobi', desc: 'Vel ×1.2 | Alcance ×1.15 | Tinta dura 8s', speed_mult: 1.2, range_mult: 1.15, passive_override: { ink_duration: 8 }, cost: 4000 }
     ]
   },
 
