@@ -954,7 +954,7 @@ function drawOverlay() {
     ctx.fillText('PREPARE-SE!', cx, cy - 8);
     ctx.fillStyle = 'rgba(238,240,255,0.65)';
     ctx.font = '500 10px Inter,sans-serif';
-    ctx.fillText('Posicione torres • Carregue setup (💾A/B/C) • [S] para iniciar', cx, cy + 15);
+    ctx.fillText('Posicione torres • [S] para iniciar', cx, cy + 15);
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   }
   if (betweenWaves && betweenTimer > 0 && wave < totalWaves) {
