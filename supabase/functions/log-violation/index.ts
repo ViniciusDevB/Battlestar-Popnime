@@ -40,13 +40,16 @@ serve(async (req: Request) => {
   // ── 5. Buscar player_id ────────────────────────────────────────────────────
   const { data: player } = await serviceClient
     .from('players')
-    .select('id, banned')
+    .select('id, banned, is_admin')
     .eq('auth_id', user.id)
     .single();
 
   if (!player) return new Response('player_not_found', { status: 404, headers: CORS });
 
-  // ── 6. Verificar se o IP já está banido ────────────────────────────────────
+  // ── 6. Admin: ignorar completamente ───────────────────────────────────────
+  if (player.is_admin) return new Response('ok', { status: 200, headers: CORS });
+
+  // ── 7. Verificar se o IP já está banido ────────────────────────────────────
   const { data: ipBan } = await serviceClient
     .from('banned_ips')
     .select('ip')

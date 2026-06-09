@@ -139,6 +139,10 @@ const Online = (() => {
       _session = null; _profile = null;
       return { error: 'Conta suspensa. Entre em contato com o suporte.' };
     }
+    // Admin: desativa envio de violações ao servidor
+    if (_profile?.is_admin && typeof Integrity !== 'undefined') {
+      Integrity.setServerViolationCallback(null);
+    }
     await syncSave();
     return { ok: true };
   }
