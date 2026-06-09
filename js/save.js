@@ -324,19 +324,7 @@ const Save = (() => {
     return !!(u?.in_trade);
   }
 
-  // ── Auto-Place — 3 slots por fase ─────────────────────────────────────────
-  function saveSetup(stageId, slot, placements) {
-    const key = `astd_setup_${stageId}_${slot}`;
-    try { localStorage.setItem(key, JSON.stringify(placements)); } catch {}
-  }
 
-  function loadSetup(stageId, slot) {
-    const key = `astd_setup_${stageId}_${slot}`;
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : null;
-    } catch { return null; }
-  }
 
   return { load, save, get, reset, _setData,
            addUnit, addMaterial, removeUnit, removeUnitByUid,
@@ -345,6 +333,5 @@ const Save = (() => {
            markStageComplete, isStageComplete, getTeam, setTeam,
            getPrestige, canPrestige, doPrestige,
            lockUnit, unlockUnit, isUnitLocked,
-           saveSetup, loadSetup,
            wasCorrupted, didSaveFail };
 })();

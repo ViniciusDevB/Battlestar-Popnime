@@ -156,9 +156,7 @@ window.addEventListener('DOMContentLoaded', () => {
     useAbility:  (idx) => Game.useAbility(idx),
     deselectTower: () => Game.deselectTower(),
     skipWave:    () => Game.skipWave(),
-    undoLastTower: () => Game.undoLastTower(),
-    saveSetup:   (slot) => Game.saveSetup(slot),
-    loadSetup:   (slot) => Game.loadSetup(slot)
+    undoLastTower: () => Game.undoLastTower()
   };
 
   // Global: " key opens cheat modal (anywhere, except while typing)

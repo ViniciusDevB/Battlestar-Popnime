@@ -1128,7 +1128,6 @@ const Game = (() => {
     init, startGame, togglePause, toggleSpeed, sellTower, buyNextUpgrade,
     retryStage, handleClick, getTowers, deployTower, selectTower,
     useAbility, deselectTower, skipWave, addGold,
-    undoLastTower,
-    saveSetup, loadSetup
+    undoLastTower
   };
 })();

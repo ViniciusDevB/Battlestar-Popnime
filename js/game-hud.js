@@ -227,8 +227,7 @@ function updateHUD() {
   UI.updateCurrencyDisplay();
   renderWavePreview();
 
-  const apBar = document.getElementById('autoplace-bar');
-  if (apBar) apBar.style.display = (betweenWaves || wave === 0) ? 'flex' : 'none';
+
 }
 
 function renderTeamPanel() {

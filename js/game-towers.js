@@ -102,42 +102,6 @@ function deployTower(x, y, charId) {
   Missions.check();
 }
 
-function saveSetup(slot) {
-  const stage = _towersCtx.stage;
-  if (!stage) return;
-  const placements = _towersCtx.towers
-    .filter(t => !t.isClone)
-    .map(t => ({ charId: t.charId, x: t.x, y: t.y }));
-  Save.saveSetup(stage.id, slot, placements);
-  UI.toast(`💾 Setup ${slot.toUpperCase()} salvo! (${placements.length} torre${placements.length !== 1 ? 's' : ''})`, 2000);
-}
-
-function loadSetup(slot) {
-  const stage = _towersCtx.stage;
-  if (!stage) return;
-  const placements = Save.loadSetup(stage.id, slot);
-  if (!placements || placements.length === 0) {
-    UI.toast(`Slot ${slot.toUpperCase()} está vazio!`, 1800);
-    return;
-  }
-  if (_towersCtx.waveActive && _towersCtx.enemies.length > 0) {
-    UI.toast('Não é possível carregar setup com inimigos em campo!', 2000);
-    return;
-  }
-  _towersCtx.towers.filter(t => !t.isClone).forEach(t => {
-    _towersCtx.gold += getCharById(t.charId)?.deploy_cost || 0;
-  });
-  _towersCtx.towers = _towersCtx.towers.filter(t => t.isClone);
-  _towersCtx.selectedTowerIdx = -1;
-  closeUpgradePanel();
-
-  placements.forEach(({ charId, x, y }) => {
-    if (isValidPlacement(x, y)) deployTower(x, y, charId);
-  });
-  renderTeamPanel();
-  updateHUD();
-  UI.toast(`📂 Setup ${slot.toUpperCase()} carregado!`, 2000);
-}
 
 function undoLastTower() {
   if (_towersCtx.waveActive && _towersCtx.enemies.length > 0) {
