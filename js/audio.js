@@ -28,7 +28,17 @@ const AudioManager = (() => {
     }
     
     currentBgm = menuBgm;
+    menuBgm.volume = 0; // Começa no 0 para não assustar
     menuBgm.play().catch(e => console.warn('Autoplay prevenido:', e));
+
+    // Efeito Fade-In até 50% (0.5)
+    let fadeAudio = setInterval(() => {
+      if (menuBgm.volume < 0.5) {
+        menuBgm.volume = Math.min(0.5, menuBgm.volume + 0.05);
+      } else {
+        clearInterval(fadeAudio);
+      }
+    }, 150); // Aumenta 5% a cada 150ms
   }
 
   function pauseBgm() {
@@ -46,15 +56,15 @@ const AudioManager = (() => {
   }
 
   function playGachaPull() {
-    playSFX('assets/audio/sfx/gacha_pull.mp3', 0.8);
+    playSFX('assets/audio/sfx/gacha_pull.wav', 0.8);
   }
 
   function playGachaReveal(rarity) {
     // Pode ter sons diferentes por raridade no futuro se quiser
     if (rarity === 5) {
-      playSFX('assets/audio/sfx/gacha_reveal_5star.mp3', 1.0);
+      playSFX('assets/audio/sfx/gacha_reveal_5star.wav', 1.0);
     } else {
-      playSFX('assets/audio/sfx/gacha_reveal.mp3', 0.8);
+      playSFX('assets/audio/sfx/gacha_reveal.wav', 0.8);
     }
   }
 
