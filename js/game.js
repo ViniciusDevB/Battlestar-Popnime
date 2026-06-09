@@ -510,7 +510,7 @@ const Game = (() => {
         if (_sandStormDuration <= 0) {
           _sandStormActive = false;
           _sandStormDuration = 0;
-          UI.toast('🌪️ Tempestade de Areia dissipada! Alcance restaurado.', 2000);
+          UI.toast(I18N.t('evt_sand_clear'), 2000);
         }
       } else {
         _sandStormTimer += dt;
@@ -518,7 +518,7 @@ const Game = (() => {
           _sandStormTimer = 0;
           _sandStormActive = true;
           _sandStormDuration = 6;
-          UI.toast('🌅 TEMPESTADE DE AREIA! Alcance das torres −40% por 6s!', 3500);
+          UI.toast(I18N.t('evt_sand_storm'), 3500);
         }
       }
     }
@@ -599,7 +599,7 @@ const Game = (() => {
             e.shieldHp = 0;
             const ringCol = (e.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
             addEffect({ type:'ring', x:e.x, y:e.y, maxR:60, color:ringCol, timer:0.55, maxTimer:0.55, r:0 });
-            UI.toast(`🛡 Escudo de ${e.name} destruído!`, 2500);
+            UI.toast(I18N.t('evt_shield_broken', { name: e.name }), 2500);
           }
         }
         e.hp -= remaining;
@@ -637,7 +637,7 @@ const Game = (() => {
           }
           endGame(false);
         } else if (e.is_boss || e.is_miniboss) {
-          UI.toast(`O Boss ${e.name} escapou! Missão Falhou!`, 4000);
+          UI.toast(I18N.t('evt_boss_escaped', { name: e.name }), 4000);
           endGame(false);
         }
       }
@@ -806,7 +806,7 @@ const Game = (() => {
         enemy.shieldHp = 0;
         const ringCol = (enemy.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
         addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:60, color:ringCol, timer:0.55, maxTimer:0.55, r:0 });
-        UI.toast(`🛡 Escudo de ${enemy.name} destruído!`, 2500);
+        UI.toast(I18N.t('evt_shield_broken', { name: enemy.name }), 2500);
       }
       if (dmg <= 0) { enemy.hitFlash = 0.1; return; }
     }
@@ -998,7 +998,7 @@ const Game = (() => {
       if (charDrop && charDrop.playable) {
         Save.addUnit(matId);
         const isOneTime = stage.drops?.find(d => d.id === matId)?.oneTime;
-        if (isOneTime) UI.toast(`✨ ${charDrop.name.toUpperCase()} DESBLOQUEADA! Capítulo 4 concluído!`, 6000);
+        if (isOneTime) UI.toast(I18N.t('evt_char_unlocked', { name: charDrop.name.toUpperCase() }), 6000);
       } else {
         Save.addMaterial(matId);
       }
@@ -1146,7 +1146,7 @@ const Game = (() => {
         if (!e.dead && !e.reached_end) applyStatus(e, 'paralisia', { duration: stunDur });
       });
       addEffect({ type:'shockwave', x:CANVAS_W/2, y:CANVAS_H/2, maxR:820, color:'#5b9cf6', timer:1.0, maxTimer:1.0, r:0 });
-      UI.toast(`❄️ Domínio Expandido! Todos os inimigos paralisados por ${stunDur}s!`, 3000);
+      UI.toast(I18N.t('evt_domain_expanded', { s: stunDur }), 3000);
       tower.abilityTimer = aa.cooldown;
     }
   }

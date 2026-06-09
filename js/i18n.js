@@ -76,7 +76,7 @@ const I18N = (() => {
     if (typeof WORLDS !== 'undefined') {
       for (const w of WORLDS) {
         if (dict[`world_${w.id}_name`]) w.name = dict[`world_${w.id}_name`];
-        if (dict[`world_${w.id}_desc`]) w.desc = dict[`world_${w.id}_desc`];
+        if (dict[`world_${w.id}_desc`]) w.description = dict[`world_${w.id}_desc`];
       }
     }
 

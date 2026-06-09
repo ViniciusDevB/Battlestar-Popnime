@@ -31,9 +31,17 @@ function openUpgradePanel(tower, slotIdx) {
   optsEl.innerHTML = '';
 
   const typeLabels = {
-    single_target:'Alvo único', single:'Alvo único', linha:'Linha',
-    cone:'Cone', aoe:'Área', aoe_full:'Área total', aoe_vizard_total:'Vizard AOE', pierce:'Perfura 3',
-    scatter:'Dispersão', none:'Sem ataque'
+    single_target: I18N.t('attack_type_single'),
+    single:        I18N.t('attack_type_single'),
+    linha:         I18N.t('attack_type_line'),
+    cone:          I18N.t('attack_type_cone'),
+    aoe:           I18N.t('attack_type_aoe'),
+    aoe_full:      I18N.t('attack_type_aoe_full'),
+    aoe_vizard_total: I18N.t('attack_type_vizard'),
+    support:       I18N.t('attack_type_support'),
+    pierce:        I18N.t('attack_type_single'),
+    scatter:       I18N.t('attack_type_aoe'),
+    none:          '—'
   };
   const gold = _hudCtx.gold;
   const waveActive = _hudCtx.waveActive;
@@ -69,13 +77,13 @@ function openUpgradePanel(tower, slotIdx) {
     : '';
 
   statsEl.innerHTML = `
-    ${statRow('⚔ Dano', Math.round(stats.damage), nextStats ? Math.round(nextStats.damage) : null)}
-    ${statRow('🎯 Alcance', Math.round(stats.range) + 'px', nextStats ? Math.round(nextStats.range) + 'px' : null)}
-    ${statRow('⚡ Vel. Ataque', stats.attack_speed.toFixed(2) + '/s' + frenzyMult, nextStats ? nextStats.attack_speed.toFixed(2) + '/s' : null)}
-    <div class="upg-stat-row"><span>🗡 Tipo</span><span>${typeLabels[stats.type] || stats.type}</span></div>
+    ${statRow(I18N.t('stat_damage'), Math.round(stats.damage), nextStats ? Math.round(nextStats.damage) : null)}
+    ${statRow(I18N.t('stat_range'), Math.round(stats.range) + 'px', nextStats ? Math.round(nextStats.range) + 'px' : null)}
+    ${statRow(I18N.t('stat_atk_speed'), stats.attack_speed.toFixed(2) + '/s' + frenzyMult, nextStats ? nextStats.attack_speed.toFixed(2) + '/s' : null)}
+    <div class="upg-stat-row"><span>${I18N.t('stat_type')}</span><span>${typeLabels[stats.type] || stats.type}</span></div>
     ${_dpsRow}
     ${prestigeRow}
-    ${isMaximized ? '<div class="upg-stat-row" style="color:#fbbf24;font-weight:700;text-align:center">✦ MAXIMIZADO ✦</div>' : ''}`;
+    ${isMaximized ? `<div class="upg-stat-row" style="color:#fbbf24;font-weight:700;text-align:center">${I18N.t('hud_maximized')}</div>` : ''}`;
   optsEl.appendChild(statsEl);
 
   if (char?.active_ability) {
@@ -88,7 +96,7 @@ function openUpgradePanel(tower, slotIdx) {
     abilBtn.className = `btn btn-active-ability${ready ? '' : ' btn-ability-cd'}`;
     abilBtn.disabled = !ready;
     abilBtn.innerHTML = ready
-      ? `⚡ ${aa.label} <span class="ability-badge ability-badge--ready">PRONTO</span>`
+      ? `⚡ ${aa.label} <span class="ability-badge ability-badge--ready">${I18N.t('hud_ability_ready')}</span>`
       : `⚡ ${aa.label} <span class="ability-badge ability-badge--cd">${cd}s</span>`;
     const capturedIdx = slotIdx;
     abilBtn.addEventListener('click', () => Game.useAbility(capturedIdx));
@@ -105,7 +113,7 @@ function openUpgradePanel(tower, slotIdx) {
     div.innerHTML = `
       <div class="upg-name">${upg.name} ${purchased ? '✔' : ''}</div>
       <div class="upg-desc">${upg.desc}</div>
-      <div class="upg-cost">${purchased ? 'Comprado' : `${upg.cost} 💰 ${isNext ? '<span style="font-size:9px;color:#aaa;margin-left:5px;">(U)</span>' : ''}`}</div>`;
+      <div class="upg-cost">${purchased ? I18N.t('hud_purchased') : `${upg.cost} 💰 ${isNext ? '<span style="font-size:9px;color:#aaa;margin-left:5px;">(U)</span>' : ''}`}</div>`;
     if (isNext && canAfford) {
       div.addEventListener('click', () => _hudCtx.buyUpgrade(slotIdx, i));
       div.style.cursor = 'pointer';
@@ -121,7 +129,7 @@ function openUpgradePanel(tower, slotIdx) {
   }
   const sellVal = hasEconomy ? totalInvested : Math.floor(totalInvested * 0.5);
   const sellBtn = panel.querySelector('.btn-sell');
-  if (sellBtn) sellBtn.textContent = `Vender (+${sellVal} 💰) [Del]`;
+  if (sellBtn) sellBtn.textContent = I18N.t('hud_sell_btn', { val: sellVal });
 
   panel.style.display = 'flex';
 }
@@ -253,14 +261,14 @@ function renderTeamPanel() {
     div.innerHTML = `
       <div class="tp-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
       <div class="tp-name">${char.name}${copyLabel}</div>
-      <div class="tp-cost">${atLimit ? '🚫 Máximo' : `${cost}💰 Lv${unitData?.nivel||1}`}</div>`;
+      <div class="tp-cost">${atLimit ? I18N.t('hud_max_units') : `${cost}💰 Lv${unitData?.nivel||1}`}</div>`;
     div.addEventListener('click', () => {
-      if (gold < cost) { UI.toast('Ouro insuficiente!'); return; }
+      if (gold < cost) { UI.toast(I18N.t('err_gold')); return; }
       _hudCtx.deployingCharId = _hudCtx.deployingCharId === charId ? null : charId;
       renderTeamPanel();
       _hudCtx.selectedTowerIdx = -1;
       closeUpgradePanel();
-      UI.toast(_hudCtx.deployingCharId ? `Clique em um slot para colocar ${char.name}` : 'Seleção cancelada');
+      UI.toast(_hudCtx.deployingCharId ? I18N.t('hud_click_slot', { name: char.name }) : I18N.t('hud_cancel_select'));
     });
     panel.appendChild(div);
   });

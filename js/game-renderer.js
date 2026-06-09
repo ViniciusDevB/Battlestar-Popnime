@@ -977,10 +977,10 @@ function drawOverlay() {
     ctx.fillStyle = '#4ade80';
     ctx.font = 'bold 17px Inter,sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('PREPARE-SE!', cx, cy - 8);
+    ctx.fillText(I18N.t('hud_prepare'), cx, cy - 8);
     ctx.fillStyle = 'rgba(238,240,255,0.65)';
     ctx.font = '500 10px Inter,sans-serif';
-    ctx.fillText('Posicione torres • [S] para iniciar', cx, cy + 15);
+    ctx.fillText(I18N.t('hud_place_towers'), cx, cy + 15);
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   }
   if (betweenWaves && betweenTimer > 0 && wave < totalWaves) {
@@ -995,7 +995,7 @@ function drawOverlay() {
     ctx.fillStyle = 'rgba(238,240,255,0.45)';
     ctx.font = '500 12px Inter,sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('PRÓXIMA WAVE', cx, cy - 20);
+    ctx.fillText(I18N.t('hud_next_wave'), cx, cy - 20);
     ctx.fillStyle = '#ffc846';
     ctx.font = 'bold 26px Inter,sans-serif';
     ctx.fillText(`Wave ${wave + 1}  —  ${Math.ceil(betweenTimer)}s`, cx, cy + 7);
@@ -1003,17 +1003,17 @@ function drawOverlay() {
       const tier = INFINITE_TIERS[getInfiniteTierIdx(wave + 1)];
       ctx.fillStyle = tier.color;
       ctx.font = 'bold 11px Inter,sans-serif';
-      ctx.fillText(`⚡ ${tier.name.toUpperCase()}  •  [S] pular`, cx, cy + 28);
+      ctx.fillText(`⚡ ${tier.name.toUpperCase()}  •  ${I18N.t('hud_skip')}`, cx, cy + 28);
       const best = Save.get().stats.melhor_onda_infinita || 0;
       if (best > 0) {
         ctx.fillStyle = 'rgba(251,191,36,0.55)';
         ctx.font = '500 9px Inter,sans-serif';
-        ctx.fillText(`Recorde: Wave ${best}`, cx, cy + 42);
+        ctx.fillText(I18N.t('hud_record_wave', { best }), cx, cy + 42);
       }
     } else {
       ctx.fillStyle = 'rgba(74,222,128,0.75)';
       ctx.font = '500 10px Inter,sans-serif';
-      ctx.fillText(`+${(wave + 1) * 11}\u{1F4B0} ao completar  •  [S] pular`, cx, cy + 28);
+      ctx.fillText(`+${(wave + 1) * 11}\u{1F4B0} ${I18N.t('hud_on_complete')}  •  ${I18N.t('hud_skip')}`, cx, cy + 28);
     }
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   }
@@ -1032,7 +1032,7 @@ function drawOverlay() {
     ctx.fillStyle = 'rgba(230,170,50,0.9)';
     ctx.font = 'bold 12px Inter,sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(`🌪️ TEMPESTADE DE AREIA  ${Math.ceil(_sandStormDuration)}s  (alcance −40%)`, CANVAS_W/2, 44);
+    ctx.fillText(I18N.t('evt_sand_active', { s: Math.ceil(_sandStormDuration) }), CANVAS_W/2, 44);
     ctx.textAlign = 'left';
   }
 }
