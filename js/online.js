@@ -208,8 +208,15 @@ const Online = (() => {
   async function syncSave() {
     if (!_ready || !_session || !_profile) return { ok: false, reason: 'not_logged_in' };
     try {
+      const localSave  = Save.get();
+      // Previne contaminação entre contas: se o save local foi gerado por outro player_id,
+      // envia payload vazio — o servidor devolve o save correto sem mesclar progresso alheio.
+      const isOwnSave  = !localSave._ownerId || localSave._ownerId === _profile.id;
+      if (!isOwnSave) {
+        console.warn('[Online] Save local pertence a outra conta — progresso local descartado.');
+      }
       const { data, error } = await _client.rpc('fn_sync_progress', {
-        p_progress: Save.get(),
+        p_progress: isOwnSave ? localSave : {},
       });
       if (error) return { ok: false, reason: error.message };
       if (data?.error) return { ok: false, reason: data.error };
@@ -224,7 +231,8 @@ const Online = (() => {
             return { ok: false, reason: 'integrity_block: ' + blocking.join(', ') };
           }
         }
-        Save._setData(data.save);
+        // Grava _ownerId no save local para detectar troca de conta futura
+        Save._setData({ ...data.save, _ownerId: _profile.id });
       }
       return { ok: true };
     } catch (e) {
