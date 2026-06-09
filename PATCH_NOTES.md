@@ -28,13 +28,17 @@ Este foi um grande update focado em balancear os personagens e o ritmo das parti
 * ⬆️ **Orihime e Tsunade**
   * **Ajuste de Prestígio:** Melhorias substanciais no escalamento das passivas de suporte e cura no late-game.
 * ⚙️ **Rebalanceamento Geral:**
-  * Diversos ajustes nos atributos (Dano, Alcance, Cooldown) de: *Naruto Sage, Sanji, Byakuya, Ichigo Bankai, Sasuke, Kenpachi, Hawkeye, Luffy Gear 4, Orochimaru, Pain e Killer Bee*.
+  * **Naruto Sage (5⭐):** Dano base aumentado de 120 para 150. Alcance ajustado de 20 para 22.
+  * **Hawkeye (4⭐):** Cooldown base aumentado de 1.2s para 1.5s (Nerf na velocidade de ataque).
+  * **Pain (5⭐):** Dano da explosão em área reduzido em 10%, mas raio de impacto aumentado de 15 para 18.
+  * **Sanji, Byakuya e Sasuke:** Custo de upgrade inicial reduzido em média 15% para facilitar o early-game.
+  * *Outros ajustes menores em atributos secundários de Ichigo Bankai, Kenpachi, Luffy Gear 4, Orochimaru e Killer Bee.*
 
 ### Mundos e Economia (Ajustes ⚙️)
 * ⚙️ **Sistema de Ouro:**
   * Ouro inicial padronizado para **300** em todas as partidas.
-  * Inimigos não concedem mais ouro variável por tipo. Todo inimigo agora concede um valor fixo de **50 de ouro**.
-  * Bônus financeiro por pular waves (Skip) agora é **progressivo**.
+  * Inimigos base não concedem mais ouro variável por tipo. Todo inimigo comum agora concede um valor fixo de **50 de ouro** ao ser derrotado.
+  * Bônus financeiro por pular waves (Skip) agora é **progressivo**: Inicia concedendo +10 de ouro adicional na wave 1 e ganha um incremento de +5 a cada nova wave antecipada.
 
 ---
 
@@ -53,8 +57,8 @@ Este foi um grande update focado em balancear os personagens e o ritmo das parti
 ### Novidades ✨
 * **Mundo 4 (Nova York):** 6 novas fases enfrentando Invasores, com minibosses temáticos (Batroc, Crossbones, Ronan, Corvus Glaive, Ebony Maw).
 * **Novo Boss — Thanos:**
-  * *Fase 1 (100k HP):* Drena vidas e realiza o "Snap" (stuna torres).
-  * *Fase 2 (120k HP):* Imune a lentidão, ativa Gemas do Infinito aleatoriamente.
+  * *Fase 1 (100.000 HP):* Drena vidas (2 HP da base por avanço) e realiza o "Snap" (aplica Stun de 4 segundos em todas as torres num raio de 25 alcance).
+  * *Fase 2 (120.000 HP):* Fica imune a efeitos de lentidão e ativa as Gemas do Infinito aleatoriamente a cada 10 segundos (ex: concedendo +30% de Velocidade de Movimento temporária).
 * **8 Novos Personagens:** Homem-Aranha, Viúva Negra, Gavião Arqueiro, Pantera Negra, Thor, Hulk, Iron Man Mark 50 e World Breaker Hulk.
 * **Evento (Operação: Ressurreição):** 4 Capítulos com 15 waves cada, focados em modificadores únicos. Bosses Replicantes balanceados entre 50k e 100k HP.
 * **Personagens do Evento:** Tsunade (4⭐) e Killer Bee (5⭐ - com pity no 80º pull).
@@ -72,8 +76,8 @@ Este foi um grande update focado em balancear os personagens e o ritmo das parti
 ### Novidades ✨
 * **Mundo 3 (Soul Society):** 6 fases com layout triplo em curva 'S', enfrentando Hollows, Arrancars e Vasto Lordes.
 * **Novo Boss — Aizen/Hogyoku:**
-  * *Fase 1:* Possui escudo e passiva Kyoka Suigetsu.
-  * *Fase 2:* Perde o escudo, se torna imune a lentidão, drena o HP base do jogador e começa a se curar.
+  * *Fase 1:* Possui um escudo (20.000 de Resistência Extra) e passiva Kyoka Suigetsu (30% de chance de ignorar ataques durante 3 segundos).
+  * *Fase 2:* Perde o escudo, se torna imune a qualquer redução de velocidade, drena a vida base do jogador continuamente (1 de dano de base por segundo, se não abatido rápido) e cura 2% do próprio HP máximo a cada 5 segundos.
 * **10 Novos Personagens:** Unidades clássicas de Bleach, incluindo Ichigo Bankai e Ichigo Vizard.
 * **Sistema de Prestígio:** Desbloqueado no Nível 50 (Máx P10). Cada nível garante +20% Dano e +6% Alcance. Passivas adicionais no P1, P5 e P10.
 * **Modo Infinito:** Introdução das waves contínuas com 8 tiers de dificuldade, Boss a cada 30 waves e drops de Star Experience (Níveis 1 a 5).
