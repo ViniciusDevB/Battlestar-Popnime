@@ -64,7 +64,48 @@ Adicione inimigos com a tag `stun_immune` em waves muito altas para invalidar o 
 
 ---
 
-## 4. Multiplicador de HP entre Mundos
+## 4. Progressão de Poder entre Updates
+
+### Princípio Central
+A cada novo update, o **teto de poder dos personagens aumenta**. Um personagem 3★ do Update 3 (DC) é significativamente mais forte que um 3★ do Update 0 (Naruto). Isso cria uma progressão de Meta natural: os jogadores migram para as novas unidades conforme avançam no jogo, enquanto os personagens antigos continuam viáveis nos mundos anteriores.
+
+Esse crescimento deve ser **intencional e consistente** — não é power creep acidental, é a régua de design.
+
+### Multiplicador de Stats por Update
+
+| Update | Mundo | Mult. Dano Base (3★) | Mult. Alcance Base (3★) | Vel. Ataque Base (3★) |
+|--------|-------|----------------------|------------------------|----------------------|
+| 0 | Naruto / Dragon Ball | 1.0× | 1.0× | 1.0× |
+| 1 | Soul Society (Bleach) | 1.20× | 1.10× | 1.05× |
+| 2 | Nova York (Marvel) | 1.45× | 1.20× | 1.10× |
+| **3** | **Metrópolis (DC)** | **1.75×** | **1.30×** | **1.15×** |
+
+> *Exemplo prático:* Ichigo Base (U0) tem 83 de dano base. Um 3★ do Update 3 deve ter em torno de **83 × 1.75 ≈ 145 de dano base**, alcance ~118 e cooldown ~1.34s para ser naturalmente superior — antes de upgrades ou passivas.
+
+### Regra de Ouro para Passivas por Update
+As passivas também devem crescer em impacto:
+
+| Update | Padrão de Passiva 3★ | Padrão de Passiva 5★ |
+|--------|----------------------|----------------------|
+| 0 | Status simples (Bleed 10 DPS, Crit 20%) | Buff de área passivo |
+| 1 | Status escalável + condição de trigger | Aura de equipe simples |
+| 2 | Status duplo OU multiplicador condicional | Aura de equipe + buff ativo |
+| **3** | **Mecânica única com 2 condições** | **Aura com 2 efeitos + trigger especial** |
+
+### Cap de Ouro por Update para Personagens
+
+Para que os custos de deploy façam sentido na progressão de mundo:
+
+| Update | Custo Deploy 3★ | Custo Deploy 4★ | Custo Deploy 5★ |
+|--------|----------------|----------------|----------------|
+| 0 | 150–200 | 350–500 | 600–900 |
+| 1 | 180–240 | 400–550 | 700–1.000 |
+| 2 | 200–280 | 450–650 | 800–1.200 |
+| **3** | **220–320** | **500–750** | **950–1.400** |
+
+---
+
+## 5. Multiplicador de HP entre Mundos
 
 Para manter a dificuldade crescente entre worlds, cada novo mundo aplica um multiplicador de base sobre o mundo anterior:
 
