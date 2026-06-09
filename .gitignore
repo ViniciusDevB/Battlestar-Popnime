@@ -60,7 +60,7 @@ balance_guide.md
 generate_music.py
 
 # Diretórios Desnecessários para o Jogo Final
-docs/
+# docs/ — removido para versionar planejamento de updates
 
 # Ignorar arquivos temporários do Supabase CLI
 supabase/.temp/
