@@ -590,13 +590,33 @@ const Online = (() => {
       .subscribe();
   }
 
+  // ── Gacha RPC ─────────────────────────────────────────────────────────────
+
+  // Chama fn_gacha_pull no banco: validação, sorteio e gravação do save acontecem
+  // no servidor. Retorna { ok, results[], new_pity, new_gems, new_tickets, save }
+  // ou { error: 'motivo' }.
+  async function gachaPull(qty, currency) {
+    if (!_ready || !_session) return { error: 'not_logged_in' };
+    try {
+      const { data, error } = await _client.rpc('fn_gacha_pull', {
+        p_qty:      qty,
+        p_currency: currency,
+      });
+      if (error) return { error: error.message };
+      if (data?.error) return { error: data.error };
+      return data;
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
   // ── Public API ─────────────────────────────────────────────────────────────
 
   return {
     init, isReady, isLoggedIn, getProfile, getSession, onReady,
     waitForProfile, refreshProfile,
     register, login, logout, resetAccount,
-    syncSave,
+    syncSave, gachaPull,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,
     fetchActiveMission, fetchUpcomingMissions, getActiveMission, contributeToMission,

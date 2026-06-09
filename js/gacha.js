@@ -39,7 +39,38 @@ const Gacha = (() => {
     return { id, rarity: actualRarity };
   }
 
-  function pull(count, currency) {
+  async function pull(count, currency) {
+    // Server-side path: sorteio, dedução de moeda e gravação no banco são atômicos.
+    // Impede que o cliente forge gemas ou injete unidades.
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
+      const result = await Online.gachaPull(count, currency);
+      if (result?.ok) {
+        // Aplica o save autoritativo do servidor localmente
+        Save._setData(result.save);
+        // Incrementa stats de estrela (servidor não rastreia, merge por max no próximo sync)
+        result.results.forEach(r => {
+          if (r.rarity === 4) Save.incStat('unidades_4estrelas_obtidas');
+          if (r.rarity === 5) Save.incStat('unidades_5estrelas_obtidas');
+        });
+        Save.save();
+        const _cm = Online.getActiveMission();
+        if (_cm && _cm.goal_type === 'pulls') Online.contributeToMission(_cm.id, count);
+        Missions.check();
+        updateGachaUI();
+        showResult(result.results);
+        return;
+      }
+      // Rejeições definitivas do servidor — não cai no cliente
+      const HARD_ERRORS = { insufficient_gems: 'Gemas insuficientes!', insufficient_tickets: 'Tickets insuficientes!', unauthorized: 'Faça login para continuar.', invalid_qty: 'Quantidade inválida.', invalid_currency: 'Moeda inválida.' };
+      if (result?.error && HARD_ERRORS[result.error]) {
+        UI.toast(HARD_ERRORS[result.error]);
+        return;
+      }
+      // Erro de rede/servidor — usa cliente como fallback
+      console.warn('[Gacha] RPC falhou, usando cliente:', result?.error);
+    }
+
+    // Fallback client-side (offline ou RPC indisponível)
     const d = Save.get();
     const cost = currency === 'gems' ? (count === 1 ? 100 : 950) : count;
     const useTickets = currency === 'tickets';
