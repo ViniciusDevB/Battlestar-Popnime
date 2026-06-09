@@ -100,6 +100,32 @@ function render() {
   drawEnemies();
   drawProjectiles();
 
+  // Draw Zombies (Nemesis passive)
+  const zombies = _renderCtx.zombies || [];
+  zombies.forEach(z => {
+    const r = z.fromInfection ? 18 : 30;
+    ctx.save();
+    ctx.shadowBlur = 14; ctx.shadowColor = '#4ade80';
+    ctx.fillStyle = z.fromInfection ? 'rgba(134,239,172,0.88)' : 'rgba(74,222,128,0.78)';
+    ctx.beginPath();
+    ctx.arc(z.x, z.y, r, 0, Math.PI * 2);
+    ctx.fill();
+    const hpPct = Math.max(0, z.hp / z.maxHp);
+    const bw = r * 2;
+    ctx.fillStyle = '#111';
+    ctx.fillRect(z.x - r, z.y - r - 12, bw, 5);
+    ctx.fillStyle = '#4ade80';
+    ctx.fillRect(z.x - r, z.y - r - 12, bw * hpPct, 5);
+    ctx.strokeStyle = '#fff';
+    ctx.strokeRect(z.x - r, z.y - r - 12, bw, 5);
+    ctx.fillStyle = '#fff';
+    ctx.font = `${z.fromInfection ? 12 : 16}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('💀', z.x, z.y);
+    ctx.restore();
+  });
+
   // Draw Tsunamis
   tsunamis.forEach(tsu => {
     ctx.save();

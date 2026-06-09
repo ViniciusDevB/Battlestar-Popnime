@@ -3,6 +3,8 @@ const MissionsUI = (() => {
   let _activeTab   = 'daily';
   let _mission     = null;
   let _contrib     = null;
+  let _upcoming    = [];
+  let _upcomingIdx = 0;
   let _countdownId = null;
 
   // ── Helpers genéricos ─────────────────────────────────────────────────────────
@@ -154,11 +156,12 @@ const MissionsUI = (() => {
       }
     }
 
-    const rewardUnits = (m.reward_units || []).map(id =>
-      id === '__random_5star__'
-        ? `<span class="ms-reward-unit ms-reward-random">🌟 Personagem 5⭐ Aleatório</span>`
-        : `<span class="ms-reward-unit">${(typeof getCharById !== 'undefined' && getCharById(id)?.name) || id}</span>`
-    ).join('');
+    const rewardUnits = (m.reward_units || []).map(id => {
+      if (id === '__random_5star__')     return `<span class="ms-reward-unit ms-reward-random">🌟 Personagem 5⭐ Aleatório</span>`;
+      if (id === '__random_event_unit__') return `<span class="ms-reward-unit ms-reward-event">🎪 Unidade de Evento Aleatória</span>`;
+      const char = typeof getCharById !== 'undefined' && getCharById(id);
+      return `<span class="ms-reward-unit">${char ? char.name : id}</span>`;
+    }).join('');
 
     const rewardLine = (m.reward_gems > 0 || rewardUnits)
       ? `<div class="ms-rewards">
@@ -187,6 +190,90 @@ const MissionsUI = (() => {
       </div>`;
   }
 
+  // ── Aba: Comunidade — Cards Em Breve ─────────────────────────────────────
+
+  function _fmtCountdown(startsAt) {
+    const ms = new Date(startsAt) - Date.now();
+    const d  = Math.ceil(ms / 86400000);
+    if (d > 1)  return `${d} dias`;
+    if (d === 1) return '1 dia';
+    const h = Math.ceil(ms / 3600000);
+    if (h > 1) return `${h} horas`;
+    return 'em breve';
+  }
+
+  function _upcomingCardHTML(m) {
+    const isNemesis = (m.reward_units || []).includes('nemesis');
+
+    const rewardPills = (m.reward_units || []).map(id => {
+      if (id === 'nemesis')              return `<span class="ms-reward-unit ms-upcoming-reward--nemesis">💀 Nemesis — Unidade Exclusiva 5⭐</span>`;
+      if (id === '__random_event_unit__') return `<span class="ms-reward-unit ms-reward-event">🎪 Unidade de Evento Aleatória</span>`;
+      if (id === '__random_5star__')      return `<span class="ms-reward-unit ms-reward-random">🌟 Personagem 5⭐ Aleatório</span>`;
+      const c = typeof getCharById !== 'undefined' && getCharById(id);
+      return `<span class="ms-reward-unit">${c ? c.name : id}</span>`;
+    }).join('');
+
+    const gemsPill = m.reward_gems > 0
+      ? `<span class="ms-reward-gem">💎 ${m.reward_gems} gemas</span>` : '';
+
+    return `
+      <div class="ms-upcoming-card${isNemesis ? ' ms-upcoming-card--nemesis' : ''}">
+        <div class="ms-upcoming-top">
+          <span class="ms-update-badge ms-update-badge--tbd">PRÓXIMO UPDATE</span>
+          <span class="ms-upcoming-badge${isNemesis ? ' ms-upcoming-badge--nemesis' : ''}">EM BREVE</span>
+        </div>
+        <div class="ms-upcoming-title">${isNemesis ? '🧟 ' : ''}${m.title}</div>
+        <div class="ms-upcoming-desc">${m.description}</div>
+        <div class="ms-upcoming-rewards">${rewardPills}${gemsPill}</div>
+        <div class="ms-upcoming-countdown">⏳ Começa em <strong>${_fmtCountdown(m.starts_at)}</strong></div>
+      </div>`;
+  }
+
+  function _upcomingInnerHTML(upcoming) {
+    if (!upcoming || !upcoming.length) return '';
+    const total = upcoming.length;
+    const idx   = Math.max(0, Math.min(_upcomingIdx, total - 1));
+    const card  = _upcomingCardHTML(upcoming[idx]);
+
+    const dots = total > 1
+      ? `<div class="ms-upcoming-dots">${upcoming.map((_, i) =>
+          `<span class="ms-upcoming-dot${i === idx ? ' ms-upcoming-dot--active' : ''}"></span>`
+        ).join('')}</div>`
+      : '';
+
+    const nav = total > 1 ? `
+      <div class="ms-upcoming-nav">
+        <button class="ms-upcoming-arrow${idx === 0 ? ' ms-upcoming-arrow--disabled' : ''}"
+          onclick="MissionsUI.prevUpcoming()">&#8249;</button>
+        ${dots}
+        <button class="ms-upcoming-arrow${idx === total - 1 ? ' ms-upcoming-arrow--disabled' : ''}"
+          onclick="MissionsUI.nextUpcoming()">&#8250;</button>
+      </div>` : '';
+
+    return `
+      <div class="ms-upcoming-header">📅 Em Breve</div>
+      ${card}
+      ${nav}`;
+  }
+
+  function _upcomingHTML(upcoming) {
+    if (!upcoming || !upcoming.length) return '';
+    return `<div class="ms-upcoming-section" id="ms-upcoming-wrap">${_upcomingInnerHTML(upcoming)}</div>`;
+  }
+
+  function _refreshUpcoming() {
+    const el = document.getElementById('ms-upcoming-wrap');
+    if (el) el.innerHTML = _upcomingInnerHTML(_upcoming);
+  }
+
+  function prevUpcoming() {
+    if (_upcomingIdx > 0) { _upcomingIdx--; _refreshUpcoming(); }
+  }
+
+  function nextUpcoming() {
+    if (_upcomingIdx < _upcoming.length - 1) { _upcomingIdx++; _refreshUpcoming(); }
+  }
+
   // ── Lifecycle ─────────────────────────────────────────────────────────────────
 
   function _getModal()   { return document.getElementById('missions-modal'); }
@@ -210,9 +297,13 @@ const MissionsUI = (() => {
     // Community tab
     tc.innerHTML = '<div class="ms-loading">Carregando...</div>';
     if (!Online.isLoggedIn()) { tc.innerHTML = _offlineHTML(); return; }
-    _mission = await Online.fetchActiveMission();
+    _upcomingIdx = 0;
+    [_mission, _upcoming] = await Promise.all([
+      Online.fetchActiveMission(),
+      Online.fetchUpcomingMissions(),
+    ]);
     _contrib = _mission ? await Online.fetchMissionContribution(_mission.id) : null;
-    tc.innerHTML = _mission ? _communityBodyHTML() : _noMissionHTML();
+    tc.innerHTML = (_mission ? _communityBodyHTML() : _noMissionHTML()) + _upcomingHTML(_upcoming);
     _startCountdown();
   }
 
@@ -254,9 +345,12 @@ const MissionsUI = (() => {
       if (!tc) return;
       if (!Online.isLoggedIn()) { tc.innerHTML = _offlineHTML(); return; }
       tc.innerHTML = '<div class="ms-loading">Carregando...</div>';
-      _mission = await Online.fetchActiveMission();
+      [_mission, _upcoming] = await Promise.all([
+        Online.fetchActiveMission(),
+        Online.fetchUpcomingMissions(),
+      ]);
       _contrib = _mission ? await Online.fetchMissionContribution(_mission.id) : null;
-      tc.innerHTML = _mission ? _communityBodyHTML() : _noMissionHTML();
+      tc.innerHTML = (_mission ? _communityBodyHTML() : _noMissionHTML()) + _upcomingHTML(_upcoming);
       _startCountdown();
     } else {
       const tc = _getTabEl();
@@ -290,6 +384,8 @@ const MissionsUI = (() => {
       (_mission?.reward_units || []).forEach(id => {
         if (id === '__random_5star__') {
           _grantRandom5Star();
+        } else if (id === '__random_event_unit__') {
+          _grantRandomEventUnit();
         } else if (typeof Save !== 'undefined') {
           Save.addUnit(id);
         }
@@ -321,5 +417,17 @@ const MissionsUI = (() => {
     }
   }
 
-  return { show, close, setTab, refresh, onMissionUpdate, claim };
+  function _grantRandomEventUnit() {
+    if (typeof Save === 'undefined') return;
+    const all = typeof CHARACTERS !== 'undefined' ? CHARACTERS : {};
+    const pool = Object.values(all).filter(c => c.playable && c.event_exclusive && c.id !== 'nemesis');
+    if (!pool.length) return;
+    const char = pool[Math.floor(Math.random() * pool.length)];
+    Save.addUnit(char.id);
+    if (typeof UI !== 'undefined') {
+      setTimeout(() => UI.toast(`🎪 Unidade de Evento: ${char.name}! Confira no inventário.`, 6000), 500);
+    }
+  }
+
+  return { show, close, setTab, refresh, onMissionUpdate, claim, prevUpcoming, nextUpcoming };
 })();

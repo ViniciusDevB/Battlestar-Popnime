@@ -21,6 +21,8 @@ const CHAR_COLORS = {
   // Evento 2
   tsunade:    '#f9a8d4',
   killer_bee: '#7c3aed',
+  // Evento — Nemesis
+  nemesis:            '#4ade80',
   // Marvel
   spider_man:         '#dc2626',
   black_widow:        '#1c1917',
@@ -35,6 +37,39 @@ const CHAR_COLORS = {
 // Todos os handlers de passiva. Acessa estado do jogo via _passiveCtx.
 // _passiveCtx é populado em game.js após a inicialização do módulo Game.
 const PASSIVE_ENTRIES = {
+
+  // Nemesis — invoca horda de zumbis na base periodicamente.
+  // Zumbis caminham do fim do caminho em direção ao início (igual ao tsunami),
+  // danificam inimigos no contato e aplicam o status infectado.
+  zombie_spawn: {
+    update(tower, p, dt) {
+      if (tower.disabled) return;
+      tower._zombieTimer = (tower._zombieTimer || 0) + dt;
+      const interval = _passiveCtx.getPassiveValue(tower, 'interval', p.interval || 18);
+      if (tower._zombieTimer >= interval) {
+        tower._zombieTimer = 0;
+        let zombieHp = _passiveCtx.getPassiveValue(tower, 'zombie_hp', p.zombie_hp || 4000);
+        for (let i = 0; i < tower.upgradeLevel; i++) {
+          const upg = tower.charData.upgrades[i];
+          if (upg?.zombie_hp_mult) zombieHp = Math.round(zombieHp * upg.zombie_hp_mult);
+        }
+        const speed = p.zombie_speed || 52;
+        const dps   = _passiveCtx.getPassiveValue(tower, 'zombie_dps', p.zombie_dps || 100);
+        const paths = window.currentPaths || [PATH_POINTS];
+        paths.forEach(pathArr => {
+          const pathLen = getPathLength(pathArr);
+          _passiveCtx.zombies.push({
+            hp: zombieHp, maxHp: zombieHp,
+            dist: pathLen, speed, dps,
+            color: '#4ade80',
+            hitIds: new Set(), pathArr,
+            fromInfection: false
+          });
+        });
+        UI.toast('🧟 Horda Zumbi Invocada!', 2000);
+      }
+    }
+  },
 
   // Template: passiva baseada em timer periódico que invoca aliado/projétil.
   tsunami: {

@@ -190,6 +190,18 @@ Loop principal, canvas, sistema de defesa, Gacha, Save, Missões, Mundo Naruto.
 
 ---
 
+## ⏳ Por Vir
+
+### ☣️ Evento: Protocolo Nemesis — Última Resistência
+
+Um modo de jogo temporário inspirado em **Resident Evil clássico**. Defend Raccoon City contra ondas de infectados enquanto o **Nemesis caça ativamente suas torres**, ignorando o caminho e mirando nas unidades mais poderosas. O confronto exige gerenciamento de recursos — ervas, kits de reparo e suprimentos aparecem no mapa e devem ser coletados em tempo real. Uma **bomba de contagem regressiva** de 3 horas paira sobre a partida, reduzida a cada dano sofrido.
+
+Cada run é única: escolha uma **Relíquia** antes de começar, tome decisões de risco entre ondas e enfrente eventos aleatórios como Surtos de Lickers e Fúria do Nemesis. Sobreviventes S.T.A.R.S. (Jill, Leon, Carlos, Ada) podem aparecer no mapa — proteja-os para ativar habilidades únicas. Completar runs desbloqueia o **Arquivo Umbrella**, uma meta-progressão permanente com bônus desbloqueáveis.
+
+**Recompensa:** Nemesis — unidade 5⭐ exclusiva do evento.
+
+---
+
 ## 🗺️ Roadmap
 
 ### 🔜 Update 3: Crise nas Infinitas Terras *(Planejado)*

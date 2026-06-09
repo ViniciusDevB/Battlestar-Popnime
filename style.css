@@ -2402,3 +2402,161 @@ select:hover{border-color:var(--bd3);}
   color: var(--t3);
   font-size: 13px;
 }
+
+/* ── Event reward pill ───────────────────────────────────────────────────── */
+.ms-reward-event {
+  background: linear-gradient(135deg, rgba(167,139,250,.18), rgba(244,114,182,.18));
+  border-color: rgba(167,139,250,.45);
+  color: #e9d5ff;
+  font-weight: 800;
+}
+
+/* Badge vermelho para updates sem versão definida */
+.ms-update-badge--tbd {
+  background: rgba(239,68,68,.15);
+  border-color: rgba(239,68,68,.4);
+  color: #fca5a5;
+}
+
+/* ── Em Breve section ────────────────────────────────────────────────────── */
+.ms-upcoming-section {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ms-upcoming-header {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--t3);
+  border-top: 1px solid var(--bd);
+  padding-top: 16px;
+  margin-bottom: 2px;
+}
+.ms-upcoming-card {
+  background: var(--gs);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: .92;
+}
+.ms-upcoming-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ms-upcoming-badge {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: rgba(148,163,184,.15);
+  border: 1px solid rgba(148,163,184,.3);
+  color: #94a3b8;
+  border-radius: 99px;
+  padding: 3px 10px;
+}
+.ms-upcoming-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--t1);
+  line-height: 1.2;
+}
+.ms-upcoming-desc {
+  font-size: 12px;
+  color: var(--t3);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ms-upcoming-rewards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ms-upcoming-countdown {
+  font-size: 12px;
+  color: var(--t3);
+}
+.ms-upcoming-countdown strong { color: var(--t2); }
+
+/* Carrossel — navegação */
+.ms-upcoming-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 4px;
+}
+.ms-upcoming-arrow {
+  background: var(--gs2);
+  border: 1px solid var(--bd);
+  color: var(--t2);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms, color 120ms;
+  padding: 0;
+}
+.ms-upcoming-arrow:hover:not(.ms-upcoming-arrow--disabled) {
+  background: var(--gs3, #2a2a2a);
+  color: var(--t1);
+}
+.ms-upcoming-arrow--disabled { opacity: .3; cursor: default; }
+.ms-upcoming-dots { display: flex; gap: 6px; align-items: center; }
+.ms-upcoming-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--bd);
+  transition: background 200ms, transform 200ms;
+}
+.ms-upcoming-dot--active {
+  background: var(--t2);
+  transform: scale(1.25);
+}
+
+/* ── Nemesis card — visual especial ─────────────────────────────────────── */
+.ms-upcoming-card--nemesis {
+  background: linear-gradient(145deg, #060f08, #0c1e0e);
+  border-color: rgba(74,222,128,.35);
+  box-shadow: 0 0 22px rgba(74,222,128,.12), inset 0 0 28px rgba(74,222,128,.04);
+  opacity: 1;
+  animation: nemesis-glow 2.8s ease-in-out infinite;
+}
+@keyframes nemesis-glow {
+  0%,100% { box-shadow: 0 0 16px rgba(74,222,128,.12); border-color: rgba(74,222,128,.3); }
+  50%      { box-shadow: 0 0 32px rgba(74,222,128,.28); border-color: rgba(74,222,128,.65); }
+}
+.ms-upcoming-badge--nemesis {
+  background: rgba(74,222,128,.15);
+  border-color: rgba(74,222,128,.4);
+  color: #4ade80;
+}
+.ms-upcoming-card--nemesis .ms-upcoming-title {
+  font-size: 17px;
+  color: #86efac;
+  text-shadow: 0 0 12px rgba(74,222,128,.4);
+}
+.ms-upcoming-card--nemesis .ms-upcoming-desc { color: #6b7280; }
+.ms-upcoming-card--nemesis .ms-upcoming-countdown { color: #4ade80; opacity: .8; }
+.ms-upcoming-card--nemesis .ms-upcoming-countdown strong { color: #86efac; }
+.ms-upcoming-reward--nemesis {
+  background: linear-gradient(135deg, rgba(74,222,128,.15), rgba(34,197,94,.1));
+  border-color: rgba(74,222,128,.4) !important;
+  color: #4ade80 !important;
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(74,222,128,.3);
+}

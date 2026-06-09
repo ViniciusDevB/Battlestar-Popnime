@@ -15,6 +15,7 @@ const MISSION_CHECKERS = {
 
 const Missions = (() => {
   const MAX_FIXED = 8;
+  const DAILY_COUNT = 15;
 
   // ── Init ─────────────────────────────────────────────────────────────────────
 
@@ -73,7 +74,7 @@ const Missions = (() => {
     const today = _today();
     if (!d.missoes_diarias || d.missoes_diarias.data !== today) {
       _resetDailies(d, today);
-    } else if (d.missoes_diarias.ativas.length < 10) {
+    } else if (d.missoes_diarias.ativas.length < DAILY_COUNT) {
       // Pool was expanded — rebuild today's active list keeping existing completions/snapshot
       d.missoes_diarias.ativas = getDailyMissions(today).map(m => m.id);
       Save.save();
@@ -86,15 +87,23 @@ const Missions = (() => {
       data:      today,
       completas: [],
       snapshot: {
-        inimigos_derrotados:   s.inimigos_derrotados   || 0,
-        dano_total_causado:    s.dano_total_causado     || 0,
-        fases_completas:       s.fases_completas        || 0,
-        pulls_realizados:      s.pulls_realizados       || 0,
-        torres_colocadas:      s.torres_colocadas       || 0,
-        minibosses_derrotados: s.minibosses_derrotados  || 0,
-        ondas_infinito:        s.ondas_infinito         || 0,
-        evolucoes_realizadas:  s.evolucoes_realizadas   || 0,
-        feeds_realizados:      s.feeds_realizados       || 0,
+        inimigos_derrotados:    s.inimigos_derrotados    || 0,
+        dano_total_causado:     s.dano_total_causado      || 0,
+        fases_completas:        s.fases_completas         || 0,
+        fases_naruto_completas: s.fases_naruto_completas  || 0,
+        fases_op_completas:     s.fases_op_completas      || 0,
+        fases_bleach_completas: s.fases_bleach_completas  || 0,
+        fases_marvel_completas: s.fases_marvel_completas  || 0,
+        fases_naruto_jogadas:   s.fases_naruto_jogadas    || 0,
+        fases_op_jogadas:       s.fases_op_jogadas        || 0,
+        fases_bleach_jogadas:   s.fases_bleach_jogadas    || 0,
+        fases_marvel_jogadas:   s.fases_marvel_jogadas    || 0,
+        pulls_realizados:       s.pulls_realizados        || 0,
+        torres_colocadas:       s.torres_colocadas        || 0,
+        minibosses_derrotados:  s.minibosses_derrotados   || 0,
+        ondas_infinito:         s.ondas_infinito          || 0,
+        evolucoes_realizadas:   s.evolucoes_realizadas    || 0,
+        feeds_realizados:       s.feeds_realizados        || 0,
       },
       ativas: getDailyMissions(today).map(m => m.id),
     };

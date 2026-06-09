@@ -11,7 +11,7 @@ const Game = (() => {
 
   // Game state
   let lives, gold, wave, totalWaves;
-  let enemies, towers, projectiles, effects, tsunamis;
+  let enemies, towers, projectiles, effects, tsunamis, zombies;
   let _aliveEnemies = [];
   let waveActive, spawnQueue, betweenWaves, betweenTimer, waveElapsed;
   let _lastPlacedTower = null;
@@ -136,6 +136,7 @@ const Game = (() => {
       towers:             { get: () => towers,             configurable: true },
       gold:               { get: () => gold, set: v => { gold = v; }, configurable: true },
       tsunamis:           { get: () => tsunamis,           configurable: true },
+      zombies:            { get: () => zombies,            configurable: true },
       screenShakeAmount:  { get: () => screenShakeAmount,  set: v => { screenShakeAmount = v; }, configurable: true },
       vizardOverlayAlpha: { get: () => vizardOverlayAlpha, set: v => { vizardOverlayAlpha = v; }, configurable: true },
       shinraTenseiActive: { get: () => shinraTenseiActive, configurable: true },
@@ -168,6 +169,7 @@ const Game = (() => {
     projectiles:        { get: () => projectiles,        configurable: true },
     effects:            { get: () => effects,            configurable: true },
     tsunamis:           { get: () => tsunamis,           configurable: true },
+    zombies:            { get: () => zombies,            configurable: true },
     wave:               { get: () => wave,               configurable: true },
     totalWaves:         { get: () => totalWaves,         configurable: true },
     waveActive:         { get: () => waveActive,         configurable: true },
@@ -401,6 +403,7 @@ const Game = (() => {
     projectiles = [];
     effects = [];
     tsunamis = [];
+    zombies  = [];
     waveActive = false;
     spawnQueue = [];
 
@@ -538,6 +541,28 @@ const Game = (() => {
       }
     });
     tsunamis = tsunamis.filter(t => t.hp > 0 && t.dist > 0);
+
+    // Zombie loop (Nemesis passive — caminham da base em direção ao spawn inimigo)
+    zombies.forEach(z => {
+      z.dist -= z.speed * dt;
+      const pos = getPosOnPath(z.dist, z.pathArr);
+      z.x = pos.x; z.y = pos.y;
+
+      for (let i = 0; i < _aliveEnemies.length; i++) {
+        const e = _aliveEnemies[i];
+        if (e.dead || e.reached_end || z.hitIds.has(e.uid)) continue;
+        if (distSq(z.x, z.y, e.x, e.y) < 2500) {
+          z.hitIds.add(e.uid);
+          const dmg = Math.min(e.hp, z.hp);
+          z.hp -= dmg;
+          dealDamage({ charData: {}, rarity: 5 }, e, dmg);
+          applyStatus(e, 'infectado', { dps: z.dps, duration: 7 });
+        }
+      }
+      if (Math.random() < 0.25)
+        addEffect({ type:'ring', x:z.x + (Math.random()*28-14), y:z.y + (Math.random()*28-14), maxR:14, color:'rgba(74,222,128,0.55)', timer:0.22, maxTimer:0.22, r:0 });
+    });
+    zombies = zombies.filter(z => z.hp > 0 && z.dist > 0);
 
     // End wave conditions(dt);
     updateEffects(dt);
@@ -830,6 +855,19 @@ const Game = (() => {
     // Behaviors de morte por ptype (clooner, bomber, kamikaze, etc.)
     dispatchPtypeDeath(enemy);
 
+    // Inimigo infectado morre → ressurge como zumbi no ponto de morte
+    if (enemy.status?.infectado?.active) {
+      const pathArr = enemy.pathArr || (window.currentPaths?.[0] || PATH_POINTS);
+      zombies.push({
+        hp: 2500, maxHp: 2500,
+        dist: enemy.dist,
+        speed: 52, dps: 80,
+        color: '#86efac',
+        hitIds: new Set(), pathArr,
+        fromInfection: true
+      });
+    }
+
     // Spawn ao morrer
     if (enemy.on_death) {
       const _dm = getDifficultyMults();
@@ -988,8 +1026,12 @@ const Game = (() => {
 
     // Completude de mundo — data-driven via WORLDS[].completionStat
     WORLDS.forEach(w => {
-      if (!w.completionStat) return;
+      if (!w.completionStat || w.id === 'infinito') return;
       const worldStages = getStagesByWorld(w.id);
+      // Contador incremental por play (usado nas diárias)
+      if (worldStages.some(s => s.id === stageId))
+        Save.incStat(w.completionStat.replace('_completas', '_jogadas'));
+      // Flag "mundo completo" para conquistas
       if (worldStages.every(s => Save.isStageComplete(s.id, 'normal')))
         Save.setStat(w.completionStat, worldStages.length);
     });

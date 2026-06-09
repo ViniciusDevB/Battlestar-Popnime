@@ -469,6 +469,17 @@ const Online = (() => {
 
   function getActiveMission() { return _activeMission; }
 
+  async function fetchUpcomingMissions() {
+    if (!_ready) return [];
+    const now = new Date().toISOString();
+    const { data } = await _client.from('community_missions')
+      .select('*')
+      .gt('starts_at', now)
+      .order('starts_at', { ascending: true })
+      .limit(3);
+    return data || [];
+  }
+
   async function fetchMissionContribution(missionId) {
     if (!_ready || !_session || !_profile) return null;
     const { data } = await _client
@@ -528,7 +539,7 @@ const Online = (() => {
     syncSave,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,
-    fetchActiveMission, getActiveMission, contributeToMission,
+    fetchActiveMission, fetchUpcomingMissions, getActiveMission, contributeToMission,
     fetchMissionContribution, claimMissionReward,
   };
 })();

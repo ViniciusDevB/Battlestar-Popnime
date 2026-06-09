@@ -1132,7 +1132,39 @@ const CHARACTERS = {
       { name: 'Nível Sentry', desc: 'Vel ×1.15 | Burst → 4.5× | +30% por kill', speed_mult: 1.15, passive_override: { burst_mult: 4.5, streak_bonus: 0.30, radius: 170 }, cost: 3500 },
       { name: 'Fim do Mundo', desc: 'Dano ×2.0 | Burst → 5× | raio 200px', damage_mult: 2.0, passive_override: { burst_mult: 5.0, streak_bonus: 0.35, radius: 200 }, cost: 5000 }
     ]
-  }
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  NEMESIS — Unidade Exclusiva de Missão Global (5⭐ Evento)
+  //  Perfil: Invocação + DoT | Invoca horda zumbi periódica + infecta inimigos
+  //  Inimigos infectados que morrem ressurgem como zumbis no ponto de morte.
+  // ══════════════════════════════════════════════════════════════════════════
+  nemesis: {
+    id: 'nemesis', name: 'Nemesis', rarity: 5, series: 'evento', playable: true, xp_value: 10000, initials: 'NM',
+    image: 'assets/towers/events/Nemesis.png',
+    event_exclusive: true,
+    passive: {
+      type: 'zombie_spawn',
+      interval: 18,
+      zombie_hp: 4000,
+      zombie_speed: 52,
+      zombie_dps: 100,
+      label: 'Praga Zumbi: invoca horda de zumbis na base a cada 18s — caminham devagar infectando tudo que tocam. Inimigos infectados que morrem ressurgem como zumbis no ponto de morte.'
+    },
+    base_stats: { damage: 520, range: 130, attack_speed: 0.90, type: 'aoe' },
+    deploy_cost: 750, max_level: 50,
+    prestige_passives: {
+      1: { type: 'status_on_hit', status: 'infectado', dps: 35, duration: 7, label: 'Vírus Primário: cada acerto aplica infecção zumbi (35 DPS/7s, desacelera 35%)' },
+      5: { type: 'spirit_surge', trigger_at: 4, mult: 4.5, label: 'Carga Viral: cada 4º ataque libera carga de veneno (4.5× dano)' },
+      10: { type: 'phantom_strike', trigger_at: 6, phantom_mult: 1.8, label: 'Proliferação Final: cada 6º ataque espalha infecção em toda a área' }
+    },
+    upgrades: [
+      { name: 'Infecção Alfa', desc: 'Dano ×1.3 | Infectado: 30 DPS / 6s por acerto', damage_mult: 1.3, status_effect: { type: 'infectado', dps: 30, duration: 6 }, cost: 650 },
+      { name: 'Mutação Viral', desc: 'Vel ×1.2 | Alcance ×1.1', speed_mult: 1.2, range_mult: 1.21, cost: 1000 },
+      { name: 'Horda Resistente', desc: 'Zumbis invocados com HP 1.5× | Dano ×1.1', damage_mult: 1.1, zombie_hp_mult: 1.5, cost: 1350 },
+      { name: 'Pandemia', desc: 'Dano ×1.5 | Infectado → 60 DPS / 10s', damage_mult: 1.5, status_effect: { type: 'infectado', dps: 60, duration: 10 }, cost: 1600 }
+    ]
+  },
 };
 
 // Full pool — usado pelo BannerSystem

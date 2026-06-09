@@ -63,24 +63,25 @@ CREATE TABLE IF NOT EXISTS leaderboard_snapshots (
 );
 
 -- ── trades ────────────────────────────────────────────────────────────────────
+-- Schema v2 (migrate_trades_v2.sql): colunas singulares substituídas por arrays.
 CREATE TABLE IF NOT EXISTS trades (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   offerer_id          UUID NOT NULL REFERENCES players(id),
   receiver_id         UUID DEFAULT NULL REFERENCES players(id),
-  offered_unit_id     TEXT NOT NULL,
-  offered_unit_uid    TEXT NOT NULL,
-  offered_unit_level  INTEGER DEFAULT 1,
-  wanted_unit_id      TEXT DEFAULT NULL,
-  wanted_unit_min_level INTEGER DEFAULT 1,
+  offered_unit_uids   TEXT[]  NOT NULL DEFAULT '{}',
+  offered_unit_ids    TEXT[]  NOT NULL DEFAULT '{}',
+  wanted_unit_ids     TEXT[]  DEFAULT '{}',
+  accepted_unit_uids  TEXT[]  DEFAULT NULL,
+  accepted_unit_ids   TEXT[]  DEFAULT NULL,
   status              TEXT DEFAULT 'open'
-                        CHECK (status IN ('open','accepted','declined','cancelled','expired')),
+                        CHECK (status IN ('open','completed','accepted','declined','cancelled','expired')),
   message             TEXT CHECK (length(message) <= 120),
   created_at          TIMESTAMPTZ DEFAULT now(),
   expires_at          TIMESTAMPTZ DEFAULT (now() + INTERVAL '7 days'),
   resolved_at         TIMESTAMPTZ DEFAULT NULL
 );
 
-CREATE INDEX IF NOT EXISTS trades_open     ON trades(status, wanted_unit_id) WHERE status = 'open';
+CREATE INDEX IF NOT EXISTS trades_open     ON trades(status, created_at DESC) WHERE status = 'open';
 CREATE INDEX IF NOT EXISTS trades_receiver ON trades(receiver_id, status);
 CREATE INDEX IF NOT EXISTS trades_offerer  ON trades(offerer_id, status);
 
@@ -105,6 +106,7 @@ CREATE TABLE IF NOT EXISTS community_contributions (
   mission_id     UUID REFERENCES community_missions(id) ON DELETE CASCADE,
   player_id      UUID REFERENCES players(id) ON DELETE CASCADE,
   value          BIGINT NOT NULL,
+  claimed_at     TIMESTAMPTZ DEFAULT NULL,
   contributed_at TIMESTAMPTZ DEFAULT now(),
   UNIQUE(mission_id, player_id)
 );

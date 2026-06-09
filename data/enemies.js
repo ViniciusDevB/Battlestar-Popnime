@@ -130,7 +130,26 @@ const STATUS_TYPES = {
       }
       return 0;
     }
-  }
+  },
+
+  // ── Infectado ─────────────────────────────────────────────────────────────
+  // Veneno zumbi do Nemesis: DoT + desacelera 35% + flag de zumbi ao morrer.
+  infectado: {
+    slows: true,
+    init: () => ({ active: false, dps: 0, timer: 0 }),
+    apply(status, params) {
+      if (!status.infectado.active || params.dps > status.infectado.dps)
+        status.infectado = { active: true, dps: params.dps || 20, timer: params.duration || 6 };
+    },
+    update(status, dt) {
+      if (!status.infectado.active) return 0;
+      const dmg = status.infectado.dps * dt;
+      status.infectado.timer -= dt;
+      if (status.infectado.timer <= 0) status.infectado = STATUS_TYPES.infectado.init();
+      return dmg;
+    },
+    getSpeedMult(status) { return status.infectado.active ? 0.65 : 1; }
+  },
 };
 
 // Inicializa o objeto status de um inimigo a partir da tabela STATUS_TYPES.
