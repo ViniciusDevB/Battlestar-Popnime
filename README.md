@@ -52,6 +52,9 @@ Todos os recursos online (conta, leaderboard, trocas, missões da comunidade) fu
 
 ## 📈 Histórico de Updates
 
+> ⚖️ **Procurando pelos detalhes de balanceamento?**
+> Veja o nosso documento de [Patch Notes (Buffs e Nerfs)](./PATCH_NOTES.md) para acompanhar todas as mudanças específicas em personagens e mundos!
+
 ### ✅ Update 2.9.5: Segurança, Deploy Público e Missões Em Breve *(Lançado)*
 - **Deploy Público**: jogo disponível via GitHub Pages.
 - **Missões Em Breve**: nova seção na aba Comunidade exibindo as próximas missões em carousel navegável.
