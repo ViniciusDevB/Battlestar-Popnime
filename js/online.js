@@ -15,7 +15,7 @@ const Online = (() => {
   // ── Init ──────────────────────────────────────────────────────────────────
 
   function init() {
-    if (typeof supabase === 'undefined' || typeof SUPABASE_URL === 'undefined') {
+    if (typeof supabase === 'undefined' || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
       console.warn('[Online] Supabase SDK ou config não encontrados. Modo offline.');
       return false;
     }

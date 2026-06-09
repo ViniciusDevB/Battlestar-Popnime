@@ -15,8 +15,9 @@ window.addEventListener('DOMContentLoaded', () => {
   // Initialize save system
   Save.load();
 
-  // Initialize online layer
-  Online.init();
+  try { Online.init(); } catch (e) {
+    console.warn('[Online] Falha na inicialização, modo offline:', e.message);
+  }
 
   // Initialize banner before new-player seed so starters match current banner
   const initBanner = BannerSystem.init();
