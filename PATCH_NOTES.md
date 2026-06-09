@@ -4,6 +4,54 @@ Bem-vindos ao portal de atualizações de **Battlestar Popnime**. Aqui você enc
 
 ---
 
+## 🟢 Atualização 2.9.10: Internacionalização Completa
+
+**Data de Lançamento:** 09 de Junho de 2026
+
+*"Nesta atualização finalizamos a cobertura total do sistema de internacionalização (i18n). Todo o texto visível ao jogador — de toasts de combate a formulários de conta — agora responde corretamente ao idioma selecionado."*
+
+### 🌐 Internacionalização (i18n)
+
+#### Arquivos de idioma (`en.js` / `pt.js`)
+* Adicionadas **~140 novas chaves de tradução** cobrindo todas as áreas que ainda estavam com texto em português fixo.
+* Chaves organizadas por domínio: `online_*`, `trade_*`, `lb_*`, `hud_*`, `feed_*`, `evo_*`, `warn_*`, `passive_*`, `tower_*`, `result_*`, entre outras.
+
+#### Motor i18n (`i18n.js`)
+* Suporte a `data-i18n-title` em `translateDOM()` — tooltips de botões agora também são traduzidos automaticamente.
+
+#### Interface Online (`ui-online.js`)
+* Perfil de jogador: seções de Estatísticas, Modo Infinito, "Membro desde", badges de rank e avisos de integridade.
+* Formulários de Login e Registro: labels, hints de campo, abas de navegação e botões de envio.
+* `LoginScreen` dedicado: abas, tela de servidor offline, spinner de carregamento de sessão, validações client-side e toast de boas-vindas.
+* Ambas as funções `_translateError()` (OnlineUI e LoginScreen) unificadas em chaves `err_*`.
+* Botões Sync e Sair da Conta.
+
+#### Sistema de Trocas (`ui-trades.js`)
+* Mensagens de board vazio e sem ofertas próprias.
+* Mapa de status: Aberta / Concluída / Cancelada / Expirada.
+* Hints de seleção, seções do formulário de criação (oferta, pedido, mensagem).
+* Fluxo de aceite: confirmação gratuita e picker de unidades.
+* Tela de conclusão de troca e toast de cancelamento.
+
+#### Leaderboard (`ui-leaderboard.js`)
+* Abas Dano e Fases; mensagem de board vazio; linha de rank próprio; convite de login para convidados; rank "Acadêmico".
+
+#### HUD e Gameplay (`game-hud.js`, `game-towers.js`, `game.js`)
+* Tooltip dinâmico do botão Skip com valor de ouro da wave.
+* Toast de upgrade de torre ativado.
+* Toast do Last Stand da Tsunade com contagem de vidas restauradas.
+
+#### `index.html`
+* Botões "← Voltar" nas telas de seleção de fase e pré-batalha.
+* Hint "clique para remover" no painel de time.
+* Tela de pós-batalha: título de recompensas e botões Tentar Novamente / Mapa / Hub.
+* Seções "Com Gemas" e "Com Tickets" no gacha.
+* Modal de Feed: título, label de XP, materiais disponíveis, selecionados e botão confirmar.
+* Modal de Evolução: título e botão Evoluir.
+* Tooltips dos botões de controle do HUD (Skip, Pause, Speed).
+
+---
+
 ## 🟢 Atualização 2.5.10: Melhorias no Gacha e Áudio
 
 **Data de Lançamento:** 09 de Junho de 2026

@@ -55,6 +55,11 @@ Todos os recursos online (conta, leaderboard, trocas, missões da comunidade) fu
 > ⚖️ **Procurando pelos detalhes de balanceamento?**
 > Veja o nosso documento de [Patch Notes (Buffs e Nerfs)](./PATCH_NOTES.md) para acompanhar todas as mudanças específicas em personagens e mundos!
 
+### ✅ Update 2.9.10: Internacionalização Completa *(Lançado)*
+- **Suporte completo a Inglês**: todo o texto visível do jogo — HUD, menus, toasts, modais, formulários online, leaderboard, trocas, missões, passivas e prestígio — agora traduzido corretamente ao selecionar EN.
+- **Sistema i18n expandido**: suporte a `data-i18n-title` para tooltips e ~140 novas chaves de tradução adicionadas.
+- **Cobertura total**: mais de 100 strings em PT hardcoded corrigidas em 20+ arquivos (JS e HTML).
+
 ### ✅ Update 2.5.10: Melhorias no Gacha e Áudio *(Lançado)*
 - **Animação Épica no Gacha**: Novo overlay totalmente refeito em CSS com portal mágico, warp speed, queda de meteoro e onda de choque.
 - **Áudio Contínuo**: A música do menu agora flui perfeitamente entre as transições de tela (Hub, Inventário, Seleção de Fases) sem reiniciar do zero.
