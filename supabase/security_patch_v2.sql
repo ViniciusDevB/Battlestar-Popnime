@@ -5,6 +5,8 @@
 -- Idempotente. Execute no SQL Editor do Supabase APÓS ban_system.sql e admin_setup.sql.
 -- =============================================================================
 
+SET search_path TO public;
+
 -- ─── 1. CRÍTICO: Remover players_update_own ──────────────────────────────────
 -- Esta política permitia que qualquer jogador atualizasse is_admin, banned, etc.
 -- via requisição direta à API do Supabase.
