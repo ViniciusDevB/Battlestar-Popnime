@@ -7,7 +7,7 @@ Bem-vindos ao portal de atualizações de **Battlestar Popnime**. Aqui você enc
 ## 🟢 Atualização 2: Invasão Secreta (Evento Marvel)
 
 <p align="center">
-  <img src="assets/update2invasõessecretas.jpg" alt="Update 2 — Invasão Secreta" width="100%">
+  <img src="assets/update2invas%C3%B5essecretas.jpg" alt="Update 2 — Invasão Secreta" width="100%">
 </p>
 
 *"A maior atualização de conteúdo até então. O universo Marvel chega ao Battlestar Popnime com um novo mundo temático, novos personagens, um evento narrativo inédito e a fundação do sistema online que moldaria o futuro do jogo."*

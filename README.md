@@ -62,7 +62,7 @@ Todos os recursos online (conta, leaderboard, trocas, missões da comunidade) fu
 ### ✅ Update 2: Invasão Secreta *(Lançado)*
 
 <p align="center">
-  <img src="assets/update2invasõessecretas.jpg" alt="Update 2 — Invasão Secreta" width="100%">
+  <img src="assets/update2invas%C3%B5essecretas.jpg" alt="Update 2 — Invasão Secreta" width="100%">
 </p>
 - **Mundo 4 — Nova York**: 6 novas fases enfrentando a invasão da Marvel, com Thanos como Boss final.
 - **8 novos personagens**: Homem-Aranha, Viúva Negra, Gavião Arqueiro, Pantera Negra, Thor, Hulk, Iron Man e World Breaker Hulk.
