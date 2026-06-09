@@ -9,9 +9,15 @@ const I18N = (() => {
     window.location.reload();
   }
 
-  function t(key) {
+  function t(key, vars, fallback) {
     const dict = currentLang === 'en' ? LANG_EN : LANG_PT;
-    return dict[key] !== undefined ? dict[key] : key;
+    let str = dict[key] !== undefined ? dict[key] : (fallback !== undefined ? fallback : key);
+    if (vars && typeof vars === 'object') {
+      Object.entries(vars).forEach(([k, v]) => {
+        str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), v);
+      });
+    }
+    return str;
   }
 
   function translateDOM() {

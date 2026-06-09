@@ -17,7 +17,7 @@ const MissionsUI = (() => {
 
   function _fmtTimeLeft(endsAt) {
     const ms = new Date(endsAt) - Date.now();
-    if (ms <= 0) return 'Encerrado';
+    if (ms <= 0) return I18N.t('ms_time_ended');
     const d = Math.floor(ms / 86400000);
     const h = Math.floor((ms % 86400000) / 3600000);
     const m = Math.floor((ms % 3600000) / 60000);
@@ -64,7 +64,7 @@ const MissionsUI = (() => {
     Missions.initDailies();
     const d      = Save.get();
     const dd     = d.missoes_diarias;
-    if (!dd) return '<div class="ms-loading">Carregando...</div>';
+    if (!dd) return `<div class="ms-loading">${I18N.t('ms_loading')}</div>`;
 
     const completas = new Set(dd.completas);
     const items = dd.ativas.map(mId => {
@@ -171,9 +171,9 @@ const MissionsUI = (() => {
          </div>` : '';
 
     return `
-      ${m.completed ? '<div class="ms-completed-banner">🎉 META ALCANÇADA PELA COMUNIDADE!</div>' : ''}
+      ${m.completed ? `<div class="ms-completed-banner">${I18N.t('ms_community_goal_reached')}</div>` : ''}
       <div class="ms-body">
-        <div class="ms-update-badge">Update 2.5</div>
+        <div class="ms-update-badge">${I18N.t('ms_update_badge')}</div>
         <div class="ms-title">${I18N.t('online_mission_' + m.id + '_title', {}, m.title)}</div>
         ${m.description ? `<div class="ms-desc">${I18N.t('online_mission_' + m.id + '_desc', {}, m.description)}</div>` : ''}
         <div class="ms-progress-wrap">
@@ -195,11 +195,11 @@ const MissionsUI = (() => {
   function _fmtCountdown(startsAt) {
     const ms = new Date(startsAt) - Date.now();
     const d  = Math.ceil(ms / 86400000);
-    if (d > 1)  return `${d} dias`;
-    if (d === 1) return '1 dia';
+    if (d > 1)  return I18N.t('ms_time_days', {n: d});
+    if (d === 1) return I18N.t('ms_time_1day');
     const h = Math.ceil(ms / 3600000);
-    if (h > 1) return `${h} horas`;
-    return 'em breve';
+    if (h > 1) return I18N.t('ms_time_hours', {n: h});
+    return I18N.t('ms_time_soon');
   }
 
   function _upcomingCardHTML(m) {
@@ -214,13 +214,13 @@ const MissionsUI = (() => {
     }).join('');
 
     const gemsPill = m.reward_gems > 0
-      ? `<span class="ms-reward-gem">💎 ${m.reward_gems} gemas</span>` : '';
+      ? `<span class="ms-reward-gem">${I18N.t('ms_gems_reward', {gems: m.reward_gems})}</span>` : '';
 
     return `
       <div class="ms-upcoming-card${isNemesis ? ' ms-upcoming-card--nemesis' : ''}">
         <div class="ms-upcoming-top">
-          <span class="ms-update-badge ms-update-badge--tbd">PRÓXIMO UPDATE</span>
-          <span class="ms-upcoming-badge${isNemesis ? ' ms-upcoming-badge--nemesis' : ''}">EM BREVE</span>
+          <span class="ms-update-badge ms-update-badge--tbd">${I18N.t('ms_upcoming_next_update')}</span>
+          <span class="ms-upcoming-badge${isNemesis ? ' ms-upcoming-badge--nemesis' : ''}">${I18N.t('ms_upcoming_soon')}</span>
         </div>
         <div class="ms-upcoming-title">${isNemesis ? '🧟 ' : ''}${I18N.t('online_mission_' + m.id + '_title', {}, m.title)}</div>
         <div class="ms-upcoming-desc">${I18N.t('online_mission_' + m.id + '_desc', {}, m.description)}</div>
@@ -295,7 +295,7 @@ const MissionsUI = (() => {
     }
 
     // Community tab
-    tc.innerHTML = '<div class="ms-loading">Carregando...</div>';
+    tc.innerHTML = `<div class="ms-loading">${I18N.t('ms_loading')}</div>`;
     if (!Online.isLoggedIn()) { tc.innerHTML = _offlineHTML(); return; }
     _upcomingIdx = 0;
     [_mission, _upcoming] = await Promise.all([
@@ -344,7 +344,7 @@ const MissionsUI = (() => {
       const tc = _getTabEl();
       if (!tc) return;
       if (!Online.isLoggedIn()) { tc.innerHTML = _offlineHTML(); return; }
-      tc.innerHTML = '<div class="ms-loading">Carregando...</div>';
+      tc.innerHTML = `<div class="ms-loading">${I18N.t('ms_loading')}</div>`;
       [_mission, _upcoming] = await Promise.all([
         Online.fetchActiveMission(),
         Online.fetchUpcomingMissions(),
@@ -377,10 +377,9 @@ const MissionsUI = (() => {
 
   async function claim(missionId) {
     const btn = document.querySelector('.ms-claim-btn');
-    if (btn) { btn.disabled = true; btn.textContent = 'Resgatando...'; }
+    if (btn) { btn.disabled = true; btn.textContent = I18N.t('ms_claiming'); }
     const result = await Online.claimMissionReward(missionId);
     if (result.ok) {
-      // Handle reward_units including random 5-star sentinel
       (_mission?.reward_units || []).forEach(id => {
         if (id === '__random_5star__') {
           _grantRandom5Star();
@@ -390,17 +389,17 @@ const MissionsUI = (() => {
           Save.addUnit(id);
         }
       });
-      if (typeof UI !== 'undefined') UI.toast('🎁 Recompensa resgatada!', 3000);
+      if (typeof UI !== 'undefined') UI.toast(I18N.t('ms_claimed_toast'), 3000);
       await refresh();
     } else {
       const msgs = {
-        already_claimed:       'Recompensa já resgatada.',
-        no_contribution:       'Você não participou desta missão.',
-        mission_not_completed: 'A missão ainda não foi concluída.',
-        not_logged_in:         'Faça login para resgatar.',
+        already_claimed:       I18N.t('ms_claim_err_already'),
+        no_contribution:       I18N.t('ms_claim_err_no_contrib'),
+        mission_not_completed: I18N.t('ms_claim_err_not_done'),
+        not_logged_in:         I18N.t('ms_claim_err_login'),
       };
       if (typeof UI !== 'undefined') UI.toast('❌ ' + (msgs[result.error] || result.error), 3000);
-      if (btn) { btn.disabled = false; btn.textContent = '🎁 Resgatar Recompensa'; }
+      if (btn) { btn.disabled = false; btn.textContent = I18N.t('ms_claim_btn'); }
     }
   }
 
@@ -413,7 +412,7 @@ const MissionsUI = (() => {
     const char = pool[Math.floor(Math.random() * pool.length)];
     Save.addUnit(char.id);
     if (typeof UI !== 'undefined') {
-      setTimeout(() => UI.toast(`🌟 Sorteado: ${char.name} (5⭐)! Confira no inventário.`, 6000), 500);
+      setTimeout(() => UI.toast(I18N.t('ms_grant_5star', {name: char.name}), 6000), 500);
     }
   }
 
@@ -425,7 +424,7 @@ const MissionsUI = (() => {
     const char = pool[Math.floor(Math.random() * pool.length)];
     Save.addUnit(char.id);
     if (typeof UI !== 'undefined') {
-      setTimeout(() => UI.toast(`🎪 Unidade de Evento: ${char.name}! Confira no inventário.`, 6000), 500);
+      setTimeout(() => UI.toast(I18N.t('ms_grant_event', {name: char.name}), 6000), 500);
     }
   }
 

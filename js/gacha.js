@@ -61,7 +61,7 @@ const Gacha = (() => {
         return;
       }
       // Rejeições definitivas do servidor — não cai no cliente
-      const HARD_ERRORS = { insufficient_gems: 'Gemas insuficientes!', insufficient_tickets: 'Tickets insuficientes!', unauthorized: 'Faça login para continuar.', invalid_qty: 'Quantidade inválida.', invalid_currency: 'Moeda inválida.' };
+      const HARD_ERRORS = { insufficient_gems: I18N.t('err_server_gems'), insufficient_tickets: I18N.t('err_server_tickets'), unauthorized: I18N.t('err_server_auth'), invalid_qty: I18N.t('err_server_qty'), invalid_currency: I18N.t('err_server_currency') };
       if (result?.error && HARD_ERRORS[result.error]) {
         UI.toast(HARD_ERRORS[result.error]);
         return;
@@ -203,7 +203,10 @@ const Gacha = (() => {
     const hint = document.querySelector('.gacha-pity-hint');
     if (hint) {
       const remaining = 150 - pity;
-      hint.textContent = `${pity} / 150 pulls — Pity em ${remaining} pull${remaining !== 1 ? 's' : ''}`;
+      hint.textContent = I18N.t('gacha_pity_hint')
+        .replace('{current}', pity)
+        .replace('{remaining}', remaining)
+        .replace('{s}', remaining !== 1 ? 's' : '');
     }
   }
 

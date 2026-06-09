@@ -208,7 +208,7 @@ const TradesUI = (() => {
       return `
         <div class="modal-header"><h3>Criar Oferta</h3><button class="modal-close" onclick="TradesUI.show()">✕</button></div>
         <div class="tr-empty" style="padding:32px">Sem unidades 3★+ disponíveis para trocar.</div>
-        <div class="tr-confirm-actions"><button class="online-btn-secondary" onclick="TradesUI.show()">Voltar</button></div>`;
+        <div class="tr-confirm-actions"><button class="online-btn-secondary" onclick="TradesUI.show()">${I18N.t('btn_back')}</button></div>`;
     }
 
     const selIds = new Set(_cr.offeredUnits.map(x => x.uid));
@@ -310,7 +310,7 @@ const TradesUI = (() => {
       </div>
 
       <div class="tr-confirm-actions">
-        <button class="online-btn-secondary" onclick="TradesUI.goToStep2prev()">← Voltar</button>
+        <button class="online-btn-secondary" onclick="TradesUI.goToStep2prev()">${I18N.t('btn_back')}</button>
         <button class="online-btn-primary" onclick="TradesUI.submitCreate()">Publicar Oferta</button>
       </div>`;
   }
@@ -415,7 +415,7 @@ const TradesUI = (() => {
         <p>Você vai receber <b>${_esc(offeredNames)}</b> gratuitamente.</p>
       </div>
       <div class="tr-confirm-actions">
-        <button class="online-btn-secondary" onclick="TradesUI.show()">Voltar</button>
+        <button class="online-btn-secondary" onclick="TradesUI.show()">${I18N.t('btn_back')}</button>
         <button class="online-btn-primary" onclick="TradesUI.confirmAccept()">Confirmar</button>
       </div>`;
   }
@@ -458,7 +458,7 @@ const TradesUI = (() => {
       <p class="tr-picker-hint">Você vai receber: <b>${_esc(_ac.offeredNames)}</b><br>Selecione uma unidade para cada tipo pedido:</p>
       <div class="tr-acc-list">${rows}</div>
       <div class="tr-confirm-actions">
-        <button class="online-btn-secondary" onclick="TradesUI.show()">Voltar</button>
+        <button class="online-btn-secondary" onclick="TradesUI.show()">${I18N.t('btn_back')}</button>
         <button class="online-btn-primary" ${allChosen?'':'disabled'} onclick="TradesUI.confirmAccept()">
           Confirmar Troca
         </button>

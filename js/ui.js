@@ -286,14 +286,14 @@ const UI = (() => {
             renderTeamSlots();
             renderAvailableUnits();
           } else {
-            toast('Time cheio! Remova um personagem primeiro.');
+            toast(I18N.t('err_team_full'));
           }
         });
       }
       container.appendChild(card);
     });
     if (d.inventario.unidades.length === 0) {
-      container.innerHTML = '<div class="empty-state">Nenhuma unidade obtida.<br>Vá ao Gacha e invoque!</div>';
+      container.innerHTML = `<div class="empty-state">${I18N.t('ui_no_units')}</div>`;
     }
   }
 
@@ -334,13 +334,13 @@ const UI = (() => {
       banner.innerHTML = `
         ♾ MODO INFINITO
         <br><span style="font-size:26px;color:#a78bfa;font-weight:900">Wave ${result.infiniteWave}</span>
-        <br><span style="font-size:12px;opacity:0.65">${isRecord ? '🏆 Novo Recorde!' : `Recorde: Wave ${best}`}</span>`;
+        <br><span style="font-size:12px;opacity:0.65">${isRecord ? I18N.t('result_inf_new_record') : I18N.t('result_inf_record').replace('{best}', best)}</span>`;
 
       // Gemas ganhas na sessão
       if (result.infiniteGems > 0) {
         const li = document.createElement('div');
         li.className = 'reward-item';
-        li.innerHTML = `<span>💎 Gemas ganhas</span><span style="color:#fbbf24;font-weight:700">+${result.infiniteGems}</span>`;
+        li.innerHTML = `<span>${I18N.t('result_gems_earned')}</span><span style="color:#fbbf24;font-weight:700">+${result.infiniteGems}</span>`;
         rewards.appendChild(li);
       }
 
@@ -368,17 +368,17 @@ const UI = (() => {
         const li = document.createElement('div');
         li.className = 'reward-item';
         li.style.opacity = '0.5';
-        li.innerHTML = `<span>Nenhuma recompensa coletada</span><span>—</span>`;
+        li.innerHTML = `<span>${I18N.t('result_no_rewards')}</span><span>—</span>`;
         rewards.appendChild(li);
       }
 
     } else {
       // ── Partida normal ──────────────────────────────────────────────────────
-      banner.innerHTML = result.victory ? '🏆 VITÓRIA!' : '💀 DERROTA!';
+      banner.innerHTML = result.victory ? I18N.t('result_victory') : I18N.t('result_defeat');
       if (result.gems) {
         const li = document.createElement('div');
         li.className = 'reward-item';
-        li.innerHTML = `<span>💎 Gemas</span><span>+${result.gems}</span>`;
+        li.innerHTML = `<span>${I18N.t('result_gems')}</span><span>+${result.gems}</span>`;
         rewards.appendChild(li);
       }
       if (result.materials && result.materials.length > 0) {
@@ -393,7 +393,7 @@ const UI = (() => {
       if (result.bonusGems) {
         const li = document.createElement('div');
         li.className = 'reward-item bonus';
-        li.innerHTML = `<span>💎 Bônus Primeira Vez</span><span>+${result.bonusGems}</span>`;
+        li.innerHTML = `<span>${I18N.t('result_bonus_first')}</span><span>+${result.bonusGems}</span>`;
         rewards.appendChild(li);
       }
     }
@@ -406,13 +406,13 @@ const UI = (() => {
 
   function formatAttackType(type) {
     switch (type) {
-      case 'single_target': return '🎯 Single';
-      case 'linha': return '📏 Linha';
-      case 'cone': return '📐 Cone';
-      case 'aoe': return '💥 AOE';
-      case 'aoe_full': return '🌪️ Full AOE';
-      case 'aoe_vizard_total': return '👁️ Vizard AOE';
-      case 'none': return '🛡️ Suporte';
+      case 'single_target': return I18N.t('attack_type_single');
+      case 'linha': return I18N.t('attack_type_line');
+      case 'cone': return I18N.t('attack_type_cone');
+      case 'aoe': return I18N.t('attack_type_aoe');
+      case 'aoe_full': return I18N.t('attack_type_aoe_full');
+      case 'aoe_vizard_total': return I18N.t('attack_type_vizard');
+      case 'none': return I18N.t('attack_type_support');
       default: return type || 'N/A';
     }
   }
@@ -427,7 +427,7 @@ const UI = (() => {
     const rng = c.base_stats?.range || 0;
     const spd = c.base_stats?.attack_speed ? c.base_stats.attack_speed.toFixed(2) : '0';
     const _passives = c.passive ? (Array.isArray(c.passive) ? c.passive : [c.passive]) : [];
-    const passiveDesc = _passives.length > 0 ? _passives.map(p => p.label).join(' | ') : 'Nenhuma habilidade passiva.';
+    const passiveDesc = _passives.length > 0 ? _passives.map(p => p.label).join(' | ') : I18N.t('ui_no_passive');
 
     return `
       <div class="banner-featured-card">
@@ -583,7 +583,7 @@ const UI = (() => {
     const ms = BannerSystem.timeUntilReset();
     const mins = Math.floor(ms / 60000);
     const secs = Math.floor((ms % 60000) / 1000);
-    el.textContent = `Rotação em ${mins}m ${secs.toString().padStart(2, '0')}s`;
+    el.textContent = I18N.t('ui_banner_rotation').replace('{mins}', mins).replace('{secs}', secs.toString().padStart(2, '0'));
   }
 
   function updateCurrencyDisplay() {
