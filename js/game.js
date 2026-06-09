@@ -1022,18 +1022,20 @@ const Game = (() => {
     });
 
 
+    // Atualiza localmente para feedback imediato (otimista)
     Save.addGems(gems);
+    dropsAcheived.forEach(id => {
+      const c = typeof getCharById !== 'undefined' ? getCharById(id) : null;
+      if (c?.playable) Save.addUnit(id); else Save.addMaterial(id);
+    });
     Save.markStageComplete(stageId, difficulty);
     Save.setStat('fases_completas', Object.keys(Save.get().fases_completas).length);
 
-    // Completude de mundo — data-driven via WORLDS[].completionStat
     WORLDS.forEach(w => {
       if (!w.completionStat || w.id === 'infinito') return;
       const worldStages = getStagesByWorld(w.id);
-      // Contador incremental por play (usado nas diárias)
       if (worldStages.some(s => s.id === stageId))
         Save.incStat(w.completionStat.replace('_completas', '_jogadas'));
-      // Flag "mundo completo" para conquistas
       if (worldStages.every(s => Save.isStageComplete(s.id, 'normal')))
         Save.setStat(w.completionStat, worldStages.length);
     });
@@ -1049,6 +1051,18 @@ const Game = (() => {
     _contributeMissionStats(true);
     Missions.check();
     UI.showPostBattle({ victory: true, gems, materials: dropsAcheived, bonusGems: firstTime ? Math.max(50, bonusGems) : 0 });
+
+    // Confirma recompensas no servidor (background) — o save retornado sobrescreve
+    // o estado local com os valores autoritativos (gemas e drops reais do servidor)
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
+      const duration_s = Math.max(0, Math.round((performance.now() - _gameStartTime) / 1000));
+      Online.completeStage(stageId, difficulty, duration_s, sessionBossKilled).then(result => {
+        if (result?.ok && result.save) {
+          Save._setData(result.save);
+          if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
+        }
+      }).catch(() => {});
+    }
   }
 
   function _submitScore(mode) {

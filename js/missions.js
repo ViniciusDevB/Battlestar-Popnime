@@ -57,7 +57,7 @@ const Missions = (() => {
       d.missoes_ativas = d.missoes_ativas.filter(id => id !== m.id);
       if (!d.missoes_completas.includes(m.id)) {
         d.missoes_completas.push(m.id);
-        _grantRewards(m.reward);
+        _grantRewards(m.reward, m.id, false, null);
       }
     });
     _fillFixed();
@@ -124,7 +124,7 @@ const Missions = (() => {
     if (!completed.length) return;
     completed.forEach(m => {
       d.missoes_diarias.completas.push(m.id);
-      _grantRewards(m.reward);
+      _grantRewards(m.reward, m.id, true, d.missoes_diarias.data);
     });
     Save.save();
     _toastRewards(completed);
@@ -132,10 +132,20 @@ const Missions = (() => {
 
   // ── Rewards ───────────────────────────────────────────────────────────────────
 
-  function _grantRewards(reward) {
+  function _grantRewards(reward, missionId, isDaily, date) {
     if (!reward) return;
+    // Concede localmente para feedback imediato (offline também funciona)
     if (reward.gems)    Save.addGems(reward.gems);
     if (reward.tickets) Save.addTickets(reward.tickets);
+    // Confirma e persiste no servidor em background
+    if (typeof Online !== 'undefined' && Online.isLoggedIn() && missionId) {
+      Online.claimReward(missionId, isDaily ? date : null).then(result => {
+        if (result?.ok && result.save) {
+          Save._setData(result.save);
+          if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
+        }
+      }).catch(() => {});
+    }
   }
 
   function rewardLabel(reward) {

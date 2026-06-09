@@ -201,101 +201,36 @@ const Online = (() => {
   }
 
   // ── Save Sync ─────────────────────────────────────────────────────────────
+  // O cliente envia o save local completo. fn_sync_progress descarta os campos
+  // econômicos (gemas, tickets, inventario, pity_contador) e mantém os valores
+  // autoritativos do banco. Só progresso (stats, fases, missões) é mesclado.
 
   async function syncSave() {
     if (!_ready || !_session || !_profile) return { ok: false, reason: 'not_logged_in' };
     try {
-      const remote = await _fetchRemoteSave();
-      const local  = Save.get();
-
-      if (!remote) {
-        await _pushSave(local);
-        return { ok: true, action: 'uploaded' };
-      }
-
-      const merged = _mergeSaves(local, remote.data, remote.updated_at);
-      // Valida plausibilidade — violações críticas bloqueiam o sync completamente
-      if (typeof Integrity !== 'undefined') {
-        const violations = Integrity.validateSavePlausibility(merged);
-        const HARD_BLOCK = ['gemas_absurdas', 'tickets_absurdos', 'unidades_excedentes'];
-        const blocking   = violations.filter(v => HARD_BLOCK.some(b => v.startsWith(b)));
-        violations.forEach(v => Integrity.recordViolation(v, { source: 'remote_sync' }));
-        if (blocking.length > 0) {
-          console.warn('[Online] syncSave bloqueado por violações no save remoto:', blocking);
-          return { ok: false, reason: 'remote_save_failed_integrity: ' + blocking.join(', ') };
+      const { data, error } = await _client.rpc('fn_sync_progress', {
+        p_progress: Save.get(),
+      });
+      if (error) return { ok: false, reason: error.message };
+      if (data?.error) return { ok: false, reason: data.error };
+      if (data?.save) {
+        if (typeof Integrity !== 'undefined') {
+          const violations = Integrity.validateSavePlausibility(data.save);
+          const HARD_BLOCK = ['gemas_absurdas', 'tickets_absurdos', 'unidades_excedentes'];
+          const blocking   = violations.filter(v => HARD_BLOCK.some(b => v.startsWith(b)));
+          violations.forEach(v => Integrity.recordViolation(v, { source: 'server_sync' }));
+          if (blocking.length > 0) {
+            console.warn('[Online] syncSave bloqueado por violações no save do servidor:', blocking);
+            return { ok: false, reason: 'integrity_block: ' + blocking.join(', ') };
+          }
         }
+        Save._setData(data.save);
       }
-      Save._setData(merged);
-      await _pushSave(merged);
-      return { ok: true, action: 'merged' };
+      return { ok: true };
     } catch (e) {
       console.warn('[Online] syncSave error:', e);
       return { ok: false, reason: e.message };
     }
-  }
-
-  async function _fetchRemoteSave() {
-    const { data, error } = await _client
-      .from('saves')
-      .select('data, version, updated_at')
-      .eq('player_id', _profile.id)
-      .single();
-    if (error || !data) return null;
-    return data;
-  }
-
-  async function _pushSave(saveData) {
-    // Valida delta server-side antes de aceitar o upsert
-    const { data: verdict } = await _client.rpc('validate_save_delta', { p_new: saveData });
-    if (verdict === 'rate_limited') return; // sync muito rápido — silencioso, não é erro
-    if (verdict && verdict !== 'ok') {
-      console.warn('[Online] save delta rejeitado pelo servidor:', verdict);
-      throw new Error(verdict);
-    }
-    const payload = {
-      ...saveData,
-      _lastSyncAt: new Date().toISOString(),
-    };
-    const { error } = await _client
-      .from('saves')
-      .upsert({ player_id: _profile.id, data: payload, updated_at: new Date().toISOString() },
-               { onConflict: 'player_id' });
-    if (error) throw new Error(error.message);
-  }
-
-  function _mergeSaves(local, remote, remoteTs) {
-    // localTs é cap ao now() — impede que alterar o relógio do PC ou editar
-    // _lastSyncAt no localStorage force o lado local a sempre "ganhar".
-    // remoteTs vem do updated_at do banco (authoritative).
-    const localTs = new Date(Math.min(Date.parse(local?._lastSyncAt || 0), Date.now()));
-    const cloudTs = new Date(remoteTs || 0);
-
-    const inv = cloudTs > localTs ? remote : local;
-
-    // Stats: sempre o maior (nunca decrementam legitima­mente)
-    function mergeStats(a, b) {
-      const out = { ...(a || {}) };
-      for (const [k, v] of Object.entries(b || {})) {
-        out[k] = Math.max(out[k] || 0, v || 0);
-      }
-      return out;
-    }
-
-    // fases_completas: deep-union — nunca perde conclusão de nenhum dos dois lados
-    function mergeFases(a, b) {
-      const all = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
-      const out = {};
-      all.forEach(k => { out[k] = { ...(b?.[k] || {}), ...(a?.[k] || {}) }; });
-      return out;
-    }
-
-    return {
-      ...inv,                                   // inventario, gemas, tickets, pity do lado mais recente
-      stats:          mergeStats(local?.stats, remote?.stats),          // máximo de cada stat
-      fases_completas: mergeFases(local?.fases_completas, remote?.fases_completas), // union de completões
-      _lastSyncAt:  new Date().toISOString(),
-      _cloudLinked: true,
-    };
   }
 
   // ── Score / Leaderboard (Phase 3 — stubs funcionais) ─────────────────────
@@ -590,6 +525,44 @@ const Online = (() => {
       .subscribe();
   }
 
+  // ── Stage / Mission RPCs ──────────────────────────────────────────────────
+
+  // Notifica o servidor que uma fase foi concluída. O servidor valida o tempo,
+  // concede as gemas e rola os drops. Retorna { ok, gems_granted, drops, save }.
+  async function completeStage(stageId, difficulty, durationS, bossKilled = false) {
+    if (!_ready || !_session) return { error: 'not_logged_in' };
+    try {
+      const { data, error } = await _client.rpc('fn_complete_stage', {
+        p_stage_id:    stageId,
+        p_difficulty:  difficulty,
+        p_duration_s:  Math.max(0, Math.round(durationS)),
+        p_boss_killed: !!bossKilled,
+      });
+      if (error) return { error: error.message };
+      if (data?.error) return { error: data.error };
+      return data;
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
+  // Resgata recompensa de missão no servidor (conquista ou diária).
+  // p_date: null = conquista; 'YYYY-MM-DD' = diária (usa data local do cliente).
+  async function claimReward(missionId, date = null) {
+    if (!_ready || !_session) return { error: 'not_logged_in' };
+    try {
+      const { data, error } = await _client.rpc('fn_claim_reward', {
+        p_mission_id: missionId,
+        p_date:       date,
+      });
+      if (error) return { error: error.message };
+      if (data?.error) return { error: data.error };
+      return data;
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
   // ── Gacha RPC ─────────────────────────────────────────────────────────────
 
   // Chama fn_gacha_pull no banco: validação, sorteio e gravação do save acontecem
@@ -616,7 +589,7 @@ const Online = (() => {
     init, isReady, isLoggedIn, getProfile, getSession, onReady,
     waitForProfile, refreshProfile,
     register, login, logout, resetAccount,
-    syncSave, gachaPull,
+    syncSave, gachaPull, completeStage, claimReward,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,
     fetchActiveMission, fetchUpcomingMissions, getActiveMission, contributeToMission,
