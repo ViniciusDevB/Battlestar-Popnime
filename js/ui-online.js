@@ -98,35 +98,37 @@ const OnlineUI = (() => {
 
   function _loginFormHTML() {
     return `
-      <div class="online-form-group">
-        <label class="online-label">Username</label>
-        <input id="ol-username" class="online-input" type="text" placeholder="NarutoBR" maxlength="20" autocomplete="username">
-      </div>
-      <div class="online-form-group">
-        <label class="online-label">Senha</label>
-        <input id="ol-pass" class="online-input" type="password" placeholder="••••••••" autocomplete="current-password"
-          onkeydown="if(event.key==='Enter')OnlineUI.handleLogin()">
-      </div>
-      <button class="online-btn-primary" id="online-submit-btn" onclick="OnlineUI.handleLogin()">
-        Entrar
-      </button>
+      <form onsubmit="event.preventDefault(); OnlineUI.handleLogin();">
+        <div class="online-form-group">
+          <label class="online-label">Username</label>
+          <input id="ol-username" class="online-input" type="text" placeholder="NarutoBR" maxlength="20" autocomplete="username">
+        </div>
+        <div class="online-form-group">
+          <label class="online-label">Senha</label>
+          <input id="ol-pass" class="online-input" type="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="online-btn-primary" id="online-submit-btn" type="submit">
+          Entrar
+        </button>
+      </form>
     `;
   }
 
   function _registerFormHTML() {
     return `
-      <div class="online-form-group">
-        <label class="online-label">Username <span class="online-hint">${I18N.t('online_username_hint')}</span></label>
-        <input id="ol-username" class="online-input" type="text" placeholder="NarutoBR" maxlength="20" autocomplete="username">
-      </div>
-      <div class="online-form-group">
-        <label class="online-label">${I18N.t('online_label_password')} <span class="online-hint">${I18N.t('online_password_hint')}</span></label>
-        <input id="ol-pass" class="online-input" type="password" placeholder="••••••••" autocomplete="new-password"
-          onkeydown="if(event.key==='Enter')OnlineUI.handleRegister()">
-      </div>
-      <button class="online-btn-primary" id="online-submit-btn" onclick="OnlineUI.handleRegister()">
-        ${I18N.t('online_register_btn')}
-      </button>
+      <form onsubmit="event.preventDefault(); OnlineUI.handleRegister();">
+        <div class="online-form-group">
+          <label class="online-label">Username <span class="online-hint">${I18N.t('online_username_hint')}</span></label>
+          <input id="ol-username" class="online-input" type="text" placeholder="NarutoBR" maxlength="20" autocomplete="username">
+        </div>
+        <div class="online-form-group">
+          <label class="online-label">${I18N.t('online_label_password')} <span class="online-hint">${I18N.t('online_password_hint')}</span></label>
+          <input id="ol-pass" class="online-input" type="password" placeholder="••••••••" autocomplete="new-password">
+        </div>
+        <button class="online-btn-primary" id="online-submit-btn" type="submit">
+          ${I18N.t('online_register_btn')}
+        </button>
+      </form>
     `;
   }
 

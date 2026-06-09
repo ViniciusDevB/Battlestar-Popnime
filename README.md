@@ -1,5 +1,9 @@
 # 🌟 Battlestar Popnime
 
+<p align="center">
+  <img src="assets/cover.jpg" alt="Battlestar Popnime Cover" width="100%">
+</p>
+
 **Battlestar Popnime** é um web-game no estilo **Tower Defense** que reúne personagens icônicos de diversos universos de anime e quadrinhos (Naruto, Bleach, One Piece, Marvel, entre outros). O jogo conta com um sistema completo de progressão, incluindo **Gacha**, missões, inventário, evolução, prestígio e recursos online.
 
 ---
