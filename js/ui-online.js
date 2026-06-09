@@ -449,10 +449,20 @@ const LoginScreen = (() => {
       <button id="ls-submit" class="ls-btn-primary" onclick="LoginScreen.handleSubmit()">
         ${_tab === 'login' ? 'Entrar' : 'Criar Conta'}
       </button>
-      <div class="ls-divider"><span>ou</span></div>
-      <button class="ls-btn-offline" onclick="LoginScreen.playOffline()">Jogar Offline</button>
     `);
     _renderForm();
+  }
+
+  function showServerDown() {
+    _activate();
+    _setContent(`
+      <div class="ls-loading">
+        <div class="ls-spinner">⚠️</div>
+        <p style="color:#f87171;font-weight:600;margin-bottom:6px;">Servidor indisponível</p>
+        <p style="color:#9ca3af;font-size:13px;">Battlestar Popnime requer conexão com o servidor.<br>Verifique sua internet e recarregue a página.</p>
+        <button class="ls-btn-primary" style="margin-top:18px" onclick="location.reload()">↻ Tentar novamente</button>
+      </div>
+    `);
   }
 
   function _renderForm() {
@@ -521,10 +531,6 @@ const LoginScreen = (() => {
     }
   }
 
-  function playOffline() {
-    _goToHub();
-  }
-
   function _setLoading(on) {
     _loading = on;
     const btn = document.getElementById('ls-submit');
@@ -556,5 +562,5 @@ const LoginScreen = (() => {
     return msg;
   }
 
-  return { show, showLoading, setTab, handleSubmit, playOffline };
+  return { show, showLoading, showServerDown, setTab, handleSubmit };
 })();

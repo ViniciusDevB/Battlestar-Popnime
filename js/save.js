@@ -67,7 +67,8 @@ const Save = (() => {
         const newUnidades = [];
         (_data.inventario.unidades || []).forEach(u => {
           if (u.quantidade !== undefined) {
-            for (let i = 0; i < (u.quantidade || 1); i++) {
+            const qty = Math.min(u.quantidade || 1, 500); // cap: previne freeze na migração
+            for (let i = 0; i < qty; i++) {
               newUnidades.push({
                 uid: generateUid(),
                 id: u.id,

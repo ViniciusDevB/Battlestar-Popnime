@@ -15,8 +15,14 @@ window.addEventListener('DOMContentLoaded', () => {
   // Initialize save system
   Save.load();
 
-  try { Online.init(); } catch (e) {
-    console.warn('[Online] Falha na inicialização, modo offline:', e.message);
+  let onlineReady = false;
+  try { onlineReady = Online.init(); } catch (e) {
+    console.error('[Online] Falha crítica na inicialização:', e.message);
+  }
+  // Jogo requer conta — sem Supabase não há como jogar
+  if (!onlineReady) {
+    LoginScreen.showServerDown();
+    return;
   }
 
   // Initialize banner before new-player seed so starters match current banner
