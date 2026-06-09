@@ -55,39 +55,33 @@ Todos os recursos online (conta, leaderboard, trocas, missões da comunidade) fu
 > ⚖️ **Procurando pelos detalhes de balanceamento?**
 > Veja o nosso documento de [Patch Notes (Buffs e Nerfs)](./PATCH_NOTES.md) para acompanhar todas as mudanças específicas em personagens e mundos!
 
-### ✅ Update 2.9.10: Internacionalização Completa *(Lançado)*
-- **Suporte completo a Inglês**: todo o texto visível do jogo — HUD, menus, toasts, modais, formulários online, leaderboard, trocas, missões, passivas e prestígio — agora traduzido corretamente ao selecionar EN.
-- **Sistema i18n expandido**: suporte a `data-i18n-title` para tooltips e ~140 novas chaves de tradução adicionadas.
-- **Cobertura total**: mais de 100 strings em PT hardcoded corrigidas em 20+ arquivos (JS e HTML).
+### ✅ Update 2: Invasão Secreta *(Lançado)*
+- **Mundo 4 — Nova York**: 6 novas fases enfrentando a invasão da Marvel, com Thanos como Boss final.
+- **8 novos personagens**: Homem-Aranha, Viúva Negra, Gavião Arqueiro, Pantera Negra, Thor, Hulk, Iron Man e World Breaker Hulk.
+- **Evento — Operação: Ressurreição**: 4 capítulos narrativos com modificadores e inimigos temáticos.
 
-### ✅ Update 2.5.10: Melhorias no Gacha e Áudio *(Lançado)*
-- **Animação Épica no Gacha**: Novo overlay totalmente refeito em CSS com portal mágico, warp speed, queda de meteoro e onda de choque.
-- **Áudio Contínuo**: A música do menu agora flui perfeitamente entre as transições de tela (Hub, Inventário, Seleção de Fases) sem reiniciar do zero.
-
-### ✅ Update 2.9.5: Segurança, Deploy Público e Missões Em Breve *(Lançado)*
-- **Deploy Público**: jogo disponível via GitHub Pages.
-- **Missões Em Breve**: nova seção na aba Comunidade exibindo as próximas missões em carousel navegável.
-- **Correção de Missões Diárias**: missões de mundo específico agora rastreiam partidas jogadas corretamente.
-- **Melhorias de Segurança e Integridade**: múltiplas camadas de proteção adicionadas para garantir uma experiência justa a todos os jogadores, incluindo um novo sistema de banimento automático.
-- **Sistema de Admin**: contas oficiais de desenvolvedores agora possuem identificação visual exclusiva no perfil e leaderboard.
-
-### ✅ Update 2.9: Rebalanceamento Global *(Lançado)*
+#### ↳ 2.9 — Rebalanceamento Global
 - **Rebalanceamento Geral**: Ajuste completo nos atributos e passivas das torres em todas as raridades.
 - **Nova Economia**: Os inimigos agora concedem um valor fixo de ouro (50). O ouro inicial foi padronizado (300).
 - **Rework de Prestígio e Farm**: Personagens focados em farm como L (Death Note) receberam novas mecânicas.
 - **Passiva Única (Nami)**: Adicionada nova mecânica de "Tempestade Acumulada".
 - **Melhorias de Performance e Visuais**: Otimização do jogo em fases avançadas e novas animações no Gacha.
 
-### ✅ Update 2.5: Sistema Online *(Lançado)*
-- **Contas e Leaderboard**: registro, login, e ranking global de jogadores.
-- **Sistema de Trocas**: ofertas públicas de personagens entre jogadores.
-- **Missões unificadas**: modal com missões diárias, conquistas e de comunidade.
-- **Missão de Comunidade**: meta coletiva visível a todos com progresso em tempo real.
+#### ↳ 2.9.5 — Segurança, Deploy Público e Missões Em Breve
+- **Deploy Público**: jogo disponível via GitHub Pages.
+- **Missões Em Breve**: nova seção na aba Comunidade exibindo as próximas missões em carousel navegável.
+- **Correção de Missões Diárias**: missões de mundo específico agora rastreiam partidas jogadas corretamente.
+- **Melhorias de Segurança e Integridade**: múltiplas camadas de proteção, incluindo novo sistema de banimento automático.
+- **Sistema de Admin**: contas oficiais de desenvolvedores com identificação visual exclusiva no perfil e leaderboard.
 
-### ✅ Update 2: Invasão Secreta *(Lançado)*
-- **Mundo 4 — Nova York**: 6 novas fases enfrentando a invasão da Marvel, com Thanos como Boss final.
-- **8 novos personagens**: Homem-Aranha, Viúva Negra, Gavião Arqueiro, Pantera Negra, Thor, Hulk, Iron Man e World Breaker Hulk.
-- **Evento — Operação: Ressurreição**: 4 capítulos narrativos com modificadores e inimigos temáticos.
+#### ↳ 2.5.10 — Melhorias no Gacha e Áudio
+- **Animação Épica no Gacha**: Novo overlay em CSS com portal mágico, warp speed, queda de meteoro e onda de choque.
+- **Áudio Contínuo**: A música do menu agora flui perfeitamente entre transições de tela sem reiniciar do zero.
+
+#### ↳ 2.9.10 — Internacionalização Completa
+- **Suporte completo a Inglês**: todo o texto visível do jogo — HUD, menus, toasts, modais, formulários online, leaderboard, trocas, missões, passivas e prestígio — agora traduzido corretamente ao selecionar EN.
+- **Sistema i18n expandido**: suporte a `data-i18n-title` para tooltips e ~140 novas chaves de tradução adicionadas.
+- **Cobertura total**: mais de 100 strings em PT hardcoded corrigidas em 20+ arquivos (JS e HTML).
 
 ### ✅ Update 1: Soul Society *(Lançado)*
 - **Mundo 3 — Bleach**: 6 novas fases enfrentando Hollows e Arrancars, com Aizen como Boss final.
