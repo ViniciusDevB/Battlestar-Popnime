@@ -1023,11 +1023,8 @@ const Game = (() => {
 
 
     // Atualiza localmente para feedback imediato (otimista)
+    // Drops já foram adicionados pelo loop acima; aqui só gems e conclusão de fase
     Save.addGems(gems);
-    dropsAcheived.forEach(id => {
-      const c = typeof getCharById !== 'undefined' ? getCharById(id) : null;
-      if (c?.playable) Save.addUnit(id); else Save.addMaterial(id);
-    });
     Save.markStageComplete(stageId, difficulty);
     Save.setStat('fases_completas', Object.keys(Save.get().fases_completas).length);
 
