@@ -38,21 +38,20 @@ const I18N = (() => {
     const dict = LANG_EN;
 
     // Traduz Personagens
-    if (window.CHARACTERS) {
-      for (const id in window.CHARACTERS) {
-        const c = window.CHARACTERS[id];
+    if (typeof CHARACTERS !== 'undefined') {
+      for (const id in CHARACTERS) {
+        const c = CHARACTERS[id];
         if (dict[`char_${id}_name`]) c.name = dict[`char_${id}_name`];
-        
-        if (c.passive && dict[`char_${id}_passive`]) {
+
+        if (c.passive && !Array.isArray(c.passive) && dict[`char_${id}_passive`]) {
           c.passive.label = dict[`char_${id}_passive`];
         }
-        // Vizard passives (array)
         if (Array.isArray(c.passive)) {
           c.passive.forEach((p, i) => {
             if (dict[`char_${id}_passive_${i}`]) p.label = dict[`char_${id}_passive_${i}`];
           });
         }
-        
+
         if (c.active_ability && dict[`char_${id}_active`]) {
           c.active_ability.label = dict[`char_${id}_active`];
         }
@@ -63,38 +62,45 @@ const I18N = (() => {
             if (dict[`char_${id}_upg_${i}_desc`]) u.desc = dict[`char_${id}_upg_${i}_desc`];
           });
         }
+
+        if (c.prestige_passives) {
+          [1, 5, 10].forEach(tier => {
+            const pp = c.prestige_passives[tier];
+            if (pp && dict[`char_${id}_prestige_${tier}`]) pp.label = dict[`char_${id}_prestige_${tier}`];
+          });
+        }
       }
     }
 
     // Traduz Mundos e Fases
-    if (window.WORLDS) {
-      for (const w of window.WORLDS) {
+    if (typeof WORLDS !== 'undefined') {
+      for (const w of WORLDS) {
         if (dict[`world_${w.id}_name`]) w.name = dict[`world_${w.id}_name`];
         if (dict[`world_${w.id}_desc`]) w.desc = dict[`world_${w.id}_desc`];
       }
     }
 
-    if (window.STAGES) {
-      window.STAGES.forEach(s => {
+    if (typeof STAGES !== 'undefined') {
+      STAGES.forEach(s => {
         if (dict[`stage_${s.id}_name`]) s.name = dict[`stage_${s.id}_name`];
       });
     }
-    
+
     // Traduz Missões
-    if (window.MISSIONS_LIST) {
-      window.MISSIONS_LIST.forEach(m => {
+    if (typeof MISSIONS_LIST !== 'undefined') {
+      MISSIONS_LIST.forEach(m => {
         if (dict[`mission_${m.id}_label`]) m.label = dict[`mission_${m.id}_label`];
       });
     }
-    if (window.DAILY_MISSIONS_POOL) {
-      window.DAILY_MISSIONS_POOL.forEach(m => {
+    if (typeof DAILY_MISSIONS_POOL !== 'undefined') {
+      DAILY_MISSIONS_POOL.forEach(m => {
         if (dict[`mission_${m.id}_label`]) m.label = dict[`mission_${m.id}_label`];
       });
     }
-    
+
     // Traduz Eventos
-    if (window.EVENTS_DATA) {
-      window.EVENTS_DATA.forEach(e => {
+    if (typeof EVENTS_DATA !== 'undefined') {
+      EVENTS_DATA.forEach(e => {
         if (dict[`event_${e.id}_name`]) e.name = dict[`event_${e.id}_name`];
         if (dict[`event_${e.id}_desc`]) e.desc = dict[`event_${e.id}_desc`];
         if (e.stages) {

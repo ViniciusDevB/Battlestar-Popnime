@@ -354,5 +354,193 @@ const LANG_PT = {
   "ms_time_days": "{n} dias",
   "ms_time_1day": "1 dia",
   "ms_time_hours": "{n} horas",
-  "ms_time_soon": "em breve"
+  "ms_time_soon": "em breve",
+
+  "ui_passive_header": "✨ Habilidade Passiva",
+  "ui_supporting_units": "Unidades de Suporte",
+  "gacha_pool_note": "🌟 Banner rotativo a cada 30min · Hulk Quebra-Mundo (5⭐) via Evolução",
+
+  "char_ichigo_base_prestige_1": "Zanpakutō Ressonante: cortes encadeiam para 1 inimigo próximo (50% dano)",
+  "char_ichigo_base_prestige_5": "Getsuga Acumulado: cada 5º ataque dispara um Getsuga (3.5× dano)",
+  "char_ichigo_base_prestige_10": "Eco do Bankai: cada 7º ataque cria um corte fantasma em toda a área",
+
+  "char_goku_base_prestige_1": "Ki Explosivo: críticos liberam onda de ki (40% dano em área)",
+  "char_goku_base_prestige_5": "Kaio-Ken Adaptativo: +2.5% dano por inimigo vivo (máx 50%)",
+  "char_goku_base_prestige_10": "Genkidama: cada 6º ataque concentra toda a energia (5× dano)",
+
+  "char_l_deathnote_prestige_1": "Análise Criminal: +8 ouro extra quando torres aliadas matam no alcance de L",
+  "char_l_deathnote_prestige_5": "Rede de Influência: torres de farm aliadas no alcance geram +20% de ouro extra por wave",
+  "char_l_deathnote_prestige_10": "Identificação Final: kill bonus de aliados no alcance sobe para +20 ouro (substitui P1)",
+
+  "char_demolidor_prestige_1": "Dupla Morte: bastão encadeia para 1 inimigo próximo (48% dano)",
+  "char_demolidor_prestige_5": "Fúria Cega: ao matar, vel. de ataque 2.5× por 2.5s",
+  "char_demolidor_prestige_10": "Radar Ofensivo: cada 8º ataque emite pulso de radar em toda a área",
+
+  "char_sasuke_uchiha_prestige_1": "Chidori Carregado: cada 4º ataque dispara um Chidori (3× dano)",
+  "char_sasuke_uchiha_prestige_5": "Amaterasu: todos os acertos incendeiam (25 DPS/4s)",
+  "char_sasuke_uchiha_prestige_10": "Susanoo: cada 6º ataque invoca braço do Susanoo em toda a área",
+
+  "char_killua_zoldyck_prestige_1": "Descarga Residual: relâmpago encadeia para 1 inimigo próximo (55% dano)",
+  "char_killua_zoldyck_prestige_5": "Godspeed: ao matar, vel. de ataque 3.5× por 3s",
+  "char_killua_zoldyck_prestige_10": "Descarga Total: cada 5º ataque libera toda a eletricidade (4.5× dano)",
+
+  "char_tanjiro_kamado_prestige_1": "Respiração Solar: cada acerto aplica chama solar (15 DPS/3s)",
+  "char_tanjiro_kamado_prestige_5": "Hinokami Kagura: cada 5º ataque é a dança do Deus do Fogo (4× dano)",
+  "char_tanjiro_kamado_prestige_10": "Dança do Deus do Fogo: cada 6º ataque irradia em toda a área",
+
+  "char_naruto_shippuden_prestige_1": "Rasengan Duplo: chakra encadeia para 2 inimigos em sequência (60% dano)",
+  "char_naruto_shippuden_prestige_5": "Kage Bunshin em Combate: cada 5º ataque clones acertam toda a área",
+  "char_naruto_shippuden_prestige_10": "Modo Sábio: senjutsu escala massivamente (+4% dano/inimigo, máx 80%)",
+
+  "char_levi_ackerman_prestige_1": "ODM Veloz: ao matar, vel. de ataque 3× por 3s",
+  "char_levi_ackerman_prestige_5": "Golpe Decisivo: cada 4º golpe é o ataque do Capitão (4.5× dano)",
+  "char_levi_ackerman_prestige_10": "Estilo Ackerman: cada ataque encadeia 2 inimigos via ODM",
+
+  "char_meliodas_base_prestige_1": "Daihāzan: críticos explodem em demonic slash (52% dano em área)",
+  "char_meliodas_base_prestige_5": "Fullcounter Passivo: 30% de chance de refletir o dano (2× dano)",
+  "char_meliodas_base_prestige_10": "Revenge Counter: cada 4º ataque é um Revenge Counter (5.5× dano!)",
+
+  "char_naruto_sage_prestige_1": "Modo Sábio Aprimorado: chakra da natureza encadeia 2 inimigos (72% dano)",
+  "char_naruto_sage_prestige_5": "Rasenshuriken: cada 3º ataque é um Rasenshuriken (6× dano!)",
+  "char_naruto_sage_prestige_10": "Modo Seis Caminhos: cada 4º ataque os seis caminhos varrem toda a área",
+
+  "char_gojo_satoru_prestige_1": "Cursed Energy Overflow: críticos colapsam o infinito em área (70% dano)",
+  "char_gojo_satoru_prestige_5": "Purple — Hollow Purple: cada 3º ataque é a técnica Roxa (7× dano!)",
+  "char_gojo_satoru_prestige_10": "Expansão do Território: cada 4º ataque expande o domínio por toda a área",
+
+  "char_rukia_kuchiki_prestige_1": "Dança Segunda Aprimorada: cada 5º ataque é uma dança de gelo (3.2× dano)",
+  "char_rukia_kuchiki_prestige_5": "Shirafune Perfurante: lâmina de gelo encadeia para 1 inimigo (52% dano)",
+  "char_rukia_kuchiki_prestige_10": "Dança da Morte Gélida: cada 7º ataque fragmenta gelo em toda a área",
+
+  "char_renji_abarai_prestige_1": "Serpente Extensível: Zabimaru encadeia para 1 inimigo distante (45% dano)",
+  "char_renji_abarai_prestige_5": "Fúria Zabimaru: ao matar, vel. de ataque 3× por 2.5s",
+  "char_renji_abarai_prestige_10": "Bankai — Tiro Final: cada 5º ataque é a descarga total do Bankai (4× dano)",
+
+  "char_uryu_ishida_prestige_1": "Flecha Explosiva: críticos explodem em energia Quincy (42% dano)",
+  "char_uryu_ishida_prestige_5": "Letzt Stil Aprimorado: cada 5º tiro é o golpe supremo Quincy (3.5× dano)",
+  "char_uryu_ishida_prestige_10": "Chuva Final de Reishi: cada 6º ataque cobre toda a área de flechas",
+
+  "char_orihime_inoue_prestige_1": "Cura de Campo: +6 ouro extra quando torres aliadas matam no alcance de Orihime",
+  "char_orihime_inoue_prestige_5": "Escudo Amplificador: torres aliadas no alcance de Orihime causam +20% de dano",
+  "char_orihime_inoue_prestige_10": "Campo de Rejeição Total: inimigos no alcance de Orihime recebem +25% de dano de todas as fontes",
+
+  "char_chad_yasutora_prestige_1": "Impacto Ressoa: onda de choque encadeia para 1 inimigo próximo (50% dano)",
+  "char_chad_yasutora_prestige_5": "Raiva Crescente: +3% dano por inimigo vivo (máx 55%)",
+  "char_chad_yasutora_prestige_10": "El Directo Final: cada 5º ataque é um soco definitivo (4× dano)",
+
+  "char_byakuya_kuchiki_prestige_1": "Senbonzakura Dupla: cada 4º ataque desencadeia rajada de pétalas (4× dano)",
+  "char_byakuya_kuchiki_prestige_5": "Kageyoshi Fantasma: cada 5º ataque dispersa pétalas em toda a área",
+  "char_byakuya_kuchiki_prestige_10": "Bankai Final: cada ataque encadeia 2 inimigos com cortes de pétala",
+
+  "char_toshiro_hitsugaya_prestige_1": "Tempestade de Gelo: blizzard pulsa a cada 4s em toda a área",
+  "char_toshiro_hitsugaya_prestige_5": "Ryūsenka Aprimorado: cada 4º ataque é a mordida do dragão de gelo (4.5×)",
+  "char_toshiro_hitsugaya_prestige_10": "Dragão de Gelo: cada 5º ataque o dragão varre toda a área",
+
+  "char_kenpachi_zaraki_prestige_1": "Sede de Sangue: ao matar, vel. de ataque 3.5× por 4s",
+  "char_kenpachi_zaraki_prestige_5": "Nozarashi: cada 3º ataque é o golpe do Nozarashi (5.5× dano!)",
+  "char_kenpachi_zaraki_prestige_10": "Frenesi Absoluto: +4.5% dano por inimigo vivo (máx 90%)",
+
+  "char_ichigo_bankai_prestige_1": "Getsuga Expansivo: Getsuga encadeia 2 inimigos em sequência (72% dano)",
+  "char_ichigo_bankai_prestige_5": "Mugetsu: cada 3º ataque é o Mugetsu — o poder mais absoluto (8× dano!)",
+  "char_ichigo_bankai_prestige_10": "Colapso do Bankai: cada 4º ataque colapsa o Bankai por toda a área",
+
+  "char_ichigo_vizard_prestige_1": "Descarga do Hollow: ao matar, máscara acelera 4× por 5s",
+  "char_ichigo_vizard_prestige_5": "Cero Oscuras Total: críticos disparam Cero em área (75% dano)",
+  "char_ichigo_vizard_prestige_10": "Mugetsu Definitivo: cada 4º ataque é o poder mais absoluto (10×!)",
+
+  "char_luffy_3_prestige_1": "Gum-Gum Jet: ao matar, vel. 2.5× por 2s (Gear 2!)",
+  "char_luffy_3_prestige_5": "Gear 2 Completo: +2.8% dano por inimigo vivo (máx 55%)",
+  "char_luffy_3_prestige_10": "Gum-Gum Gatling: ataque encadeia 2 inimigos em sequência",
+
+  "char_zoro_3_prestige_1": "Três Espadas: críticos explodem em corte triplo (40% dano em área)",
+  "char_zoro_3_prestige_5": "Oni Giri: cada 5º ataque é um Oni Giri (3.8× dano)",
+  "char_zoro_3_prestige_10": "Tris Cortes: cada ataque encadeia 2 inimigos adicionais",
+
+  "char_nami_3_prestige_1": "Climatact Elétrico: relâmpago encadeia para 1 inimigo (45% dano)",
+  "char_nami_3_prestige_5": "Clima-Tact Tático: 35% de chance de congelar ao acertar",
+  "char_nami_3_prestige_10": "Perfil Meteorológico: tempestade causa dano a cada 4.5s em área",
+
+  "char_usopp_3_prestige_1": "Munição Explosiva: críticos explodem (38% dano em área)",
+  "char_usopp_3_prestige_5": "Tiro Perfeito: cada 5º tiro é o golpe do Rei Sniper (4.2× dano)",
+  "char_usopp_3_prestige_10": "Chuva de Estrelas: cada 7º ataque dispara salva em toda a área",
+
+  "char_brook_3_prestige_1": "Gelo Espiritual: cada acerto aplica frio da alma (1.5s slow 50%)",
+  "char_brook_3_prestige_5": "Melodia da Alma: música encadeia para 1 inimigo próximo (50% dano)",
+  "char_brook_3_prestige_10": "Pulso da Morte: cada 6º ataque propaga energia espiritual em área",
+
+  "char_sanji_4_prestige_1": "Diable Jambe: cada chute incendeia o alvo (20 DPS/3s)",
+  "char_sanji_4_prestige_5": "Ifrit Jambe: ao matar, vel. de ataque 3× por 3.5s",
+  "char_sanji_4_prestige_10": "Hell Memories: cada 4º ataque é o Hell Memories (5× dano!)",
+
+  "char_robin_4_prestige_1": "Fleurs de Grapple: flores brotam em 2 inimigos próximos (62% dano)",
+  "char_robin_4_prestige_5": "Clutch: 35% de paralisar completamente o alvo por 2s",
+  "char_robin_4_prestige_10": "Mil Flores: cada 5º ataque faz mil flores brotarem em toda a área",
+
+  "char_ace_4_prestige_1": "Chama Residual: cada acerto queima profundamente (25 DPS/4s)",
+  "char_ace_4_prestige_5": "Hiken: cada 4º ataque é o Fire Fist Ace (4.5× dano!)",
+  "char_ace_4_prestige_10": "Entidade de Fogo: críticos provocam explosão de chamas (65% dano em área)",
+
+  "char_zoro_5_prestige_1": "Espírito do Rei das Espadas: críticos causam explosão de corte (65% dano)",
+  "char_zoro_5_prestige_5": "Ashura — Ichibugin: cada 3º ataque é o golpe titânico Ichibugin (6.5×!)",
+  "char_zoro_5_prestige_10": "Rei do Inferno: cada 4º ataque o Rei do Inferno varre toda a área",
+
+  "char_luffy_5_prestige_1": "Haki do Rei: Haki do Conquistador escala com inimigos (+5%/inimigo, máx 100%!)",
+  "char_luffy_5_prestige_5": "Kong Gatling: soco do Gear 4 encadeia 2 inimigos em sequência (75% dano)",
+  "char_luffy_5_prestige_10": "Gear 5: cada 3º ataque é o Gear 5 distorcendo a realidade (7× dano!)",
+
+  "char_barbabranca_5_prestige_1": "Tremor de Terra: críticos provocam terremoto maciço (65% dano em área)",
+  "char_barbabranca_5_prestige_5": "Punho de Terremoto: cada 3º ataque é o Punho de Terremoto (6× dano)",
+  "char_barbabranca_5_prestige_10": "Fim do Mundo: cada 4º ataque o terremoto abala toda a área",
+
+  "char_orochimaru_base_prestige_1": "Serpente Multiplicada: cobras encadeiam 2 inimigos em sequência (58% dano)",
+  "char_orochimaru_base_prestige_5": "Veneno Hebisuji: cada acerto injeta veneno tóxico (30 DPS/5s)",
+  "char_orochimaru_base_prestige_10": "Imortalidade: cada 4º ataque é o golpe da serpente imortal (5× dano)",
+
+  "char_pain_base_prestige_1": "Gravitação: força gravitacional do Rinnegan encadeia 2 inimigos (70% dano)",
+  "char_pain_base_prestige_5": "Caminho do Humano: absorve a força de cada alma — +5%/inimigo (máx 100%)",
+  "char_pain_base_prestige_10": "Shinra Tensei Pleno: cada 3º ataque é o Shinra Tensei absoluto (7.5×!)",
+
+  "char_tsunade_prestige_1": "Vontade de Ferro: presença de Tsunade inspira o time, +10% de dano a todas as torres",
+  "char_tsunade_prestige_5": "Cura da Hokage: ativação do Byakugou também concede 2s de imunidade a stun para todas as torres",
+  "char_tsunade_prestige_10": "Renascimento: uma vez por sessão, quando lives chegam a 0, Tsunade restaura 3 vidas",
+
+  "char_killer_bee_prestige_1": "Mestre do Enka: a cada 5ª espada que acerta, o inimigo fica Marcado (+30% dano por 3s)",
+  "char_killer_bee_prestige_5": "Bijuu Completo: duração do Modo Bijuu +2s e dano +50%",
+  "char_killer_bee_prestige_10": "Oito Caudas Liberadas: Modo Bijuu a cada 10s com Tinta global ao transformar",
+
+  "char_spider_man_prestige_1": "Sentido Aranha: 30% de chance de atacar uma segunda vez no mesmo ciclo",
+  "char_spider_man_prestige_5": "Campo de Teia: aura passiva reduz a velocidade de inimigos próximos em 35%",
+  "char_spider_man_prestige_10": "Teia Máxima: a cada 6 ataques, dispara uma teia gigante (5× dano + área total)",
+
+  "char_black_widow_prestige_1": "Pistola de Viúva: cada acerto aplica paralisia de 1.2s",
+  "char_black_widow_prestige_5": "Modo Assassina: kills acumulam +12% dano por stack (máx 8, decai em 5s)",
+  "char_black_widow_prestige_10": "Precisão Letal: 38% de chance de acerto crítico (3.5× dano)",
+
+  "char_hawkeye_prestige_1": "Olho de Falcão: +30% de dano contra minibosses e bosses",
+  "char_hawkeye_prestige_5": "Flecha-Bomba: kills causam explosão (70% dano em raio de 75px)",
+  "char_hawkeye_prestige_10": "Trick Arrows: flecha perfurante acerta até 5 inimigos simultâneos",
+
+  "char_black_panther_prestige_1": "Garras de Vibranium: cada acerto causa sangramento (30 DPS / 4s)",
+  "char_black_panther_prestige_5": "Impacto Cinético: kills liberam energia vibranium em área (80% dano / raio 80px)",
+  "char_black_panther_prestige_10": "Rei de Wakanda: presença de inimigos amplifica dano (+6%/inimigo, máx 80%)",
+
+  "char_thor_prestige_1": "Mjolnir Atordoante: cada acerto aplica paralisia de 1.5s",
+  "char_thor_prestige_5": "Stormbreaker: a cada 4 ataques, dispara o golpe completo (5× dano)",
+  "char_thor_prestige_10": "Aura de Trovão: presença de Thor concede +30% dano a todas as torres aliadas",
+
+  "char_hulk_base_prestige_1": "Modo Rage: +5% de vel de ataque por inimigo próximo (máx 50%)",
+  "char_hulk_base_prestige_5": "Smash Sísmico: kills causam impacto devastador em área (90% dano / raio 90px)",
+  "char_hulk_base_prestige_10": "HULK SMASH: a cada 3 ataques, o golpe é LEGENDÁRIO (4.5× dano)",
+
+  "char_iron_man_mark50_prestige_1": "Repulsor Duplo: disparos encadeiam para 2 inimigos próximos (50% dano)",
+  "char_iron_man_mark50_prestige_5": "Sistema de Mira JARVIS: 25% de chance de disparo crítico (3× dano)",
+  "char_iron_man_mark50_prestige_10": "Modo Extremis: a cada 5 ataques, ativa modo pleno (10× dano total)",
+
+  "char_world_breaker_hulk_prestige_1": "Fúria Gamma: kills adicionais criam ondas de choque duplas (100% dano, raio 100px)",
+  "char_world_breaker_hulk_prestige_5": "Raiva Primordial: +7% vel de ataque por inimigo próximo (máx 120%)",
+  "char_world_breaker_hulk_prestige_10": "Campo de Radiação Gamma: aura passiva reduz velocidade de todos os inimigos em 50%",
+
+  "char_nemesis_prestige_1": "Vírus Primário: cada acerto aplica infecção zumbi (35 DPS/7s, desacelera 35%)",
+  "char_nemesis_prestige_5": "Carga Viral: cada 4º ataque libera carga de veneno (4.5× dano)",
+  "char_nemesis_prestige_10": "Proliferação Final: cada 6º ataque espalha infecção em toda a área"
 };

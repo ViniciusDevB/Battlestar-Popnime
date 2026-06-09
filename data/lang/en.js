@@ -763,5 +763,193 @@ const LANG_EN = {
   "ms_time_days": "{n} days",
   "ms_time_1day": "1 day",
   "ms_time_hours": "{n} hours",
-  "ms_time_soon": "soon"
+  "ms_time_soon": "soon",
+
+  "ui_passive_header": "✨ Passive Ability",
+  "ui_supporting_units": "Support Units",
+  "gacha_pool_note": "🌟 Banner rotates every 30min · World Breaker Hulk (5⭐) via Evolution",
+
+  "char_ichigo_base_prestige_1": "Zanpakutō Resonance: slashes chain to 1 nearby enemy (50% dmg)",
+  "char_ichigo_base_prestige_5": "Stored Getsuga: every 5th attack fires a Getsuga (3.5× dmg)",
+  "char_ichigo_base_prestige_10": "Bankai Echo: every 7th attack creates a phantom slash in the entire area",
+
+  "char_goku_base_prestige_1": "Explosive Ki: crits release a ki wave (40% dmg in area)",
+  "char_goku_base_prestige_5": "Adaptive Kaio-Ken: +2.5% dmg per enemy alive (max 50%)",
+  "char_goku_base_prestige_10": "Spirit Bomb: every 6th attack concentrates all energy (5× dmg)",
+
+  "char_l_deathnote_prestige_1": "Criminal Analysis: +8 bonus gold when allied towers kill in L's range",
+  "char_l_deathnote_prestige_5": "Influence Network: allied farm towers in range generate +20% extra gold per wave",
+  "char_l_deathnote_prestige_10": "Final Identification: ally kill bonus in range rises to +20 gold (replaces P1)",
+
+  "char_demolidor_prestige_1": "Twin Strike: baton chains to 1 nearby enemy (48% dmg)",
+  "char_demolidor_prestige_5": "Blind Fury: on kill, attack speed 2.5× for 2.5s",
+  "char_demolidor_prestige_10": "Offensive Radar: every 8th attack emits a radar pulse across the entire area",
+
+  "char_sasuke_uchiha_prestige_1": "Charged Chidori: every 4th attack fires a Chidori (3× dmg)",
+  "char_sasuke_uchiha_prestige_5": "Amaterasu: all hits set the target ablaze (25 DPS/4s)",
+  "char_sasuke_uchiha_prestige_10": "Susanoo: every 6th attack summons a Susanoo arm across the entire area",
+
+  "char_killua_zoldyck_prestige_1": "Residual Discharge: lightning chains to 1 nearby enemy (55% dmg)",
+  "char_killua_zoldyck_prestige_5": "Godspeed: on kill, attack speed 3.5× for 3s",
+  "char_killua_zoldyck_prestige_10": "Full Discharge: every 5th attack releases all electricity (4.5× dmg)",
+
+  "char_tanjiro_kamado_prestige_1": "Solar Breathing: each hit applies solar flame (15 DPS/3s)",
+  "char_tanjiro_kamado_prestige_5": "Hinokami Kagura: every 5th attack is the Fire God Dance (4× dmg)",
+  "char_tanjiro_kamado_prestige_10": "Fire God Dance: every 6th attack radiates across the entire area",
+
+  "char_naruto_shippuden_prestige_1": "Twin Rasengan: chakra chains to 2 enemies in sequence (60% dmg)",
+  "char_naruto_shippuden_prestige_5": "Kage Bunshin in Combat: every 5th attack, clones strike the entire area",
+  "char_naruto_shippuden_prestige_10": "Sage Mode: senjutsu scales massively (+4% dmg/enemy, max 80%)",
+
+  "char_levi_ackerman_prestige_1": "Swift ODM: on kill, attack speed 3× for 3s",
+  "char_levi_ackerman_prestige_5": "Decisive Strike: every 4th strike is the Captain's attack (4.5× dmg)",
+  "char_levi_ackerman_prestige_10": "Ackerman Style: each attack chains to 2 enemies via ODM",
+
+  "char_meliodas_base_prestige_1": "Daihāzan: crits explode into a demonic slash (52% dmg in area)",
+  "char_meliodas_base_prestige_5": "Passive Fullcounter: 30% chance to reflect damage (2× dmg)",
+  "char_meliodas_base_prestige_10": "Revenge Counter: every 4th attack is a Revenge Counter (5.5× dmg!)",
+
+  "char_naruto_sage_prestige_1": "Enhanced Sage Mode: nature chakra chains to 2 enemies (72% dmg)",
+  "char_naruto_sage_prestige_5": "Rasenshuriken: every 3rd attack is a Rasenshuriken (6× dmg!)",
+  "char_naruto_sage_prestige_10": "Six Paths Mode: every 4th attack, the six paths sweep the entire area",
+
+  "char_gojo_satoru_prestige_1": "Cursed Energy Overflow: crits collapse infinity into an area (70% dmg)",
+  "char_gojo_satoru_prestige_5": "Purple — Hollow Purple: every 3rd attack is the Purple technique (7× dmg!)",
+  "char_gojo_satoru_prestige_10": "Domain Expansion: every 4th attack expands the domain across the entire area",
+
+  "char_rukia_kuchiki_prestige_1": "Enhanced Second Dance: every 5th attack is an ice dance (3.2× dmg)",
+  "char_rukia_kuchiki_prestige_5": "Piercing Shirafune: ice blade chains to 1 enemy (52% dmg)",
+  "char_rukia_kuchiki_prestige_10": "Frozen Dance of Death: every 7th attack shatters ice across the entire area",
+
+  "char_renji_abarai_prestige_1": "Extending Serpent: Zabimaru chains to 1 distant enemy (45% dmg)",
+  "char_renji_abarai_prestige_5": "Zabimaru Fury: on kill, attack speed 3× for 2.5s",
+  "char_renji_abarai_prestige_10": "Bankai — Final Shot: every 5th attack is the Bankai's full discharge (4× dmg)",
+
+  "char_uryu_ishida_prestige_1": "Explosive Arrow: crits explode with Quincy energy (42% dmg)",
+  "char_uryu_ishida_prestige_5": "Enhanced Letzt Stil: every 5th shot is the supreme Quincy strike (3.5× dmg)",
+  "char_uryu_ishida_prestige_10": "Final Reishi Rain: every 6th attack covers the entire area with arrows",
+
+  "char_orihime_inoue_prestige_1": "Field Healing: +6 bonus gold when allied towers kill in Orihime's range",
+  "char_orihime_inoue_prestige_5": "Amplifier Shield: allied towers in Orihime's range deal +20% dmg",
+  "char_orihime_inoue_prestige_10": "Total Rejection Field: enemies in Orihime's range take +25% dmg from all sources",
+
+  "char_chad_yasutora_prestige_1": "Resonating Impact: shockwave chains to 1 nearby enemy (50% dmg)",
+  "char_chad_yasutora_prestige_5": "Growing Rage: +3% dmg per enemy alive (max 55%)",
+  "char_chad_yasutora_prestige_10": "El Directo Final: every 5th attack is the ultimate punch (4× dmg)",
+
+  "char_byakuya_kuchiki_prestige_1": "Double Senbonzakura: every 4th attack unleashes a petal burst (4× dmg)",
+  "char_byakuya_kuchiki_prestige_5": "Phantom Kageyoshi: every 5th attack scatters petals across the entire area",
+  "char_byakuya_kuchiki_prestige_10": "Final Bankai: each attack chains to 2 enemies with petal slashes",
+
+  "char_toshiro_hitsugaya_prestige_1": "Ice Storm: blizzard pulses every 4s across the entire area",
+  "char_toshiro_hitsugaya_prestige_5": "Enhanced Ryūsenka: every 4th attack is the ice dragon's bite (4.5×)",
+  "char_toshiro_hitsugaya_prestige_10": "Ice Dragon: every 5th attack, the dragon sweeps the entire area",
+
+  "char_kenpachi_zaraki_prestige_1": "Bloodlust: on kill, attack speed 3.5× for 4s",
+  "char_kenpachi_zaraki_prestige_5": "Nozarashi: every 3rd attack is the Nozarashi strike (5.5× dmg!)",
+  "char_kenpachi_zaraki_prestige_10": "Absolute Frenzy: +4.5% dmg per enemy alive (max 90%)",
+
+  "char_ichigo_bankai_prestige_1": "Expanding Getsuga: Getsuga chains to 2 enemies in sequence (72% dmg)",
+  "char_ichigo_bankai_prestige_5": "Mugetsu: every 3rd attack is Mugetsu — the most absolute power (8× dmg!)",
+  "char_ichigo_bankai_prestige_10": "Bankai Collapse: every 4th attack collapses the Bankai across the entire area",
+
+  "char_ichigo_vizard_prestige_1": "Hollow Discharge: on kill, mask accelerates 4× for 5s",
+  "char_ichigo_vizard_prestige_5": "Full Cero Oscuras: crits fire a Cero across the area (75% dmg)",
+  "char_ichigo_vizard_prestige_10": "Definitive Mugetsu: every 4th attack is the most absolute power (10×!)",
+
+  "char_luffy_3_prestige_1": "Gum-Gum Jet: on kill, speed 2.5× for 2s (Gear 2!)",
+  "char_luffy_3_prestige_5": "Full Gear 2: +2.8% dmg per enemy alive (max 55%)",
+  "char_luffy_3_prestige_10": "Gum-Gum Gatling: attack chains to 2 enemies in sequence",
+
+  "char_zoro_3_prestige_1": "Three Swords: crits explode in a triple slash (40% dmg in area)",
+  "char_zoro_3_prestige_5": "Oni Giri: every 5th attack is an Oni Giri (3.8× dmg)",
+  "char_zoro_3_prestige_10": "Three Cuts: each attack chains to 2 additional enemies",
+
+  "char_nami_3_prestige_1": "Electric Climatact: lightning chains to 1 enemy (45% dmg)",
+  "char_nami_3_prestige_5": "Tactical Clima-Tact: 35% chance to freeze on hit",
+  "char_nami_3_prestige_10": "Weather Report: storm deals damage every 4.5s in area",
+
+  "char_usopp_3_prestige_1": "Explosive Ammo: crits explode (38% dmg in area)",
+  "char_usopp_3_prestige_5": "Perfect Shot: every 5th shot is the Sniper King's strike (4.2× dmg)",
+  "char_usopp_3_prestige_10": "Star Rain: every 7th attack fires a volley across the entire area",
+
+  "char_brook_3_prestige_1": "Spirit Ice: each hit applies soul chill (1.5s slow 50%)",
+  "char_brook_3_prestige_5": "Soul Melody: music chains to 1 nearby enemy (50% dmg)",
+  "char_brook_3_prestige_10": "Death Pulse: every 6th attack spreads spiritual energy in area",
+
+  "char_sanji_4_prestige_1": "Diable Jambe: each kick sets the target ablaze (20 DPS/3s)",
+  "char_sanji_4_prestige_5": "Ifrit Jambe: on kill, attack speed 3× for 3.5s",
+  "char_sanji_4_prestige_10": "Hell Memories: every 4th attack is Hell Memories (5× dmg!)",
+
+  "char_robin_4_prestige_1": "Fleurs de Grapple: flowers bloom on 2 nearby enemies (62% dmg)",
+  "char_robin_4_prestige_5": "Clutch: 35% chance to fully paralyze the target for 2s",
+  "char_robin_4_prestige_10": "Mil Fleurs: every 5th attack makes a thousand flowers bloom across the entire area",
+
+  "char_ace_4_prestige_1": "Residual Flame: each hit burns deeply (25 DPS/4s)",
+  "char_ace_4_prestige_5": "Hiken: every 4th attack is Fire Fist Ace (4.5× dmg!)",
+  "char_ace_4_prestige_10": "Fire Entity: crits trigger a flame explosion (65% dmg in area)",
+
+  "char_zoro_5_prestige_1": "King of Swords Spirit: crits cause a slash explosion (65% dmg)",
+  "char_zoro_5_prestige_5": "Ashura — Ichibugin: every 3rd attack is the titanic Ichibugin strike (6.5×!)",
+  "char_zoro_5_prestige_10": "King of Hell: every 4th attack, the King of Hell sweeps the entire area",
+
+  "char_luffy_5_prestige_1": "Conqueror's Haki: Conqueror's Haki scales with enemies (+5%/enemy, max 100%!)",
+  "char_luffy_5_prestige_5": "Kong Gatling: Gear 4's punch chains to 2 enemies in sequence (75% dmg)",
+  "char_luffy_5_prestige_10": "Gear 5: every 3rd attack is Gear 5 distorting reality (7× dmg!)",
+
+  "char_barbabranca_5_prestige_1": "Earthquake: crits trigger a massive earthquake (65% dmg in area)",
+  "char_barbabranca_5_prestige_5": "Earthquake Fist: every 3rd attack is the Earthquake Fist (6× dmg)",
+  "char_barbabranca_5_prestige_10": "End of the World: every 4th attack, the earthquake shakes the entire area",
+
+  "char_orochimaru_base_prestige_1": "Multiplied Serpent: snakes chain to 2 enemies in sequence (58% dmg)",
+  "char_orochimaru_base_prestige_5": "Hebisuji Venom: each hit injects toxic poison (30 DPS/5s)",
+  "char_orochimaru_base_prestige_10": "Immortality: every 4th attack is the immortal serpent's strike (5× dmg)",
+
+  "char_pain_base_prestige_1": "Gravitation: Rinnegan's gravitational force chains to 2 enemies (70% dmg)",
+  "char_pain_base_prestige_5": "Human Path: absorbs the strength of each soul — +5%/enemy (max 100%)",
+  "char_pain_base_prestige_10": "Full Shinra Tensei: every 3rd attack is the absolute Shinra Tensei (7.5×!)",
+
+  "char_tsunade_prestige_1": "Iron Will: Tsunade's presence inspires the team, +10% dmg to all towers",
+  "char_tsunade_prestige_5": "Hokage Healing: Byakugou activation also grants 2s stun immunity to all towers",
+  "char_tsunade_prestige_10": "Rebirth: once per session, when lives reach 0, Tsunade restores 3 lives",
+
+  "char_killer_bee_prestige_1": "Enka Master: every 5th sword hit Marks the enemy (+30% dmg for 3s)",
+  "char_killer_bee_prestige_5": "Full Bijuu: Bijuu Mode duration +2s and dmg +50%",
+  "char_killer_bee_prestige_10": "Eight-Tails Unleashed: Bijuu Mode every 10s with global Ink on transform",
+
+  "char_spider_man_prestige_1": "Spider-Sense: 30% chance to attack a second time in the same cycle",
+  "char_spider_man_prestige_5": "Web Field: passive aura reduces nearby enemies' speed by 35%",
+  "char_spider_man_prestige_10": "Maximum Web: every 6 attacks, fires a giant web (5× dmg + full area)",
+
+  "char_black_widow_prestige_1": "Widow's Gun: each hit applies paralysis for 1.2s",
+  "char_black_widow_prestige_5": "Assassin Mode: kills stack +12% dmg per stack (max 8, decays in 5s)",
+  "char_black_widow_prestige_10": "Lethal Precision: 38% critical hit chance (3.5× dmg)",
+
+  "char_hawkeye_prestige_1": "Eagle Eye: +30% dmg against minibosses and bosses",
+  "char_hawkeye_prestige_5": "Bomb Arrow: kills cause an explosion (70% dmg in a 75px radius)",
+  "char_hawkeye_prestige_10": "Trick Arrows: piercing arrow hits up to 5 enemies simultaneously",
+
+  "char_black_panther_prestige_1": "Vibranium Claws: each hit causes bleed (30 DPS/4s)",
+  "char_black_panther_prestige_5": "Kinetic Impact: kills release vibranium energy in area (80% dmg / 80px radius)",
+  "char_black_panther_prestige_10": "King of Wakanda: enemy presence amplifies dmg (+6%/enemy, max 80%)",
+
+  "char_thor_prestige_1": "Stunning Mjolnir: each hit applies paralysis for 1.5s",
+  "char_thor_prestige_5": "Stormbreaker: every 4 attacks, fires the full strike (5× dmg)",
+  "char_thor_prestige_10": "Thunder Aura: Thor's presence grants +30% dmg to all allied towers",
+
+  "char_hulk_base_prestige_1": "Rage Mode: +5% attack speed per nearby enemy (max 50%)",
+  "char_hulk_base_prestige_5": "Seismic Smash: kills cause a devastating impact in area (90% dmg / 90px radius)",
+  "char_hulk_base_prestige_10": "HULK SMASH: every 3 attacks, the strike is LEGENDARY (4.5× dmg)",
+
+  "char_iron_man_mark50_prestige_1": "Dual Repulsor: shots chain to 2 nearby enemies (50% dmg)",
+  "char_iron_man_mark50_prestige_5": "JARVIS Targeting System: 25% chance of critical shot (3× dmg)",
+  "char_iron_man_mark50_prestige_10": "Extremis Mode: every 5 attacks, activates full mode (10× total dmg)",
+
+  "char_world_breaker_hulk_prestige_1": "Gamma Fury: extra kills create double shockwaves (100% dmg, 100px radius)",
+  "char_world_breaker_hulk_prestige_5": "Primal Rage: +7% attack speed per nearby enemy (max 120%)",
+  "char_world_breaker_hulk_prestige_10": "Gamma Radiation Field: passive aura reduces all enemies' speed by 50%",
+
+  "char_nemesis_prestige_1": "Primary Virus: each hit applies zombie infection (35 DPS/7s, slows 35%)",
+  "char_nemesis_prestige_5": "Viral Charge: every 4th attack releases a venom charge (4.5× dmg)",
+  "char_nemesis_prestige_10": "Final Proliferation: every 6th attack spreads infection across the entire area"
 };

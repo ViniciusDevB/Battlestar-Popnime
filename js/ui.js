@@ -462,7 +462,7 @@ const UI = (() => {
               </div>
             </div>
             <div class="featured-passive-box">
-              <div class="passive-title">✨ Habilidade Passiva</div>
+              <div class="passive-title">${I18N.t('ui_passive_header')}</div>
               <div class="passive-text">${passiveDesc}</div>
             </div>
           </div>
@@ -473,7 +473,7 @@ const UI = (() => {
 
   function makeSupportingList(star4Ids, star3Ids) {
     let html = `<div class="banner-supporting-section">`;
-    html += `<div class="supporting-title">Unidades de Suporte</div>`;
+    html += `<div class="supporting-title">${I18N.t('ui_supporting_units')}</div>`;
     html += `<div class="supporting-grid">`;
 
     // Render Epic (4⭐)
