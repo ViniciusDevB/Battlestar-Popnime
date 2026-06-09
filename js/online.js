@@ -9,6 +9,7 @@ const Online = (() => {
   let _profilePromise  = null;   // Promise pendente de _loadProfile (evita race condition)
   let _activeMission   = null;
   let _missionChannel  = null;
+  let _tradesChannel   = null;
   let _onReadyCb       = null;   // Callback único disparado após 1ª resolução do auth state
   let _authResolved    = false;
 
@@ -426,7 +427,12 @@ const Online = (() => {
   // Realtime: notifica quando uma troca do jogador é completada
   function _setupRealtime() {
     if (!_client || !_profile) return;
-    _client
+    // Remove canal anterior antes de reinscrever (evita erro ao reautenticar)
+    if (_tradesChannel) {
+      _client.removeChannel(_tradesChannel);
+      _tradesChannel = null;
+    }
+    _tradesChannel = _client
       .channel('trade-notifications')
       .on('postgres_changes', {
         event:  'UPDATE',
