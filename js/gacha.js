@@ -141,7 +141,7 @@ const Gacha = (() => {
       animOverlay.style.display = 'none';
       void animOverlay.offsetWidth; // trigger reflow
       
-      animOverlay.className = `gacha-anim-container ${animClass}`;
+      animOverlay.className = `gacha-anim-container ${animClass} active`;
       animOverlay.style.display = 'flex';
       
       if (typeof AudioManager !== 'undefined') AudioManager.playGachaPull();

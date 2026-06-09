@@ -21,6 +21,11 @@ const AudioManager = (() => {
   function playMenuBgm() {
     if (!isUnlocked) return;
     
+    // Se a música do menu já estiver tocando, não fazemos nada
+    if (currentBgm === menuBgm && !menuBgm.paused) {
+      return;
+    }
+    
     // Se tiver outra música tocando (ex: boss), pausa ela
     if (currentBgm && currentBgm !== menuBgm) {
       currentBgm.pause();
@@ -33,9 +38,10 @@ const AudioManager = (() => {
 
     // Efeito Fade-In até 50% (0.5)
     let fadeAudio = setInterval(() => {
-      if (menuBgm.volume < 0.5) {
+      if (menuBgm.volume < 0.45) {
         menuBgm.volume = Math.min(0.5, menuBgm.volume + 0.05);
       } else {
+        menuBgm.volume = 0.5;
         clearInterval(fadeAudio);
       }
     }, 150); // Aumenta 5% a cada 150ms
