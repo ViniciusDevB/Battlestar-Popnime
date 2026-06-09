@@ -78,9 +78,19 @@ PATH_POINTS_W5_B (rota inferior):
 
 **Fase 2 — Equação Anti-Vida (60% → 0% HP):**
 - Armadura Omega removida. Darkseid entra em fúria
-- **Equação Anti-Vida (passiva):** torres na linha de visão de Darkseid têm cooldown aumentado em `+0.5s` passivamente
+- **Equação Anti-Vida (passiva — o núcleo da fase):**
+  - A cada segundo que Darkseid permanece vivo, todas as torres perdem **1.5% de dano e 1.5% de velocidade de ataque**
+  - O debuff acumula até um cap de **−50%** por torre (atingido em ~33 segundos)
+  - Quando qualquer torre atinge o cap de 50%, Darkseid começa a **regenerar vida**:
+    - Cura = `torresTorresCap × 6.67%` do HP máximo da Fase 2 a cada 5 segundos
+    - 1 torre no cap → ~7% (≈11.200 HP) a cada 5s
+    - 3 torres no cap → 20% (≈32.000 HP) a cada 5s
+    - 6 torres no cap → ~40% (≈64.000 HP) a cada 5s
+  - Ao morrer: todos os debuffs das torres são removidos imediatamente
 - **Gravidade Omega (ativo a cada 20s):** cria zona de gravidade em área de `raio 8` por `4s` — inimigos dentro se movem `60%` mais rápido; torres dentro têm alcance reduzido em `30%`
 - Ao atingir `20% HP`: invoca uma wave final de reforço (Unidade Omega ×3)
+
+> **Tensão de design:** o jogador tem ~33s para matar Darkseid antes das torres começarem a alimentar a cura dele. Com 3+ torres no cap, a cura pode superar o DPS médio do jogador, forçando uso de actives (Gojo, Viúva Negra) ou sacrifício de posicionamento.
 
 ---
 
@@ -132,12 +142,14 @@ HP baseado no multiplicador 1.35× sobre Marvel. Ver [Guia de Balanceamento](../
 
 | ID | Nome | Tipo | HP (Normal) | Velocidade | Habilidade |
 |----|------|------|-------------|------------|------------|
-| `soldado_apokolips` | Soldado Apokolips | Normal | 750 | 1.0 | — |
-| `paradem_comum` | Parademônio | Normal | 1.300 | 1.2 | — |
-| `paradem_elite` | Parademônio Elite | Powerful 1 | 3.200 | 1.0 | Armadura: -10% dano físico |
-| `unidade_omega` | Unidade Omega | Powerful 2 | 7.500 | 0.85 | Regenera 150 HP/s |
-| `destruidor` | Destruidor | Elite | 18.000 | 0.7 | Imune a Slow/Freeze |
-| `darkseid` | Darkseid | Boss | 220.000 | 0.5 | Ver seção Boss |
+| `soldado_apokolips` | Soldado Apokolips | Normal | 2.000 | 85 | — |
+| `paradem_comum` | Parademônio | Speed | 2.500 | 155 | — |
+| `paradem_elite` | Parademônio Elite | Fortified + Shield 12k | 27.000 | 50 | — |
+| `unidade_omega` | Unidade Omega | Regen 280/s | 32.000 | 40 | — |
+| `destruidor` | Destruidor | Bomber + Stun Immune | 1.800 | 120 | Radius 140, stun 2s |
+| `darkseid` | Darkseid | Boss (2 fases) | 220k + 160k | 20 / 45 | Ver seção Boss + [Parte 3](update3_dc_inimigos_waves.md) |
+
+> Valores calibrados a partir dos stats reais da Marvel (W4) × 1.35. Ver [Parte 3](update3_dc_inimigos_waves.md) para `enemies.js` completo.
 
 ### Materiais Drops (Mundo 5)
 
@@ -149,9 +161,11 @@ HP baseado no multiplicador 1.35× sobre Marvel. Ver [Guia de Balanceamento](../
 
 ---
 
-## 5. Próximas Partes do Planejamento
+## 5. Partes do Planejamento
 
-- **Parte 2:** Personagens jogáveis DC (8 unidades, raridades 3★–5★, passivas, upgrades)
-- **Parte 3:** Inimigos detalhados (stats por dificuldade, wave templates das 6 fases)
-- **Parte 4:** Evento DC (paralelo ao update, similar à Operação Ressurreição)
-- **Parte 5:** Implementação técnica (mudanças em `world.js`, `game.js`, `game-renderer.js`)
+- ✅ **Parte 1:** Mundo, mecânicas, boss, fases — este arquivo
+- ✅ **Parte 2:** [Personagens jogáveis DC](update3_dc_personagens.md) — 9 unidades, raridades 3★–5★, passivas, upgrades
+- ✅ **Parte 3:** [Inimigos e Wave Templates](update3_dc_inimigos_waves.md) — stats calibrados, `enemies.js`, wave por fase
+- ~~Parte 4: Evento DC~~ — cancelado; o evento será no Update 4 cruzando DC × Marvel
+- ✅ **Especial:** [Darkseid 7★ Secreto](darkseid_7star_secreto.md) — raridade oculta, 6 passivas, chance 0.0005%
+- ⬜ **Parte 4:** Implementação técnica (mudanças em `world.js`, `game.js`, `game-renderer.js`)
