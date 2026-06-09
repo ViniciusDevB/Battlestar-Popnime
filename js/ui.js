@@ -11,6 +11,14 @@ const UI = (() => {
     const el = document.getElementById('screen-' + id);
     if (el) el.classList.add('active');
     currentScreen = id;
+    
+    if (typeof AudioManager !== 'undefined') {
+      if (id === 'game') {
+        AudioManager.pauseBgm();
+      } else {
+        AudioManager.playMenuBgm();
+      }
+    }
   }
 
   function showHub() {

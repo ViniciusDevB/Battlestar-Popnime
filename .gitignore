@@ -23,6 +23,31 @@ node_modules/
 
 # Qualquer outro arquivo temporário específico
 *.tmp
+# Arquivos de Sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de IDEs e Editores
+.vscode/
+.idea/
+.claude/
+*.swp
+*.swo
+*~
+
+# Arquivos Temporários e Logs
+temp/
+tmp/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Se houver dependências do Node (no futuro)
+node_modules/
+
+# Qualquer outro arquivo temporário específico
+*.tmp
 *.bak
 
 # Scripts e Arquivos de Análise/Manutenção Interna
@@ -32,6 +57,7 @@ validate.js
 validate_images.js
 report.md
 balance_guide.md
+generate_music.py
 
 # Diretórios Desnecessários para o Jogo Final
 docs/
