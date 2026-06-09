@@ -264,12 +264,12 @@ const Online = (() => {
   }
 
   function _mergeSaves(local, remote, remoteTs) {
-    const localTs = new Date(local?._lastSyncAt || 0);
+    // localTs é cap ao now() — impede que alterar o relógio do PC ou editar
+    // _lastSyncAt no localStorage force o lado local a sempre "ganhar".
+    // remoteTs vem do updated_at do banco (authoritative).
+    const localTs = new Date(Math.min(Date.parse(local?._lastSyncAt || 0), Date.now()));
     const cloudTs = new Date(remoteTs || 0);
 
-    // Determina qual lado é a fonte autoritativa de inventário/moedas.
-    // Math.max é explorável (gastar moedas em A, restaurar via B com o max).
-    // Last-write-wins por timestamp resolve isso: o save mais recente vence em bloco.
     const inv = cloudTs > localTs ? remote : local;
 
     // Stats: sempre o maior (nunca decrementam legitima­mente)
