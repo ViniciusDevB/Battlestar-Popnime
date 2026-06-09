@@ -1154,6 +1154,35 @@ select:hover{border-color:var(--bd3);}
   100% { transform: rotate(360deg) scale(1); }
 }
 
+/* Holographic diagonal shimmer */
+.banner-featured-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  background: repeating-linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 22%,
+    rgba(57,255,20,0.045) 23%,
+    rgba(57,255,20,0.045) 25%,
+    transparent 26%,
+    transparent 44%,
+    rgba(255,200,70,0.04) 45%,
+    rgba(255,200,70,0.04) 47%,
+    transparent 48%
+  );
+  background-size: 300% 300%;
+  animation: holo-shimmer 6s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes holo-shimmer {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 300% 300%; }
+}
+
 .featured-header {
   display: flex;
   justify-content: space-between;
