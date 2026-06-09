@@ -266,15 +266,19 @@ const OnlineUI = (() => {
     if (!username || !pass) return _showError('Preencha username e senha.');
 
     _setLoading(true);
-    const result = await Online.login(username, pass);
-    _setLoading(false);
-
-    if (result.error) {
-      _showError(_translateError(result.error));
-    } else {
-      close();
-      UI.toast(`✅ Bem-vindo de volta, ${username}!`, 3000);
-      _render();
+    try {
+      const result = await Online.login(username, pass);
+      _setLoading(false);
+      if (result.error) {
+        _showError(_translateError(result.error));
+      } else {
+        close();
+        UI.toast(`✅ Bem-vindo de volta, ${username}!`, 3000);
+        _render();
+      }
+    } catch (_) {
+      _setLoading(false);
+      _showError('Erro inesperado. Tente novamente.');
     }
   }
 
@@ -289,15 +293,19 @@ const OnlineUI = (() => {
     if (!pass || pass.length < 6) return _showError('Senha deve ter pelo menos 6 caracteres.');
 
     _setLoading(true);
-    const result = await Online.register(username, pass);
-    _setLoading(false);
-
-    if (result.error) {
-      _showError(_translateError(result.error));
-    } else {
-      close();
-      UI.toast(`✅ Conta criada! Bem-vindo, ${username}!`, 3500);
-      _render();
+    try {
+      const result = await Online.register(username, pass);
+      _setLoading(false);
+      if (result.error) {
+        _showError(_translateError(result.error));
+      } else {
+        close();
+        UI.toast(`✅ Conta criada! Bem-vindo, ${username}!`, 3500);
+        _render();
+      }
+    } catch (_) {
+      _setLoading(false);
+      _showError('Erro inesperado. Tente novamente.');
     }
   }
 

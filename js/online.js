@@ -179,7 +179,7 @@ const Online = (() => {
       .single();
     if (!error && data) {
       _profile = data;
-      _client.rpc('update_my_last_seen').catch(() => {});
+      (async () => { try { await _client.rpc('update_my_last_seen'); } catch (_) {} })();
     }
     return _profile;
   }
