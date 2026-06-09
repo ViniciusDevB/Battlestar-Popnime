@@ -150,6 +150,38 @@ const STATUS_TYPES = {
     },
     getSpeedMult(status) { return status.infectado.active ? 0.65 : 1; }
   },
+
+  // ── Cross Mark ────────────────────────────────────────────────────────────
+  // Mecânica da Black Widow: inimigo marcado recebe bônus de dano de toda fonte.
+  // Renovável — nova aplicação substitui o timer.
+  cross_mark: {
+    init: () => ({ active: false, timer: 0, bonus: 0 }),
+    apply(status, params) {
+      status.cross_mark = { active: true, timer: params.duration || 6, bonus: params.bonus || 0.25 };
+    },
+    update(status, dt) {
+      if (!status.cross_mark.active) return 0;
+      status.cross_mark.timer -= dt;
+      if (status.cross_mark.timer <= 0) status.cross_mark = STATUS_TYPES.cross_mark.init();
+      return 0;
+    }
+  },
+
+  // ── Gyuki Ink ─────────────────────────────────────────────────────────────
+  // Mecânica do Killer Bee: inimigo marcado com tinta recebe bônus de dano.
+  // Renovável — nova aplicação substitui o timer.
+  gyuki_ink: {
+    init: () => ({ active: false, timer: 0, bonus: 0 }),
+    apply(status, params) {
+      status.gyuki_ink = { active: true, timer: params.duration || 5, bonus: params.bonus || 0.55 };
+    },
+    update(status, dt) {
+      if (!status.gyuki_ink.active) return 0;
+      status.gyuki_ink.timer -= dt;
+      if (status.gyuki_ink.timer <= 0) status.gyuki_ink = STATUS_TYPES.gyuki_ink.init();
+      return 0;
+    }
+  },
 };
 
 // Inicializa o objeto status de um inimigo a partir da tabela STATUS_TYPES.
@@ -839,6 +871,36 @@ const PTYPE_BEHAVIORS = {
       });
       ctx.addEffect({ type:'shockwave', x:enemy.x, y:enemy.y, maxR:200, color:'#f39c12', timer:0.7, maxTimer:0.7, r:0 });
       if (count > 0) ctx.toast(`☠️ Kamikaze! ${count} inimigo(s) com +${Math.round(pct * 100)}% de vida!`, 3000);
+    }
+  },
+
+  // ── Sand Shield ───────────────────────────────────────────────────────────
+  // Escudo de Areia (Cap.1): não absorve dano diretamente — só quebra quando
+  // recebe burst (>800 dmg em janela de 1.5s). Até quebrar, todo dano é bloqueado.
+  // Aplicado pelo spawn quando o stage tem modifiers.sandShield.
+  sand_shield: {
+    defaults: { burstThreshold: 800, burstWindow: 1.5 },
+    init(enemy) {
+      enemy.sandShield     = true;
+      enemy._sandBurst     = 0;
+      enemy._sandBurstStart = 0;
+    },
+    onDamageTaken(enemy, damage, ctx) {
+      const now = performance.now() / 1000;
+      if (!enemy._sandBurstStart || (now - enemy._sandBurstStart) > 1.5) {
+        enemy._sandBurstStart = now;
+        enemy._sandBurst = 0;
+      }
+      enemy._sandBurst += damage;
+      if (enemy._sandBurst >= 800) {
+        enemy.sandShield = false;
+        enemy.ptypes = enemy.ptypes.filter(pt => pt !== 'sand_shield');
+        ctx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:55, color:'#d97706', timer:0.7, maxTimer:0.7, r:0 });
+        ctx.toast(`💥 Escudo de Areia destruído!`, 2000);
+        return false; // dano continua
+      }
+      enemy.hitFlash = 0.1;
+      return true; // dano absorvido
     }
   }
 };

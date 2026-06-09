@@ -314,6 +314,16 @@ const Game = (() => {
     const ctx = _enemyCtx();
     (enemy.ptypes || []).forEach(pt => PTYPE_BEHAVIORS[pt]?.onDeath?.(enemy, ctx));
   }
+  function dispatchPtypeDamageTaken(enemy, damage) {
+    const ctx = _enemyCtx();
+    const ptypes = enemy.ptypes || [];
+    for (const pt of ptypes) {
+      if (PTYPE_BEHAVIORS[pt]?.onDamageTaken) {
+        if (PTYPE_BEHAVIORS[pt].onDamageTaken(enemy, damage, ctx)) return true;
+      }
+    }
+    return false;
+  }
 
   // Hover position
   let hoverX = 0, hoverY = 0;
@@ -600,16 +610,6 @@ const Game = (() => {
       dispatchSpecialUpdate(e, dt);
       // Behaviors por ptype (regenerator, etc.)
       dispatchPtypeUpdate(e, dt);
-      // Cross Mark timer (Black Widow mechanic)
-      if (e.crossMarked) {
-        e.crossMarkTimer = (e.crossMarkTimer || 0) - dt;
-        if (e.crossMarkTimer <= 0) { e.crossMarked = false; e.crossMarkTimer = 0; }
-      }
-      // Gyuki Ink timer (Killer Bee mechanic)
-      if (e.gyukiInked) {
-        e.gyukiInkTimer = (e.gyukiInkTimer || 0) - dt;
-        if (e.gyukiInkTimer <= 0) { e.gyukiInked = false; e.gyukiInkTimer = 0; }
-      }
 
       // Movement
       const fogMult = (!isInfiniteMode && stage?.modifiers?.fogSpeedBonus) ? (1 + stage.modifiers.fogSpeedBonus) : 1;
@@ -790,30 +790,13 @@ const Game = (() => {
     // Auras de torres aliadas próximas
     dmg = PASSIVE_SYSTEM.applyAuras(tower, enemy, dmg);
 
-    // Medo (Cero Oscuras): +25% dano recebido de toda fonte
-    if (enemy.status?.medo?.active) dmg *= 1.25;
-    // Cross Mark (Black Widow): inimigo marcado recebe bônus de dano de todas as fontes
-    if (enemy.crossMarked) dmg *= (1 + (enemy.crossMarkBonus || 0.25));
-    // Gyuki Ink (Killer Bee): inimigo marcado com tinta recebe bônus de dano de todas as fontes
-    if (enemy.gyukiInked) dmg *= (1 + (enemy.gyukiInkBonus || 0.55));
+    // Multiplicadores de dano por status
+    if (enemy.status?.medo?.active)       dmg *= 1.25;
+    if (enemy.status?.cross_mark?.active) dmg *= (1 + enemy.status.cross_mark.bonus);
+    if (enemy.status?.gyuki_ink?.active)  dmg *= (1 + enemy.status.gyuki_ink.bonus);
 
-    // Escudo de Areia (Cap.1): só quebra por burst (>800 dmg em janela de 1.5s)
-    if (enemy.sandShield) {
-      const now = performance.now() / 1000;
-      if (!enemy._sandBurstStart || (now - enemy._sandBurstStart) > 1.5) {
-        enemy._sandBurstStart = now;
-        enemy._sandBurst = 0;
-      }
-      enemy._sandBurst += dmg;
-      if (enemy._sandBurst >= 800) {
-        enemy.sandShield = false;
-        addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:55, color:'#d97706', timer:0.7, maxTimer:0.7, r:0 });
-        UI.toast(`💥 Escudo de Areia destruído!`, 2000);
-      } else {
-        enemy.hitFlash = 0.1;
-        return;
-      }
-    }
+    // PTYPE onDamageTaken: sand_shield (burst), futuros behaviors de intercepção
+    if (dispatchPtypeDamageTaken(enemy, dmg)) return;
 
     if ((enemy.shieldHp || 0) > 0) {
       const absorbed = Math.min(enemy.shieldHp, dmg);

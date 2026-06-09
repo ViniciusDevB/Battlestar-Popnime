@@ -154,9 +154,8 @@ function updateSpawn(dt) {
     e.pathLen = getPathLength(e.pathArr);
     e.dist = next.distFraction ? e.pathLen * next.distFraction : 0;
     if (!_wavesCtx.isInfiniteMode && _wavesCtx.stage?.modifiers?.sandShield && !e.is_boss) {
-      e.sandShield = true;
-      e._sandBurst = 0;
-      e._sandBurstStart = 0;
+      e.ptypes.push('sand_shield');
+      PTYPE_BEHAVIORS.sand_shield.init(e);
     }
     _wavesCtx.enemies.push(e);
     _wavesCtx.dispatchSpecialSpawn(e);

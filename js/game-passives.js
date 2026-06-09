@@ -795,9 +795,7 @@ const PASSIVE_ENTRIES = {
       let marked = 0;
       _passiveCtx.enemies.forEach(e => {
         if (!e.dead && !e.reached_end && _passiveCtx.distSq(e.x, e.y, enemy.x, enemy.y) <= range * range) {
-          e.crossMarked      = true;
-          e.crossMarkTimer   = dur;
-          e.crossMarkBonus   = bonus;
+          applyStatus(e, 'cross_mark', { duration: dur, bonus });
           marked++;
         }
       });
@@ -1014,7 +1012,7 @@ const PASSIVE_ENTRIES = {
   // marcados com tinta: recebem +bonus% de dano de TODAS as fontes por X segundos.
   gyuki_ink: {
     renderBadge(tower, p) {
-      const inked = _passiveCtx.enemies.filter(e => !e.dead && !e.reached_end && e.gyukiInked).length;
+      const inked = _passiveCtx.enemies.filter(e => !e.dead && !e.reached_end && e.status?.gyuki_ink?.active).length;
       if (inked === 0) return null;
       return { text: `🐙×${inked}`, color: '#7c3aed' };
     },
@@ -1025,9 +1023,7 @@ const PASSIVE_ENTRIES = {
       const dur   = _passiveCtx.getPassiveValue(tower, 'ink_duration', p.duration || 5);
       const bonus = _passiveCtx.getPassiveValue(tower, 'bonus', p.bonus || 0.55);
       hitEnemies.forEach(e => {
-        e.gyukiInked    = true;
-        e.gyukiInkTimer = dur;
-        e.gyukiInkBonus = bonus;
+        applyStatus(e, 'gyuki_ink', { duration: dur, bonus });
         _passiveCtx.addEffect({ type: 'ring', x: e.x, y: e.y, maxR: 22, color: '#7c3aed', timer: 0.4, maxTimer: 0.4, r: 0 });
       });
     }
@@ -1065,10 +1061,8 @@ const PASSIVE_ENTRIES = {
         // Paralisa todos os inimigos por 1.5s E marca com Tinta do Gyuki
         _passiveCtx.enemies.forEach(e => {
           if (!e.dead && !e.reached_end) {
-            STATUS_TYPES.paralisia.apply(e.status, { duration: 1.5 });
-            e.gyukiInked    = true;
-            e.gyukiInkTimer = inkDur;
-            e.gyukiInkBonus = inkBonus;
+            applyStatus(e, 'paralisia',  { duration: 1.5 });
+            applyStatus(e, 'gyuki_ink',  { duration: inkDur, bonus: inkBonus });
           }
         });
 
@@ -1113,9 +1107,7 @@ const PASSIVE_ENTRIES = {
         tower._markCount = 0;
         const target = hitEnemies[0];
         if (!target.dead && !target.reached_end) {
-          target.crossMarked = true;
-          target.crossMarkTimer = p.duration || 3;
-          target.crossMarkBonus = p.bonus || 0.30;
+          applyStatus(target, 'cross_mark', { duration: p.duration || 3, bonus: p.bonus || 0.30 });
           _passiveCtx.addEffect({ type:'ring', x:target.x, y:target.y, maxR:40, color:'#fbbf24', timer:0.5, maxTimer:0.5, r:0 });
         }
       }
