@@ -62,20 +62,43 @@ const I18N = (() => {
 
     // Traduz Mundos e Fases
     if (window.WORLDS) {
-      for (const w_id in window.WORLDS) {
-        const w = window.WORLDS[w_id];
-        if (dict[`world_${w_id}_name`]) w.name = dict[`world_${w_id}_name`];
-        if (dict[`world_${w_id}_desc`]) w.desc = dict[`world_${w_id}_desc`];
+      for (const w of window.WORLDS) {
+        if (dict[`world_${w.id}_name`]) w.name = dict[`world_${w.id}_name`];
+        if (dict[`world_${w.id}_desc`]) w.desc = dict[`world_${w.id}_desc`];
       }
     }
 
     if (window.STAGES) {
-      for (const w_id in window.STAGES) {
-        const stages = window.STAGES[w_id];
-        stages.forEach((s, idx) => {
-           if (dict[`world_${w_id}_stage_${idx+1}_name`]) s.name = dict[`world_${w_id}_stage_${idx+1}_name`];
-        });
-      }
+      window.STAGES.forEach(s => {
+        if (dict[`stage_${s.id}_name`]) s.name = dict[`stage_${s.id}_name`];
+      });
+    }
+    
+    // Traduz Missões
+    if (window.MISSIONS_LIST) {
+      window.MISSIONS_LIST.forEach(m => {
+        if (dict[`mission_${m.id}_label`]) m.label = dict[`mission_${m.id}_label`];
+      });
+    }
+    if (window.DAILY_MISSIONS_POOL) {
+      window.DAILY_MISSIONS_POOL.forEach(m => {
+        if (dict[`mission_${m.id}_label`]) m.label = dict[`mission_${m.id}_label`];
+      });
+    }
+    
+    // Traduz Eventos
+    if (window.EVENTS_DATA) {
+      window.EVENTS_DATA.forEach(e => {
+        if (dict[`event_${e.id}_name`]) e.name = dict[`event_${e.id}_name`];
+        if (dict[`event_${e.id}_desc`]) e.desc = dict[`event_${e.id}_desc`];
+        if (e.stages) {
+          e.stages.forEach(s => {
+            if (dict[`event_stage_${s.id}_name`]) s.name = dict[`event_stage_${s.id}_name`];
+            if (dict[`event_stage_${s.id}_story`]) s.story = dict[`event_stage_${s.id}_story`];
+            if (dict[`event_stage_${s.id}_desc`]) s.description = dict[`event_stage_${s.id}_desc`];
+          });
+        }
+      });
     }
   }
 

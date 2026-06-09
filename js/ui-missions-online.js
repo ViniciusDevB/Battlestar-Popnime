@@ -35,20 +35,20 @@ const MissionsUI = (() => {
     return `${h}h ${m}m`;
   }
 
-  const _goalLabel   = { kills:'inimigos derrotados', damage:'de dano total', stages_cleared:'fases concluídas', pulls:'invocações' };
-  const _contribLabel= { kills:'kills', damage:'dano', stages_cleared:'fases', pulls:'pulls' };
+  const _goalLabel   = () => ({ kills: I18N.t('ms_target_kills'), damage: I18N.t('ms_target_dmg'), stages_cleared: I18N.t('ms_target_stages'), pulls: I18N.t('ms_target_pulls') });
+  const _contribLabel= () => ({ kills: I18N.t('ms_type_kills'), damage: I18N.t('ms_type_dmg'), stages_cleared: I18N.t('ms_type_stages'), pulls: I18N.t('ms_type_pulls') });
 
   // ── Shell ─────────────────────────────────────────────────────────────────────
 
   function _shellHTML() {
     const tabs = [
-      { key:'daily',     label:'Diárias'    },
-      { key:'fixed',     label:'Conquistas' },
-      { key:'community', label:'Comunidade' },
+      { key:'daily',     label: I18N.t('ms_tab_daily')    },
+      { key:'fixed',     label: I18N.t('ms_tab_fixed')    },
+      { key:'community', label: I18N.t('ms_tab_community') },
     ];
     return `
       <div class="ms-header">
-        <h3>📋 Missões</h3>
+        <h3>${I18N.t('ms_title_missions')}</h3>
         <button class="modal-close" onclick="MissionsUI.close()">✕</button>
       </div>
       <div class="ms-tabs">
@@ -87,8 +87,8 @@ const MissionsUI = (() => {
 
     return `
       <div class="ms-daily-header">
-        <span class="ms-daily-reset">🔄 Reseta em ${_fmtUntilReset()}</span>
-        ${allDone ? '<span class="ms-daily-complete">Tudo concluído hoje! 🎉</span>' : ''}
+        <span class="ms-daily-reset">${I18N.t('ms_daily_reset', {time: _fmtUntilReset()})}</span>
+        ${allDone ? `<span class="ms-daily-complete">${I18N.t('ms_daily_complete')}</span>` : ''}
       </div>
       <div class="ms-local-list">${items}</div>`;
   }
@@ -112,7 +112,7 @@ const MissionsUI = (() => {
       </div>`;
     }).join('');
 
-    if (!items) return `<div class="ms-empty"><div class="ms-empty-icon">🏆</div><p>Todas as conquistas foram desbloqueadas!</p></div>`;
+    if (!items) return `<div class="ms-empty"><div class="ms-empty-icon">🏆</div><p>${I18N.t('ms_fixed_all_unlocked')}</p></div>`;
     return `<div class="ms-local-list" id="missions-local-list">${items}</div>`;
   }
 
@@ -121,17 +121,17 @@ const MissionsUI = (() => {
   function _offlineHTML() {
     return `<div class="ms-empty">
       <div class="ms-empty-icon">🔒</div>
-      <p>Entre na sua conta para participar das missões da comunidade.</p>
+      <p>${I18N.t('ms_comm_offline')}</p>
       <button class="btn btn-primary ms-action-btn"
-        onclick="MissionsUI.close();OnlineUI.show()">Entrar / Criar Conta</button>
+        onclick="MissionsUI.close();OnlineUI.show()">${I18N.t('ms_comm_login_btn')}</button>
     </div>`;
   }
 
   function _noMissionHTML() {
     return `<div class="ms-empty">
       <div class="ms-empty-icon">🏁</div>
-      <p>Nenhuma missão ativa no momento.</p>
-      <p class="ms-empty-sub">Uma nova missão começa em breve!</p>
+      <p>${I18N.t('ms_comm_no_mission')}</p>
+      <p class="ms-empty-sub">${I18N.t('ms_comm_no_mission_sub')}</p>
     </div>`;
   }
 
@@ -140,33 +140,33 @@ const MissionsUI = (() => {
     const pct = Math.min(100, Math.round((m.current_value / m.goal_value) * 100));
 
     const contribPart = _contrib
-      ? `<div class="ms-contrib">Sua contribuição: <strong>${_fmt(_contrib.value)} ${_contribLabel[m.goal_type] || m.goal_type}</strong></div>`
+      ? `<div class="ms-contrib">${I18N.t('ms_comm_contrib', {val: _fmt(_contrib.value), type: _contribLabel()[m.goal_type] || m.goal_type})}</div>`
       : (Online.isLoggedIn()
-          ? `<div class="ms-contrib ms-contrib--none">Jogue para contribuir com esta missão!</div>`
+          ? `<div class="ms-contrib ms-contrib--none">${I18N.t('ms_comm_contrib_none')}</div>`
           : '');
 
     let actionPart = '';
     if (m.completed) {
       if (_contrib && !_contrib.claimed_at) {
-        actionPart = `<button class="btn ms-claim-btn" onclick="MissionsUI.claim('${m.id}')">🎁 Resgatar Recompensa</button>`;
+        actionPart = `<button class="btn ms-claim-btn" onclick="MissionsUI.claim('${m.id}')">${I18N.t('ms_claim_btn')}</button>`;
       } else if (_contrib?.claimed_at) {
-        actionPart = `<div class="ms-claimed-badge">✅ Recompensa resgatada!</div>`;
+        actionPart = `<div class="ms-claimed-badge">${I18N.t('ms_claim_badge')}</div>`;
       } else if (Online.isLoggedIn()) {
-        actionPart = `<div class="ms-contrib ms-contrib--none">Você não contribuiu para esta missão.</div>`;
+        actionPart = `<div class="ms-contrib ms-contrib--none">${I18N.t('ms_comm_contrib_offline')}</div>`;
       }
     }
 
     const rewardUnits = (m.reward_units || []).map(id => {
-      if (id === '__random_5star__')     return `<span class="ms-reward-unit ms-reward-random">🌟 Personagem 5⭐ Aleatório</span>`;
-      if (id === '__random_event_unit__') return `<span class="ms-reward-unit ms-reward-event">🎪 Unidade de Evento Aleatória</span>`;
+      if (id === '__random_5star__')     return `<span class="ms-reward-unit ms-reward-random">${I18N.t('ms_reward_random')}</span>`;
+      if (id === '__random_event_unit__') return `<span class="ms-reward-unit ms-reward-event">${I18N.t('ms_reward_event')}</span>`;
       const char = typeof getCharById !== 'undefined' && getCharById(id);
       return `<span class="ms-reward-unit">${char ? char.name : id}</span>`;
     }).join('');
 
     const rewardLine = (m.reward_gems > 0 || rewardUnits)
       ? `<div class="ms-rewards">
-           <span class="ms-reward-label">Recompensa:</span>
-           ${m.reward_gems > 0 ? `<span class="ms-reward-gem">💎 ${m.reward_gems} gemas</span>` : ''}
+           <span class="ms-reward-label">${I18N.t('ms_reward_label')}</span>
+           ${m.reward_gems > 0 ? `<span class="ms-reward-gem">💎 ${m.reward_gems}</span>` : ''}
            ${rewardUnits}
          </div>` : '';
 
@@ -174,19 +174,19 @@ const MissionsUI = (() => {
       ${m.completed ? '<div class="ms-completed-banner">🎉 META ALCANÇADA PELA COMUNIDADE!</div>' : ''}
       <div class="ms-body">
         <div class="ms-update-badge">Update 2.5</div>
-        <div class="ms-title">${m.title}</div>
-        ${m.description ? `<div class="ms-desc">${m.description}</div>` : ''}
+        <div class="ms-title">${I18N.t('online_mission_' + m.id + '_title', {}, m.title)}</div>
+        ${m.description ? `<div class="ms-desc">${I18N.t('online_mission_' + m.id + '_desc', {}, m.description)}</div>` : ''}
         <div class="ms-progress-wrap">
           <div class="ms-progress-bar" style="width:${pct}%"></div>
         </div>
         <div class="ms-progress-labels">
-          <span>${_fmt(m.current_value)} / ${_fmt(m.goal_value)} ${_goalLabel[m.goal_type] || m.goal_type}</span>
-          <span class="ms-time-left" id="ms-time-left">⏱ ${_fmtTimeLeft(m.ends_at)}</span>
+          <span>${_fmt(m.current_value)} / ${_fmt(m.goal_value)} ${_goalLabel()[m.goal_type] || m.goal_type}</span>
+          <span class="ms-time-left" id="ms-time-left">${I18N.t('ms_time_left', {time: _fmtTimeLeft(m.ends_at)})}</span>
         </div>
         ${rewardLine}
         ${contribPart}
         ${actionPart}
-        <button class="btn ms-refresh-btn" onclick="MissionsUI.refresh()">🔄 Atualizar</button>
+        <button class="btn ms-refresh-btn" onclick="MissionsUI.refresh()">${I18N.t('ms_refresh_btn')}</button>
       </div>`;
   }
 
@@ -206,9 +206,9 @@ const MissionsUI = (() => {
     const isNemesis = (m.reward_units || []).includes('nemesis');
 
     const rewardPills = (m.reward_units || []).map(id => {
-      if (id === 'nemesis')              return `<span class="ms-reward-unit ms-upcoming-reward--nemesis">💀 Nemesis — Unidade Exclusiva 5⭐</span>`;
-      if (id === '__random_event_unit__') return `<span class="ms-reward-unit ms-reward-event">🎪 Unidade de Evento Aleatória</span>`;
-      if (id === '__random_5star__')      return `<span class="ms-reward-unit ms-reward-random">🌟 Personagem 5⭐ Aleatório</span>`;
+      if (id === 'nemesis')              return `<span class="ms-reward-unit ms-upcoming-reward--nemesis">${I18N.t('ms_reward_nemesis')}</span>`;
+      if (id === '__random_event_unit__') return `<span class="ms-reward-unit ms-reward-event">${I18N.t('ms_reward_event')}</span>`;
+      if (id === '__random_5star__')      return `<span class="ms-reward-unit ms-reward-random">${I18N.t('ms_reward_random')}</span>`;
       const c = typeof getCharById !== 'undefined' && getCharById(id);
       return `<span class="ms-reward-unit">${c ? c.name : id}</span>`;
     }).join('');
@@ -222,10 +222,10 @@ const MissionsUI = (() => {
           <span class="ms-update-badge ms-update-badge--tbd">PRÓXIMO UPDATE</span>
           <span class="ms-upcoming-badge${isNemesis ? ' ms-upcoming-badge--nemesis' : ''}">EM BREVE</span>
         </div>
-        <div class="ms-upcoming-title">${isNemesis ? '🧟 ' : ''}${m.title}</div>
-        <div class="ms-upcoming-desc">${m.description}</div>
+        <div class="ms-upcoming-title">${isNemesis ? '🧟 ' : ''}${I18N.t('online_mission_' + m.id + '_title', {}, m.title)}</div>
+        <div class="ms-upcoming-desc">${I18N.t('online_mission_' + m.id + '_desc', {}, m.description)}</div>
         <div class="ms-upcoming-rewards">${rewardPills}${gemsPill}</div>
-        <div class="ms-upcoming-countdown">⏳ Começa em <strong>${_fmtCountdown(m.starts_at)}</strong></div>
+        <div class="ms-upcoming-countdown">${I18N.t('ms_upcoming_starts', {time: _fmtCountdown(m.starts_at)})}</div>
       </div>`;
   }
 
@@ -251,7 +251,7 @@ const MissionsUI = (() => {
       </div>` : '';
 
     return `
-      <div class="ms-upcoming-header">📅 Em Breve</div>
+      <div class="ms-upcoming-header">${I18N.t('ms_upcoming_title')}</div>
       ${card}
       ${nav}`;
   }
