@@ -58,6 +58,9 @@ const Online = (() => {
         if (!_authResolved) {
           _authResolved = true;
           if (_onReadyCb) { const cb = _onReadyCb; _onReadyCb = null; cb(false); }
+        } else {
+          // Sessão encerrada após login (logout ou expiração) — força tela de login
+          if (typeof LoginScreen !== 'undefined') LoginScreen.show();
         }
       }
     });
