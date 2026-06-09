@@ -1173,12 +1173,18 @@ function getCurrentStats(charData, level) {
   };
 }
 
-function xpForNextLevel(level) { return level * 100; }
+function xpForNextLevel(level, rarity = 3) {
+  const multiplier = Math.max(1, Math.pow(2, rarity - 3));
+  return level * 100 * multiplier;
+}
 
 function applyXPToUnit(unitSave, xpGain) {
   unitSave.xp_atual += xpGain;
-  while (unitSave.nivel < 50) {
-    const needed = xpForNextLevel(unitSave.nivel);
+  const char = getCharById(unitSave.id);
+  const rarity = char ? char.rarity : 3;
+  const maxLevel = char && char.max_level ? char.max_level : 50;
+  while (unitSave.nivel < maxLevel) {
+    const needed = xpForNextLevel(unitSave.nivel, rarity);
     if (unitSave.xp_atual >= needed) { unitSave.xp_atual -= needed; unitSave.nivel++; }
     else break;
   }

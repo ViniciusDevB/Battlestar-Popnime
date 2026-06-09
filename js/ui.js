@@ -116,20 +116,29 @@ const UI = (() => {
     const grid = document.getElementById('world-grid');
     if (!grid) return;
     grid.innerHTML = '';
-    WORLDS.forEach(w => {
+    WORLDS.forEach((w, index) => {
       const d = Save.get();
       const stagesInWorld = getStagesByWorld(w.id);
       const completed = stagesInWorld.filter(s => Save.isStageComplete(s.id, 'normal')).length;
+      
+      let isUnlocked = true;
+      if (index > 0 && w.id !== 'infinito') {
+        const prevWorld = WORLDS[index - 1];
+        const prevStages = getStagesByWorld(prevWorld.id);
+        const prevCompleted = prevStages.filter(s => Save.isStageComplete(s.id, 'normal')).length;
+        isUnlocked = (prevCompleted === prevStages.length);
+      }
+
       const card = document.createElement('div');
-      card.className = `world-card theme-${w.id}${w.unlocked ? '' : ' world-locked'}`;
+      card.className = `world-card theme-${w.id}${isUnlocked ? '' : ' world-locked'}`;
       card.style.borderColor = w.color;
       card.innerHTML = `
         <div class="world-icon" style="color:${w.color}">🌍</div>
         <div class="world-name">${w.name}</div>
         <div class="world-desc">${w.description}</div>
         <div class="world-progress">${completed}/${stagesInWorld.length} fases</div>
-        ${!w.unlocked ? '<div class="world-lock">🔒</div>' : ''}`;
-      if (w.unlocked) card.addEventListener('click', () => showStageSelect(w.id));
+        ${!isUnlocked ? '<div class="world-lock">🔒</div>' : ''}`;
+      if (isUnlocked) card.addEventListener('click', () => showStageSelect(w.id));
       grid.appendChild(card);
     });
   }
@@ -159,7 +168,7 @@ const UI = (() => {
         <div class="stage-num">${i + 1}</div>
         <div class="stage-name">${stage.name}</div>
         <div class="stage-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
-        <div class="stage-rewards"><span>50-120 💎</span><span>Material</span></div>
+        <div class="stage-rewards"><span>50-200 💎</span><span>Material</span></div>
         ${!prevDone ? '<div class="stage-lock">🔒</div>' : ''}`;
       if (prevDone) card.addEventListener('click', () => showPreBattle(stage.id));
       grid.appendChild(card);

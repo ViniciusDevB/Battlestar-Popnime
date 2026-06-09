@@ -151,33 +151,37 @@ const Inventory = (() => {
       const d = Save.get();
       const ownedIds = new Set();
 
+      const unitsToRender = [];
+
       d.inventario.unidades.forEach(unit => {
         const char = getCharById(unit.id);
         if (!char || !char.playable) return;
         if (!_matchesFilters(char)) return;
         ownedIds.add(unit.id);
-
-        const locked = !!unit.in_trade;
-        const card = document.createElement('div');
-        card.className = `inv-card rarity-${char.rarity}${locked ? ' inv-card--in-trade' : ''}`;
-        card.innerHTML = `
-          <div class="inv-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
-          <div class="inv-name">${char.name}</div>
-          <div class="inv-meta">${RARITY_LABELS[char.rarity]} Lv${unit.nivel}${locked ? ' · Em troca' : ''}</div>`;
-        card.addEventListener('click', () => openDetail(unit.uid));
-        grid.appendChild(card);
+        unitsToRender.push({ char, unit, locked: !!unit.in_trade });
       });
 
-      getPlayable().forEach(char => {
-        if (ownedIds.has(char.id)) return;
-        if (!_matchesFilters(char)) return;
-        const card = document.createElement('div');
-        card.className = `inv-card rarity-${char.rarity} inv-card--locked`;
-        card.innerHTML = `
-          <div class="inv-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
-          <div class="inv-name">${char.name}</div>
-          <div class="inv-meta">${RARITY_LABELS[char.rarity]} Não obtida</div>`;
-        grid.appendChild(card);
+      unitsToRender.sort((a, b) => {
+        if (b.char.rarity !== a.char.rarity) return b.char.rarity - a.char.rarity;
+        if (a.char.id !== b.char.id) return a.char.id.localeCompare(b.char.id);
+        if (a.unit && b.unit) return b.unit.nivel - a.unit.nivel;
+        if (a.unit && !b.unit) return -1;
+        if (!a.unit && b.unit) return 1;
+        return 0;
+      });
+
+      unitsToRender.forEach(item => {
+        if (item.unit) {
+          const { char, unit, locked } = item;
+          const card = document.createElement('div');
+          card.className = `inv-card rarity-${char.rarity}${locked ? ' inv-card--in-trade' : ''}`;
+          card.innerHTML = `
+            <div class="inv-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
+            <div class="inv-name">${char.name}</div>
+            <div class="inv-meta">${RARITY_LABELS[char.rarity]} Lv${unit.nivel}${locked ? ' · Em troca' : ''}</div>`;
+          card.addEventListener('click', () => openDetail(unit.uid));
+          grid.appendChild(card);
+        }
       });
 
     } else {
@@ -188,6 +192,8 @@ const Inventory = (() => {
 
       materials.forEach(char => {
         const qty = Save.getMaterialQty(char.id);
+        if (qty <= 0) return;
+        
         const card = document.createElement('div');
         card.className = `inv-card rarity-${char.rarity}${char.upgrades_to ? ' mat-combinable' : ''}`;
         card.innerHTML = `
@@ -364,7 +370,7 @@ const Inventory = (() => {
     panel.style.display = 'flex';
 
     const stats = getCurrentStats(char, unitData.nivel);
-    const xpNeeded = xpForNextLevel(unitData.nivel);
+    const xpNeeded = xpForNextLevel(unitData.nivel, char.rarity);
     const xpPct = unitData.nivel >= 50 ? 100 : Math.round((unitData.xp_atual / xpNeeded) * 100);
     const totalCopies = Save.getUnitQty(char.id);
     const passives = char.passive ? (Array.isArray(char.passive) ? char.passive : [char.passive]) : [];
@@ -570,7 +576,7 @@ const Inventory = (() => {
         <div class="feed-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
         <div>
           <div>${char.name}</div>
-          <div>Lv ${unitData.nivel}/50 | XP: ${unitData.xp_atual}/${xpForNextLevel(unitData.nivel)}</div>
+          <div>Lv ${unitData.nivel}/50 | XP: ${unitData.xp_atual}/${xpForNextLevel(unitData.nivel, char.rarity)}</div>
         </div>
       </div>`;
 
@@ -586,6 +592,8 @@ const Inventory = (() => {
     const targetUnitData = Save.getUnitByUid(targetUid);
     const targetChar = targetUnitData ? getCharById(targetUnitData.id) : null;
 
+    const itemsToRender = [];
+
     [
       { id:'ninja_generico_1' }, { id:'ninja_generico_2' }, { id:'ninja_generico_3' },
       { id:'pirata_generico_1' }, { id:'pirata_generico_2' }, { id:'pirata_generico_3' },
@@ -596,15 +604,14 @@ const Inventory = (() => {
       const available = qty - selectedCount;
       if (qty <= 0) return;
       const char = getCharById(mat.id);
-      const div = document.createElement('div');
-      div.className = `feed-mat-item${selectedCount > 0 ? ' selected' : ''}`;
-      div.innerHTML = `
-        <div class="feed-mat-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
-        <div>${char.name}</div>
-        <div>×${available}</div>
-        <div class="feed-mat-xp">+${getFeedXP(mat.id, targetChar)} XP</div>`;
-      div.addEventListener('click', () => selectFeedItem('material', mat.id, available > 0));
-      grid.appendChild(div);
+      itemsToRender.push({
+        type: 'material',
+        ref: mat.id,
+        char,
+        available,
+        xpGain: getFeedXP(mat.id, targetChar),
+        selectedCount
+      });
     });
 
     const d = Save.get();
@@ -613,15 +620,42 @@ const Inventory = (() => {
       if (feedSelected.some(s => s.type === 'unit' && s.uid === unit.uid)) return;
       const char = getCharById(unit.id);
       if (!char || !char.playable) return;
-      const xpGain = getFeedXP(unit.id, targetChar);
+      itemsToRender.push({
+        type: 'unit',
+        ref: unit.uid,
+        char,
+        unit,
+        available: 1,
+        xpGain: getFeedXP(unit.id, targetChar)
+      });
+    });
+
+    itemsToRender.sort((a, b) => {
+      if (a.char.rarity !== b.char.rarity) return a.char.rarity - b.char.rarity; // Crescente para usar piores primeiro?
+      if (a.char.id !== b.char.id) return a.char.id.localeCompare(b.char.id);
+      if (a.unit && b.unit) return a.unit.nivel - b.unit.nivel;
+      return 0;
+    });
+
+    itemsToRender.forEach(item => {
       const div = document.createElement('div');
-      div.className = 'feed-mat-item';
-      div.innerHTML = `
-        <div class="feed-mat-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
-        <div>${char.name} <small>Lv${unit.nivel}</small></div>
-        <div>×1</div>
-        <div class="feed-mat-xp">+${xpGain} XP</div>`;
-      div.addEventListener('click', () => selectFeedItem('unit', unit.uid, true));
+      if (item.type === 'material') {
+        div.className = `feed-mat-item${item.selectedCount > 0 ? ' selected' : ''}`;
+        div.innerHTML = `
+          <div class="feed-mat-icon" style="background:${RARITY_COLORS[item.char.rarity]}">${charIconInner(item.char)}</div>
+          <div>${item.char.name}</div>
+          <div>×${item.available}</div>
+          <div class="feed-mat-xp">+${item.xpGain} XP</div>`;
+        div.addEventListener('click', () => selectFeedItem('material', item.ref, item.available > 0));
+      } else {
+        div.className = 'feed-mat-item';
+        div.innerHTML = `
+          <div class="feed-mat-icon" style="background:${RARITY_COLORS[item.char.rarity]}">${charIconInner(item.char)}</div>
+          <div>${item.char.name} <small>Lv${item.unit.nivel}</small></div>
+          <div>×1</div>
+          <div class="feed-mat-xp">+${item.xpGain} XP</div>`;
+        div.addEventListener('click', () => selectFeedItem('unit', item.ref, true));
+      }
       grid.appendChild(div);
     });
   }

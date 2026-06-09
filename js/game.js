@@ -918,7 +918,7 @@ const Game = (() => {
     if (isInfiniteMode) return; // modo infinito não tem vitória, apenas derrota
 
     // Victory rewards
-    const gemMap = { normal:50, dificil:80, lendario:120 };
+    const gemMap = { normal:50, dificil:100, lendario:200 };
     let gems = gemMap[difficulty] || 50;
     const stageId = stage.id;
     const firstTime = !Save.isStageComplete(stageId, difficulty);
