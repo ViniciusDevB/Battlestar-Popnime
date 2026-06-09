@@ -182,8 +182,8 @@ BEGIN
       ELSE        v_unit_id := v_pool_3[1 + floor(random() * array_length(v_pool_3, 1))::INT];
     END CASE;
 
-    -- Gera UID único para esta instância
-    v_uid := substr(encode(gen_random_bytes(8), 'hex'), 1, 13);
+    -- Gera UID único para esta instância (sem pgcrypto — uuid nativo)
+    v_uid := substr(replace(gen_random_uuid()::text, '-', ''), 1, 13);
 
     -- Adiciona ao array de resultados
     v_results := v_results || jsonb_build_array(
