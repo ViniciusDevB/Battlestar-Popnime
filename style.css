@@ -2837,30 +2837,78 @@ select:hover{border-color:var(--bd3);}
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ══════════ GACHA ANIMATION ══════════ */
+/* ═══════════ GACHA ANIMATION ═══════════ */
+
 .gacha-anim-container {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  background: radial-gradient(circle at center, #110022 0%, #000000 100%);
+  background: radial-gradient(ellipse at 50% 55%, #010E04 0%, #000608 55%, #000000 100%);
   z-index: 9999;
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
   perspective: 1000px;
 }
 
+/* Spike burst on flash impact */
+.gacha-anim-container::before {
+  content: '';
+  position: absolute;
+  width: 200vmax; height: 200vmax;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.05);
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    currentColor 0deg 1deg,
+    transparent 1deg 20deg
+  );
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.gacha-anim-container.flash-active::before {
+  animation: spike-burst 1.1s cubic-bezier(0.05, 0.9, 0.3, 1) forwards;
+}
+@keyframes spike-burst {
+  0%   { opacity: 0.65; transform: translate(-50%, -50%) scale(0.05); }
+  25%  { opacity: 0.4;  transform: translate(-50%, -50%) scale(0.45); }
+  100% { opacity: 0;    transform: translate(-50%, -50%) scale(1.3); }
+}
+
+/* Warp speed stars */
 .gacha-bg-stars {
   position: absolute; inset: 0;
-  background: repeating-radial-gradient(circle at center, transparent 0, transparent 40px, rgba(255, 255, 255, 0.03) 41px, transparent 42px);
+  background: repeating-radial-gradient(circle at center, transparent 0, transparent 40px, rgba(57,255,20,0.04) 41px, transparent 42px);
   opacity: 0;
 }
 .gacha-anim-container.active .gacha-bg-stars {
   animation: warp-speed 2s linear infinite, fade-in 0.5s forwards;
 }
-
 @keyframes fade-in { to { opacity: 1; } }
 @keyframes warp-speed {
-  0% { transform: scale(1); }
+  0%   { transform: scale(1); }
   100% { transform: scale(3); }
 }
 
+/* Portal core — glowing orb at center */
+.gacha-portal-core {
+  position: absolute;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, currentColor 0%, transparent 70%);
+  filter: blur(12px);
+  opacity: 0;
+  z-index: 0;
+}
+.gacha-anim-container.active .gacha-portal-core {
+  animation: portal-core-pulse 1.4s ease-in-out forwards;
+}
+@keyframes portal-core-pulse {
+  0%   { opacity: 0;   transform: scale(0.3); }
+  35%  { opacity: 0.7; transform: scale(2.2); }
+  70%  { opacity: 0.4; transform: scale(1.4); }
+  100% { opacity: 0.8; transform: scale(1.0); }
+}
+
+/* Magic circle rings */
 .gacha-magic-circle {
   position: absolute;
   width: 500px; height: 500px;
@@ -2872,7 +2920,7 @@ select:hover{border-color:var(--bd3);}
   animation: portal-open 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 @keyframes portal-open {
-  0% { transform: rotateX(70deg) rotateZ(0deg) scale(0); opacity: 0; }
+  0%   { transform: rotateX(70deg) rotateZ(0deg) scale(0); opacity: 0; }
   100% { transform: rotateX(65deg) rotateZ(180deg) scale(1); opacity: 1; }
 }
 
@@ -2880,17 +2928,15 @@ select:hover{border-color:var(--bd3);}
   position: absolute;
   border-radius: 50%;
   border: 2px solid currentColor;
-  box-shadow: 0 0 30px currentColor, inset 0 0 30px currentColor;
+  box-shadow: 0 0 20px currentColor, 0 0 55px currentColor, inset 0 0 20px currentColor;
   animation: spin-ring linear infinite;
 }
 .gacha-ring.r1 { width: 100%; height: 100%; border-width: 4px; border-style: dashed; animation-duration: 8s; }
-.gacha-ring.r2 { width: 80%; height: 80%; border-width: 2px; animation-duration: 5s; animation-direction: reverse; }
-.gacha-ring.r3 { width: 60%; height: 60%; border-width: 6px; border-style: dotted; animation-duration: 10s; }
+.gacha-ring.r2 { width: 80%;  height: 80%;  border-width: 2px; animation-duration: 5s; animation-direction: reverse; }
+.gacha-ring.r3 { width: 60%;  height: 60%;  border-width: 6px; border-style: dotted; animation-duration: 10s; }
+@keyframes spin-ring { to { transform: rotate(360deg); } }
 
-@keyframes spin-ring {
-  to { transform: rotate(360deg); }
-}
-
+/* Light beam */
 .gacha-beam {
   position: absolute;
   bottom: 50%;
@@ -2904,17 +2950,19 @@ select:hover{border-color:var(--bd3);}
   animation: beam-shoot 0.8s ease-out forwards;
 }
 @keyframes beam-shoot {
-  0% { width: 10px; opacity: 0; }
-  20% { width: 250px; opacity: 1; }
-  100% { width: 0px; opacity: 0; }
+  0%   { width: 10px;  opacity: 0; }
+  20%  { width: 250px; opacity: 1; }
+  100% { width: 0px;   opacity: 0; }
 }
 
+/* Meteor */
 .gacha-meteor {
   position: absolute;
-  width: 12px; height: 160px;
-  background: currentColor;
-  border-radius: 6px;
-  box-shadow: 0 0 40px 15px currentColor;
+  width: 14px; height: 200px;
+  background: linear-gradient(to bottom, transparent 0%, currentColor 35%, #fff 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 50px 18px currentColor;
+  filter: brightness(1.3);
   transform: rotate(-25deg) translateY(-150vh);
   opacity: 0;
 }
@@ -2922,11 +2970,12 @@ select:hover{border-color:var(--bd3);}
   animation: meteor-fall-epic 1.4s cubic-bezier(0.5, 0, 1, 1) forwards;
 }
 @keyframes meteor-fall-epic {
-  0% { transform: rotate(-25deg) translateY(-150vh); opacity: 1; }
-  85% { transform: rotate(-25deg) translateY(0); opacity: 1; width: 12px; height: 160px; border-radius: 6px; }
-  100% { transform: rotate(-25deg) translateY(10vh); opacity: 0; width: 200px; height: 200px; border-radius: 50%; }
+  0%   { transform: rotate(-25deg) translateY(-150vh); opacity: 1; }
+  85%  { transform: rotate(-25deg) translateY(0); opacity: 1; width: 14px; height: 200px; border-radius: 4px; }
+  100% { transform: rotate(-25deg) translateY(10vh);  opacity: 0; width: 200px; height: 200px; border-radius: 50%; }
 }
 
+/* Shockwave */
 .gacha-shockwave {
   position: absolute;
   width: 10px; height: 10px;
@@ -2940,34 +2989,39 @@ select:hover{border-color:var(--bd3);}
   animation: shockwave-expand 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
 }
 @keyframes shockwave-expand {
-  0% { width: 10px; height: 10px; opacity: 1; box-shadow: 0 0 40px currentColor, inset 0 0 40px currentColor; border-width: 40px; }
-  100% { width: 150vw; height: 150vw; opacity: 0; border-width: 1px; box-shadow: 0 0 0 currentColor; }
+  0%   { width: 10px;   height: 10px;   opacity: 1; box-shadow: 0 0 40px currentColor, inset 0 0 40px currentColor; border-width: 40px; }
+  100% { width: 150vw;  height: 150vw;  opacity: 0; border-width: 1px; box-shadow: 0 0 0 currentColor; }
 }
 
-.anim-red { color: #ef4444; }
-.anim-red .gacha-bg-stars { background: repeating-radial-gradient(circle at center, transparent 0, transparent 40px, rgba(239, 68, 68, 0.15) 41px, transparent 42px); }
-.anim-red .gacha-magic-circle { color: #ef4444; }
-
-.anim-orange { color: #f97316; }
-.anim-orange .gacha-bg-stars { background: repeating-radial-gradient(circle at center, transparent 0, transparent 40px, rgba(249, 115, 22, 0.15) 41px, transparent 42px); }
-.anim-orange .gacha-magic-circle { color: #f97316; }
-
-.anim-gold { color: #fbbf24; }
-.anim-gold .gacha-bg-stars { background: repeating-radial-gradient(circle at center, transparent 0, transparent 40px, rgba(251, 191, 36, 0.15) 41px, transparent 42px); }
-.anim-gold .gacha-magic-circle { color: #fbbf24; }
-
+/* Flash — rarity colored */
 .gacha-flash {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: white; opacity: 0; pointer-events: none;
+  opacity: 0; pointer-events: none;
 }
 .gacha-anim-container.flash-active .gacha-flash {
   animation: flash-bang 1.5s ease-out forwards;
 }
 @keyframes flash-bang {
-  0% { opacity: 0; }
-  15% { opacity: 1; }
+  0%   { opacity: 0; }
+  15%  { opacity: 1; }
   100% { opacity: 0; }
 }
+
+/* ═══ Rarity color themes ═══ */
+.anim-red { color: #39FF14; }
+.anim-red .gacha-bg-stars { background: repeating-radial-gradient(circle at center, transparent 0, transparent 40px, rgba(57,255,20,0.15) 41px, transparent 42px); }
+.anim-red .gacha-magic-circle { color: #39FF14; }
+.anim-red .gacha-flash { background: radial-gradient(ellipse at center, #e0ffe5 5%, rgba(57,255,20,0.85) 45%, #fff 100%); }
+
+.anim-orange { color: #f97316; }
+.anim-orange .gacha-bg-stars { background: repeating-radial-gradient(circle at center, transparent 0, transparent 40px, rgba(249,115,22,0.15) 41px, transparent 42px); }
+.anim-orange .gacha-magic-circle { color: #f97316; }
+.anim-orange .gacha-flash { background: radial-gradient(ellipse at center, #fff5e0 5%, rgba(249,115,22,0.88) 45%, #fff 100%); }
+
+.anim-gold { color: #fbbf24; }
+.anim-gold .gacha-bg-stars { background: repeating-radial-gradient(circle at center, transparent 0, transparent 40px, rgba(251,191,36,0.15) 41px, transparent 42px); }
+.anim-gold .gacha-magic-circle { color: #fbbf24; }
+.anim-gold .gacha-flash { background: radial-gradient(ellipse at center, #fffbe0 5%, rgba(251,191,36,0.9) 45%, #fff 100%); }
 
 /* ── Missions: Pending claim system ─────────────────────────────────────────── */
 
