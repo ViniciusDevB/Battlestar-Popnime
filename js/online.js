@@ -179,8 +179,7 @@ const Online = (() => {
       .single();
     if (!error && data) {
       _profile = data;
-      await _client.from('players').update({ last_seen: new Date().toISOString() })
-        .eq('id', _profile.id);
+      _client.rpc('update_my_last_seen').catch(() => {});
     }
     return _profile;
   }
@@ -232,6 +231,7 @@ const Online = (() => {
   async function _pushSave(saveData) {
     // Valida delta server-side antes de aceitar o upsert
     const { data: verdict } = await _client.rpc('validate_save_delta', { p_new: saveData });
+    if (verdict === 'rate_limited') return; // sync muito rápido — silencioso, não é erro
     if (verdict && verdict !== 'ok') {
       console.warn('[Online] save delta rejeitado pelo servidor:', verdict);
       throw new Error(verdict);
