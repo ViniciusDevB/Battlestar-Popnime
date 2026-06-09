@@ -4,6 +4,18 @@ Bem-vindos ao portal de atualizações de **Battlestar Popnime**. Aqui você enc
 
 ---
 
+## 🟢 Atualização 2.5.10: Melhorias no Gacha e Áudio
+
+**Data de Lançamento:** 09 de Junho de 2026
+
+*“Nesta atualização focamos em polir a experiência visual do Gacha e melhorar o comportamento da música de fundo para uma navegação mais agradável.”*
+
+### ✨ Melhorias Visuais e de UI
+* **Animação do Gacha:** O sistema de invocações (Pulls) recebeu uma repaginada visual épica. Agora, a tela exibe estrelas em velocidade de dobra (warp speed), um portal mágico animado se abre, um meteoro cai em direção ao portal e cria um feixe de luz acompanhado de uma onda de choque explosiva, tudo baseado na raridade (3⭐, 4⭐ ou 5⭐) da unidade obtida.
+
+### 🛠️ Correções de Bugs e Qualidade de Vida (QoL)
+* **Áudio do Menu:** Ajustado o comportamento da música de fundo (BGM). Agora, ao navegar entre o Hub, a Seleção de Mundo e o Inventário, a música não reinicia mais seu volume do zero, garantindo uma transição contínua e muito mais imersiva.
+
 ## 🟢 Atualização 2.9.5: O Futuro das Missões e Segurança
 
 **Data de Lançamento:** 09 de Junho de 2026

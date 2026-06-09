@@ -55,6 +55,10 @@ Todos os recursos online (conta, leaderboard, trocas, missões da comunidade) fu
 > ⚖️ **Procurando pelos detalhes de balanceamento?**
 > Veja o nosso documento de [Patch Notes (Buffs e Nerfs)](./PATCH_NOTES.md) para acompanhar todas as mudanças específicas em personagens e mundos!
 
+### ✅ Update 2.5.10: Melhorias no Gacha e Áudio *(Lançado)*
+- **Animação Épica no Gacha**: Novo overlay totalmente refeito em CSS com portal mágico, warp speed, queda de meteoro e onda de choque.
+- **Áudio Contínuo**: A música do menu agora flui perfeitamente entre as transições de tela (Hub, Inventário, Seleção de Fases) sem reiniciar do zero.
+
 ### ✅ Update 2.9.5: Segurança, Deploy Público e Missões Em Breve *(Lançado)*
 - **Deploy Público**: jogo disponível via GitHub Pages.
 - **Missões Em Breve**: nova seção na aba Comunidade exibindo as próximas missões em carousel navegável.
