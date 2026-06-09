@@ -59,8 +59,8 @@ const LeaderboardUI = (() => {
       </div>
       <div class="lb-tabs">
         <button class="lb-tab ${mode==='infinite'      ? 'active':''}" onclick="LeaderboardUI.setMode('infinite')">🌊 Wave</button>
-        <button class="lb-tab ${mode==='infinite_dmg'  ? 'active':''}" onclick="LeaderboardUI.setMode('infinite_dmg')">⚔️ Dano</button>
-        <button class="lb-tab ${mode==='stage'         ? 'active':''}" onclick="LeaderboardUI.setMode('stage')">⚡ Fases</button>
+        <button class="lb-tab ${mode==='infinite_dmg'  ? 'active':''}" onclick="LeaderboardUI.setMode('infinite_dmg')">${I18N.t('lb_tab_damage')}</button>
+        <button class="lb-tab ${mode==='stage'         ? 'active':''}" onclick="LeaderboardUI.setMode('stage')">${I18N.t('lb_tab_stages')}</button>
       </div>
     `;
   }
@@ -72,7 +72,7 @@ const LeaderboardUI = (() => {
     const rankBadge = myRank ? _rankBadge(myRank.rank, myRank.total) : null;
 
     const listRows = entries.length === 0
-      ? `<div class="lb-empty">Nenhum score registrado ainda.<br>Seja o primeiro!</div>`
+      ? `<div class="lb-empty">${I18N.t('lb_empty')}</div>`
       : entries.map((e, i) => {
           const isSelf  = profile && e.players?.username === profile.username;
           const isAdmin = !!e.players?.is_admin;
@@ -94,16 +94,16 @@ const LeaderboardUI = (() => {
     const mySection = isLoggedIn ? `
       <div class="lb-my-rank">
         ${myRank
-          ? `<span class="lb-my-pos">#${myRank.rank} de ${_fmtNum(myRank.total)}</span>
+          ? `<span class="lb-my-pos">${I18N.t('lb_my_rank', { rank: myRank.rank, total: _fmtNum(myRank.total) })}</span>
              <span class="lb-my-score">${_formatScore(mode, { wave: myRank.wave, score: myRank.score, damage: myRank.damage || myRank.score })}</span>
              ${rankBadge ? `<span class="lb-badge" style="color:${rankBadge.color}">${rankBadge.title}</span>` : ''}`
-          : `<span style="color:var(--t3);font-size:12px">Jogue uma partida para aparecer no ranking</span>`
+          : `<span style="color:var(--t3);font-size:12px">${I18N.t('lb_no_score')}</span>`
         }
       </div>
     ` : `
       <div class="lb-my-rank lb-my-rank--guest">
-        <span style="color:var(--t3);font-size:12px">Entre na conta para ver sua posição</span>
-        <button class="online-btn-secondary" style="margin-left:auto" onclick="LeaderboardUI.close();OnlineUI.show()">Entrar</button>
+        <span style="color:var(--t3);font-size:12px">${I18N.t('lb_guest')}</span>
+        <button class="online-btn-secondary" style="margin-left:auto" onclick="LeaderboardUI.close();OnlineUI.show()">${I18N.t('lb_login_btn')}</button>
       </div>
     `;
 
@@ -138,7 +138,7 @@ const LeaderboardUI = (() => {
     if (pct <= 0.15) return { title: 'Jonin',        color: '#ffc846' };
     if (pct <= 0.30) return { title: 'Chunin',       color: '#3ecf8e' };
     if (pct <= 0.50) return { title: 'Genin',        color: '#5b9cf6' };
-    return { title: 'Acadêmico', color: '#9ca3af' };
+    return { title: I18N.t('rank_academic'), color: '#9ca3af' };
   }
 
   // Retorna o badge para exibir no perfil (chamado externamente)

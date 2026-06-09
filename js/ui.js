@@ -78,7 +78,7 @@ const UI = (() => {
           + '<div style="font-size:11px;color:rgba(255,200,70,0.55);line-height:1.4;">' + st.description + '</div>'
           + '</div><div style="flex-shrink:0;">'
           + '<button class="btn btn-primary" onclick="UI.showPreBattle(\'' + st.id + '\')" ' + (isLocked ? 'disabled' : '') + '>'
-          + (isLocked ? '🔒 Bloqueado' : isDone ? '⭐ Concluído' : 'Jogar Capítulo')
+          + (isLocked ? I18N.t('ui_btn_locked') : isDone ? I18N.t('ui_btn_done') : I18N.t('ui_btn_play_chapter'))
           + '</button></div></div>';
         chaps.appendChild(row);
       });
@@ -144,7 +144,7 @@ const UI = (() => {
         <div class="world-icon" style="color:${w.color}">🌍</div>
         <div class="world-name">${w.name}</div>
         <div class="world-desc">${w.description}</div>
-        <div class="world-progress">${completed}/${stagesInWorld.length} fases</div>
+        <div class="world-progress">${I18N.t('ui_stages_count', { done: completed, total: stagesInWorld.length })}</div>
         ${!isUnlocked ? '<div class="world-lock">🔒</div>' : ''}`;
       if (isUnlocked) card.addEventListener('click', () => showStageSelect(w.id));
       grid.appendChild(card);
@@ -562,9 +562,7 @@ const UI = (() => {
 
   function confirmReset() {
     const isOnline = typeof Online !== 'undefined' && Online.isLoggedIn();
-    const msg = isOnline
-      ? '⚠️ Resetar todo o progresso?\n\nIsso irá apagar saves, unidades e gemas locais E remover seu save do servidor (você será deslogado).\n\nNão pode ser desfeita.'
-      : '⚠️ Resetar todo o progresso?\n\nEsta ação apaga saves, unidades e gemas. Não pode ser desfeita.';
+    const msg = I18N.t('confirm_reset_progress');
 
     if (!window.confirm(msg)) return;
 

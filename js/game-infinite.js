@@ -2,15 +2,19 @@
 // Depende de: _infiniteSession (game-utils.js), Save, UI (já globals quando game.js roda).
 
 const INFINITE_TIERS = [
-  { name:'Fácil',          minWave:1,  maxWave:20,  color:'#4ade80', hp:1.0,  gold:1.0 },
-  { name:'Médio',          minWave:21, maxWave:30,  color:'#facc15', hp:1.8,  gold:1.2 },
-  { name:'Difícil',        minWave:31, maxWave:40,  color:'#f97316', hp:3.2,  gold:1.4 },
-  { name:'Muito Difícil',  minWave:41, maxWave:50,  color:'#ef4444', hp:5.5,  gold:1.6 },
-  { name:'Extremo',        minWave:51, maxWave:60,  color:'#dc2626', hp:9.0,  gold:1.8 },
-  { name:'Brutal',         minWave:61, maxWave:70,  color:'#9333ea', hp:15.0, gold:2.0 },
-  { name:'Lendário',       minWave:71, maxWave:80,  color:'#c084fc', hp:25.0, gold:2.3 },
-  { name:'Além do Limite', minWave:81, maxWave:Infinity, color:'#f0abfc', hp:40.0, gold:2.6 }
+  { key:'tier_easy',      name:'Fácil',          minWave:1,  maxWave:20,  color:'#4ade80', hp:1.0,  gold:1.0 },
+  { key:'tier_medium',    name:'Médio',          minWave:21, maxWave:30,  color:'#facc15', hp:1.8,  gold:1.2 },
+  { key:'tier_hard',      name:'Difícil',        minWave:31, maxWave:40,  color:'#f97316', hp:3.2,  gold:1.4 },
+  { key:'tier_very_hard', name:'Muito Difícil',  minWave:41, maxWave:50,  color:'#ef4444', hp:5.5,  gold:1.6 },
+  { key:'tier_extreme',   name:'Extremo',        minWave:51, maxWave:60,  color:'#dc2626', hp:9.0,  gold:1.8 },
+  { key:'tier_brutal',    name:'Brutal',         minWave:61, maxWave:70,  color:'#9333ea', hp:15.0, gold:2.0 },
+  { key:'tier_legendary', name:'Lendário',       minWave:71, maxWave:80,  color:'#c084fc', hp:25.0, gold:2.3 },
+  { key:'tier_beyond',    name:'Além do Limite', minWave:81, maxWave:Infinity, color:'#f0abfc', hp:40.0, gold:2.6 }
 ];
+
+function getTierName(tier) {
+  return typeof I18N !== 'undefined' ? I18N.t(tier.key, {}, tier.name) : tier.name;
+}
 
 function getInfiniteTierIdx(waveNum) {
   if (waveNum <= 20) return 0;
@@ -89,7 +93,7 @@ function giveInfiniteReward(waveNum) {
 
   // Toast único combinando gemas + SE
   const seLabel = dropped.length > 0 ? `  ✨ ${dropped.map(lv => `SE Nv${lv}`).join(' + ')}` : '';
-  UI.toast(`🏆 Wave ${waveNum}! +${gems}💎${seLabel}`, 3500);
+  UI.toast(I18N.t('inf_reward_toast', { wave: waveNum, gems, se: seLabel }), 3500);
 }
 
 // Rola chances de Star Experience — retorna array dos níveis que droparam

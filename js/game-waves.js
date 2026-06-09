@@ -12,7 +12,7 @@ function getDifficultyMults() {
 }
 
 function triggerMeteorAndShinra() {
-  UI.toast('⚠️ O PAIN USOU SHINRA TENSEI E QUEDA DE METEOROS! ⚠️', 4000);
+  UI.toast(I18N.t('wave_pain_special'), 4000);
 
   const towers = _wavesCtx.towers;
   const targets = [];
@@ -75,7 +75,7 @@ function triggerLightningStrike() {
       _attackCtx.dealDamage({ _currentAttackType: 'aoe', charData: {} }, e, dmg);
     }
   }
-  UI.toast(`⚡ Raio Errante! ${dmg} dano em área!`, 2000);
+  UI.toast(I18N.t('wave_lightning', { dmg }), 2000);
 }
 
 function startWave() {
@@ -97,7 +97,7 @@ function startWave() {
     const tier = INFINITE_TIERS[getInfiniteTierIdx(_wavesCtx.wave)];
     const prev = INFINITE_TIERS[getInfiniteTierIdx(_wavesCtx.wave - 1)];
     if (_wavesCtx.wave > 1 && tier !== prev) {
-      UI.toast(`⚡ NOVO NÍVEL: ${tier.name.toUpperCase()}`, 4000);
+      UI.toast(I18N.t('wave_new_tier', { tier: getTierName(tier).toUpperCase() }), 4000);
     }
   }
 }
@@ -114,7 +114,7 @@ function skipWave() {
   }
   if (!_wavesCtx.waveActive || _wavesCtx.wave >= _wavesCtx.totalWaves) return;
   if (_wavesCtx.activeWavesCount >= 3) {
-    UI.toast('⚠️ Limite de 2 waves extras atingido!');
+    UI.toast(I18N.t('wave_skip_limit'));
     return;
   }
 
@@ -133,7 +133,7 @@ function skipWave() {
   _wavesCtx.spawnQueue.sort((a, b) => a.delay - b.delay);
 
   updateHUD();
-  UI.toast(`⏩ Wave ${_wavesCtx.wave} chamada! +${bonus}💰 (×${_wavesCtx.skipMultiplier - 1})`);
+  UI.toast(I18N.t('wave_skip_done', { wave: _wavesCtx.wave, bonus, mult: _wavesCtx.skipMultiplier - 1 }));
 }
 
 function updateSpawn(dt) {
@@ -176,7 +176,7 @@ function activateShinraTensei() {
   _wavesCtx.shinraTenseiActive = true;
   _wavesCtx.shinraTenseiTimer = maxStun;
   _wavesCtx.addEffect({ type:'shockwave', x:400, y:240, maxR:600, color:'#e74c3c', timer:1.0, r:0 });
-  UI.toast('⚡ SHINRA TENSEI! Torres stunadas aleatoriamente!', 4000);
+  UI.toast(I18N.t('wave_shinra_tensei'), 4000);
 }
 
 function updateShinraTensei(dt) {
@@ -196,7 +196,7 @@ function checkWaveEnd() {
     _wavesCtx.gold += bonus;
     updateHUD();
     renderWavePreview();
-    if (bonus > 0) UI.toast(`Wave ${_wavesCtx.wave} completa! +${bonus} 💰`);
+    if (bonus > 0) UI.toast(I18N.t('wave_complete', { wave: _wavesCtx.wave, bonus }));
 
     _wavesCtx.towers.forEach(t => PASSIVE_SYSTEM.onWaveEnd(t));
 

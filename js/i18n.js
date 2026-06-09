@@ -31,6 +31,10 @@ const I18N = (() => {
         }
       }
     });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      if (key) el.title = t(key);
+    });
   }
 
   function applyDataTranslations() {

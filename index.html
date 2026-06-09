@@ -138,13 +138,13 @@
   </div>
   <div class="prebattle-body">
     <div class="prebattle-left">
-      <div class="pb-section-header">Prêmios Possíveis</div>
+      <div class="pb-section-header" data-i18n="ui_pb_rewards">Prêmios Possíveis</div>
       <div id="pb-rewards" class="pb-rewards-grid" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;"></div>
       <div class="pb-section-header">Time <span class="pb-hint">— clique para remover</span></div>
       <div id="team-slots" class="team-slots"></div>
     </div>
     <div class="prebattle-right">
-      <div class="pb-section-header">Unidades Disponíveis</div>
+      <div class="pb-section-header" data-i18n="ui_pb_units">Unidades Disponíveis</div>
       <div id="available-units" class="avail-grid"></div>
     </div>
   </div>
@@ -175,22 +175,22 @@
     <div class="hud-center">
       <div class="hud-phase-name" id="hud-phase-name"></div>
       <div class="hud-wave-wrap">
-        <span class="hud-wave-label">Onda <b id="hud-wave">0</b> / <span id="hud-total-waves">10</span></span>
+        <span class="hud-wave-label"><span data-i18n="hud_wave_label">Onda</span> <b id="hud-wave">0</b> / <span id="hud-total-waves">10</span></span>
         <div class="hud-wave-bar"><div class="hud-wave-fill" id="hud-wave-fill"></div></div>
       </div>
     </div>
     <div class="hud-controls">
-      <button class="btn-hud" id="btn-skip" onclick="GameController.skipWave()" title="Antecipar Wave (S)">⏭</button>
-      <button class="btn-hud" id="btn-pause" onclick="GameController.togglePause()" title="Pausar (Espaço)">⏸</button>
-      <button class="btn-hud btn-speed" onclick="GameController.toggleSpeed()" title="Acelerar Jogo (F)">⏩ <span id="speed-indicator">1×</span></button>
+      <button class="btn-hud" id="btn-skip" onclick="GameController.skipWave()" data-i18n-title="hud_tt_skip" title="Skip Wave (S)">⏭</button>
+      <button class="btn-hud" id="btn-pause" onclick="GameController.togglePause()" data-i18n-title="hud_tt_pause" title="Pause (Space)">⏸</button>
+      <button class="btn-hud btn-speed" onclick="GameController.toggleSpeed()" data-i18n-title="hud_tt_speed" title="Speed Up (F)">⏩ <span id="speed-indicator">1×</span></button>
     </div>
   </div>
   <div class="game-main">
     <canvas id="game-canvas"></canvas>
     <div class="game-side">
-      <div class="side-title">🗡️ Time</div>
+      <div class="side-title" data-i18n="hud_team_label">🗡️ Team</div>
       <div id="team-panel"></div>
-      <div class="side-hint">Clique em uma unidade, depois em um slot amarelo</div>
+      <div class="side-hint" data-i18n="hud_team_hint">Click a unit, then a yellow slot</div>
     </div>
   </div>
   <!-- Wave Preview — aparece entre waves -->
@@ -348,9 +348,9 @@
 <!-- ══════════ GACHA RESULT MODAL ══════════ -->
 <div id="gacha-result-modal" class="modal-overlay" style="display:none">
   <div class="modal-box gacha-result-box">
-    <h3>Resultado da Invocação</h3>
+    <h3 data-i18n="gacha_result_title">Summon Results</h3>
     <div id="gacha-results-grid" class="gacha-results-grid"></div>
-    <button class="btn btn-primary" onclick="Gacha.closeResult()">Confirmar</button>
+    <button class="btn btn-primary" onclick="Gacha.closeResult()" data-i18n="btn_confirm">Confirm</button>
   </div>
 </div>
 
@@ -358,18 +358,18 @@
 <div id="feed-modal" class="modal-overlay" style="display:none">
   <div class="modal-box feed-box">
     <div class="modal-header">
-      <h3>🍖 Alimentar Unidade</h3>
+      <h3 data-i18n="feed_title">🍖 Feed Unit</h3>
       <button class="modal-close" onclick="Inventory.closeFeed()">✕</button>
     </div>
     <div id="feed-target-info"></div>
-    <div class="feed-xp-row">XP a ganhar: <b id="feed-xp-total">0</b></div>
+    <div class="feed-xp-row"><span data-i18n="feed_xp_label">XP to gain:</span> <b id="feed-xp-total">0</b></div>
     <div class="feed-selected-wrap">
-      <div class="feed-sel-title">Selecionados:</div>
+      <div class="feed-sel-title" data-i18n="feed_selected_label">Selected:</div>
       <div id="feed-selected-list" class="feed-selected-list"></div>
     </div>
-    <div class="feed-mat-title">Materiais disponíveis:</div>
+    <div class="feed-mat-title" data-i18n="feed_materials_label">Available materials:</div>
     <div id="feed-materials-grid" class="feed-mat-grid"></div>
-    <button class="btn btn-primary" onclick="Inventory.confirmFeed()">✅ Confirmar Feed</button>
+    <button class="btn btn-primary" onclick="Inventory.confirmFeed()" data-i18n="feed_confirm_btn">✅ Confirm Feed</button>
   </div>
 </div>
 
@@ -377,11 +377,11 @@
 <div id="evolution-modal" class="modal-overlay" style="display:none">
   <div class="modal-box evo-box">
     <div class="modal-header">
-      <h3>🔮 Confirmar Evolução</h3>
+      <h3 data-i18n="evo_confirm_title">🔮 Confirm Evolution</h3>
       <button class="modal-close" onclick="Inventory.closeEvolution()">✕</button>
     </div>
     <div id="evolution-recipe"></div>
-    <button class="btn btn-evolve" id="btn-evolve-confirm" onclick="Inventory.confirmEvolution()">⚡ Evoluir!</button>
+    <button class="btn btn-evolve" id="btn-evolve-confirm" onclick="Inventory.confirmEvolution()" data-i18n="evo_confirm_btn">⚡ Evolve!</button>
   </div>
 </div>
 

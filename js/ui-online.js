@@ -39,7 +39,7 @@ const OnlineUI = (() => {
       Online.fetchMyRank('infinite').then(rankData => {
         const el = document.getElementById('profile-rank-badge');
         if (!el) return;
-        if (!rankData) { el.textContent = '— sem rank'; el.className = 'prof-rank-none'; return; }
+        if (!rankData) { el.textContent = I18N.t('online_no_rank'); el.className = 'prof-rank-none'; return; }
         const badge = typeof LeaderboardUI !== 'undefined'
           ? LeaderboardUI.getRankBadge(rankData.rank, rankData.total) : null;
         el.className = 'prof-rank-badge';
@@ -73,7 +73,7 @@ const OnlineUI = (() => {
       </div>
       <div style="text-align:center;padding:32px 0;color:var(--t3)">
         <div style="font-size:28px;margin-bottom:10px">⏳</div>
-        <div style="font-size:13px">Restaurando sessão...</div>
+        <div style="font-size:13px">${I18N.t('online_restoring_session')}</div>
       </div>
     `;
   }
@@ -86,10 +86,10 @@ const OnlineUI = (() => {
         <h3>🌐 ASTD Online</h3>
         <button class="modal-close" onclick="OnlineUI.close()">✕</button>
       </div>
-      <p class="online-subtitle">Entre com username e senha para acessar Rankings, Leaderboard e Trocas.</p>
+      <p class="online-subtitle">${I18N.t('online_subtitle')}</p>
       <div class="online-tab-bar">
-        <button id="online-tab-login"    class="online-tab-btn" onclick="OnlineUI.setTab('login')">Entrar</button>
-        <button id="online-tab-register" class="online-tab-btn" onclick="OnlineUI.setTab('register')">Criar Conta</button>
+        <button id="online-tab-login"    class="online-tab-btn" onclick="OnlineUI.setTab('login')">${I18N.t('online_tab_login')}</button>
+        <button id="online-tab-register" class="online-tab-btn" onclick="OnlineUI.setTab('register')">${I18N.t('online_tab_register')}</button>
       </div>
       <div id="online-form-area"></div>
       <div id="online-error" class="online-error" style="display:none"></div>
@@ -116,16 +116,16 @@ const OnlineUI = (() => {
   function _registerFormHTML() {
     return `
       <div class="online-form-group">
-        <label class="online-label">Username <span class="online-hint">(3–20 caracteres, letras/números/_)</span></label>
+        <label class="online-label">Username <span class="online-hint">${I18N.t('online_username_hint')}</span></label>
         <input id="ol-username" class="online-input" type="text" placeholder="NarutoBR" maxlength="20" autocomplete="username">
       </div>
       <div class="online-form-group">
-        <label class="online-label">Senha <span class="online-hint">(mín. 6 caracteres)</span></label>
+        <label class="online-label">${I18N.t('online_label_password')} <span class="online-hint">${I18N.t('online_password_hint')}</span></label>
         <input id="ol-pass" class="online-input" type="password" placeholder="••••••••" autocomplete="new-password"
           onkeydown="if(event.key==='Enter')OnlineUI.handleRegister()">
       </div>
       <button class="online-btn-primary" id="online-submit-btn" onclick="OnlineUI.handleRegister()">
-        Criar Conta
+        ${I18N.t('online_register_btn')}
       </button>
     `;
   }
@@ -141,11 +141,11 @@ const OnlineUI = (() => {
     const avatarColor = isAdmin ? '#92400e' : _avatarColor(profile?.username || '?');
     const initial     = isAdmin ? '♛' : (profile?.username || '?')[0].toUpperCase();
     const memberSince = profile?.created_at
-      ? new Date(profile.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' })
+      ? new Date(profile.created_at).toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' })
       : '—';
     const syncedAt = save?._lastSyncAt
-      ? new Date(save._lastSyncAt).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })
-      : 'Nunca';
+      ? new Date(save._lastSyncAt).toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' })
+      : I18N.t('online_never_synced');
 
     const bestWave  = stats.melhor_onda_infinita || 0;
     const totalDmg  = _fmt(stats.dano_total_causado || 0);
@@ -153,8 +153,8 @@ const OnlineUI = (() => {
     const waveBarPct = Math.min(100, (bestWave / 500) * 100).toFixed(1);
 
     const warnings = [
-      save?._cheatMode ? 'Modo Cheat ativo' : null,
-      (!Integrity.isClean() && !save?._cheatMode) ? 'Violação de integridade detectada' : null,
+      save?._cheatMode ? I18N.t('warn_cheat_mode') : null,
+      (!Integrity.isClean() && !save?._cheatMode) ? I18N.t('warn_integrity_violation') : null,
     ].filter(Boolean);
 
     return `
@@ -168,26 +168,26 @@ const OnlineUI = (() => {
           <div class="prof-username ${isAdmin ? 'prof-username--admin' : ''}">
             ${isAdmin ? '<span class="prof-admin-crown">♛</span> ' : ''}${_esc(profile?.username || '—')}
           </div>
-          ${isAdmin ? '<div class="prof-admin-badge">DESENVOLVEDOR</div>' : `<div class="prof-since">Membro desde ${memberSince}</div>`}
+          ${isAdmin ? '<div class="prof-admin-badge">DESENVOLVEDOR</div>' : `<div class="prof-since">${I18N.t('online_member_since', { date: memberSince })}</div>`}
           <div class="prof-rank-area">
             ${isAdmin
               ? '<span class="prof-admin-rank">Acesso Total</span>'
-              : '<span id="profile-rank-badge" class="prof-rank-loading">⏳ carregando rank…</span>'
+              : `<span id="profile-rank-badge" class="prof-rank-loading">${I18N.t('online_loading_rank')}</span>`
             }
           </div>
         </div>
       </div>
 
-      ${warnings.length ? `<div class="prof-warnings">${warnings.map(w => `<div class="online-cheat-warning">⚠️ ${w} — leaderboard bloqueado</div>`).join('')}</div>` : ''}
+      ${warnings.length ? `<div class="prof-warnings">${warnings.map(w => `<div class="online-cheat-warning">⚠️ ${w} — ${I18N.t('warn_lb_blocked')}</div>`).join('')}</div>` : ''}
 
       <div class="prof-body">
 
-        <div class="prof-section-title">Estatísticas</div>
+        <div class="prof-section-title">${I18N.t('online_stat_statistics')}</div>
         <div class="prof-stat-grid">
           <div class="prof-stat-card">
             <div class="prof-stat-icon">🗺️</div>
             <div class="prof-stat-val">${stats.fases_completas || 0}</div>
-            <div class="prof-stat-label">Fases</div>
+            <div class="prof-stat-label">${I18N.t('online_stat_stages')}</div>
           </div>
           <div class="prof-stat-card">
             <div class="prof-stat-icon">⚡</div>
@@ -202,23 +202,23 @@ const OnlineUI = (() => {
           <div class="prof-stat-card">
             <div class="prof-stat-icon">🌟</div>
             <div class="prof-stat-val">${stats.prestígios_realizados || 0}</div>
-            <div class="prof-stat-label">Prestígios</div>
+            <div class="prof-stat-label">${I18N.t('online_stat_prestiges')}</div>
           </div>
         </div>
 
-        <div class="prof-section-title">Modo Infinito</div>
+        <div class="prof-section-title">${I18N.t('online_section_infinite')}</div>
         <div class="prof-infinite-card">
           <div class="prof-inf-row">
-            <span class="prof-inf-label">🌊 Melhor Wave</span>
-            <span class="prof-inf-val">${bestWave > 0 ? `Wave <b>${bestWave}</b>` : '<span style="color:var(--t3)">Nunca jogado</span>'}</span>
+            <span class="prof-inf-label">${I18N.t('online_best_wave')}</span>
+            <span class="prof-inf-val">${bestWave > 0 ? `Wave <b>${bestWave}</b>` : `<span style="color:var(--t3)">${I18N.t('online_never_played')}</span>`}</span>
           </div>
           ${bestWave > 0 ? `
           <div class="prof-wave-bar-bg">
             <div class="prof-wave-bar-fill" style="width:${waveBarPct}%;background:${avatarColor}"></div>
           </div>
-          <div class="prof-inf-hint">${waveBarPct}% do caminho até Wave 500</div>` : ''}
+          <div class="prof-inf-hint">${I18N.t('online_wave_progress', { pct: waveBarPct })}</div>` : ''}
           <div class="prof-inf-row" style="margin-top:10px">
-            <span class="prof-inf-label">⚔️ Dano Total</span>
+            <span class="prof-inf-label">${I18N.t('online_total_damage')}</span>
             <span class="prof-inf-val"><b>${totalDmg}</b></span>
           </div>
         </div>
@@ -226,9 +226,9 @@ const OnlineUI = (() => {
         <div class="prof-footer">
           <div class="prof-sync-row">
             <span class="prof-sync-ts">☁️ Sync: ${syncedAt}</span>
-            <button class="online-btn-secondary" id="online-sync-btn" onclick="OnlineUI.handleSync()">🔄 Sincronizar</button>
+            <button class="online-btn-secondary" id="online-sync-btn" onclick="OnlineUI.handleSync()">${I18N.t('online_sync_btn')}</button>
           </div>
-          <button class="online-btn-danger" onclick="OnlineUI.handleLogout()">Sair da Conta</button>
+          <button class="online-btn-danger" onclick="OnlineUI.handleLogout()">${I18N.t('online_logout_btn')}</button>
         </div>
 
       </div>
@@ -263,7 +263,7 @@ const OnlineUI = (() => {
     if (_loading) return;
     const username = document.getElementById('ol-username')?.value.trim();
     const pass     = document.getElementById('ol-pass')?.value;
-    if (!username || !pass) return _showError('Preencha username e senha.');
+    if (!username || !pass) return _showError(I18N.t('online_fill_fields'));
 
     _setLoading(true);
     try {
@@ -273,12 +273,12 @@ const OnlineUI = (() => {
         _showError(_translateError(result.error));
       } else {
         close();
-        UI.toast(`✅ Bem-vindo de volta, ${username}!`, 3000);
+        UI.toast(I18N.t('online_welcome_back', { username }), 3000);
         _render();
       }
     } catch (_) {
       _setLoading(false);
-      _showError('Erro inesperado. Tente novamente.');
+      _showError(I18N.t('online_unexpected_error'));
     }
   }
 
@@ -287,10 +287,10 @@ const OnlineUI = (() => {
     const username = document.getElementById('ol-username')?.value.trim();
     const pass     = document.getElementById('ol-pass')?.value;
 
-    if (!username) return _showError('Digite um username.');
-    if (username.length < 3) return _showError('Username deve ter pelo menos 3 caracteres.');
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) return _showError('Username: apenas letras, números e _');
-    if (!pass || pass.length < 6) return _showError('Senha deve ter pelo menos 6 caracteres.');
+    if (!username) return _showError(I18N.t('online_enter_username'));
+    if (username.length < 3) return _showError(I18N.t('online_username_short'));
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) return _showError(I18N.t('online_username_format'));
+    if (!pass || pass.length < 6) return _showError(I18N.t('online_password_short'));
 
     _setLoading(true);
     try {
@@ -300,38 +300,38 @@ const OnlineUI = (() => {
         _showError(_translateError(result.error));
       } else {
         close();
-        UI.toast(`✅ Conta criada! Bem-vindo, ${username}!`, 3500);
+        UI.toast(I18N.t('online_account_created', { username }), 3500);
         _render();
       }
     } catch (_) {
       _setLoading(false);
-      _showError('Erro inesperado. Tente novamente.');
+      _showError(I18N.t('online_unexpected_error'));
     }
   }
 
   async function handleSync() {
     const btn = document.getElementById('online-sync-btn');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ Sincronizando...'; }
+    if (btn) { btn.disabled = true; btn.textContent = I18N.t('online_syncing'); }
 
     const result = await Online.syncSave();
 
-    if (btn) { btn.disabled = false; btn.textContent = '🔄 Sincronizar'; }
+    if (btn) { btn.disabled = false; btn.textContent = I18N.t('online_sync_btn'); }
 
     if (result.ok) {
       UI.updateCurrencyDisplay();
       _render();
-      UI.toast('✅ Save sincronizado!', 2500);
+      UI.toast(I18N.t('online_synced'), 2500);
     } else {
-      UI.toast('⚠️ Falha ao sincronizar: ' + result.reason, 4000);
+      UI.toast(I18N.t('online_sync_failed') + result.reason, 4000);
     }
   }
 
   async function handleLogout() {
-    if (!window.confirm('Sair da conta?\nSeu progresso local será mantido.')) return;
+    if (!window.confirm(I18N.t('online_logout_confirm'))) return;
     await Online.logout();
     _tab = 'login';
     _render();
-    UI.toast('Sessão encerrada.', 2000);
+    UI.toast(I18N.t('online_logged_out'), 2000);
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -341,7 +341,7 @@ const OnlineUI = (() => {
     const btn = document.getElementById('online-submit-btn');
     if (!btn) return;
     btn.disabled = on;
-    btn.textContent = on ? '⏳ Aguarde...' : (_tab === 'login' ? 'Entrar' : 'Criar Conta');
+    btn.textContent = on ? I18N.t('online_waiting') : (_tab === 'login' ? I18N.t('online_login_btn') : I18N.t('online_register_btn'));
   }
 
   function _showError(msg) {
@@ -374,19 +374,19 @@ const OnlineUI = (() => {
   }
 
   function _translateError(msg) {
-    if (!msg) return 'Erro desconhecido.';
+    if (!msg) return I18N.t('online_unexpected_error');
     if (msg.includes('Invalid login') || msg.includes('invalid_credentials'))
-      return 'Username ou senha incorretos.';
+      return I18N.t('err_wrong_credentials');
     if (msg.includes('User already registered') || msg.includes('already been registered'))
-      return 'Este username já está em uso.';
+      return I18N.t('err_username_taken');
     if (msg.includes('duplicate key') && msg.includes('username'))
-      return 'Este username já está em uso.';
+      return I18N.t('err_username_taken');
     if (msg.includes('Password should') || msg.includes('password'))
-      return 'Senha muito curta (mín. 6 caracteres).';
+      return I18N.t('err_password_short');
     if (msg.includes('Email signups are disabled'))
-      return 'Cadastro desativado no servidor. Contate o administrador.';
+      return I18N.t('err_signup_disabled');
     if (msg === 'offline')
-      return 'Sem conexão com o servidor. Tente mais tarde.';
+      return I18N.t('err_no_server');
     return msg;
   }
 
@@ -415,7 +415,7 @@ const LoginScreen = (() => {
     _setContent(`
       <div class="ls-loading">
         <div class="ls-spinner">⏳</div>
-        <p>Verificando sessão...</p>
+        <p>${I18N.t('online_verifying_session')}</p>
       </div>
     `);
   }
@@ -441,13 +441,13 @@ const LoginScreen = (() => {
   function _render() {
     _setContent(`
       <div class="ls-tabs">
-        <button id="ls-tab-login"    class="ls-tab ${_tab==='login'?'active':''}"    onclick="LoginScreen.setTab('login')">Entrar</button>
-        <button id="ls-tab-register" class="ls-tab ${_tab==='register'?'active':''}" onclick="LoginScreen.setTab('register')">Criar Conta</button>
+        <button id="ls-tab-login"    class="ls-tab ${_tab==='login'?'active':''}"    onclick="LoginScreen.setTab('login')">${I18N.t('online_tab_login')}</button>
+        <button id="ls-tab-register" class="ls-tab ${_tab==='register'?'active':''}" onclick="LoginScreen.setTab('register')">${I18N.t('online_tab_register')}</button>
       </div>
       <div id="ls-form-area"></div>
       <div id="ls-error" class="ls-error" style="display:none"></div>
       <button id="ls-submit" class="ls-btn-primary" onclick="LoginScreen.handleSubmit()">
-        ${_tab === 'login' ? 'Entrar' : 'Criar Conta'}
+        ${_tab === 'login' ? I18N.t('online_tab_login') : I18N.t('online_tab_register')}
       </button>
     `);
     _renderForm();
@@ -458,9 +458,9 @@ const LoginScreen = (() => {
     _setContent(`
       <div class="ls-loading">
         <div class="ls-spinner">⚠️</div>
-        <p style="color:#f87171;font-weight:600;margin-bottom:6px;">Servidor indisponível</p>
-        <p style="color:#9ca3af;font-size:13px;">Battlestar Popnime requer conexão com o servidor.<br>Verifique sua internet e recarregue a página.</p>
-        <button class="ls-btn-primary" style="margin-top:18px" onclick="location.reload()">↻ Tentar novamente</button>
+        <p style="color:#f87171;font-weight:600;margin-bottom:6px;">${I18N.t('online_server_down_title')}</p>
+        <p style="color:#9ca3af;font-size:13px;">${I18N.t('online_server_down_msg')}</p>
+        <button class="ls-btn-primary" style="margin-top:18px" onclick="location.reload()">${I18N.t('online_retry_btn')}</button>
       </div>
     `);
   }
@@ -483,11 +483,11 @@ const LoginScreen = (() => {
     } else {
       area.innerHTML = `
         <div class="ls-field">
-          <label class="ls-label">Username <span class="ls-hint">(3–20 caracteres, letras/números/_)</span></label>
+          <label class="ls-label">Username <span class="ls-hint">${I18N.t('online_username_hint')}</span></label>
           <input id="ls-username" class="ls-input" type="text" placeholder="NarutoBR" maxlength="20" autocomplete="username">
         </div>
         <div class="ls-field">
-          <label class="ls-label">Senha <span class="ls-hint">(mín. 6 caracteres)</span></label>
+          <label class="ls-label">${I18N.t('online_label_password')} <span class="ls-hint">${I18N.t('online_password_hint')}</span></label>
           <input id="ls-pass" class="ls-input" type="password" placeholder="••••••••" autocomplete="new-password"
             onkeydown="if(event.key==='Enter')LoginScreen.handleSubmit()">
         </div>
@@ -506,11 +506,11 @@ const LoginScreen = (() => {
     const username = document.getElementById('ls-username')?.value.trim();
     const pass     = document.getElementById('ls-pass')?.value;
 
-    if (!username || !pass) return _showError('Preencha username e senha.');
+    if (!username || !pass) return _showError(I18N.t('online_fill_fields'));
     if (_tab === 'register') {
-      if (username.length < 3) return _showError('Username deve ter pelo menos 3 caracteres.');
-      if (!/^[a-zA-Z0-9_]+$/.test(username)) return _showError('Username: apenas letras, números e _');
-      if (pass.length < 6) return _showError('Senha deve ter pelo menos 6 caracteres.');
+      if (username.length < 3) return _showError(I18N.t('online_username_short'));
+      if (!/^[a-zA-Z0-9_]+$/.test(username)) return _showError(I18N.t('online_username_format'));
+      if (pass.length < 6) return _showError(I18N.t('online_password_short'));
     }
 
     _setLoading(true);
@@ -523,11 +523,11 @@ const LoginScreen = (() => {
         _showError(_translateError(result.error));
       } else {
         _goToHub();
-        UI.toast(`✅ Bem-vindo${_tab === 'register' ? '' : ' de volta'}, ${username}!`, 3000);
+        UI.toast(_tab === 'register' ? I18N.t('online_account_created', { username }) : I18N.t('online_welcome_back', { username }), 3000);
       }
     } catch (_) {
       _setLoading(false);
-      _showError('Erro inesperado. Tente novamente.');
+      _showError(I18N.t('online_unexpected_error'));
     }
   }
 
@@ -536,7 +536,7 @@ const LoginScreen = (() => {
     const btn = document.getElementById('ls-submit');
     if (!btn) return;
     btn.disabled  = on;
-    btn.textContent = on ? '⏳ Aguarde...' : (_tab === 'login' ? 'Entrar' : 'Criar Conta');
+    btn.textContent = on ? I18N.t('online_waiting') : (_tab === 'login' ? I18N.t('online_login_btn') : I18N.t('online_register_btn'));
   }
 
   function _showError(msg) {
@@ -547,18 +547,18 @@ const LoginScreen = (() => {
   }
 
   function _translateError(msg) {
-    if (!msg) return 'Erro desconhecido.';
+    if (!msg) return I18N.t('online_unexpected_error');
     if (msg.includes('Invalid login') || msg.includes('invalid_credentials'))
-      return 'Username ou senha incorretos.';
+      return I18N.t('err_wrong_credentials');
     if (msg.includes('User already registered') || msg.includes('already been registered'))
-      return 'Este username já está em uso.';
+      return I18N.t('err_username_taken');
     if (msg.includes('duplicate key') && msg.includes('username'))
-      return 'Este username já está em uso.';
+      return I18N.t('err_username_taken');
     if (msg.includes('Password should') || msg.includes('password'))
-      return 'Senha muito curta (mín. 6 caracteres).';
+      return I18N.t('err_password_short');
     if (msg.includes('Email signups are disabled'))
-      return 'Cadastro desativado no servidor. Contate o administrador.';
-    if (msg === 'offline') return 'Sem conexão com o servidor. Tente mais tarde.';
+      return I18N.t('err_signup_disabled');
+    if (msg === 'offline') return I18N.t('err_no_server');
     return msg;
   }
 

@@ -93,7 +93,7 @@ const Save = (() => {
             if (verdict === 'tampered') {
               Integrity.recordViolation('hmac_mismatch', {});
               if (typeof UI !== 'undefined' && UI.toast) {
-                UI.toast('⚠️ Save modificado detectado — leaderboard bloqueado nesta sessão.', 8000);
+                UI.toast(I18N.t('save_modified'), 8000);
               }
             } else if (verdict === 'no_seal') {
               // Antes de selar um save sem HMAC (saves pré-2.5 ou HMAC deletado),
@@ -102,7 +102,7 @@ const Save = (() => {
               if (plViolations.length > 0) {
                 Integrity.recordViolation('hmac_mismatch', { reason: 'no_seal_with_violations' });
                 if (typeof UI !== 'undefined' && UI.toast) {
-                  UI.toast('⚠️ Save modificado detectado — leaderboard bloqueado nesta sessão.', 8000);
+                  UI.toast(I18N.t('save_modified'), 8000);
                 }
               } else {
                 Integrity.seal(raw); // só sela se o save passar na plausibilidade
@@ -133,7 +133,7 @@ const Save = (() => {
       _saveFailed = true;
       console.warn('Save failed:', e);
       if (typeof UI !== 'undefined' && UI.toast) {
-        UI.toast('⚠️ Falha ao salvar! Armazenamento cheio — limpe dados do navegador.', 6000);
+        UI.toast(I18N.t('save_full'), 6000);
       }
     }
   }

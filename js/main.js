@@ -57,7 +57,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     if (Save.wasCorrupted()) {
-      UI.toast('⚠️ Save corrompido detectado — progresso reiniciado automaticamente.', 8000);
+      UI.toast(I18N.t('save_corrupted'), 8000);
     }
 
     // Integrity guards — snapshot das funções críticas + monitoramento de DevTools

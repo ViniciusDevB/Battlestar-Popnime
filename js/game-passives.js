@@ -66,7 +66,7 @@ const PASSIVE_ENTRIES = {
             fromInfection: false
           });
         });
-        UI.toast('🧟 Horda Zumbi Invocada!', 2000);
+        UI.toast(I18N.t('passive_zombie_spawn'), 2000);
       }
     }
   },
@@ -85,7 +85,7 @@ const PASSIVE_ENTRIES = {
           const pathLen = getPathLength(pathArr);
           _passiveCtx.tsunamis.push({ hp, maxHp: hp, dist: pathLen, speed: 100, color: '#3498db', hitIds: new Set(), pathArr });
         });
-        UI.toast('🌊 Tsunami Reversivo Invocado!', 2000);
+        UI.toast(I18N.t('passive_tsunami'), 2000);
       }
     }
   },
@@ -135,7 +135,7 @@ const PASSIVE_ENTRIES = {
           applyStatus(e, 'freeze', { slow_pct: slowPct, duration: slowDur });
         });
         _passiveCtx.addEffect({ type: 'ring', x: tower.x, y: tower.y, maxR: 80, color: '#60a5fa', timer: 0.6, maxTimer: 0.6, r: 0 });
-        UI.toast(`⛈️ Tempestade Global! −${(slowPct * 100).toFixed(0)}% vel em todos!`, 2200);
+        UI.toast(I18N.t('passive_global_storm', { pct: (slowPct * 100).toFixed(0) }), 2200);
       }
     }
   },
@@ -331,7 +331,7 @@ const PASSIVE_ENTRIES = {
       for (let i = 0; i < tower.upgradeLevel; i++) wg += tower.charData.upgrades[i]?.gold_bonus || 0;
       const prestigeMult = 1 + (tower.prestige || 0) * (p.prestigeMultPerLevel || 0);
       wg = Math.round(wg * prestigeMult);
-      if (wg > 0) { _passiveCtx.gold += wg; _passiveCtx.updateHUD(); UI.toast(`💰 L gerou +${wg} ouro!`, 2500); }
+      if (wg > 0) { _passiveCtx.gold += wg; _passiveCtx.updateHUD(); UI.toast(I18N.t('passive_l_gold', { gold: wg }), 2500); }
     },
     onAnyKill(tower, p, deadEnemy) {
       if (tower.isClone) return;
@@ -359,7 +359,7 @@ const PASSIVE_ENTRIES = {
         const tMult = 1 + (t.prestige || 0) * (tp.prestigeMultPerLevel || 0);
         bonus += Math.round(wg * tMult * (p.bonus_pct || 0.20));
       });
-      if (bonus > 0) { _passiveCtx.gold += bonus; _passiveCtx.updateHUD(); UI.toast(`💰 Aura de Farm! +${bonus} ouro`, 2000); }
+      if (bonus > 0) { _passiveCtx.gold += bonus; _passiveCtx.updateHUD(); UI.toast(I18N.t('passive_farm_aura', { bonus }), 2000); }
     }
   },
 
@@ -544,7 +544,7 @@ const PASSIVE_ENTRIES = {
           tower._vizardActive = true;
           tower._vizardTimer = p.duration || 20.0;
           _passiveCtx.addEffect({ type:'vizard_mode_flash', x:tower.x, y:tower.y, timer:0.8, maxTimer:0.8 });
-          UI.toast('⚡ MODO VIZARD TOTAL!', 2000);
+          UI.toast(I18N.t('passive_vizard'), 2000);
           _passiveCtx.screenShakeAmount = 25;
           _passiveCtx.vizardOverlayAlpha = 1.0;
         }
@@ -980,8 +980,8 @@ const PASSIVE_ENTRIES = {
         _passiveCtx.restoreLife(restore);
         _passiveCtx.addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:80, color:'#f9a8d4', timer:1.0, maxTimer:1.0, r:0 });
         const pp = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower).find(x => x.type === 'byakugou_shield');
-        if (pp) { _passiveCtx.towers.forEach(t => { t.stunCooldown = Math.max(t.stunCooldown || 0, pp.stun_immune_duration || 2); }); _passiveCtx.toast(`🛡️ Cura da Hokage: Imunidade a Stun por ${pp.stun_immune_duration}s!`, 2000); }
-        UI.toast(`✨ Byakugou de Tsunade! +${restore} vida restaurada!`, 3500);
+        if (pp) { _passiveCtx.towers.forEach(t => { t.stunCooldown = Math.max(t.stunCooldown || 0, pp.stun_immune_duration || 2); }); _passiveCtx.toast(I18N.t('passive_hokage_stun', { s: pp.stun_immune_duration }), 2000); }
+        UI.toast(I18N.t('passive_byakugou', { hp: restore }), 3500);
 
         // Imunidade a stun para todas as torres (prestígio 5)
         const pp5 = (tower.charData?.prestige_passives || {})[5];
@@ -990,7 +990,7 @@ const PASSIVE_ENTRIES = {
             t._stunImmune = true;
             t._stunImmuneTimer = pp5.stun_immune_duration;
           });
-          UI.toast(`🛡️ Cura da Hokage: ${pp5.stun_immune_duration}s de imunidade a stun para todas as torres!`, 3000);
+          UI.toast(I18N.t('passive_hokage_aura', { s: pp5.stun_immune_duration }), 3000);
         }
       }
     },
@@ -1084,7 +1084,7 @@ const PASSIVE_ENTRIES = {
 
         _passiveCtx.addEffect({ type:'shockwave', x:tower.x, y:tower.y, maxR:600, color:'#7c3aed', timer:0.9, maxTimer:0.9, r:0 });
         _passiveCtx.screenShakeAmount = 18;
-        UI.toast(`🐙 MODO BIJUU! Killer Bee transforma por ${dur}s — todos paralisados e marcados com Tinta!`, 3500);
+        UI.toast(I18N.t('passive_bijuu', { s: dur }), 3500);
       }
     }
   },

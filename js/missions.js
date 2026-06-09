@@ -156,7 +156,7 @@ const Missions = (() => {
   }
 
   function _toastRewards(missions) {
-    missions.forEach(m => UI.toast(`✅ Missão completa: ${m.label} → ${rewardLabel(m.reward)}`));
+    missions.forEach(m => UI.toast(I18N.t('mission_complete_toast', { label: m.label, reward: rewardLabel(m.reward) })));
   }
 
   // ── Progress ──────────────────────────────────────────────────────────────────
@@ -208,7 +208,7 @@ const Missions = (() => {
       list.appendChild(div);
     });
     if (!(d.missoes_ativas || []).length) {
-      list.innerHTML = '<div class="mission-empty">Todas as conquistas disponíveis foram concluídas! 🎉</div>';
+      list.innerHTML = `<div class="mission-empty">${I18N.t('missions_all_done')}</div>`;
     }
   }
 

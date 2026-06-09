@@ -29,7 +29,7 @@ function spawnClone(origin) {
     statusEffect: origin.statusEffect, currentType: origin.currentType,
     isClone: true, cloneTimer: cloneDuration, cloneDamagePct
   });
-  UI.toast(`🌀 Clone de Naruto invocado! (${cloneDuration}s)`, 2000);
+  UI.toast(I18N.t('tower_clone_spawned', { s: cloneDuration }), 2000);
 }
 
 function handleClick(e) {
@@ -43,7 +43,7 @@ function handleClick(e) {
       _towersCtx.deployingCharId = null;
       renderTeamPanel();
     } else {
-      UI.toast('Local inválido!');
+      UI.toast(I18N.t('tower_invalid_spot'));
     }
     return;
   }
@@ -72,15 +72,12 @@ function deployTower(x, y, charId) {
   const char = getCharById(charId);
   const unitData = Save.getBestUnitData(charId);
   if (!char || !unitData) return;
-  if (_towersCtx.gold < char.deploy_cost) { UI.toast('Ouro insuficiente!'); return; }
+  if (_towersCtx.gold < char.deploy_cost) { UI.toast(I18N.t('err_gold')); return; }
   const maxCopies = char.rarity >= 6 ? 1 : 3;
   const towers = _towersCtx.towers;
   const copies = towers.filter(t => t.charId === charId && !t.isClone).length;
   if (copies >= maxCopies) {
-    const msg = char.rarity >= 6
-      ? `Apenas 1 ${char.name} pode estar no campo! (regra 6★)`
-      : `Máximo de 3 cópias de ${char.name} no campo!`;
-    UI.toast(msg, 2000); return;
+    UI.toast(I18N.t('tower_max_copies', { name: char.name }), 2000); return;
   }
 
   _towersCtx.gold -= char.deploy_cost;
@@ -105,10 +102,10 @@ function deployTower(x, y, charId) {
 
 function undoLastTower() {
   if (_towersCtx.waveActive && _towersCtx.enemies.length > 0) {
-    UI.toast('Undo indisponível — inimigos já estão em campo!', 2000);
+    UI.toast(I18N.t('tower_undo_unavailable'), 2000);
     return;
   }
-  if (!_towersCtx._lastPlacedTower) { UI.toast('Nenhuma torre para desfazer.', 1500); return; }
+  if (!_towersCtx._lastPlacedTower) { UI.toast(I18N.t('tower_undo_none'), 1500); return; }
   const towers = _towersCtx.towers;
   const idx = towers.indexOf(_towersCtx._lastPlacedTower);
   if (idx < 0) { _towersCtx._lastPlacedTower = null; return; }
@@ -118,7 +115,7 @@ function undoLastTower() {
   if (_towersCtx.selectedTowerIdx === idx) { _towersCtx.selectedTowerIdx = -1; closeUpgradePanel(); }
   renderTeamPanel();
   updateHUD();
-  UI.toast(`↩️ Colocação de ${t.charData?.name || 'torre'} desfeita! Ouro devolvido.`, 2000);
+  UI.toast(I18N.t('tower_undo_done', { name: t.charData?.name || '—' }), 2000);
 }
 
 function selectTower(idx) {
@@ -136,7 +133,7 @@ function buyUpgrade(towerIdx, upgradeIdx) {
   const char = getCharById(tower.charId);
   const upg = char?.upgrades[upgradeIdx];
   if (!upg || tower.upgradeLevel !== upgradeIdx) return;
-  if (_towersCtx.gold < upg.cost) { UI.toast('Ouro insuficiente!'); return; }
+  if (_towersCtx.gold < upg.cost) { UI.toast(I18N.t('err_gold')); return; }
 
   _towersCtx.gold -= upg.cost;
   tower.upgradeLevel++;

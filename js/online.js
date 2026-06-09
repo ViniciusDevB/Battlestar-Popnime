@@ -122,13 +122,13 @@ const Online = (() => {
     if (!_ready) return { error: 'offline' };
     username = username.trim();
     if (username.length < 3 || username.length > 20) {
-      return { error: 'Username deve ter 3–20 caracteres.' };
+      return { error: I18N.t('online_enter_username') };
     }
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      return { error: 'Username: apenas letras, números e _' };
+      return { error: I18N.t('online_username_format') };
     }
     if (!password || password.length < 6) {
-      return { error: 'Senha deve ter pelo menos 6 caracteres.' };
+      return { error: I18N.t('online_password_short') };
     }
 
     const { data, error } = await _client.auth.signUp({
@@ -137,7 +137,7 @@ const Online = (() => {
       options:  { data: { username } },
     });
     if (error) return { error: error.message };
-    if (!data.user) return { error: 'Erro ao criar conta. Tente novamente.' };
+    if (!data.user) return { error: I18N.t('online_unexpected_error') };
 
     if (data.session) {
       _session = data.session;
@@ -162,7 +162,7 @@ const Online = (() => {
     if (_profile?.banned) {
       await _client.auth.signOut();
       _session = null; _profile = null;
-      return { error: 'Conta suspensa. Entre em contato com o suporte.' };
+      return { error: I18N.t('online_suspended') };
     }
     // Admin: desativa envio de violações ao servidor
     if (_profile?.is_admin && typeof Integrity !== 'undefined') {
@@ -358,14 +358,14 @@ const Online = (() => {
     if (!Integrity.isCleanForTrades()) return { error: 'integrity_violation' };
 
     for (const uid of offeredUnitUids) {
-      if (Save.isUnitLocked(uid)) return { error: 'Uma das unidades já está em outra oferta.' };
+      if (Save.isUnitLocked(uid)) return { error: I18N.t('online_trade_duplicate') };
     }
 
     const { count } = await _client.from('trades')
       .select('id', { count: 'exact', head: true })
       .eq('offerer_id', _profile.id)
       .eq('status', 'open');
-    if ((count || 0) >= 5) return { error: 'Limite de 5 ofertas abertas atingido.' };
+    if ((count || 0) >= 5) return { error: I18N.t('online_trade_limit') };
 
     const { data, error } = await _client.from('trades').insert({
       offerer_id:        _profile.id,
@@ -386,7 +386,7 @@ const Online = (() => {
     if (!Integrity.isCleanForTrades()) return { error: 'integrity_violation' };
 
     for (const uid of acceptedUnitUids) {
-      if (Save.isUnitLocked(uid)) return { error: 'Uma das unidades já está em outra oferta.' };
+      if (Save.isUnitLocked(uid)) return { error: I18N.t('online_trade_duplicate') };
     }
 
     const { data, error } = await _client.rpc('accept_trade', {
@@ -445,7 +445,7 @@ const Online = (() => {
       }, (payload) => {
         if (payload.new?.status === 'completed') {
           if (typeof UI !== 'undefined') {
-            UI.toast('🎉 Sua oferta foi aceita! Inventário atualizado.', 5000);
+            UI.toast(I18N.t('online_trade_accepted'), 5000);
           }
           syncSave().then(() => {
             if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();

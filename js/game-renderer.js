@@ -233,7 +233,7 @@ function drawBlockZones() {
     ctx.fillText('🪨', z.x, z.y - 4);
     ctx.font = 'bold 7px Inter,sans-serif';
     ctx.fillStyle = 'rgba(255,220,140,0.85)';
-    ctx.fillText('BLOQUEADO', z.x, z.y + z.r * 0.45);
+    ctx.fillText(I18N.t('hud_blocked'), z.x, z.y + z.r * 0.45);
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   });
 }
@@ -1003,7 +1003,7 @@ function drawOverlay() {
       const tier = INFINITE_TIERS[getInfiniteTierIdx(wave + 1)];
       ctx.fillStyle = tier.color;
       ctx.font = 'bold 11px Inter,sans-serif';
-      ctx.fillText(`⚡ ${tier.name.toUpperCase()}  •  ${I18N.t('hud_skip')}`, cx, cy + 28);
+      ctx.fillText(`⚡ ${getTierName(tier).toUpperCase()}  •  ${I18N.t('hud_skip')}`, cx, cy + 28);
       const best = Save.get().stats.melhor_onda_infinita || 0;
       if (best > 0) {
         ctx.fillStyle = 'rgba(251,191,36,0.55)';

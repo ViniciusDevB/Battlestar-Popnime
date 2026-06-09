@@ -111,11 +111,11 @@ const TradesUI = (() => {
     if (tab === 'explore') {
       const visible = trades.filter(t => (t.offerer?.id || t.offerer_id) !== profile?.id);
       list = visible.length === 0
-        ? `<div class="tr-empty">Nenhuma oferta aberta. Seja o primeiro!</div>`
+        ? `<div class="tr-empty">${I18N.t('trade_empty_board')}</div>`
         : visible.map(_exploreCardHTML).join('');
     } else {
       list = trades.length === 0
-        ? `<div class="tr-empty">Você não tem ofertas abertas.</div>`
+        ? `<div class="tr-empty">${I18N.t('trade_empty_mine')}</div>`
         : trades.map(_myCardHTML).join('');
     }
 
@@ -170,7 +170,7 @@ const TradesUI = (() => {
     const offNames = offIds.map(id => _charInfo(id).name).join(' + ') || '—';
     const wantNames= wantIds.length ? wantIds.map(id => _charInfo(id).name).join(' + ') : 'Qualquer';
     const offDots  = offIds.map(id => { const c=_charInfo(id); return `<span class="tr-dot" style="background:${c.color}"></span>`; }).join('');
-    const STATUS   = { open:'Aberta', completed:'Concluída', cancelled:'Cancelada', expired:'Expirada' };
+    const STATUS   = { open: I18N.t('trade_status_open'), completed: I18N.t('trade_status_completed'), cancelled: I18N.t('trade_status_cancelled'), expired: I18N.t('trade_status_expired') };
 
     return `
       <div class="tr-card ${t.status!=='open'?'tr-card--inactive':''}">
@@ -207,7 +207,7 @@ const TradesUI = (() => {
     if (units.length === 0) {
       return `
         <div class="modal-header"><h3>Criar Oferta</h3><button class="modal-close" onclick="TradesUI.show()">✕</button></div>
-        <div class="tr-empty" style="padding:32px">Sem unidades 3★+ disponíveis para trocar.</div>
+        <div class="tr-empty" style="padding:32px">${I18N.t('trade_no_units_available')}</div>
         <div class="tr-confirm-actions"><button class="online-btn-secondary" onclick="TradesUI.show()">${I18N.t('btn_back')}</button></div>`;
     }
 
@@ -228,7 +228,7 @@ const TradesUI = (() => {
     const n = _cr.offeredUnits.length;
     return `
       <div class="modal-header"><h3>Criar Oferta — Passo 1 de 2</h3><button class="modal-close" onclick="TradesUI.show()">✕</button></div>
-      <p class="tr-picker-hint">Selecione até ${MAX_UNITS} unidades para oferecer:</p>
+      <p class="tr-picker-hint">${I18N.t('trade_select_up_to', { max: MAX_UNITS })}</p>
       <div class="tr-pick-list">${rows}</div>
       <div class="tr-confirm-actions">
         <button class="online-btn-secondary" onclick="TradesUI.show()">Cancelar</button>
@@ -243,7 +243,7 @@ const TradesUI = (() => {
     if (idx >= 0) {
       _cr.offeredUnits.splice(idx, 1);
     } else {
-      if (_cr.offeredUnits.length >= MAX_UNITS) { UI.toast(`Máximo de ${MAX_UNITS} unidades por oferta.`, 2000); return; }
+      if (_cr.offeredUnits.length >= MAX_UNITS) { UI.toast(I18N.t('trade_max_units', { max: MAX_UNITS }), 2000); return; }
       _cr.offeredUnits.push({ uid, charId, nivel, prestige });
     }
     _setContent(_createStep1HTML());
@@ -295,7 +295,7 @@ const TradesUI = (() => {
       </div>
 
       <div class="tr-create-body">
-        <div class="tr-section-label">Quero em troca <span class="tr-hint">(opcional, máx. ${MAX_UNITS})</span></div>
+        <div class="tr-section-label">${I18N.t('trade_want_in_exchange')} <span class="tr-hint">${I18N.t('trade_optional_max', { max: MAX_UNITS })}</span></div>
         <div class="tr-wanted-area">
           <div class="tr-chips-row">
             ${wantedChips}
@@ -304,7 +304,7 @@ const TradesUI = (() => {
           ${pickerHTML}
         </div>
 
-        <div class="tr-section-label" style="margin-top:14px">Mensagem <span class="tr-hint">(opcional, máx. 120 chars)</span></div>
+        <div class="tr-section-label" style="margin-top:14px">${I18N.t('trade_message_label')} <span class="tr-hint">${I18N.t('trade_message_hint')}</span></div>
         <input id="tr-msg-input" class="online-input" type="text" maxlength="120"
                placeholder="Ex: Boa troca! Procuro Itachi" value="${_cr.message||''}">
       </div>
@@ -379,7 +379,7 @@ const TradesUI = (() => {
     const result = await Online.createTrade(uids, ids, _cr.wantedIds, _cr.message);
 
     if (result.error) { UI.toast('❌ ' + result.error, 4000); _setContent(_createStep2HTML()); return; }
-    UI.toast('✅ Oferta publicada!', 3000);
+    UI.toast(I18N.t('trade_published'), 3000);
     _tab = 'my';
     _load('my');
   }
@@ -412,7 +412,7 @@ const TradesUI = (() => {
       <div class="modal-header"><h3>Confirmar</h3><button class="modal-close" onclick="TradesUI.show()">✕</button></div>
       <div class="tr-confirm-body">
         <div style="font-size:36px;margin-bottom:12px">🎁</div>
-        <p>Você vai receber <b>${_esc(offeredNames)}</b> gratuitamente.</p>
+        <p>${I18N.t('trade_will_receive_free', { names: _esc(offeredNames) })}</p>
       </div>
       <div class="tr-confirm-actions">
         <button class="online-btn-secondary" onclick="TradesUI.show()">${I18N.t('btn_back')}</button>
@@ -428,7 +428,7 @@ const TradesUI = (() => {
       const isOpen  = _ac.pickerFor === charId;
 
       const optRows = matches.length === 0
-        ? `<div class="tr-acc-no-unit">Você não tem ${_esc(c.name)} disponível</div>`
+        ? `<div class="tr-acc-no-unit">${I18N.t('trade_no_unit', { name: c.name })}</div>`
         : matches.map(u => `
             <div class="tr-pick-row ${selUid===u.uid?'tr-pick-row--selected':''}"
                  onclick="TradesUI.selectAcceptUnit('${charId}','${u.uid}')">
@@ -455,7 +455,7 @@ const TradesUI = (() => {
 
     return `
       <div class="modal-header"><h3>Escolha o que entregar</h3><button class="modal-close" onclick="TradesUI.show()">✕</button></div>
-      <p class="tr-picker-hint">Você vai receber: <b>${_esc(_ac.offeredNames)}</b><br>Selecione uma unidade para cada tipo pedido:</p>
+      <p class="tr-picker-hint">${I18N.t('trade_will_receive_select', { names: _esc(_ac.offeredNames) })}</p>
       <div class="tr-acc-list">${rows}</div>
       <div class="tr-confirm-actions">
         <button class="online-btn-secondary" onclick="TradesUI.show()">${I18N.t('btn_back')}</button>
@@ -488,8 +488,8 @@ const TradesUI = (() => {
     _setContent(`
       <div style="text-align:center;padding:40px 20px">
         <div style="font-size:42px;margin-bottom:12px">🎉</div>
-        <div style="font-size:16px;font-weight:800;color:var(--t1);margin-bottom:8px">Troca concluída!</div>
-        <div style="font-size:12px;color:var(--t2);margin-bottom:24px">Inventário atualizado.</div>
+        <div style="font-size:16px;font-weight:800;color:var(--t1);margin-bottom:8px">${I18N.t('trade_complete_title')}</div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:24px">${I18N.t('trade_complete_msg')}</div>
         <button class="online-btn-primary" onclick="TradesUI.show()">Ver Trocas</button>
       </div>`);
   }
@@ -502,7 +502,7 @@ const TradesUI = (() => {
     if (!window.confirm('Cancelar esta oferta?')) return;
     const result = await Online.cancelTrade(tradeId, uids);
     if (result.error) { UI.toast('❌ ' + result.error, 3000); return; }
-    UI.toast('Oferta cancelada.', 2000);
+    UI.toast(I18N.t('trade_cancelled'), 2000);
     _load('my');
   }
 
