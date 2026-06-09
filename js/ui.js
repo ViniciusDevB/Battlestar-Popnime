@@ -213,7 +213,7 @@ const UI = (() => {
       let chanceLabel;
       if (drop.oneTime) {
         chanceLabel = alreadyOwned
-          ? `<div style="color:#4ade80;font-weight:700;">✓ Obtida</div>`
+          ? `<div style="color:#39FF14;font-weight:700;">✓ Obtida</div>`
           : `<div style="color:#fbbf24;font-weight:700;">1ª vez</div>`;
       } else if (drop.pity) {
         chanceLabel = `<div style="color:#ffaa00;">${drop.chance}% <span style="color:#a78bfa;font-size:9px;">(pity ${drop.pity})</span></div>`;

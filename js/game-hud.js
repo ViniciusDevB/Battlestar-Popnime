@@ -61,7 +61,7 @@ function openUpgradePanel(tower, slotIdx) {
   function statRow(label, cur, nxt) {
     if (nxt == null || nxt === cur) return `<div class="upg-stat-row"><span>${label}</span><span>${cur}</span></div>`;
     const better = typeof cur === 'number' ? nxt > cur : false;
-    const col = better ? '#4ade80' : '#f87171';
+    const col = better ? '#39FF14' : '#f87171';
     return `<div class="upg-stat-row upg-stat-cmp"><span>${label}</span><span>${cur} <span class="upg-next-val" style="color:${col}">→ ${nxt}</span></span></div>`;
   }
 

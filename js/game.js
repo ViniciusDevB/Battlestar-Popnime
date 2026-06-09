@@ -572,7 +572,7 @@ const Game = (() => {
         }
       }
       if (Math.random() < 0.25)
-        addEffect({ type:'ring', x:z.x + (Math.random()*28-14), y:z.y + (Math.random()*28-14), maxR:14, color:'rgba(74,222,128,0.55)', timer:0.22, maxTimer:0.22, r:0 });
+        addEffect({ type:'ring', x:z.x + (Math.random()*28-14), y:z.y + (Math.random()*28-14), maxR:14, color:'rgba(57,255,20,0.55)', timer:0.22, maxTimer:0.22, r:0 });
     });
     zombies = zombies.filter(z => z.hp > 0 && z.dist > 0);
 
@@ -847,7 +847,7 @@ const Game = (() => {
         hp: 2500, maxHp: 2500,
         dist: enemy.dist,
         speed: 52, dps: 80,
-        color: '#86efac',
+        color: '#7AFF50',
         hitIds: new Set(), pathArr,
         fromInfection: true
       });

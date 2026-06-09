@@ -2,7 +2,7 @@
 // Depende de: _infiniteSession (game-utils.js), Save, UI (já globals quando game.js roda).
 
 const INFINITE_TIERS = [
-  { key:'tier_easy',      name:'Fácil',          minWave:1,  maxWave:20,  color:'#4ade80', hp:1.0,  gold:1.0 },
+  { key:'tier_easy',      name:'Fácil',          minWave:1,  maxWave:20,  color:'#39FF14', hp:1.0,  gold:1.0 },
   { key:'tier_medium',    name:'Médio',          minWave:21, maxWave:30,  color:'#facc15', hp:1.8,  gold:1.2 },
   { key:'tier_hard',      name:'Difícil',        minWave:31, maxWave:40,  color:'#f97316', hp:3.2,  gold:1.4 },
   { key:'tier_very_hard', name:'Muito Difícil',  minWave:41, maxWave:50,  color:'#ef4444', hp:5.5,  gold:1.6 },

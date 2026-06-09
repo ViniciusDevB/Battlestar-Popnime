@@ -22,7 +22,7 @@ const CHAR_COLORS = {
   tsunade:    '#f9a8d4',
   killer_bee: '#7c3aed',
   // Evento — Nemesis
-  nemesis:            '#4ade80',
+  nemesis:            '#39FF14',
   // Marvel
   spider_man:         '#dc2626',
   black_widow:        '#1c1917',
@@ -61,7 +61,7 @@ const PASSIVE_ENTRIES = {
           _passiveCtx.zombies.push({
             hp: zombieHp, maxHp: zombieHp,
             dist: pathLen, speed, dps,
-            color: '#4ade80',
+            color: '#39FF14',
             hitIds: new Set(), pathArr,
             fromInfection: false
           });
@@ -1003,7 +1003,7 @@ const PASSIVE_ENTRIES = {
   // Tsunade — Cem Sobrancelhas (passiva de campo — lógica real em base_drain handler)
   cem_sobrancelhas: {
     renderBadge(tower, p) {
-      return { text:'100⬤', color:'#86efac' };
+      return { text:'100⬤', color:'#7AFF50' };
     }
   },
 

@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
 /* ── RESET ── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -360,7 +359,7 @@ html,body{
 .mission-item:hover{border-color:rgba(255,200,70,0.3);transform:translateX(2px);}
 .mission-label{font-size:12px;font-weight:700;color:#fff;margin-bottom:6px;}
 .mission-progress-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:99px;margin-bottom:4px;overflow:hidden;}
-.mission-fill{height:100%;background:linear-gradient(90deg,var(--green),#22d3a5);border-radius:99px;transition:width 500ms var(--ease);}
+.mission-fill{height:100%;background:linear-gradient(90deg,var(--green),#1aaa00);border-radius:99px;transition:width 500ms var(--ease);}
 .mission-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);}
 .mission-reward{color:var(--gold);font-weight:600;}
 .mission-empty{color:var(--t3);text-align:center;padding:24px 16px;font-size:12px;line-height:1.7;}
@@ -405,7 +404,7 @@ html,body{
 .world-desc{font-size:12.5px;color:rgba(255,255,255,0.75);margin-bottom:16px;line-height:1.6; font-weight: 500;}
 .world-progress{
   display: inline-block; padding: 6px 16px; border-radius: 99px;
-  background: rgba(62,207,142,0.15); border: 1px solid rgba(62,207,142,0.3);
+  background: rgba(57,255,20,0.15); border: 1px solid rgba(57,255,20,0.3);
   font-size:12px;color:var(--green);font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,0.8);
 }
 .world-lock{position:absolute;top:16px;right:16px;font-size:20px;opacity:0.9; text-shadow: 0 2px 5px rgba(0,0,0,1);}
@@ -632,7 +631,7 @@ html,body{
 .upg-close:hover{background:rgba(245,101,101,0.28);}
 .upg-options{display:flex;gap:7px;flex-wrap:wrap;}
 .upg-item{background:var(--gs);border:1px solid var(--bd);border-radius:9px;padding:9px;flex:1;min-width:135px;transition:all 140ms;}
-.upg-item.upg-done{border-color:rgba(62,207,142,0.2);background:rgba(62,207,142,0.04);}
+.upg-item.upg-done{border-color:rgba(57,255,20,0.2);background:rgba(57,255,20,0.04);}
 .upg-item.upg-next{border-color:rgba(255,200,70,0.28);cursor:pointer;}
 .upg-item.upg-next:hover{background:rgba(255,200,70,0.05);border-color:rgba(255,200,70,0.5);}
 .upg-item.upg-locked{opacity:.28;}
@@ -664,7 +663,7 @@ html,body{
 .ability-badge{
   font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;
 }
-.ability-badge--ready{background:rgba(62,207,142,0.18);color:var(--green);}
+.ability-badge--ready{background:rgba(57,255,20,0.18);color:var(--green);}
 .ability-badge--cd{background:rgba(91,156,246,0.18);color:var(--blue);}
 
 /* ══════════════════════════════
@@ -1046,7 +1045,7 @@ select:hover{border-color:var(--bd3);}
   padding:10px;width:96px;text-align:center;cursor:pointer;transition:all 130ms;
 }
 .feed-mat-item:hover{border-color:rgba(255,200,70,0.28);background:var(--gs2);}
-.feed-mat-item.selected{border-color:rgba(62,207,142,0.38);background:rgba(62,207,142,0.04);}
+.feed-mat-item.selected{border-color:rgba(57,255,20,0.38);background:rgba(57,255,20,0.04);}
 .feed-mat-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin:0 auto 5px;}
 .feed-mat-xp{font-size:10px;color:var(--green);margin-top:3px;font-weight:700;}
 
@@ -1646,7 +1645,7 @@ select:hover{border-color:var(--bd3);}
 .tr-expiry     { font-size:11px; color:var(--t3); }
 .tr-own-badge  { font-size:10px; font-weight:700; color:var(--t3); background:var(--gs2); padding:3px 8px; border-radius:99px; }
 .tr-status { font-size:10px; font-weight:800; padding:3px 8px; border-radius:99px; text-transform:uppercase; letter-spacing:.04em; }
-.tr-status--open      { background:rgba(62,207,142,.12); color:var(--green); }
+.tr-status--open      { background:rgba(57,255,20,.12); color:var(--green); }
 .tr-status--completed { background:rgba(255,200,70,.1);  color:var(--gold); }
 .tr-status--cancelled,.tr-status--expired { background:rgba(245,101,101,.08); color:var(--red); }
 
@@ -2273,11 +2272,11 @@ select:hover{border-color:var(--bd3);}
   flex-shrink: 0;
 }
 .ms-daily-reset { font-size: 11px; color: var(--t3); }
-.ms-daily-complete { font-size: 12px; color: #4ade80; font-weight: 700; }
+.ms-daily-complete { font-size: 12px; color: #39FF14; font-weight: 700; }
 
 /* Completed mission item */
 .mission-done { opacity: .55; }
-.mission-done .mission-fill { background: linear-gradient(90deg, #4ade80, #22d3ee); }
+.mission-done .mission-fill { background: linear-gradient(90deg, #39FF14, #1aaa00); }
 
 /* Community tab — update badge */
 .ms-update-badge {
@@ -2346,7 +2345,7 @@ select:hover{border-color:var(--bd3);}
 }
 .ms-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(90deg, var(--green), var(--purple));
   border-radius: 99px;
   transition: width 600ms var(--ease);
   min-width: 4px;
@@ -2423,7 +2422,7 @@ select:hover{border-color:var(--bd3);}
   text-align: center;
   font-size: 14px;
   font-weight: 700;
-  color: #4ade80;
+  color: #39FF14;
   padding: 8px;
 }
 
@@ -2594,34 +2593,34 @@ select:hover{border-color:var(--bd3);}
 /* ── Nemesis card — visual especial ─────────────────────────────────────── */
 .ms-upcoming-card--nemesis {
   background: linear-gradient(145deg, #060f08, #0c1e0e);
-  border-color: rgba(74,222,128,.35);
-  box-shadow: 0 0 22px rgba(74,222,128,.12), inset 0 0 28px rgba(74,222,128,.04);
+  border-color: rgba(57,255,20,.35);
+  box-shadow: 0 0 22px rgba(57,255,20,.12), inset 0 0 28px rgba(57,255,20,.04);
   opacity: 1;
   animation: nemesis-glow 2.8s ease-in-out infinite;
 }
 @keyframes nemesis-glow {
-  0%,100% { box-shadow: 0 0 16px rgba(74,222,128,.12); border-color: rgba(74,222,128,.3); }
-  50%      { box-shadow: 0 0 32px rgba(74,222,128,.28); border-color: rgba(74,222,128,.65); }
+  0%,100% { box-shadow: 0 0 16px rgba(57,255,20,.12); border-color: rgba(57,255,20,.3); }
+  50%      { box-shadow: 0 0 32px rgba(57,255,20,.28); border-color: rgba(57,255,20,.65); }
 }
 .ms-upcoming-badge--nemesis {
-  background: rgba(74,222,128,.15);
-  border-color: rgba(74,222,128,.4);
-  color: #4ade80;
+  background: rgba(57,255,20,.15);
+  border-color: rgba(57,255,20,.4);
+  color: #39FF14;
 }
 .ms-upcoming-card--nemesis .ms-upcoming-title {
   font-size: 17px;
-  color: #86efac;
-  text-shadow: 0 0 12px rgba(74,222,128,.4);
+  color: #7AFF50;
+  text-shadow: 0 0 12px rgba(57,255,20,.4);
 }
 .ms-upcoming-card--nemesis .ms-upcoming-desc { color: #6b7280; }
-.ms-upcoming-card--nemesis .ms-upcoming-countdown { color: #4ade80; opacity: .8; }
-.ms-upcoming-card--nemesis .ms-upcoming-countdown strong { color: #86efac; }
+.ms-upcoming-card--nemesis .ms-upcoming-countdown { color: #39FF14; opacity: .8; }
+.ms-upcoming-card--nemesis .ms-upcoming-countdown strong { color: #7AFF50; }
 .ms-upcoming-reward--nemesis {
-  background: linear-gradient(135deg, rgba(74,222,128,.15), rgba(34,197,94,.1));
-  border-color: rgba(74,222,128,.4) !important;
-  color: #4ade80 !important;
+  background: linear-gradient(135deg, rgba(57,255,20,.15), rgba(57,255,20,.1));
+  border-color: rgba(57,255,20,.4) !important;
+  color: #39FF14 !important;
   font-weight: 900;
-  text-shadow: 0 0 8px rgba(74,222,128,.3);
+  text-shadow: 0 0 8px rgba(57,255,20,.3);
 }
 
 /* ── LOGIN SCREEN ─────────────────────────────────────────────────────────── */
@@ -3004,7 +3003,7 @@ select:hover{border-color:var(--bd3);}
 }
 
 /* Label de recompensa já resgatada */
-.mission-reward--claimed { color: #4ade80; font-style: italic; }
+.mission-reward--claimed { color: #39FF14; font-style: italic; }
 
 /* Hint de pendentes no header diário */
 .ms-daily-pending-hint {

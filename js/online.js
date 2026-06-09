@@ -103,7 +103,7 @@ const Online = (() => {
         el.style.color = '#fbbf24';
       } else {
         el.textContent = `● ${_profile.username}`;
-        el.style.color = '#4ade80';
+        el.style.color = '#39FF14';
       }
     } else {
       el.textContent = '○ Offline';

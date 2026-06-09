@@ -105,8 +105,8 @@ function render() {
   zombies.forEach(z => {
     const r = z.fromInfection ? 18 : 30;
     ctx.save();
-    ctx.shadowBlur = 14; ctx.shadowColor = '#4ade80';
-    ctx.fillStyle = z.fromInfection ? 'rgba(134,239,172,0.88)' : 'rgba(74,222,128,0.78)';
+    ctx.shadowBlur = 14; ctx.shadowColor = '#39FF14';
+    ctx.fillStyle = z.fromInfection ? 'rgba(100,255,50,0.88)' : 'rgba(57,255,20,0.78)';
     ctx.beginPath();
     ctx.arc(z.x, z.y, r, 0, Math.PI * 2);
     ctx.fill();
@@ -114,7 +114,7 @@ function render() {
     const bw = r * 2;
     ctx.fillStyle = '#111';
     ctx.fillRect(z.x - r, z.y - r - 12, bw, 5);
-    ctx.fillStyle = '#4ade80';
+    ctx.fillStyle = '#39FF14';
     ctx.fillRect(z.x - r, z.y - r - 12, bw * hpPct, 5);
     ctx.strokeStyle = '#fff';
     ctx.strokeRect(z.x - r, z.y - r - 12, bw, 5);
@@ -324,7 +324,7 @@ function drawPath() {
 
   if (pathsToDraw && pathsToDraw.length > 0 && pathsToDraw[0].length > 0) {
     const endP = pathsToDraw[0][pathsToDraw[0].length - 1];
-    ctx.fillStyle = 'rgba(62,207,142,0.85)';
+    ctx.fillStyle = 'rgba(57,255,20,0.85)';
     ctx.beginPath();
     ctx.roundRect(endP.x - 18, endP.y - 12, 36, 24, 4);
     ctx.fill();
@@ -344,7 +344,7 @@ function drawPlacementPreview() {
   const hoverY = _renderCtx.hoverY;
 
   const valid = _renderCtx.isValidPlacement(hoverX, hoverY);
-  const color = valid ? '62,207,142' : '245,101,101';
+  const color = valid ? '57,255,20' : '245,101,101';
   const pulse = (Math.sin(Date.now() / 200) + 1) / 2;
 
   ctx.beginPath();
@@ -971,10 +971,10 @@ function drawOverlay() {
     const cx = CANVAS_W/2, cy = CANVAS_H/2;
     ctx.fillStyle = 'rgba(10,10,26,0.88)';
     ctx.beginPath(); ctx.roundRect(cx-165, cy-36, 330, 76, 14); ctx.fill();
-    ctx.strokeStyle = 'rgba(74,222,128,0.35)';
+    ctx.strokeStyle = 'rgba(57,255,20,0.35)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.roundRect(cx-165, cy-36, 330, 76, 14); ctx.stroke();
-    ctx.fillStyle = '#4ade80';
+    ctx.fillStyle = '#39FF14';
     ctx.font = 'bold 17px Inter,sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(I18N.t('hud_prepare'), cx, cy - 8);
@@ -1011,7 +1011,7 @@ function drawOverlay() {
         ctx.fillText(I18N.t('hud_record_wave', { best }), cx, cy + 42);
       }
     } else {
-      ctx.fillStyle = 'rgba(74,222,128,0.75)';
+      ctx.fillStyle = 'rgba(57,255,20,0.75)';
       ctx.font = '500 10px Inter,sans-serif';
       ctx.fillText(`+${(wave + 1) * 11}\u{1F4B0} ${I18N.t('hud_on_complete')}  •  ${I18N.t('hud_skip')}`, cx, cy + 28);
     }
