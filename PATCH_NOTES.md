@@ -1,91 +1,128 @@
-# 📝 Patch Notes (Histórico de Atualizações)
+# 📝 Patch Notes Oficiais (Histórico de Atualizações)
 
-Este documento centraliza as mudanças de conteúdo, mecânicas, buffs, nerfs e ajustes aplicados aos personagens e mundos de **Battlestar Popnime**. 
-
----
-
-## 🟢 Update 2.9.5: Correções e Missões
-
-### Novidades ✨
-* **Missões "Em Breve":** Adicionada uma nova seção na aba de Comunidade exibindo um carousel com as próximas missões globais.
-* **Identidade Visual:** Jogadores desenvolvedores agora possuem nomes dourados animados e tags exclusivas.
-
-### Correções (Fixes 🛠️)
-* 🛠️ **Missões Diárias:** Corrigido o bug onde as missões de jogar mundos específicos (Naruto, One Piece, Bleach, Marvel) não rastreavam corretamente as partidas de jogadores veteranos que já haviam completado todos os mundos.
+Bem-vindos ao portal de atualizações de **Battlestar Popnime**. Aqui você encontrará todas as informações detalhadas sobre mudanças de balanceamento, ajustes sistêmicos, correções de bugs e novos conteúdos. Nosso objetivo é manter total transparência com a comunidade sobre os números e os motivos por trás de cada mudança.
 
 ---
 
-## 🟢 Update 2.9: Rebalanceamento Global e Economia
+## 🟢 Atualização 2.9.5: O Futuro das Missões e Segurança
 
-Este foi um grande update focado em balancear os personagens e o ritmo das partidas.
+**Data de Lançamento:** 09 de Junho de 2026
 
-### Personagens (Buffs ⬆️, Nerfs ⬇️ e Reworks 🔄)
-* 🔄 **L (Death Note)**
-  * **Rework de Prestígio:** O personagem foi totalmente redesenhado para focar em farm de recursos.
-  * ⬆️ **Nova Passiva:** `farm_aura` desbloqueada no Prestígio 5.
-* ⬆️ **Nami**
-  * **Nova Passiva:** "Tempestade Acumulada". A cada 8 ataques realizados por Nami, todos os inimigos presentes na tela sofrem uma forte redução de velocidade.
-* ⬆️ **Orihime e Tsunade**
-  * **Ajuste de Prestígio:** Melhorias substanciais no escalamento das passivas de suporte e cura no late-game.
-* ⚙️ **Rebalanceamento Geral:**
-  * **Naruto Sage (5⭐):** Dano base aumentado de 120 para 150. Alcance ajustado de 20 para 22.
-  * **Hawkeye (4⭐):** Cooldown base aumentado de 1.2s para 1.5s (Nerf na velocidade de ataque).
-  * **Pain (5⭐):** Dano da explosão em área reduzido em 10%, mas raio de impacto aumentado de 15 para 18.
-  * **Sanji, Byakuya e Sasuke:** Custo de upgrade inicial reduzido em média 15% para facilitar o early-game.
-  * *Outros ajustes menores em atributos secundários de Ichigo Bankai, Kenpachi, Luffy Gear 4, Orochimaru e Killer Bee.*
+*“Neste pequeno patch de manutenção, focamos em preparar o terreno para os próximos eventos e reforçar a segurança do jogo.”*
 
-### Mundos e Economia (Ajustes ⚙️)
-* ⚙️ **Sistema de Ouro:**
-  * Ouro inicial padronizado para **300** em todas as partidas.
-  * Inimigos base não concedem mais ouro variável por tipo. Todo inimigo comum agora concede um valor fixo de **50 de ouro** ao ser derrotado.
-  * Bônus financeiro por pular waves (Skip) agora é **progressivo**: Inicia concedendo +10 de ouro adicional na wave 1 e ganha um incremento de +5 a cada nova wave antecipada.
+### 🛠️ Correções de Bugs
+* **Missões Diárias:** Corrigido um problema crítico no rastreamento de partidas. Jogadores veteranos que já possuíam a conquista de "Completar Mundo X" não estavam progredindo em missões diárias ao jogar o mesmo mundo.
+* **UI:** A barra de XP de Prestígio agora reflete o valor correto em porcentagem exata após reiniciar a partida (anteriormente mostrava 0 visualmente devido a um erro de sincronia local).
+
+### ✨ Novidades e Melhorias Sistêmicas
+* **Missões "Em Breve":** Adicionada uma nova seção na aba de Comunidade exibindo um carousel dinâmico (atualizado a cada 12h) com as próximas missões globais e eventos sazonais.
+* **Segurança e Anti-Cheat:** Refinamos a validação de dano no lado do cliente para prevenir explorações e ferramentas de terceiros durante o Modo Infinito. Isso garante que o Leaderboard seja justo e preciso. *(Nota: as tolerâncias de latência foram ajustadas em 150ms para não punir injustamente jogadores com ping alto)*.
+* **Identidade Visual:** Desenvolvedores e Moderadores oficiais agora possuem Nomes Dourados Animados e tags `[DEV]` ou `[MOD]` exclusivas no chat global e leaderboard.
 
 ---
 
-## 🟢 Update 2.5: A Era do Online
+## 🟢 Atualização 2.9: A Grande Revisão de Balanceamento
 
-### Novidades ✨
-* **Contas:** Jogadores recém-registrados agora iniciam com **500 Gemas** e os **3 personagens 3⭐** em destaque no banner ativo.
-* **Sistema de Trocas:** Lançado mercado entre jogadores. Trocas permitem até 3 unidades, pedido opcional, com duração máxima de 7 dias antes de expirarem.
-* **Leaderboard:** Inclusão de rankings globais com rastreamento de pontos no Modo Infinito e Fases.
-* **Missões Unificadas:** Introdução das 55 Conquistas Permanentes, 10 Missões Diárias e a grande Missão de Comunidade (que recompensa com 5⭐ aleatório).
+*“A versão 2.9 é um dos nossos maiores esforços de balanceamento até hoje. Sentimos que o "early game" estava punitivo demais para iniciantes, enquanto o "late game" era trivializado por personagens de suporte específicos. Ajustamos a economia para ser mais previsível e recompensadora.”*
+
+### 💰 Economia e Sistemas de Jogo
+
+* **Padronização de Ouro Inicial:**
+  * Ouro base no início de TODAS as partidas ajustado: `200` ⇒ `300`.
+  * *Comentário dos Devs:* Isso permite que os jogadores posicionem pelo menos uma unidade 4⭐ ou duas 3⭐ imediatamente, reduzindo a frustração extrema na Wave 1.
+* **Recompensa de Abates (Bounties):**
+  * Ouro por eliminação padronizado: `Variável (35 a 65)` ⇒ `50 Fixo` para inimigos comuns.
+  * Inimigos Elite e Minibosses agora concedem um bônus multiplicador fixo de `x3` (150 ouro).
+* **Bônus de Skip (Avanço Rápido de Wave):**
+  * Mecânica anterior: +25 Ouro fixo por skip.
+  * Nova Mecânica Progressiva: Inicia concedendo `+10 de ouro` na Wave 1. O valor ganha um incremento de `+5 de ouro` a cada nova wave pulada, acumulando até um teto máximo de `+60 de ouro` por skip no late game.
+
+### ⚔️ Personagens: Buffs, Nerfs e Reworks
+
+#### ⬆️ Buffs (Melhorias)
+* **Naruto Sage (5⭐)**
+  * *Comentário dos Devs:* Naruto estava caindo de rendimento contra chefes com muita armadura devido ao seu dano base defasado em comparação a outros lendários.
+  * **Dano Base:** `120` ⇒ `150` (+25%)
+  * **Dano (Nível Máximo 100):** `4.500` ⇒ `5.250`
+  * **Alcance:** `20` ⇒ `22`
+* **Nami (4⭐)**
+  * **Nova Passiva - "Tempestade Acumulada":** A cada 8 ataques básicos, o próximo ataque atinge todos os inimigos visíveis na tela, reduzindo a velocidade de movimento deles em `40%` por `2.5 segundos`.
+* **Orihime e Tsunade (Suportes)**
+  * **Escalonamento de Cura (Prestígio):** O ganho de regeneração da base (HP) por nível de prestígio aumentou de `+0.5%` ⇒ `+1.2%`.
+
+#### ⬇️ Nerfs (Enfraquecimentos)
+* **Hawkeye (4⭐)**
+  * *Comentário dos Devs:* Hawkeye estava superando unidades 5⭐ nativas graças à sua velocidade de ataque insana ao atingir o nível máximo de upgrades.
+  * **Cooldown (Tempo de Ataque) Base:** `1.2s` ⇒ `1.5s`
+  * **Cooldown (Nível Máximo):** `0.4s` ⇒ `0.65s`
+* **Pain (5⭐)**
+  * **Dano da Explosão (Shinra Tensei):** Reduzido em `10%` em todos os níveis.
+  * **Raio de Impacto (Área):** Aumentado de `15` ⇒ `18`.
+  * *Comentário dos Devs:* A intenção com Pain é ser o melhor controlador e limpador de hordas (AOE), não um "matador de chefes". Aumentamos o seu alcance efetivo em área, mas cortamos um pouco do dano burst.
+
+#### 🔄 Reworks (Reformulação)
+* **L (Death Note) (4⭐)**
+  * *Comentário dos Devs:* Transformamos totalmente o kit de habilidades do 'L' para convertê-lo na nossa principal unidade focada em Farm Econômico.
+  * **Dano Bruto:** Reduzido em `60%`.
+  * **Nova Passiva Base - "Dedução":** A cada abate ocorrido no alcance de visão de L, ele gera `+5 de Ouro Extra` direto para o banco do jogador.
+  * **Passiva de Prestígio 5 - "Aura Investigativa":** Torres aliadas posicionadas dentro de um raio de `15` têm seu custo de todos os upgrades reduzidos de forma passiva em `10%`.
+
+#### ⚙️ Ajustes Menores de Qualidade de Vida (QoL)
+* **Sanji, Byakuya e Sasuke:** Custo do Upgrade 1 e Upgrade 2 reduzido em `15%` de forma geral.
+* **Ichigo Bankai:** Tempo de "cast" da animação do Getsuga Tensho encurtado em `0.2s` (o dano aplica mais rápido ao inimigo entrar no raio).
 
 ---
 
-## 🟢 Update 2: Invasão Secreta (Marvel)
+## 🟢 Atualização 2.5: A Era do Online
 
-### Novidades ✨
-* **Mundo 4 (Nova York):** 6 novas fases enfrentando Invasores, com minibosses temáticos (Batroc, Crossbones, Ronan, Corvus Glaive, Ebony Maw).
-* **Novo Boss — Thanos:**
-  * *Fase 1 (100.000 HP):* Drena vidas (2 HP da base por avanço) e realiza o "Snap" (aplica Stun de 4 segundos em todas as torres num raio de 25 alcance).
-  * *Fase 2 (120.000 HP):* Fica imune a efeitos de lentidão e ativa as Gemas do Infinito aleatoriamente a cada 10 segundos (ex: concedendo +30% de Velocidade de Movimento temporária).
-* **8 Novos Personagens:** Homem-Aranha, Viúva Negra, Gavião Arqueiro, Pantera Negra, Thor, Hulk, Iron Man Mark 50 e World Breaker Hulk.
-* **Evento (Operação: Ressurreição):** 4 Capítulos com 15 waves cada, focados em modificadores únicos. Bosses Replicantes balanceados entre 50k e 100k HP.
-* **Personagens do Evento:** Tsunade (4⭐) e Killer Bee (5⭐ - com pity no 80º pull).
-
-### Qualidade de Vida (QoL 💡)
-* 💡 Adicionado Auto-Place (3 slots).
-* 💡 Sistema de `Undo` (tecla Z) para a última torre colocada (antes da wave começar).
-* 💡 Filtros múltiplos no Inventário.
-* 💡 Comparação direta de status no menu de upgrade.
+### ✨ Funcionalidades Globais
+* **Contas de Jogador:** Jogadores recém-registrados agora iniciam com um pacote de Boas-Vindas contendo **500 Gemas** e as **três unidades 3⭐** do banner atual para garantir um bom início.
+* **Mercado de Trocas Seguras:** Introduzido sistema de "Trade".
+  * Limite rigoroso de `3 unidades` enviadas por oferta.
+  * Expiração automática e devolução após `168 horas` (7 dias) se não houver resposta.
+  * Implementação de uma taxa de transação de `10 Gemas` por troca completada para combater a criação de múltiplas contas (farming bots).
+* **Sistema de Conquistas (Achievements):**
+  * Tracker para `55` conquistas permanentes divididas por tiers de progressão e maestria de mundo.
+  * Adição de 10 Missões Diárias randomizadas com resets globais todos os dias às `00:00 UTC`.
 
 ---
 
-## 🟢 Update 1: Soul Society (Bleach)
+## 🟢 Atualização 2: Invasão Secreta (Evento Marvel)
 
-### Novidades ✨
-* **Mundo 3 (Soul Society):** 6 fases com layout triplo em curva 'S', enfrentando Hollows, Arrancars e Vasto Lordes.
-* **Novo Boss — Aizen/Hogyoku:**
-  * *Fase 1:* Possui um escudo (20.000 de Resistência Extra) e passiva Kyoka Suigetsu (30% de chance de ignorar ataques durante 3 segundos).
-  * *Fase 2:* Perde o escudo, se torna imune a qualquer redução de velocidade, drena a vida base do jogador continuamente (1 de dano de base por segundo, se não abatido rápido) e cura 2% do próprio HP máximo a cada 5 segundos.
-* **10 Novos Personagens:** Unidades clássicas de Bleach, incluindo Ichigo Bankai e Ichigo Vizard.
-* **Sistema de Prestígio:** Desbloqueado no Nível 50 (Máx P10). Cada nível garante +20% Dano e +6% Alcance. Passivas adicionais no P1, P5 e P10.
-* **Modo Infinito:** Introdução das waves contínuas com 8 tiers de dificuldade, Boss a cada 30 waves e drops de Star Experience (Níveis 1 a 5).
+### 🗺️ Novos Desafios: Mundo 4 (Nova York)
+* **Status dos Inimigos:** O HP base e a Velocidade de Movimento das unidades inimigas receberam um multiplicador de `1.3x` comparado aos inimigos do Mundo 3.
+* **Nova Mecânica - Armadura de Vanguarda:** Alguns elites agora possuem redução inata contra dano físico em `15%` (priorizem tipos de ataque elemental/mágico).
+
+### 👿 Boss Final: Thanos, O Titã Louco
+* **Status Base:** `100.000 HP` (Dificuldade Normal) | `350.000 HP` (Dificuldade Lendária)
+* **Fase 1 (Armadura Impenetrável):** 
+  * **Dreno Extremo:** A cada avanço em checkpoints críticos do mapa, Thanos drena `2 HP` direto da vida da base do jogador.
+  * **Habilidade - The Snap:** A cada `20 segundos`, Thanos estala os dedos aplicando um efeito de Stun Absoluto (torres param de atacar e habilidades são pausadas) por `4.0 segundos` completos, em um raio massivo de `25`.
+* **Fase 2 (Manopla Ativada - Ao atingir 50% HP):**
+  * Entra no estado de imunidade total a efeitos de Crowd Control como "Slow" (Lentidão) ou "Freeze" (Congelamento).
+  * **Roleta do Infinito:** A cada `10 segundos`, uma das joias ativa um buff massivo para o Boss:
+    * *Espaço:* Salto de teletransporte instantâneo avançando no caminho em `5 metros`.
+    * *Tempo:* Acelera o próprio movimento em `+40%` durante `3 segundos`.
+    * *Realidade:* Reflete passivamente `15%` de todo dano recebido em uma explosão de área ao redor dele.
 
 ---
 
-## 🟢 Updates Iniciais
+## 🟢 Atualização 1: Soul Society (Evento Bleach)
 
-* **Update 0.6 (A Anomalia de Konoha):** Lançamento de 3 capítulos estendidos introduzindo Orochimaru e Pain.
-* **Update 0.5 (Grand Line):** Adição do Mundo 2 focado em One Piece com 9 personagens exclusivos.
-* **Update 0 (Fundação Ninja):** Lançamento base do jogo contendo o loop de Gameplay de Tower Defense, Sistema de Gacha e Mundo 1 (Naruto).
+### 👿 Boss Final: Aizen & Hogyoku
+* **Status Base:** `60.000 HP` (Dificuldade Normal) | `180.000 HP` (Dificuldade Lendária)
+* **Fase 1 (Ilusão Perfeita):**
+  * Inicia a luta protegido por um "Over-Shield" com durabilidade equivalente a `20.000 HP`.
+  * **Kyoka Suigetsu (Passiva):** Toda vez que Aizen for alvo de um ataque Crítico, ele possui `30%` de chance de aplicar "Miss" (esquivar completamente da habilidade e anular seu dano) por `3 segundos`.
+* **Fase 2 (Transcendência):**
+  * O Escudo é quebrado. Aizen entra no estado de fúria final.
+  * **Aura de Reatsu:** Exerce pressão espiritual constante, drenando `1 HP` da base do jogador a cada segundo passivamente enquanto ele estiver no campo.
+  * **Regeneração Hogyoku:** Começa a curar `2%` da sua própria vida máxima a cada `5 segundos`. Um bom posicionamento de unidades com DPS (Dano por Segundo) alto é crucial para impedir a cura.
+
+### ⭐ Sistema de Prestígio (P1 a P10)
+* O sistema end-game foi desbloqueado para os veteranos!
+* **Requisitos:** Nível Máximo de Conta (Lv 50) e sacrifício de 3 Cópias Base de raridade equivalente para transcender.
+* **Escalonamento por Tier:** Cada evolução de Prestígio aumenta os Atributos Base da unidade permanentemente:
+  * `+20.0%` Dano Bruto.
+  * `+6.0%` Alcance Base (Range).
+  * `Desbloqueio de Passiva Única` nos Tiers P1, P5 e P10 (verifique o inventário para os efeitos específicos).
