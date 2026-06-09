@@ -74,13 +74,17 @@ const LeaderboardUI = (() => {
     const listRows = entries.length === 0
       ? `<div class="lb-empty">Nenhum score registrado ainda.<br>Seja o primeiro!</div>`
       : entries.map((e, i) => {
-          const isSelf = profile && e.players?.username === profile.username;
-          const score  = _formatScore(mode, e);
-          const dots   = _unitDots(e.units_used);
+          const isSelf  = profile && e.players?.username === profile.username;
+          const isAdmin = !!e.players?.is_admin;
+          const score   = _formatScore(mode, e);
+          const dots    = _unitDots(e.units_used);
+          const nameHTML = isAdmin
+            ? `<span class="lb-admin-name">♛ ${_esc(e.players?.username || '—')}</span><span class="lb-admin-tag">DEV</span>`
+            : `<span class="lb-name">${_esc(e.players?.username || '—')}</span>`;
           return `
-            <div class="lb-row ${isSelf ? 'lb-row--self' : ''}">
+            <div class="lb-row ${isSelf ? 'lb-row--self' : ''} ${isAdmin ? 'lb-row--admin' : ''}">
               <span class="lb-rank">${_rankNum(i + 1)}</span>
-              <span class="lb-name">${_esc(e.players?.username || '—')}</span>
+              ${nameHTML}
               <span class="lb-score">${score}</span>
               <span class="lb-dots">${dots}</span>
             </div>

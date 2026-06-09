@@ -34,6 +34,7 @@ const OnlineUI = (() => {
   function _render() {
     if (Online.isLoggedIn() && Online.getProfile()) {
       _setContent(_profileHTML());
+      if (Online.getProfile()?.is_admin) return; // admin não precisa de rank
       // Carrega rank assincronamente e atualiza apenas o badge
       Online.fetchMyRank('infinite').then(rankData => {
         const el = document.getElementById('profile-rank-badge');
@@ -132,12 +133,13 @@ const OnlineUI = (() => {
   // ── HTML: perfil ──────────────────────────────────────────────────────────
 
   function _profileHTML() {
-    const profile = Online.getProfile();
-    const save    = Save.get();
-    const stats   = save?.stats || {};
+    const profile  = Online.getProfile();
+    const isAdmin  = !!profile?.is_admin;
+    const save     = Save.get();
+    const stats    = save?.stats || {};
 
-    const avatarColor = _avatarColor(profile?.username || '?');
-    const initial     = (profile?.username || '?')[0].toUpperCase();
+    const avatarColor = isAdmin ? '#92400e' : _avatarColor(profile?.username || '?');
+    const initial     = isAdmin ? '♛' : (profile?.username || '?')[0].toUpperCase();
     const memberSince = profile?.created_at
       ? new Date(profile.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' })
       : '—';
@@ -163,10 +165,15 @@ const OnlineUI = (() => {
           <div class="prof-avatar" style="background:${avatarColor}">${initial}</div>
         </div>
         <div class="prof-identity">
-          <div class="prof-username">${_esc(profile?.username || '—')}</div>
-          <div class="prof-since">Membro desde ${memberSince}</div>
+          <div class="prof-username ${isAdmin ? 'prof-username--admin' : ''}">
+            ${isAdmin ? '<span class="prof-admin-crown">♛</span> ' : ''}${_esc(profile?.username || '—')}
+          </div>
+          ${isAdmin ? '<div class="prof-admin-badge">DESENVOLVEDOR</div>' : `<div class="prof-since">Membro desde ${memberSince}</div>`}
           <div class="prof-rank-area">
-            <span id="profile-rank-badge" class="prof-rank-loading">⏳ carregando rank…</span>
+            ${isAdmin
+              ? '<span class="prof-admin-rank">Acesso Total</span>'
+              : '<span id="profile-rank-badge" class="prof-rank-loading">⏳ carregando rank…</span>'
+            }
           </div>
         </div>
       </div>

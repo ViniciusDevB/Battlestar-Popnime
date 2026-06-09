@@ -78,8 +78,13 @@ const Online = (() => {
     const el = document.getElementById('online-status-bar');
     if (!el) return;
     if (loggedIn && _profile) {
-      el.textContent = `● ${_profile.username}`;
-      el.style.color = '#4ade80';
+      if (_profile.is_admin) {
+        el.textContent = `♛ ${_profile.username}`;
+        el.style.color = '#fbbf24';
+      } else {
+        el.textContent = `● ${_profile.username}`;
+        el.style.color = '#4ade80';
+      }
     } else {
       el.textContent = '○ Offline';
       el.style.color = '#6b7280';
@@ -313,7 +318,7 @@ const Online = (() => {
     if (!_ready) return [];
     let q = _client
       .from('scores')
-      .select('score, wave, damage, duration_s, units_used, players(username, avatar_unit)')
+      .select('score, wave, damage, duration_s, units_used, players(username, avatar_unit, is_admin)')
       .eq('flagged', false)
       .limit(limit);
 
