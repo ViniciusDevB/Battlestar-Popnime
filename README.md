@@ -4,20 +4,27 @@
 
 ---
 
-## 🚀 Como Jogar / Executar
+## 🚀 Como Jogar
 
-O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Nenhuma instalação necessária:
+### Jogar agora (sem instalação)
+
+Acesse diretamente pelo navegador:
+
+**🔗 [viniciusdevb.github.io/Battlestar-Popnime](https://viniciusdevb.github.io/Battlestar-Popnime/)**
+
+Nenhuma instalação, nenhum download. Todos os recursos online (conta, leaderboard, trocas, missões da comunidade) funcionam normalmente.
+
+### Rodar localmente (desenvolvimento)
+
+O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript** — sem dependências ou build step:
 
 1. Clone o repositório:
    ```bash
    git clone https://github.com/ViniciusDevB/Battlestar-Popnime.git
    ```
-2. Abra a pasta do projeto.
-3. Abra o `index.html` no navegador.
+2. Abra a pasta no VS Code e inicie o **Live Server** (`Alt+L Alt+O`).
 
-*(Recomendado: usar Live Server do VS Code para melhor experiência de desenvolvimento.)*
-
-> **Online**: os recursos online (leaderboard, trocas, missões da comunidade) requerem a configuração do Supabase em `data/online_config.js`.
+> O arquivo `data/online_config.js` com as credenciais do Supabase já está versionado — os recursos online funcionam imediatamente após o clone.
 
 ---
 
@@ -46,7 +53,7 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Nenhuma instal
 - **Trocas** — ofertas assíncronas de personagens entre jogadores com até 3 unidades, pedido opcional e expiração automática (7 dias).
 - **Save Sync** — save automático na nuvem com merge inteligente (último timestamp vence em inventário/moedas; stats e completões de fases fazem union).
 - **Reset de Conta** — o botão ⚙ apaga o save local e, se logado, remove o save do servidor e faz logout.
-- **Integridade** — HMAC do save + validação de plausibilidade bloqueiam scores e trocas com saves adulterados.
+- **Integridade** — HMAC do save + validação server-side de scores (trigger SQL) + sistema de banimento automático por violações bloqueiam adulteração de saves e cheats.
 
 **Qualidade de Vida:**
 - Auto-Place com 3 slots por fase (salva e recarrega posicionamento).
@@ -98,13 +105,34 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Nenhuma instal
 │   ├── missions_data.js    — pool de conquistas (55) e diárias (24)
 │   └── online_config.js    — credenciais Supabase (não versionado)
 └── supabase/
-    ├── migrate_trades_v2.sql      — schema completo (players, saves, trades, etc.)
-    └── community_missions_seed.sql — seed das missões da comunidade
+    ├── schema.sql                  — schema completo (players, saves, trades, etc.)
+    ├── setup_community.sql         — setup idempotente das missões comunitárias
+    ├── community_missions_seed.sql — seed das missões da comunidade
+    ├── security_patch.sql          — correções de segurança aplicáveis a bancos existentes
+    ├── ban_system.sql              — sistema de banimento e log de violações
+    ├── admin_setup.sql             — configuração da conta admin
+    └── functions/
+        └── log-violation/          — Edge Function: log de violações com IP real
 ```
 
 ---
 
 ## 📈 Histórico de Updates
+
+### ✅ Update 2.9.5: Segurança, Deploy Público e Missões Em Breve *(Lançado)*
+
+**O jogo agora é jogável online por qualquer pessoa, com múltiplas camadas de segurança:**
+
+- **Deploy Público**: jogo disponível via GitHub Pages sem necessidade de clonar o repositório. Todos os recursos online funcionam diretamente no browser.
+- **Missões Em Breve**: nova seção na aba Comunidade exibindo as próximas missões em carousel navegável, com card especial e animação para o evento do Nemesis.
+- **Correção de Missões Diárias**: missões de mundo específico (Naruto, One Piece, Bleach, Marvel) agora rastreiam partidas jogadas corretamente, funcionando para jogadores veteranos que já completaram todos os mundos.
+- **Segurança — Client-side**: remoção dos códigos de cheat (`CHEATON`/`MONEY`) que estavam visíveis no código público; `Game.addGold()` removido da API pública; clamp defensivo no pity counter; rotação da constante do HMAC.
+- **Segurança — Server-side**: trigger SQL valida scores antes de inserir (tetos de valores, rate limit de 30/hora); funções `accept_trade` e `contribute_to_mission` corrigidas para derivar identidade do auth context em vez de aceitar parâmetro externo; RLS de trades restrita ao cancelamento pelo próprio ofertante.
+- **Sistema de Banimento**: tabela `banned_ips`, log de violações com IP real via Edge Function (`log-violation`), ban automático de conta + IP após 3 violações graves em 7 dias.
+- **Sistema de Admin**: conta `GordaneliGM` com acesso total, isenta de todas as verificações de integridade. Username bloqueado por índice case-insensitive. Identificação visual exclusiva: nome dourado animado, badge `DESENVOLVEDOR` no perfil e tag `DEV` no leaderboard.
+- **Validação de Delta do Save**: servidor compara o save novo com o anterior antes de aceitar o upsert, rejeitando ganhos implausíveis de gemas ou unidades.
+
+---
 
 ### ✅ Update 2.9: Arquitetura Modular e Rebalanceamento Global *(Lançado)*
 
