@@ -66,7 +66,14 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Nenhuma instal
 ├── index.html              — estrutura e layout principal
 ├── style.css               — estilos globais e componentes de UI
 ├── js/
-│   ├── game.js             — loop principal, canvas, IA de inimigos, passivas, infinito
+│   ├── game.js             — loop principal, IA de inimigos, controle de loop (reduzido)
+│   ├── game-utils.js       — utilitários compartilhados e declarações de contexto
+│   ├── game-infinite.js    — geração de waves infinitas e recompensas
+│   ├── game-attack.js      — manipuladores de ataque e mira
+│   ├── game-renderer.js    — funções de renderização do canvas
+│   ├── game-hud.js         — controles de interface, upgrades, preview de waves
+│   ├── game-towers.js      — posicionamento, seleção e evolução de torres
+│   ├── game-waves.js       — spawn de waves, progressão e modificadores
 │   ├── game-passives.js    — sistema de passivas modular
 │   ├── game-projectile-render.js — renderização visual de projéteis
 │   ├── gacha.js            — sistema de invocação
@@ -98,6 +105,21 @@ O projeto é construído em **HTML5, CSS3 e Vanilla JavaScript**. Nenhuma instal
 ---
 
 ## 📈 Histórico de Updates
+
+### ✅ Update 2.9: Arquitetura Modular e Rebalanceamento Global *(Lançado)*
+
+**Uma grande atualização técnica e de balanceamento para o jogo:**
+
+- **Arquitetura Modular**: O arquivo `game.js` monolítico de mais de 3100 linhas foi dividido em 7 módulos focados (`game-utils.js`, `game-infinite.js`, `game-attack.js`, `game-renderer.js`, `game-hud.js`, `game-towers.js`, `game-waves.js`), melhorando muito a manutenibilidade.
+- **Rebalanceamento Geral**: Ajuste completo nos atributos e passivas das torres em todas as raridades (ex: Naruto Sage, Sanji, Byakuya, Ichigo Bankai, Sasuke, Kenpachi, Hawkeye, Luffy Gear 4, Orochimaru, Pain e Killer Bee).
+- **Nova Economia**: Os inimigos agora concedem um valor fixo de ouro (50). O ouro inicial foi padronizado (300). O bônus por pular waves agora é progressivo. A mecânica antiga de ouro variável baseada no tipo de inimigo foi removida.
+- **Rework de Prestígio e Farm**: L (Death Note) passou por um redesign e se tornou ainda mais focado em farm, com uma nova passiva `farm_aura` no P5. Melhorias nas passivas de prestígio de Orihime e Tsunade.
+- **Passiva Única (Nami)**: "Tempestade Acumulada" — A cada 8 ataques de Nami, todos os inimigos na tela sofrem uma redução de velocidade global com efeito visual exclusivo.
+- **Performance**: O cálculo de distâncias pesado por frame (usando raiz quadrada) foi substituído por `distSq` (distância ao quadrado), melhorando substancialmente o desempenho do jogo no final das fases.
+- **Limpeza**: Foram removidos scripts de patch antigos (`patch3.js` e `patch4.js`) e ajustada a corrida de concorrência da verificação de integridade no salvamento automático.
+- **Visuals**: A tela do Gacha recebeu background animado e estendido.
+
+---
 
 ### ✅ Update 2.5: Sistema Online *(Lançado)*
 
