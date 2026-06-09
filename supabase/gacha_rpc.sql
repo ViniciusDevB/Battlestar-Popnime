@@ -233,6 +233,7 @@ BEGIN
   v_save := jsonb_set(v_save, '{stats,pulls_realizados}',    to_jsonb(v_pulls_stat + p_qty));
   v_save := jsonb_set(v_save, '{_lastSyncAt}',               to_jsonb(NOW()::TEXT));
   v_save := jsonb_set(v_save, '{_cloudLinked}',              to_jsonb(true));
+  v_save := v_save - '_integrityViolations';
 
   -- ── Persiste no banco ─────────────────────────────────────────────────────
   UPDATE public.saves
