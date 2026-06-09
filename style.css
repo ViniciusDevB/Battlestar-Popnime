@@ -357,7 +357,7 @@ html,body{
 }
 
 .mission-item{
-  background:rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.05);border-radius:12px;
+  background:rgba(3,8,4,0.85);border:2px solid rgba(57,255,20,0.1);border-radius:12px;
   padding:12px;transition:border-color 140ms;
 }
 .mission-item:hover{border-color:rgba(255,200,70,0.3);transform:translateX(2px);}
@@ -648,7 +648,7 @@ html,body{
   border-radius:8px;padding:5px 9px;line-height:1.4;
 }
 .upg-stats-block{
-  width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  width:100%;background:rgba(3,8,4,0.7);border:1px solid rgba(57,255,20,0.1);
   border-radius:8px;padding:7px 10px;display:flex;flex-direction:column;gap:3px;
 }
 .upg-stat-row{
@@ -689,7 +689,7 @@ html,body{
   border:4px solid #2d3748;box-shadow:0 10px 40px rgba(245,101,101,0.6);
 }
 .result-section{
-  background:linear-gradient(180deg, rgba(20,25,45,0.95), rgba(10,15,30,0.95));
+  background:linear-gradient(145deg, rgba(4,10,5,0.97), rgba(2,6,3,0.99));
   border:4px solid rgba(255,200,70,0.8);border-radius:30px;
   padding:50px 30px 30px;width:100%;max-width:500px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.8); z-index:1;
@@ -698,8 +698,8 @@ html,body{
 .result-rewards{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
 .reward-item{
   display:flex;justify-content:space-between;align-items:center;padding:12px 16px;
-  background:rgba(0,0,0,0.4);border-radius:16px;font-size:16px;font-weight:800;
-  border-bottom:3px solid rgba(255,255,255,0.05);
+  background:rgba(3,8,4,0.85);border-radius:16px;font-size:16px;font-weight:800;
+  border-bottom:3px solid rgba(57,255,20,0.08);
 }
 .reward-item.bonus{border-left:4px solid var(--gold);background:rgba(255,200,70,0.15);}
 .reward-mat{width:36px;height:36px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;}
@@ -742,7 +742,7 @@ html,body{
 @keyframes glow-pulse{0%,100%{box-shadow:0 0 22px rgba(255,200,70,0.2);}50%{box-shadow:0 0 40px rgba(255,200,70,0.38);}}
 .gacha-pity{position:absolute;bottom:14px;right:14px;font-size:11px;background:rgba(0,0,0,0.6);padding:5px 14px;border-radius:99px;color:var(--t2);border:1px solid var(--bd2);}
 
-.gacha-info{width:290px;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;background:rgba(6, 6, 14, 0.85);backdrop-filter:blur(10px);}
+.gacha-info{width:290px;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;background:rgba(3,7,4,0.95);border-left:1px solid rgba(57,255,20,0.12);}
 .gacha-info-section{padding:17px 20px;border-bottom:1px solid var(--bd);}
 .gacha-currencies{display:flex;gap:8px;margin-bottom:10px;}
 .gacha-rates{display:flex;gap:7px;}
@@ -785,7 +785,7 @@ html,body{
 .gacha-card-inner{width:88px;text-align:center;border-radius:14px;padding:12px 8px;border:1px solid transparent;}
 .gacha-card.rarity-5 .gacha-card-inner{border-color:rgba(255,200,70,0.5);background:linear-gradient(160deg,#1c0e00,#2e1a00);box-shadow:0 0 22px rgba(255,200,70,0.14);}
 .gacha-card.rarity-4 .gacha-card-inner{border-color:rgba(251,146,60,0.38);background:linear-gradient(160deg,#1a0a00,#2d1200);}
-.gacha-card.rarity-3 .gacha-card-inner{border-color:rgba(159,122,234,0.32);background:linear-gradient(160deg,#100820,#1e0e3a);}
+.gacha-card.rarity-3 .gacha-card-inner{border-color:rgba(159,122,234,0.32);background:linear-gradient(160deg,#080415,#120930);}
 .glow-gold{animation:glow-pulse 2s ease-in-out infinite;}
 .glow-orange{box-shadow:0 0 16px rgba(251,146,60,0.24);}
 .gacha-card-icon{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;margin:0 auto 7px;}
@@ -817,8 +817,8 @@ html,body{
 .inv-chip{
   display:inline-flex;align-items:center;padding:4px 12px;
   border-radius:999px;
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.13);
+  background:rgba(3,8,4,0.7);
+  border:1px solid rgba(57,255,20,0.15);
   color:rgba(238,240,255,0.55);
   font-size:12px;font-weight:500;line-height:1.4;
   cursor:pointer;
@@ -878,7 +878,7 @@ select:hover{border-color:var(--bd3);}
 .inv-icon{
   width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-weight:800;color:#fff;font-size:16px;margin:0 auto 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 2px solid rgba(57,255,20,0.2);
   transition: transform 0.3s;
 }
 .inv-card:hover .inv-icon{transform: scale(1.1) translateY(-2px);}
@@ -921,7 +921,7 @@ select:hover{border-color:var(--bd3);}
 .mat-combinable:hover{border-color:rgba(159,122,234,0.4);transform:translateY(-2px);}
 
 .mat-combine-section{
-  background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:16px;
+  background:rgba(3,8,4,0.88); border:1px solid rgba(57,255,20,0.15); border-radius:16px;
   padding:16px; display:flex; flex-direction:column; gap:12px;
   box-shadow: inset 0 2px 10px rgba(0,0,0,0.4);
 }
@@ -960,10 +960,10 @@ select:hover{border-color:var(--bd3);}
 }
 
 .detail-stats{
-  background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);
+  background:rgba(3,8,4,0.85);border:1px solid rgba(57,255,20,0.12);
   border-radius:16px;padding:16px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
 }
-.stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(57,255,20,0.07);font-size:13px;}
 .stat-row:last-child{border-bottom:none;}
 .stat-row span:first-child{color:var(--t2); font-weight: 500;}
 .stat-row span:last-child{font-weight:800; color: #fff;}
@@ -1118,7 +1118,7 @@ select:hover{border-color:var(--bd3);}
 .banner-featured-card {
   flex: 1.3;
   min-width: 320px;
-  background: linear-gradient(135deg, rgba(30, 10, 60, 0.95) 0%, rgba(12, 5, 30, 0.98) 100%);
+  background: linear-gradient(135deg, rgba(5,15,8,0.96) 0%, rgba(3,8,4,0.99) 100%);
   border: 2.5px solid var(--r5);
   border-radius: 24px;
   padding: 20px 24px;
@@ -1310,7 +1310,7 @@ select:hover{border-color:var(--bd3);}
 /* Supporting Cast Section */
 .banner-supporting-section {
   flex: 1.6;
-  background: rgba(12, 10, 24, 0.6);
+  background: rgba(4,10,5,0.88);
   border: 2px solid var(--bd);
   border-radius: 24px;
   padding: 20px 24px;
@@ -1461,17 +1461,18 @@ select:hover{border-color:var(--bd3);}
 }
 .dialog-box {
   position: relative;
-  height: 25vh; min-height: 160px; 
-  background: linear-gradient(to bottom, rgba(15,15,20,0.95), rgba(5,5,10,0.98));
-  border-top: 2px solid var(--gold);
+  height: 25vh; min-height: 160px;
+  background: linear-gradient(to bottom, rgba(4,10,5,0.97), rgba(2,6,3,0.99));
+  border-top: 2px solid rgba(57,255,20,0.5);
   padding: 30px 40px; box-sizing: border-box;
   display: flex; flex-direction: column;
 }
 .dialog-name {
   position: absolute; top: -20px; left: 40px;
-  background: var(--gold); color: #000; font-weight: bold;
-  padding: 5px 20px; font-size: 16px; text-transform: uppercase;
-  border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  background: var(--green); color: #000;
+  font-family: 'Bangers', cursive; font-weight: 400; letter-spacing: .08em;
+  padding: 5px 20px; font-size: 18px; text-transform: uppercase;
+  border-radius: 4px; box-shadow: 0 4px 14px rgba(57,255,20,0.5);
 }
 .dialog-text {
   color: #fff; font-size: 18px; line-height: 1.6;
@@ -1509,15 +1510,15 @@ select:hover{border-color:var(--bd3);}
   display: flex; gap: 10px; flex: 1;
 }
 .inv-team-slot {
-  width: 50px; height: 50px; background: rgba(255,255,255,0.05); 
-  border: 1px dashed var(--t3); border-radius: 8px; 
-  display: flex; align-items: center; justify-content: center; 
+  width: 50px; height: 50px; background: rgba(3,8,4,0.7);
+  border: 1px dashed rgba(57,255,20,0.25); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
   font-size: 14px; cursor: pointer; position: relative;
   transition: all 0.2s;
 }
-.inv-team-slot:hover { border-color: var(--gold); background: rgba(255,255,255,0.1); }
+.inv-team-slot:hover { border-color: var(--gold); background: rgba(57,255,20,0.08); }
 .inv-team-slot.filled {
-  border: 1px solid var(--bd); border-style: solid; background: #1a1a1a;
+  border: 1px solid var(--bd); border-style: solid; background: rgba(4,10,5,0.9);
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 .inv-team-slot .ts-icon { 
@@ -2671,7 +2672,7 @@ select:hover{border-color:var(--bd3);}
 .ls-card {
   width: 100%;
   max-width: 360px;
-  background: rgba(3, 6, 12, 0.88);
+  background: rgba(3,7,4,0.92);
   border: 1px solid var(--bd2);
   border-radius: var(--radius-xl);
   padding: 28px 24px 24px;

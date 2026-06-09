@@ -56,22 +56,22 @@ const UI = (() => {
       // Flyer header
       const header = document.createElement('div');
       header.style.cssText = 'width:100%;max-width:760px;height:180px;border-radius:12px 12px 0 0;background-image:url(\'' + evt.flyer + '\');background-size:cover;background-position:center;position:relative;overflow:hidden;';
-      header.innerHTML = '<div style="position:absolute;bottom:0;left:0;width:100%;padding:14px 20px;background:linear-gradient(transparent,rgba(0,0,0,0.88));"><h3 style="color:var(--gold);font-size:20px;margin:0;font-family:\'Cinzel\',serif;">' + evt.name + '</h3></div>';
+      header.innerHTML = '<div style="position:absolute;bottom:0;left:0;width:100%;padding:14px 20px;background:linear-gradient(transparent,rgba(0,0,0,0.88));"><h3 style="color:#39FF14;font-size:26px;margin:0;font-family:\'Bangers\',cursive;letter-spacing:.1em;text-shadow:0 0 12px rgba(57,255,20,0.6),2px 2px 0 rgba(0,0,0,0.9);">' + evt.name + '</h3></div>';
 
       // Description
       const desc = document.createElement('div');
-      desc.style.cssText = 'width:100%;max-width:760px;background:rgba(20,20,35,0.92);padding:14px 20px;border-left:2px solid rgba(255,200,70,0.25);border-right:2px solid rgba(255,200,70,0.25);';
-      desc.innerHTML = '<p style="color:#bbb;font-size:13px;margin:0;line-height:1.6;">' + evt.desc + '</p>';
+      desc.style.cssText = 'width:100%;max-width:760px;background:rgba(4,10,5,0.9);padding:14px 20px;border-left:2px solid rgba(57,255,20,0.2);border-right:2px solid rgba(57,255,20,0.2);';
+      desc.innerHTML = '<p style="color:rgba(238,240,255,0.65);font-size:13px;margin:0;line-height:1.6;">' + evt.desc + '</p>';
 
       // Chapters
       const chaps = document.createElement('div');
-      chaps.style.cssText = 'width:100%;max-width:760px;background:rgba(15,15,28,0.95);border:2px solid rgba(255,200,70,0.25);border-top:none;border-radius:0 0 12px 12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;';
+      chaps.style.cssText = 'width:100%;max-width:760px;background:rgba(3,8,4,0.97);border:2px solid rgba(57,255,20,0.2);border-top:none;border-radius:0 0 12px 12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;';
 
       evt.stages.forEach((st, i) => {
         const isDone = Save.isStageComplete(st.id, 'normal');
         const isLocked = i > 0 && !Save.isStageComplete(evt.stages[i-1].id, 'normal');
         const row = document.createElement('div');
-        row.style.cssText = 'padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;' + (isLocked ? 'opacity:0.45;pointer-events:none;' : '');
+        row.style.cssText = 'padding:14px;background:rgba(57,255,20,0.03);border:1px solid rgba(57,255,20,0.12);border-radius:8px;cursor:pointer;transition:border-color 120ms;' + (isLocked ? 'opacity:0.4;pointer-events:none;' : '');
         row.innerHTML = '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;"><div style="flex:1;">'
           + '<div style="font-weight:700;font-size:14px;margin-bottom:5px;color:' + (isDone ? 'var(--gold)' : '#eef') + ';">' + st.name + '</div>'
           + (st.story ? '<div style="font-style:italic;font-size:12px;color:#aaa;line-height:1.6;margin-bottom:6px;">' + st.story.slice(0, 140) + (st.story.length > 140 ? '…' : '') + '</div>' : '')
@@ -208,7 +208,7 @@ const UI = (() => {
       const alreadyOwned = drop.oneTime && Save.getUnitQty(drop.id) > 0;
       const el = document.createElement('div');
       el.className = 'pb-reward-card';
-      el.style.cssText = `background: #1e1e1e; padding: 5px; border-radius: 5px; border: 1px solid ${alreadyOwned ? 'rgba(100,100,100,0.4)' : RARITY_COLORS[char.rarity||0]}; display: flex; flex-direction: column; align-items: center; width: 60px; font-size: 10px; text-align: center; position: relative; ${alreadyOwned ? 'opacity:0.55;' : ''}`;
+      el.style.cssText = `background: rgba(4,10,5,0.9); padding: 5px; border-radius: 8px; border: 1px solid ${alreadyOwned ? 'rgba(57,255,20,0.15)' : RARITY_COLORS[char.rarity||0]}; display: flex; flex-direction: column; align-items: center; width: 60px; font-size: 10px; text-align: center; position: relative; ${alreadyOwned ? 'opacity:0.55;' : ''}`;
 
       let chanceLabel;
       if (drop.oneTime) {
