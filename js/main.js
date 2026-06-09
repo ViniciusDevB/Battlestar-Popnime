@@ -1,68 +1,3 @@
-const CheatMode = (() => {
-  function open() {
-    const modal = document.getElementById('cheat-modal');
-    const input = document.getElementById('cheat-input');
-    const feedback = document.getElementById('cheat-feedback');
-    input.value = '';
-    feedback.textContent = '';
-    modal.style.display = 'flex';
-    setTimeout(() => input.focus(), 50);
-  }
-
-  function close() {
-    document.getElementById('cheat-modal').style.display = 'none';
-  }
-
-  function activate() {
-    const input = document.getElementById('cheat-input');
-    const feedback = document.getElementById('cheat-feedback');
-    const code = input.value.trim().toUpperCase();
-
-    if (code === 'MONEY') {
-      if (typeof Game === 'undefined' || !Game.addGold) {
-        feedback.textContent = 'Inicie uma partida primeiro!';
-        feedback.style.color = '#f87171';
-        return;
-      }
-      Game.addGold(999999);
-      feedback.textContent = '+999.999 de ouro adicionados!';
-      feedback.style.color = '#facc15';
-      setTimeout(close, 2000);
-      return;
-    }
-
-    if (code !== 'CHEATON') {
-      feedback.textContent = 'Código inválido!';
-      feedback.style.color = '#f87171';
-      return;
-    }
-
-    // Marca sessão como cheat — bloqueia leaderboard
-    Save.get()._cheatMode = true;
-    Save.save();
-
-    // Unlock all playable characters
-    getPlayable().forEach(char => {
-      if (Save.getUnitQty(char.id) === 0) Save.addUnit(char.id, 1, 0);
-    });
-
-    // Set all materials to 99
-    Object.values(CHARACTERS).filter(c => !c.playable).forEach(mat => {
-      const have = Save.getMaterialQty(mat.id);
-      if (have < 99) Save.addMaterial(mat.id, 99 - have);
-    });
-
-    Save.save();
-    UI.updateCurrencyDisplay();
-
-    feedback.textContent = 'Modo Cheat ativado! Personagens desbloqueados e ingredientes x99!';
-    feedback.style.color = '#4ade80';
-    setTimeout(close, 2500);
-  }
-
-  return { open, close, activate };
-})();
-
 // Polyfill roundRect for older browsers
 if (!CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
@@ -158,14 +93,6 @@ window.addEventListener('DOMContentLoaded', () => {
     skipWave:    () => Game.skipWave(),
     undoLastTower: () => Game.undoLastTower()
   };
-
-  // Global: " key opens cheat modal (anywhere, except while typing)
-  window.addEventListener('keydown', (e) => {
-    if (e.key === '"' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-      CheatMode.open();
-      e.preventDefault();
-    }
-  });
 
   // Keyboard Shortcuts (Hotkeys)
   window.addEventListener('keydown', (e) => {

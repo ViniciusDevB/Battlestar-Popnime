@@ -8,7 +8,11 @@ const Gacha = (() => {
       rates = { s3: 0.70, s4: 0.29, s5: 0.01 };
     }
 
-    d.pity_contador = (d.pity_contador || 0) + 1;
+    // Clamp defensivo: pity adulterado não garante 5★ infinitos nem quebra a lógica
+    d.pity_contador = Math.max(0, Math.min(149, d.pity_contador || 0)) + 1;
+    if (typeof Integrity !== 'undefined' && d.pity_contador > 151) {
+      Integrity.recordViolation('pity_overflow', { pity: d.pity_contador });
+    }
     Save.save();
 
     let rarity;

@@ -356,22 +356,6 @@
   </div>
 </div>
 
-<!-- CHEAT MODAL -->
-<div id="cheat-modal" class="modal-overlay" style="display:none">
-  <div class="modal-box" style="max-width:340px;text-align:center;">
-    <div class="modal-header">
-      <h3>🔑 Código Secreto</h3>
-      <button class="modal-close" onclick="CheatMode.close()">✕</button>
-    </div>
-    <p style="color:rgba(255,255,255,0.5);font-size:12px;margin:0 0 12px;">Digite o código de ativação</p>
-    <input id="cheat-input" type="text" placeholder="Código..."
-      style="width:100%;box-sizing:border-box;padding:10px 14px;font-size:18px;letter-spacing:4px;text-transform:uppercase;background:#111;color:#fff;border:1px solid #444;border-radius:8px;text-align:center;outline:none;"
-      onkeydown="if(event.key==='Enter')CheatMode.activate()">
-    <button class="btn btn-primary" onclick="CheatMode.activate()" style="width:100%;margin-top:12px;">Ativar</button>
-    <div id="cheat-feedback" style="margin-top:10px;font-size:13px;min-height:20px;"></div>
-  </div>
-</div>
-
 <!-- Supabase SDK (local para evitar bloqueio de tracking prevention) -->
 <script src="js/vendor/supabase.js"></script>
 <!-- Configuração pública do backend -->

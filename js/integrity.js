@@ -21,7 +21,7 @@ const Integrity = (() => {
 
   async function _getKey(salt) {
     const enc = new TextEncoder();
-    const raw = enc.encode(salt + '_astd_bsp_2025');
+    const raw = enc.encode(salt + '_astd_v3_k9x2mQ7r');
     return crypto.subtle.importKey(
       'raw', raw, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']
     );
@@ -69,15 +69,18 @@ const Integrity = (() => {
     const violations = [];
     if (!data) return violations;
 
-    if ((data.gemas || 0) > 9_999_999) violations.push('gemas_absurdas');
-    if ((data.tickets || 0) > 9_999)   violations.push('tickets_absurdos');
+    if ((data.gemas || 0) > 9_999_999)  violations.push('gemas_absurdas');
+    if ((data.gemas || 0) < 0)          violations.push('gemas_negativas');
+    if ((data.tickets || 0) > 9_999)    violations.push('tickets_absurdos');
+    if ((data.tickets || 0) < 0)        violations.push('tickets_negativos');
+    if (data._cheatMode)                violations.push('cheat_mode_flag');
 
     const pulls = data.stats?.pulls_realizados || 0;
     const units = data.inventario?.unidades?.length || 0;
     if (units > pulls + 15) violations.push('unidades_excedentes');
 
     const pity = data.pity_contador || 0;
-    if (pity < 0 || pity > 200) violations.push('pity_invalido');
+    if (pity < 0 || pity > 150) violations.push('pity_invalido');
 
     (data.inventario?.unidades || []).forEach(u => {
       if ((u.nivel || 1) > 60)   violations.push('nivel_invalido:' + u.id);

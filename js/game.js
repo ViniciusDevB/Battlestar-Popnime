@@ -1171,7 +1171,7 @@ const Game = (() => {
   return {
     init, startGame, togglePause, toggleSpeed, sellTower, buyNextUpgrade,
     retryStage, handleClick, getTowers, deployTower, selectTower,
-    useAbility, deselectTower, skipWave, addGold,
+    useAbility, deselectTower, skipWave,
     undoLastTower
   };
 })();
