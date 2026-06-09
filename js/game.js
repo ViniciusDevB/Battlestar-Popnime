@@ -251,6 +251,8 @@ const Game = (() => {
     totalWaves:       { get: () => totalWaves, configurable: true },
     difficulty:       { get: () => difficulty, configurable: true },
     _aliveEnemies:    { get: () => _aliveEnemies, configurable: true },
+    sessionDmg:       { get: () => sessionDmg, configurable: true },
+    sessionKills:     { get: () => sessionKills, configurable: true },
   });
   _wavesCtx.addEffect          = addEffect;
   _wavesCtx.dispatchSpecialSpawn = dispatchSpecialSpawn;

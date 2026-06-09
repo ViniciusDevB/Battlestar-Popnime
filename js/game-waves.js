@@ -201,6 +201,15 @@ function checkWaveEnd() {
 
     _wavesCtx.towers.forEach(t => PASSIVE_SYSTEM.onWaveEnd(t));
 
+    if (typeof Integrity !== 'undefined') {
+      Integrity.auditGameState({
+        gold:         _wavesCtx.gold,
+        wave:         _wavesCtx.wave,
+        sessionDmg:   _wavesCtx.sessionDmg   || 0,
+        sessionKills: _wavesCtx.sessionKills  || 0,
+      });
+    }
+
     if (_wavesCtx.isInfiniteMode) {
       if (_wavesCtx.wave % 5 === 0) giveInfiniteReward(_wavesCtx.wave);
       _wavesCtx.betweenWaves = true;

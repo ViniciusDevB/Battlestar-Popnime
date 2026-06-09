@@ -155,8 +155,9 @@ CREATE POLICY "trades_read_open"  ON trades FOR SELECT USING (
 );
 CREATE POLICY "trades_insert_own" ON trades FOR INSERT
   WITH CHECK (offerer_id = get_my_player_id());
-CREATE POLICY "trades_update_own" ON trades FOR UPDATE
-  USING (offerer_id = get_my_player_id() OR receiver_id = get_my_player_id());
+-- Apenas o offerer pode cancelar (status open→cancelled). accept_trade é SECURITY DEFINER.
+CREATE POLICY "trades_update_cancel_own" ON trades FOR UPDATE
+  USING (offerer_id = get_my_player_id() AND status = 'open');
 
 -- ── community_missions ────────────────────────────────────────────────────────
 CREATE POLICY "missions_read_all" ON community_missions FOR SELECT USING (true);
@@ -196,33 +197,35 @@ RETURNS TABLE(rank BIGINT, total BIGINT, score BIGINT, wave INTEGER) AS $$
 $$ LANGUAGE sql STABLE;
 
 -- ── Aceitar trade (atômica, sem race condition) ───────────────────────────────
-CREATE OR REPLACE FUNCTION accept_trade(p_trade_id UUID, p_accepter_id UUID)
-RETURNS TEXT AS $$
+-- Aceitante derivado do auth context — nunca fornecido pelo cliente.
+CREATE OR REPLACE FUNCTION accept_trade(
+  p_trade_id           UUID,
+  p_accepted_unit_uids TEXT[] DEFAULT NULL
+) RETURNS TEXT AS $$
 DECLARE
-  v_trade trades%ROWTYPE;
+  v_accepter_id UUID;
+  v_trade       trades%ROWTYPE;
 BEGIN
+  v_accepter_id := get_my_player_id();
+  IF v_accepter_id IS NULL THEN RETURN 'not_authenticated'; END IF;
+
   SELECT * INTO v_trade
   FROM trades
   WHERE id = p_trade_id AND status = 'open'
   FOR UPDATE;
 
-  IF NOT FOUND THEN
-    RETURN 'trade_not_available';
-  END IF;
-
-  IF v_trade.offerer_id = p_accepter_id THEN
-    RETURN 'cannot_accept_own_trade';
-  END IF;
-
+  IF NOT FOUND                          THEN RETURN 'trade_not_available';     END IF;
+  IF v_trade.offerer_id = v_accepter_id THEN RETURN 'cannot_accept_own_trade'; END IF;
   IF v_trade.expires_at < now() THEN
     UPDATE trades SET status = 'expired', resolved_at = now() WHERE id = p_trade_id;
     RETURN 'trade_expired';
   END IF;
 
   UPDATE trades SET
-    status      = 'accepted',
-    receiver_id = p_accepter_id,
-    resolved_at = now()
+    status             = 'accepted',
+    receiver_id        = v_accepter_id,
+    accepted_unit_uids = p_accepted_unit_uids,
+    resolved_at        = now()
   WHERE id = p_trade_id;
 
   RETURN 'ok';
@@ -230,14 +233,19 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ── Contribuição para missão comunitária ──────────────────────────────────────
+-- player_id derivado do auth context — nunca fornecido pelo cliente.
 CREATE OR REPLACE FUNCTION contribute_to_mission(
-  p_player_id  UUID,
   p_mission_id UUID,
   p_value      BIGINT
 ) RETURNS VOID AS $$
+DECLARE
+  v_player_id UUID;
 BEGIN
+  v_player_id := get_my_player_id();
+  IF v_player_id IS NULL THEN RETURN; END IF;
+
   INSERT INTO community_contributions (mission_id, player_id, value)
-  VALUES (p_mission_id, p_player_id, p_value)
+  VALUES (p_mission_id, v_player_id, p_value)
   ON CONFLICT (mission_id, player_id) DO UPDATE
     SET value = community_contributions.value + p_value;
 
@@ -250,6 +258,32 @@ BEGIN
   WHERE id = p_mission_id AND current_value >= goal_value AND NOT completed;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ── Validação server-side de scores ──────────────────────────────────────────
+-- Bloqueia inserções com valores absurdos mesmo que o cliente bypasse o JS.
+CREATE OR REPLACE FUNCTION validate_score_insert()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.score    < 0 OR NEW.score    > 999_999_999    THEN RAISE EXCEPTION 'score_invalido';    END IF;
+  IF NEW.damage   < 0 OR NEW.damage   > 99_999_999_999 THEN RAISE EXCEPTION 'damage_invalido';   END IF;
+  IF NEW.duration_s < 0 OR NEW.duration_s > 10800      THEN RAISE EXCEPTION 'duration_invalida'; END IF;
+  IF NEW.wave IS NOT NULL AND NEW.wave > 99999          THEN RAISE EXCEPTION 'wave_invalida';     END IF;
+  IF NEW.mode NOT IN ('infinite', 'stage', 'event')    THEN RAISE EXCEPTION 'modo_invalido';     END IF;
+  IF NEW.player_id <> get_my_player_id()               THEN RAISE EXCEPTION 'player_mismatch';   END IF;
+  -- Rate limit: 30 scores por hora por player
+  IF (SELECT COUNT(*) FROM scores
+      WHERE player_id = NEW.player_id
+        AND submitted_at > now() - INTERVAL '1 hour') >= 30 THEN
+    RAISE EXCEPTION 'rate_limit_scores';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS scores_validate_before_insert ON scores;
+CREATE TRIGGER scores_validate_before_insert
+  BEFORE INSERT ON scores
+  FOR EACH ROW EXECUTE FUNCTION validate_score_insert();
 
 -- ── Expirar trades vencidas (rodar via pg_cron ou Supabase Cron a cada hora) ──
 CREATE OR REPLACE FUNCTION expire_old_trades()

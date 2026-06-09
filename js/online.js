@@ -246,6 +246,8 @@ const Online = (() => {
 
   // ── Score / Leaderboard (Phase 3 — stubs funcionais) ─────────────────────
 
+  let _lastScorePost = 0;
+
   async function postScore(scoreData) {
     if (!_ready || !_session || !_profile) return { ok: false, reason: 'not_logged_in' };
     try {
@@ -253,6 +255,10 @@ const Online = (() => {
     } catch {
       return { ok: false, reason: 'integrity_violation' };
     }
+    // Rate limit client-side: mínimo 30s entre submissões
+    const now = Date.now();
+    if (now - _lastScorePost < 30_000) return { ok: false, reason: 'rate_limit' };
+    _lastScorePost = now;
     const payload = {
       player_id:    _profile.id,
       mode:         scoreData.mode,
