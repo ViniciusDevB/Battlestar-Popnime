@@ -35,3 +35,6 @@ balance_guide.md
 
 # Diretórios Desnecessários para o Jogo Final
 docs/
+
+# Ignorar arquivos temporários do Supabase CLI
+supabase/.temp/
