@@ -76,10 +76,10 @@ const Gacha = (() => {
     const useTickets = currency === 'tickets';
 
     if (useTickets) {
-      if (d.tickets < cost) { UI.toast('Tickets insuficientes!'); return; }
+      if (d.tickets < cost) { UI.toast(I18N.t('err_no_tickets')); return; }
       Save.spendTickets(cost);
     } else {
-      if (d.gemas < cost) { UI.toast('Gemas insuficientes!'); return; }
+      if (d.gemas < cost) { UI.toast(I18N.t('err_no_gems')); return; }
       Save.spendGems(cost);
     }
 

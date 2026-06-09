@@ -37,55 +37,59 @@
         <span class="currency ticket">🎫 <span id="hub-tickets">0</span></span>
       </div>
       <span id="online-status-bar" onclick="OnlineUI.show()">○ Offline</span>
+      <select id="lang-selector" onchange="I18N.setLang(this.value)" style="background:var(--gs); color:var(--t1); border:1px solid var(--bd); border-radius:5px; padding:4px; font-weight: bold; cursor:pointer;">
+        <option value="pt">PT-BR</option>
+        <option value="en">EN</option>
+      </select>
       <button class="btn-reset-save" onclick="UI.confirmReset()" title="Resetar progresso">⚙</button>
     </div>
   </div>
 
   <div class="hub-hero">
     <div class="hub-banner-card">
-      <div class="hub-banner-tag">✦ BANNER ATIVO ✦</div>
+      <div class="hub-banner-tag" data-i18n="hub_banner_tag">✦ BANNER ATIVO ✦</div>
       <div id="hub-banner-chars" class="hub-banner-chars"><!-- preenchido pelo JS --></div>
-      <div class="hub-banner-note">🌟 Hulk Quebra-Mundo (5⭐) disponível via Evolução</div>
+      <div class="hub-banner-note" data-i18n="hub_banner_note">🌟 Hulk Quebra-Mundo (5⭐) disponível via Evolução</div>
       <div id="banner-timer" class="hub-banner-timer"></div>
-      <button class="btn hub-btn-gacha" onclick="UI.showGacha()">⚡ INVOCAR AGORA</button>
+      <button class="btn hub-btn-gacha" onclick="UI.showGacha()" data-i18n="hub_btn_gacha">⚡ INVOCAR AGORA</button>
     </div>
   </div>
 
   <div class="hub-actions">
     <button class="hab hab--play" onclick="UI.showWorldSelect()">
       <span class="hab-icon">🗺️</span>
-      <span class="hab-label">JOGAR</span>
-      <span class="hab-sub">Mundos e Fases</span>
+      <span class="hab-label" data-i18n="hub_play">JOGAR</span>
+      <span class="hab-sub" data-i18n="hub_play_sub">Mundos e Fases</span>
     </button>
     <button class="hab hab--gacha" onclick="UI.showGacha()">
       <span class="hab-icon">⚡</span>
-      <span class="hab-label">GACHA</span>
-      <span class="hab-sub">Invocar Personagens</span>
+      <span class="hab-label" data-i18n="hub_gacha">GACHA</span>
+      <span class="hab-sub" data-i18n="hub_gacha_sub">Invocar Personagens</span>
     </button>
     <button class="hab hab--inv" onclick="UI.showInventory('units')">
       <span class="hab-icon">📦</span>
-      <span class="hab-label">UNIDADES</span>
-      <span class="hab-sub">Gerenciar Time</span>
+      <span class="hab-label" data-i18n="hub_units">UNIDADES</span>
+      <span class="hab-sub" data-i18n="hub_units_sub">Gerenciar Time</span>
     </button>
     <button class="hab hab--missions" onclick="MissionsUI.show()">
       <span class="hab-icon">📋</span>
-      <span class="hab-label">MISSÕES</span>
-      <span class="hab-sub">Pessoais e Comunidade</span>
+      <span class="hab-label" data-i18n="hub_missions">MISSÕES</span>
+      <span class="hab-sub" data-i18n="hub_missions_sub">Pessoais e Comunidade</span>
     </button>
     <button class="hab hab--evo" onclick="UI.showInventory('evolution')">
       <span class="hab-icon">🔮</span>
-      <span class="hab-label">EVOLUÇÃO</span>
-      <span class="hab-sub">Evoluir Unidades</span>
+      <span class="hab-label" data-i18n="hub_evo">EVOLUÇÃO</span>
+      <span class="hab-sub" data-i18n="hub_evo_sub">Evoluir Unidades</span>
     </button>
     <button class="hab hab--events" onclick="UI.showEvents()">
       <span class="hab-icon">🌟</span>
-      <span class="hab-label" style="color: var(--gold);">EVENTOS</span>
-      <span class="hab-sub">Sagas Especiais</span>
+      <span class="hab-label" style="color: var(--gold);" data-i18n="hub_events">EVENTOS</span>
+      <span class="hab-sub" data-i18n="hub_events_sub">Sagas Especiais</span>
     </button>
     <button class="hab hab--rank" onclick="LeaderboardUI.show()">
       <span class="hab-icon">🏆</span>
-      <span class="hab-label">RANKING</span>
-      <span class="hab-sub">Leaderboard Global</span>
+      <span class="hab-label" data-i18n="hub_rank">RANKING</span>
+      <span class="hab-sub" data-i18n="hub_rank_sub">Leaderboard Global</span>
     </button>
     <!-- TROCAS: feature incompleta — reativar quando fn_accept_trade transferir inventário -->
     <!-- <button class="hab hab--trades" onclick="TradesUI.show()">
@@ -100,8 +104,8 @@
 <!-- ══════════ WORLD SELECT ══════════ -->
 <div id="screen-world-select" class="screen">
   <div class="screen-header">
-    <button class="btn-back" onclick="UI.showHub()">← Voltar</button>
-    <h2>Selecionar Mundo</h2>
+    <button class="btn-back" onclick="UI.showHub()" data-i18n="btn_back">← Voltar</button>
+    <h2 data-i18n="screen_world_title">Selecionar Mundo</h2>
   </div>
   <div id="world-grid" class="world-grid"></div>
 </div>
@@ -109,8 +113,8 @@
 <!-- ══════════ EVENTS SCREEN ══════════ -->
 <div id="screen-events" class="screen">
   <div class="screen-header">
-    <button class="btn-back" onclick="UI.showHub()">← Voltar</button>
-    <h2>Sagas e Eventos Especiais</h2>
+    <button class="btn-back" onclick="UI.showHub()" data-i18n="btn_back">← Voltar</button>
+    <h2 data-i18n="screen_events_title">Sagas e Eventos Especiais</h2>
   </div>
   <div id="events-grid" class="events-grid" style="overflow:hidden; height:calc(100vh - 60px); display:flex; flex-direction:column;">
     <!-- Filled by JS -->
@@ -192,7 +196,33 @@
   <!-- Wave Preview — aparece entre waves -->
   <div id="wave-preview" class="wave-preview" style="display:none"></div>
 
-
+  <!-- Tower Upgrade Modal -->
+  <div id="modal-upgrade" class="modal-overlay" style="display:none;">
+    <div class="modal upgrade-modal">
+      <div class="modal-header">
+        <h3 id="upg-title">Torre</h3>
+        <button class="modal-close" onclick="UI.closeUpgradePanel()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="upg-stats" id="upg-stats"></div>
+        <div class="upg-target-selector" id="upg-target-selector">
+          <label data-i18n="hud_target_label">Alvo:</label>
+          <select id="upg-target-mode" onchange="GameTowers.changeTargetMode(this.value)">
+            <option value="first" data-i18n="hud_target_first">Primeiro</option>
+            <option value="last" data-i18n="hud_target_last">Último</option>
+            <option value="strong" data-i18n="hud_target_strong">Mais Forte</option>
+            <option value="weak" data-i18n="hud_target_weak">Mais Fraco</option>
+            <option value="boss" data-i18n="hud_target_boss">Boss/Mini</option>
+          </select>
+        </div>
+        <div class="upg-next" id="upg-next"></div>
+      </div>
+      <div class="modal-footer" style="justify-content:space-between;">
+        <button class="btn btn-danger" id="upg-btn-sell" onclick="GameTowers.sellSelectedTower()" data-i18n="hud_btn_sell">Vender</button>
+        <button class="btn btn-primary" id="upg-btn-upgrade" onclick="GameTowers.upgradeSelectedTower()">Upgrade</button>
+      </div>
+    </div>
+  </div>
 
   <div class="upgrade-panel" id="upgrade-panel" style="display:none">
     <div class="upg-header">
@@ -223,15 +253,15 @@
 <!-- ══════════ GACHA ══════════ -->
 <div id="screen-gacha" class="screen">
   <div class="screen-header">
-    <button class="btn-back" onclick="UI.showHub()">← Voltar</button>
-    <h2>⚡ Invocação</h2>
+    <button class="btn-back" onclick="UI.showHub()" data-i18n="btn_back">← Voltar</button>
+    <h2 data-i18n="gacha_title">Portal de Invocação</h2>
   </div>
   <div class="gacha-body">
     <div class="gacha-banner-art">
       <div id="gacha-banner-art-chars"><!-- preenchido pelo JS --></div>
       <div class="gacha-pity-container">
         <div class="gacha-pity-header">
-          <span class="gacha-pity-title">🛡️ CONTADOR PITY</span>
+          <span class="gacha-pity-title" data-i18n="gacha_pity_title">🛡️ CONTADOR PITY</span>
           <span class="gacha-pity-val"><span id="pity-counter">0</span>/150</span>
         </div>
         <div class="gacha-pity-bar-bg">
@@ -239,7 +269,7 @@
           <div class="gacha-pity-marker" style="left:33.33%" title="50 pulls"></div>
           <div class="gacha-pity-marker" style="left:66.66%" title="100 pulls"></div>
         </div>
-        <div class="gacha-pity-hint">0 / 150 pulls — Pity em 150 pulls</div>
+        <div class="gacha-pity-hint" data-i18n="gacha_pity_hint">0 / 150 pulls — Pity em 150 pulls</div>
       </div>
     </div>
     <div class="gacha-info">
@@ -276,19 +306,19 @@
 <!-- ══════════ INVENTORY ══════════ -->
 <div id="screen-inventory" class="screen">
   <div class="screen-header">
-    <button class="btn-back" onclick="UI.showHub()">← Voltar</button>
-    <h2>📦 Inventário</h2>
+    <button class="btn-back" onclick="UI.showHub()" data-i18n="btn_back">← Voltar</button>
+    <h2 data-i18n="screen_inventory_title">📦 Inventário</h2>
   </div>
   <div class="inv-tabs">
-    <button class="tab-btn active" data-tab="units"     onclick="Inventory.showTab('units')">Unidades</button>
-    <button class="tab-btn"        data-tab="materials" onclick="Inventory.showTab('materials')">Materiais</button>
-    <button class="tab-btn tab-btn--evo" data-tab="evolution" onclick="Inventory.showTab('evolution')">🔮 Evolução</button>
+    <button class="tab-btn active" data-tab="units"     onclick="Inventory.showTab('units')" data-i18n="tab_units">Unidades</button>
+    <button class="tab-btn"        data-tab="materials" onclick="Inventory.showTab('materials')" data-i18n="tab_materials">Materiais</button>
+    <button class="tab-btn tab-btn--evo" data-tab="evolution" onclick="Inventory.showTab('evolution')" data-i18n="tab_evolution">🔮 Evolução</button>
   </div>
   <div class="inv-filters" id="inv-filters">
     <div class="inv-filter-chips" id="inv-filter-chips"></div>
   </div>
   <div class="inv-team-bar" id="inv-team-bar" style="display:none;">
-    <div class="inv-team-label">SEU TIME</div>
+    <div class="inv-team-label" data-i18n="team_label">SEU TIME</div>
     <div class="inv-team-slots" id="inv-team-slots"></div>
   </div>
   <div class="inv-content">
@@ -392,6 +422,10 @@
 <script src="js/integrity.js"></script>
 <!-- Audio System -->
 <script src="js/audio.js"></script>
+<!-- i18n System -->
+<script src="data/lang/pt.js"></script>
+<script src="data/lang/en.js"></script>
+<script src="js/i18n.js"></script>
 <!-- Data -->
 <script src="data/characters.js"></script>
 <script src="data/events_data.js"></script>

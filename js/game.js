@@ -377,7 +377,7 @@ const Game = (() => {
     const teamIds = UI.getSelectedTeam();
     difficulty = UI.getSelectedDifficulty();
     if (!stageId || teamIds.length === 0) {
-      UI.toast('Selecione ao menos uma unidade!');
+      UI.toast(I18N.t('err_select_unit'));
       return;
     }
 
@@ -420,7 +420,7 @@ const Game = (() => {
     spawnQueue = [];
 
     betweenWaves = true;
-    betweenTimer = -1; // fase de preparaÃ§Ã£o â€” aguarda jogador pressionar S
+    betweenTimer = -1; // fase de preparação — aguarda jogador pressionar S
     selectedTowerIdx = -1;
     deployingCharId = null;
     shinraTenseiActive = false;
@@ -1136,8 +1136,8 @@ const Game = (() => {
     const tower = towers[slotIdx];
     const aa = tower.charData?.active_ability;
     if (!aa) return;
-    if ((tower.abilityTimer || 0) > 0) {
-      UI.toast(`Habilidade em cooldown! (${Math.ceil(tower.abilityTimer)}s)`, 2000);
+    if (tower.abilityTimer > 0) {
+      UI.toast(`${I18N.t('err_cooldown')} (${Math.ceil(tower.abilityTimer)}s)`, 2000);
       return;
     }
     if (aa.type === 'domain_expansion') {

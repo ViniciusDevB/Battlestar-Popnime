@@ -121,7 +121,7 @@ const Inventory = (() => {
       if (emptySlot >= 0) {
         team[emptySlot] = charId;
       } else {
-        UI.toast('Seu time está cheio! Remova alguém primeiro.');
+        UI.toast(I18N.t('err_team_full'));
         return;
       }
     }
@@ -178,7 +178,7 @@ const Inventory = (() => {
           card.innerHTML = `
             <div class="inv-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
             <div class="inv-name">${char.name}</div>
-            <div class="inv-meta">${RARITY_LABELS[char.rarity]} Lv${unit.nivel}${locked ? ' · Em troca' : ''}</div>`;
+            <div class="inv-meta">${RARITY_LABELS[char.rarity]} Lv${unit.nivel}${locked ? ` · ${I18N.t('status_in_trade')}` : ''}</div>`;
           card.addEventListener('click', () => openDetail(unit.uid));
           grid.appendChild(card);
         }
@@ -223,29 +223,29 @@ const Inventory = (() => {
 
     const combineHtml = nextChar ? `
       <div class="mat-combine-section">
-        <div class="mat-combine-title">🔨 Combinação</div>
+        <div class="mat-combine-title">🔨 ${I18N.t('ui_combine')}</div>
         <div class="mat-combine-recipe">
           <div class="mat-comb-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
           <div class="mat-comb-arrow">× ${cost} →</div>
           <div class="mat-comb-icon" style="background:${RARITY_COLORS[nextChar.rarity]}">${charIconInner(nextChar)}</div>
         </div>
         <div class="mat-comb-desc">${cost}× ${char.name} → 1× ${nextChar.name}</div>
-        <div class="mat-comb-have">Você tem <b>${qty}</b> — pode combinar <b>${canMake}×</b></div>
+        <div class="mat-comb-have">${I18N.t('msg_you_have')} <b>${qty}</b> — ${I18N.t('msg_can_combine')} <b>${canMake}×</b></div>
         <button class="btn btn-mat-combine${canCombine ? '' : ' btn-disabled'}"
           ${canCombine ? '' : 'disabled'}
           onclick="Inventory.combineMaterial('${matId}')">
-          🔨 Combinar ${cost}× → 1× ${nextChar.name}
+          🔨 ${I18N.t('ui_combine')} ${cost}× → 1× ${nextChar.name}
         </button>
         ${canMake > 1 ? `
         <button class="btn btn-mat-combine"
           style="margin-top: 8px; background: #6c3483;"
           onclick="Inventory.combineMaxMaterial('${matId}')">
-          🔨 Combinar Tudo (${canMake}×)
+          🔨 ${I18N.t('ui_combine_all')} (${canMake}×)
         </button>
         ` : ''}
       </div>` : `
       <div class="mat-combine-section">
-        <div class="mat-comb-max">✦ Tier máximo — não pode ser combinado</div>
+        <div class="mat-comb-max">✦ ${I18N.t('msg_max_tier')}</div>
       </div>`;
 
     content.innerHTML = `
@@ -254,11 +254,11 @@ const Inventory = (() => {
         <div>
           <div class="detail-name">${char.name}</div>
           <div class="detail-rarity">${RARITY_LABELS[char.rarity]} · ${SERIES_LABELS[char.series] || char.series}</div>
-          <div class="detail-qty">Quantidade: ${qty}</div>
+          <div class="detail-qty">${I18N.t('ui_quantity')}: ${qty}</div>
         </div>
       </div>
       <div class="detail-stats">
-        <div class="stat-row"><span>XP ao usar como feed</span><span>${char.xp_value}</span></div>
+        <div class="stat-row"><span>${I18N.t('ui_xp_value')}</span><span>${char.xp_value}</span></div>
       </div>
       ${combineHtml}`;
   }
@@ -267,15 +267,15 @@ const Inventory = (() => {
     const char = getCharById(matId);
     if (!char || !char.upgrades_to) return;
     const cost = char.upgrade_cost || 3;
-    if (Save.getMaterialQty(matId) < cost) { UI.toast('Materiais insuficientes!'); return; }
+    if (Save.getMaterialQty(matId) < cost) { UI.toast(I18N.t('err_no_materials')); return; }
 
-    Save.removeMaterial(matId, cost);
+    Save.spendMaterial(matId, cost);
     Save.addMaterial(char.upgrades_to, 1);
     Missions.check();
 
     const nextChar = getCharById(char.upgrades_to);
-    UI.toast(`✅ ${nextChar.name} obtido!`);
-
+    UI.toast(`✅ ${nextChar.name} ${I18N.t('msg_obtained')}!`);
+    UI.openEvolution();
     renderGrid();
     openMaterialDetail(matId); // atualiza painel com novas qtds
   }
@@ -286,15 +286,15 @@ const Inventory = (() => {
     const cost = char.upgrade_cost || 3;
     const qty = Save.getMaterialQty(matId);
     const canMake = Math.floor(qty / cost);
-    if (canMake < 1) { UI.toast('Materiais insuficientes!'); return; }
+    if (canMake < 1) { UI.toast(I18N.t('err_no_materials')); return; }
 
-    Save.removeMaterial(matId, canMake * cost);
+    Save.spendMaterial(matId, canMake * cost);
     Save.addMaterial(char.upgrades_to, canMake);
     Missions.check();
 
     const nextChar = getCharById(char.upgrades_to);
-    UI.toast(`✅ ${canMake}x ${nextChar.name} obtido!`);
-
+    UI.toast(`✅ ${canMake}x ${nextChar.name} ${I18N.t('msg_obtained')}!`);
+    UI.openEvolution();
     renderGrid();
     openMaterialDetail(matId); // atualiza painel com novas qtds
   }
@@ -306,7 +306,7 @@ const Inventory = (() => {
 
     const evolutions = Object.values(CHARACTERS).filter(c => c.evolution);
     if (evolutions.length === 0) {
-      evoContent.innerHTML = '<div class="empty-state">Nenhuma evolução disponível.</div>';
+      evoContent.innerHTML = `<div class="empty-state">${I18N.t('msg_no_evolution')}</div>`;
       return;
     }
 
@@ -343,16 +343,16 @@ const Inventory = (() => {
               <div class="evo-recipe-stars">${RARITY_LABELS[resultChar.rarity]}</div>
             </div>
           </div>
-          ${canEvolve ? '<div class="evo-badge-ready">Pronto!</div>' : ''}
+          ${canEvolve ? `<div class="evo-badge-ready">${I18N.t('ui_ready')}!</div>` : ''}
         </div>
         <div class="evo-reqs-section">
-          <div class="evo-reqs-title">Materiais necessários</div>
+          <div class="evo-reqs-title">${I18N.t('ui_materials_needed')}</div>
           <div class="evo-reqs">${reqHtml}</div>
         </div>
         <button class="btn btn-evolve${canEvolve ? '' : ' btn-disabled'}"
           onclick="Inventory.openEvolution('${resultChar.id}')"
           ${canEvolve ? '' : 'disabled'}>
-          🔮 Evoluir em ${resultChar.name}
+          🔮 ${I18N.t('ui_evolve_to')} ${resultChar.name}
         </button>`;
       evoContent.appendChild(card);
     });
@@ -388,13 +388,13 @@ const Inventory = (() => {
         <div>
           <div class="detail-name">${char.name}</div>
           <div class="detail-rarity">${RARITY_LABELS[char.rarity]} | ${char.series}</div>
-          <div class="detail-qty">Cópias: ${totalCopies}</div>
+          <div class="detail-qty">${I18N.t('ui_copies')}: ${totalCopies}</div>
         </div>
       </div>
       ${passiveHtml}`;
 
     const xpRowHtml = `
-      <div class="stat-row"><span>Nível</span><span>${unitData.nivel}/50</span></div>
+      <div class="stat-row"><span>${I18N.t('ui_level')}</span><span>${unitData.nivel}/50</span></div>
       <div class="stat-row xp-row">
         <span>XP</span>
         <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${xpPct}%"></div></div>
@@ -402,7 +402,7 @@ const Inventory = (() => {
       </div>`;
 
     const inTeam = Save.getTeam().includes(char.id);
-    const equipBtn = `<button class="btn btn-primary" onclick="Inventory.toggleTeam('${char.id}')">${inTeam ? 'Remover do Time' : 'Equipar no Time'}</button>`;
+    const equipBtn = `<button class="btn btn-primary" onclick="Inventory.toggleTeam('${char.id}')">${inTeam ? I18N.t('ui_remove_team') : I18N.t('ui_equip_team')}</button>`;
 
     if (char.is_farm_unit) {
       const p = char.passive;
@@ -411,13 +411,13 @@ const Inventory = (() => {
       content.innerHTML = `${headerHtml}
         <div class="detail-stats">
           ${xpRowHtml}
-          <div class="stat-row"><span>Ouro/Wave (nível atual)</span><span>${levelGold} 💰</span></div>
-          <div class="stat-row"><span>Bônus máx de upgrades</span><span>+${maxUpgGold} 💰</span></div>
-          <div class="stat-row"><span>Custo Deploy</span><span>${char.deploy_cost} 💰</span></div>
+          <div class="stat-row"><span>${I18N.t('ui_gold_wave')}</span><span>${levelGold} 💰</span></div>
+          <div class="stat-row"><span>${I18N.t('ui_max_upgrade_bonus')}</span><span>+${maxUpgGold} 💰</span></div>
+          <div class="stat-row"><span>${I18N.t('ui_deploy_cost')}</span><span>${char.deploy_cost} 💰</span></div>
         </div>
         <div class="detail-actions">
           ${equipBtn}
-          <button class="btn btn-feed" onclick="Inventory.openFeed('${uid}')">🍖 Alimentar</button>
+          <button class="btn btn-feed" onclick="Inventory.openFeed('${uid}')">🍖 ${I18N.t('ui_feed')}</button>
         </div>`;
     } else {
       const prestigeLevel = unitData.prestige || 0;
@@ -425,49 +425,49 @@ const Inventory = (() => {
       const prestigeHtml  = `
         <div class="prestige-section" style="margin-top:10px;padding:10px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,${canPrestige?'0.35':'0.12'});border-radius:8px;">
           <div style="font-size:11px;font-weight:700;color:${canPrestige?'#fbbf24':'rgba(255,215,0,0.4)'};letter-spacing:0.06em;margin-bottom:6px;">
-            ✦ PRESTÍGIO ${prestigeLevel > 0 ? `— Nível ${prestigeLevel}` : ''}
+            ✦ ${I18N.t('ui_prestige')} ${prestigeLevel > 0 ? `— ${I18N.t('ui_level')} ${prestigeLevel}` : ''}
           </div>
           <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:8px;">
             ${prestigeLevel >= 10
-              ? '✦ Prestígio máximo atingido. Poder absoluto!'
+              ? I18N.t('msg_prestige_max')
               : canPrestige
-                ? 'Unidade no nível máximo! Transmutar reseta para Lv1 e concede +20% dano e +6% alcance permanentes.'
-                : `Requer nível máximo (${char.max_level||50}). Atual: ${unitData.nivel}.`}
+                ? I18N.t('msg_prestige_ready')
+                : `${I18N.t('msg_prestige_req')} (${char.max_level||50}). ${I18N.t('ui_current')}: ${unitData.nivel}.`}
           </div>
           <button class="btn" style="width:100%;font-size:11px;background:${canPrestige?'rgba(255,215,0,0.18)':'rgba(255,255,255,0.05)'};color:${canPrestige?'#fbbf24':'rgba(255,255,255,0.25)'};border:1px solid ${canPrestige?'rgba(255,215,0,0.4)':'rgba(255,255,255,0.1)'};"
             ${canPrestige?'':'disabled'}
             onclick="Inventory.doPrestigeUnit('${uid}')">
-            ✦ Transmutar ${canPrestige?'(confirmar)':'(bloqueado)'}
+            ✦ ${canPrestige ? I18N.t('ui_transmute_confirm') : I18N.t('ui_transmute_locked')}
           </button>
         </div>`;
 
       content.innerHTML = `${headerHtml}
         <div class="detail-stats">
           ${xpRowHtml}
-          ${prestigeLevel > 0 ? `<div class="stat-row" style="color:#fbbf24"><span>Prestígio</span><span>✦ ${prestigeLevel} (+${prestigeLevel*20}% dano)</span></div>` : ''}
-          <div class="stat-row"><span>Dano</span><span>${Math.round(stats.damage)}</span></div>
-          <div class="stat-row"><span>Alcance</span><span>${Math.round(stats.range)}</span></div>
-          <div class="stat-row"><span>Vel. Ataque</span><span>${stats.attack_speed.toFixed(2)}/s</span></div>
-          <div class="stat-row"><span>Tipo</span><span>${stats.type}</span></div>
-          <div class="stat-row"><span>Custo Deploy</span><span>${char.deploy_cost} 💰</span></div>
+          ${prestigeLevel > 0 ? `<div class="stat-row" style="color:#fbbf24"><span>${I18N.t('ui_prestige')}</span><span>✦ ${prestigeLevel} (+${prestigeLevel*20}% ${I18N.t('ui_damage')})</span></div>` : ''}
+          <div class="stat-row"><span>${I18N.t('ui_damage')}</span><span>${Math.round(stats.damage)}</span></div>
+          <div class="stat-row"><span>${I18N.t('ui_range')}</span><span>${Math.round(stats.range)}</span></div>
+          <div class="stat-row"><span>${I18N.t('ui_attack_speed')}</span><span>${stats.attack_speed.toFixed(2)}/s</span></div>
+          <div class="stat-row"><span>${I18N.t('ui_type')}</span><span>${stats.type}</span></div>
+          <div class="stat-row"><span>${I18N.t('ui_deploy_cost')}</span><span>${char.deploy_cost} 💰</span></div>
         </div>
         ${prestigeHtml}
         <div class="detail-actions">
           ${equipBtn}
-          <button class="btn btn-feed" onclick="Inventory.openFeed('${uid}')">🍖 Alimentar</button>
+          <button class="btn btn-feed" onclick="Inventory.openFeed('${uid}')">🍖 ${I18N.t('ui_feed')}</button>
         </div>`;
     }
   }
 
   function doPrestigeUnit(uid) {
-    if (!Save.canPrestige(uid)) { UI.toast('Unidade precisa estar no nível máximo!'); return; }
+    if (!Save.canPrestige(uid)) { UI.toast(I18N.t('err_prestige_level')); return; }
     const u = Save.getUnitByUid(uid);
     if (!u) return;
     const char = getCharById(u.id);
     const currentPrestige = u.prestige || 0;
-    if (!confirm(`Transmutar ${char?.name}?\n\nIsso irá:\n• Resetar para Lv1\n• Conceder Prestígio ${currentPrestige+1}\n• +${(currentPrestige+1)*20}% dano permanente\n\nEssa ação não pode ser desfeita.`)) return;
+    if (!confirm(I18N.t('msg_confirm_prestige', { name: char?.name, lvl: currentPrestige+1 }))) return;
     Save.doPrestige(uid);
-    UI.toast(`✦ ${char?.name} transmutado! Prestígio ${currentPrestige+1} ativo.`, 3500);
+    UI.toast(`✦ ${char?.name} ${I18N.t('msg_transmuted')}! ${I18N.t('ui_prestige')} ${currentPrestige+1} ${I18N.t('msg_active')}.`, 3500);
     renderGrid();
     openDetail(uid);
   }
@@ -522,9 +522,9 @@ const Inventory = (() => {
         <div class="evo-icon evo-result" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
       </div>
       <div class="evo-title">${sourceChar?.name} → ${char.name}</div>
-      <h4 style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">Materiais necessários</h4>
+      <h4 style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">${I18N.t('ui_materials_needed')}</h4>
       <div class="evo-reqs">${reqHtml}</div>
-      ${!canEvolve ? '<div class="evo-warning">Materiais insuficientes!</div>' : ''}`;
+      ${!canEvolve ? `<div class="evo-warning">${I18N.t('err_no_materials')}!</div>` : ''}`;
 
     const btn = document.getElementById('btn-evolve-confirm');
     btn.disabled = !canEvolve;
@@ -557,7 +557,7 @@ const Inventory = (() => {
     const newUnit = d.inventario.unidades.filter(u => u.id === evolutionTarget).at(-1);
     showTab('units');
     if (newUnit) openDetail(newUnit.uid);
-    UI.toast(`🌟 ${char.name} obtido!`);
+    UI.toast(`🌟 ${char.name} ${I18N.t('msg_obtained')}!`);
   }
 
   // FEED SYSTEM
@@ -576,7 +576,7 @@ const Inventory = (() => {
         <div class="feed-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
         <div>
           <div>${char.name}</div>
-          <div>Lv ${unitData.nivel}/50 | XP: ${unitData.xp_atual}/${xpForNextLevel(unitData.nivel, char.rarity)}</div>
+          <div>${I18N.t('ui_level')} ${unitData.nivel}/50 | XP: ${unitData.xp_atual}/${xpForNextLevel(unitData.nivel, char.rarity)}</div>
         </div>
       </div>`;
 
@@ -631,7 +631,7 @@ const Inventory = (() => {
     });
 
     itemsToRender.sort((a, b) => {
-      if (a.char.rarity !== b.char.rarity) return a.char.rarity - b.char.rarity; // Crescente para usar piores primeiro?
+      if (a.char.rarity !== b.char.rarity) return a.char.rarity - b.char.rarity; 
       if (a.char.id !== b.char.id) return a.char.id.localeCompare(b.char.id);
       if (a.unit && b.unit) return a.unit.nivel - b.unit.nivel;
       return 0;
@@ -651,7 +651,7 @@ const Inventory = (() => {
         div.className = 'feed-mat-item';
         div.innerHTML = `
           <div class="feed-mat-icon" style="background:${RARITY_COLORS[item.char.rarity]}">${charIconInner(item.char)}</div>
-          <div>${item.char.name} <small>Lv${item.unit.nivel}</small></div>
+          <div>${item.char.name} <small>${I18N.t('ui_level')}${item.unit.nivel}</small></div>
           <div>×1</div>
           <div class="feed-mat-xp">+${item.xpGain} XP</div>`;
         div.addEventListener('click', () => selectFeedItem('unit', item.ref, true));
@@ -686,7 +686,7 @@ const Inventory = (() => {
       if (sel.type === 'unit') {
         const u = Save.getUnitByUid(sel.uid);
         char = u ? getCharById(u.id) : null;
-        label = `${char?.initials||'?'} Lv${u?.nivel||1}`;
+        label = `${char?.initials||'?'} ${I18N.t('ui_level')}${u?.nivel||1}`;
       } else {
         char = getCharById(sel.id);
         label = char?.initials || sel.id;
@@ -737,14 +737,13 @@ const Inventory = (() => {
     Save.incStat('feeds_realizados');
     Missions.check();
 
-    feedSelected = [];
+    const leveled = targetUnitData.nivel > prevLevel;
     const targetUid = feedTarget;
     closeFeed();
     openDetail(targetUid);
     renderGrid();
 
-    const leveled = targetUnitData.nivel > prevLevel;
-    UI.toast(`+${totalXP.toLocaleString()} XP ganho!${leveled ? ` Nível ${targetUnitData.nivel}! 🎉` : ''}`);
+    UI.toast(`+${totalXP.toLocaleString()} ${I18N.t('msg_xp_gained')}!${leveled ? ` ${I18N.t('ui_level')} ${targetUnitData.nivel}! 🎉` : ''}`);
   }
 
   function closeFeed() {
