@@ -5,6 +5,7 @@ Thumbs.db
 # Arquivos de IDEs e Editores
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
@@ -23,3 +24,15 @@ node_modules/
 # Qualquer outro arquivo temporário específico
 *.tmp
 *.bak
+
+# Scripts e Arquivos de Análise/Manutenção Interna
+analyze_balance.js
+analyze_test.js
+validate.js
+validate_images.js
+report.md
+balance_guide.md
+
+# Diretórios Desnecessários para o Jogo Final
+supabase/
+docs/
