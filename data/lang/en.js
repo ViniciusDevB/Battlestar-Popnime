@@ -876,10 +876,23 @@ const LANG_EN = {
   "err_no_server": "No server connection. Try again later.",
 
   "hud_tt_skip": "Skip Wave (S)",
+  "hud_tt_skip_wave": "Skip next wave: +{gold}💰 (S)",
   "hud_tt_pause": "Pause (Space)",
   "hud_tt_speed": "Speed Up (F)",
   "hud_team_label": "🗡️ Team",
   "hud_team_hint": "Click a unit, then a yellow slot",
+  "pb_click_to_remove": "— click to remove",
+
+  "result_rewards_title": "🎁 Rewards",
+  "btn_retry": "🔄 Try Again",
+  "btn_map": "🗺️ Map",
+  "btn_hub": "🏠 Hub",
+
+  "gacha_with_gems": "With Gems",
+  "gacha_with_tickets": "With Tickets",
+
+  "tower_upgrade_activated": "✅ {name} activated!",
+  "passive_tsunade_last_stand": "🌸 TSUNADE'S REBIRTH! +{lives} Lives Restored!",
 
   "gacha_result_title": "Summon Results",
   "btn_confirm": "Confirm",

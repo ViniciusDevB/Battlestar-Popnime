@@ -632,7 +632,7 @@ const Game = (() => {
             lives += lsPassive.restore_lives || 3;
             updateHUD();
             addEffect({ type:'shockwave', x:tsunadeTower.x, y:tsunadeTower.y, maxR:900, color:'#f9a8d4', timer:1.5, maxTimer:1.5, r:0 });
-            UI.toast(`🌸 RENASCIMENTO DE TSUNADE! +${lsPassive.restore_lives || 3} Vidas Restauradas!`, 4000);
+            UI.toast(I18N.t('passive_tsunade_last_stand', { lives: lsPassive.restore_lives || 3 }), 4000);
             return;
           }
           endGame(false);

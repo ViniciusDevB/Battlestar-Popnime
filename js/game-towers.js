@@ -142,7 +142,7 @@ function buyUpgrade(towerIdx, upgradeIdx) {
   if (upg.type) tower.currentType = upg.type;
   updateHUD();
   openUpgradePanel(tower, towerIdx);
-  UI.toast(`✅ ${upg.name} ativado!`);
+  UI.toast(I18N.t('tower_upgrade_activated', { name: upg.name }));
 }
 
 function sellTower() {

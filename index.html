@@ -124,8 +124,8 @@
 <!-- ══════════ STAGE SELECT ══════════ -->
 <div id="screen-stage-select" class="screen">
   <div class="screen-header">
-    <button class="btn-back" onclick="UI.showWorldSelect()">← Voltar</button>
-    <h2 id="stage-select-world-name">Mundo</h2>
+    <button class="btn-back" onclick="UI.showWorldSelect()" data-i18n="btn_back">← Back</button>
+    <h2 id="stage-select-world-name">World</h2>
   </div>
   <div id="stage-grid" class="stage-grid"></div>
 </div>
@@ -133,14 +133,14 @@
 <!-- ══════════ PRE-BATTLE ══════════ -->
 <div id="screen-prebattle" class="screen">
   <div class="screen-header">
-    <button class="btn-back" onclick="UI.showStageSelect()">← Voltar</button>
-    <h2 id="prebattle-stage-name">Fase</h2>
+    <button class="btn-back" onclick="UI.showStageSelect()" data-i18n="btn_back">← Back</button>
+    <h2 id="prebattle-stage-name">Stage</h2>
   </div>
   <div class="prebattle-body">
     <div class="prebattle-left">
       <div class="pb-section-header" data-i18n="ui_pb_rewards">Prêmios Possíveis</div>
       <div id="pb-rewards" class="pb-rewards-grid" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;"></div>
-      <div class="pb-section-header">Time <span class="pb-hint">— clique para remover</span></div>
+      <div class="pb-section-header"><span data-i18n="hud_team_label">🗡️ Team</span> <span class="pb-hint" data-i18n="pb_click_to_remove">— click to remove</span></div>
       <div id="team-slots" class="team-slots"></div>
     </div>
     <div class="prebattle-right">
@@ -239,13 +239,13 @@
   <div class="postbattle-wrap">
     <div id="result-banner" class="result-banner"></div>
     <div class="result-section">
-      <h3>🎁 Recompensas</h3>
+      <h3 data-i18n="result_rewards_title">🎁 Rewards</h3>
       <div id="result-rewards-list" class="result-rewards"></div>
     </div>
     <div class="result-actions">
-      <button class="btn btn-secondary" onclick="GameController.retryStage()">🔄 Tentar Novamente</button>
-      <button class="btn btn-primary"   onclick="UI.showStageSelect()">🗺️ Mapa</button>
-      <button class="btn btn-secondary" onclick="UI.showHub()">🏠 Hub</button>
+      <button class="btn btn-secondary" onclick="GameController.retryStage()" data-i18n="btn_retry">🔄 Try Again</button>
+      <button class="btn btn-primary"   onclick="UI.showStageSelect()" data-i18n="btn_map">🗺️ Map</button>
+      <button class="btn btn-secondary" onclick="UI.showHub()" data-i18n="btn_hub">🏠 Hub</button>
     </div>
   </div>
 </div>
@@ -285,14 +285,14 @@
         </div>
       </div>
       <div class="gacha-info-section">
-        <div class="gacha-section-title">Com Gemas</div>
+        <div class="gacha-section-title" data-i18n="gacha_with_gems">With Gems</div>
         <div class="gacha-btn-group">
           <button class="btn btn-pull" onclick="Gacha.pull(1,'gems')">x1 Pull — 100 💎</button>
           <button class="btn btn-pull" onclick="Gacha.pull(10,'gems')">x10 Pull — 950 💎</button>
         </div>
       </div>
       <div class="gacha-info-section">
-        <div class="gacha-section-title">Com Tickets</div>
+        <div class="gacha-section-title" data-i18n="gacha_with_tickets">With Tickets</div>
         <div class="gacha-btn-group">
           <button class="btn btn-pull-ticket" onclick="Gacha.pull(1,'tickets')">x1 Pull — 1 🎫</button>
           <button class="btn btn-pull-ticket" onclick="Gacha.pull(10,'tickets')">x10 Pull — 10 🎫</button>

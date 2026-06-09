@@ -677,10 +677,23 @@ const LANG_PT = {
   "char_nemesis_prestige_10": "Proliferação Final: cada 6º ataque espalha infecção em toda a área",
 
   "hud_tt_skip": "Antecipar Wave (S)",
+  "hud_tt_skip_wave": "Antecipar próxima wave: +{gold}💰 (S)",
   "hud_tt_pause": "Pausar (Espaço)",
   "hud_tt_speed": "Acelerar Jogo (F)",
   "hud_team_label": "🗡️ Time",
   "hud_team_hint": "Clique em uma unidade, depois em um slot amarelo",
+  "pb_click_to_remove": "— clique para remover",
+
+  "result_rewards_title": "🎁 Recompensas",
+  "btn_retry": "🔄 Tentar Novamente",
+  "btn_map": "🗺️ Mapa",
+  "btn_hub": "🏠 Hub",
+
+  "gacha_with_gems": "Com Gemas",
+  "gacha_with_tickets": "Com Tickets",
+
+  "tower_upgrade_activated": "✅ {name} ativado!",
+  "passive_tsunade_last_stand": "🌸 RENASCIMENTO DE TSUNADE! +{lives} Vidas Restauradas!",
 
   "gacha_result_title": "Resultado da Invocação",
   "btn_confirm": "Confirmar",

@@ -212,9 +212,9 @@ function updateHUD() {
   const skipBtn = el('btn-skip');
   if (skipBtn) {
     if (waveActive && wave < (totalWaves || 10)) {
-      skipBtn.title = `Antecipar próxima wave: +${wave * 11}💰 (S)`;
+      skipBtn.title = I18N.t('hud_tt_skip_wave', { gold: wave * 11 });
     } else {
-      skipBtn.title = 'Antecipar Wave (S)';
+      skipBtn.title = I18N.t('hud_tt_skip');
     }
   }
 
