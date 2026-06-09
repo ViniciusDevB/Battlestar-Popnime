@@ -784,6 +784,11 @@ const LANG_EN = {
   "hud_blocked": "LOCKED",
   "missions_all_done": "All available achievements have been completed! 🎉",
   "mission_complete_toast": "✅ Mission complete: {label} → {reward}",
+  "mission_ready_claim": "🎁 Mission complete! Go claim: {label}",
+  "ms_claimed_label": "✅ Claimed",
+  "ms_claimed_reward_toast": "🎉 +{reward} claimed! ({label})",
+  "ms_pending_hint": "⚡ {n} ready to claim!",
+  "ms_fixed_counter": "{done}/{total} achievements unlocked",
 
   "tower_clone_spawned": "🌀 Naruto Clone summoned! ({s}s)",
   "tower_invalid_spot": "Invalid location!",

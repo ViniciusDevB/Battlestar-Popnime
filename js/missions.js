@@ -14,18 +14,20 @@ const MISSION_CHECKERS = {
 };
 
 const Missions = (() => {
-  const MAX_FIXED = 8;
+  const MAX_FIXED   = 8;
   const DAILY_COUNT = 15;
 
   // ── Init ─────────────────────────────────────────────────────────────────────
 
   function init() {
     const d = Save.get();
-    d.missoes_ativas    = d.missoes_ativas    || [];
-    d.missoes_completas = d.missoes_completas || [];
+    d.missoes_ativas               = d.missoes_ativas               || [];
+    d.missoes_completas            = d.missoes_completas            || [];
+    d.missoes_conquistas_pendentes = d.missoes_conquistas_pendentes || [];
     if (d.missoes_ativas.length < MAX_FIXED) _fillFixed();
     initDailies();
     Save.save();
+    _updateBadge();
   }
 
   // ── Conquistas (fixas) ────────────────────────────────────────────────────────
@@ -33,10 +35,11 @@ const Missions = (() => {
   function _fillFixed() {
     const d    = Save.get();
     const done = new Set(d.missoes_completas);
+    const pend = new Set(d.missoes_conquistas_pendentes);
     const cur  = new Set(d.missoes_ativas);
     for (const m of MISSIONS_LIST) {
       if (d.missoes_ativas.length >= MAX_FIXED) break;
-      if (!done.has(m.id) && !cur.has(m.id)) {
+      if (!done.has(m.id) && !cur.has(m.id) && !pend.has(m.id)) {
         d.missoes_ativas.push(m.id);
         cur.add(m.id);
       }
@@ -45,9 +48,12 @@ const Missions = (() => {
   }
 
   function _checkFixed() {
-    const d = Save.get();
+    const d       = Save.get();
+    const pend    = new Set(d.missoes_conquistas_pendentes);
+    const done    = new Set(d.missoes_completas);
     const completed = [];
     for (const mId of [...d.missoes_ativas]) {
+      if (pend.has(mId) || done.has(mId)) continue;
       const m = getMissionById(mId);
       if (!m) continue;
       if (MISSION_CHECKERS[m.type]?.(m, d)) completed.push(m);
@@ -55,14 +61,18 @@ const Missions = (() => {
     if (!completed.length) return;
     completed.forEach(m => {
       d.missoes_ativas = d.missoes_ativas.filter(id => id !== m.id);
-      if (!d.missoes_completas.includes(m.id)) {
-        d.missoes_completas.push(m.id);
-        _grantRewards(m.reward, m.id, false, null);
+      if (!pend.has(m.id) && !done.has(m.id)) {
+        d.missoes_conquistas_pendentes.push(m.id);
       }
     });
     _fillFixed();
     Save.save();
-    _toastRewards(completed);
+    _updateBadge();
+    completed.forEach(m => {
+      if (typeof UI !== 'undefined') {
+        UI.toast(I18N.t('mission_ready_claim', { label: m.label }));
+      }
+    });
   }
 
   // ── Diárias ───────────────────────────────────────────────────────────────────
@@ -75,8 +85,8 @@ const Missions = (() => {
     if (!d.missoes_diarias || d.missoes_diarias.data !== today) {
       _resetDailies(d, today);
     } else if (d.missoes_diarias.ativas.length < DAILY_COUNT) {
-      // Pool was expanded — rebuild today's active list keeping existing completions/snapshot
-      d.missoes_diarias.ativas = getDailyMissions(today).map(m => m.id);
+      d.missoes_diarias.ativas    = getDailyMissions(today).map(m => m.id);
+      d.missoes_diarias.pendentes = d.missoes_diarias.pendentes || [];
       Save.save();
     }
   }
@@ -86,6 +96,7 @@ const Missions = (() => {
     d.missoes_diarias = {
       data:      today,
       completas: [],
+      pendentes: [],
       snapshot: {
         inimigos_derrotados:    s.inimigos_derrotados    || 0,
         dano_total_causado:     s.dano_total_causado      || 0,
@@ -113,31 +124,65 @@ const Missions = (() => {
   function _checkDailies() {
     const d = Save.get();
     if (!d.missoes_diarias) return;
-    const done      = new Set(d.missoes_diarias.completas);
+    const claimed  = new Set(d.missoes_diarias.completas);
+    const pending  = new Set(d.missoes_diarias.pendentes || []);
     const completed = [];
     for (const mId of d.missoes_diarias.ativas) {
-      if (done.has(mId)) continue;
+      if (claimed.has(mId) || pending.has(mId)) continue;
       const m = getMissionById(mId);
       if (!m) continue;
       if (MISSION_CHECKERS[m.type]?.(m, d)) completed.push(m);
     }
     if (!completed.length) return;
-    completed.forEach(m => {
-      d.missoes_diarias.completas.push(m.id);
-      _grantRewards(m.reward, m.id, true, d.missoes_diarias.data);
-    });
+    d.missoes_diarias.pendentes = d.missoes_diarias.pendentes || [];
+    completed.forEach(m => d.missoes_diarias.pendentes.push(m.id));
     Save.save();
-    _toastRewards(completed);
+    _updateBadge();
+    completed.forEach(m => {
+      if (typeof UI !== 'undefined') {
+        UI.toast(I18N.t('mission_ready_claim', { label: m.label }));
+      }
+    });
+  }
+
+  // ── Claim públicos ────────────────────────────────────────────────────────────
+
+  function claimFixed(missionId) {
+    const d   = Save.get();
+    const idx = d.missoes_conquistas_pendentes.indexOf(missionId);
+    if (idx === -1) return null;
+    const m = getMissionById(missionId);
+    if (!m) return null;
+    d.missoes_conquistas_pendentes.splice(idx, 1);
+    if (!d.missoes_completas.includes(missionId)) d.missoes_completas.push(missionId);
+    _grantRewards(m.reward, missionId, false, null);
+    Save.save();
+    _updateBadge();
+    return m;
+  }
+
+  function claimDaily(missionId) {
+    const d = Save.get();
+    if (!d.missoes_diarias) return null;
+    d.missoes_diarias.pendentes = d.missoes_diarias.pendentes || [];
+    const idx = d.missoes_diarias.pendentes.indexOf(missionId);
+    if (idx === -1) return null;
+    const m = getMissionById(missionId);
+    if (!m) return null;
+    d.missoes_diarias.pendentes.splice(idx, 1);
+    if (!d.missoes_diarias.completas.includes(missionId)) d.missoes_diarias.completas.push(missionId);
+    _grantRewards(m.reward, missionId, true, d.missoes_diarias.data);
+    Save.save();
+    _updateBadge();
+    return m;
   }
 
   // ── Rewards ───────────────────────────────────────────────────────────────────
 
   function _grantRewards(reward, missionId, isDaily, date) {
     if (!reward) return;
-    // Concede localmente para feedback imediato (offline também funciona)
     if (reward.gems)    Save.addGems(reward.gems);
     if (reward.tickets) Save.addTickets(reward.tickets);
-    // Confirma e persiste no servidor em background
     if (typeof Online !== 'undefined' && Online.isLoggedIn() && missionId) {
       Online.claimReward(missionId, isDaily ? date : null).then(result => {
         if (result?.ok && result.save) {
@@ -155,8 +200,21 @@ const Missions = (() => {
     return p.join(' ');
   }
 
-  function _toastRewards(missions) {
-    missions.forEach(m => UI.toast(I18N.t('mission_complete_toast', { label: m.label, reward: rewardLabel(m.reward) })));
+  // ── Badge de notificação no hub ───────────────────────────────────────────────
+
+  function _updateBadge() {
+    const badge = document.getElementById('ms-pending-badge');
+    if (!badge) return;
+    const count = getPendingCount();
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+  }
+
+  function getPendingCount() {
+    const d = Save.get();
+    const fixedPend  = (d.missoes_conquistas_pendentes || []).length;
+    const dailyPend  = (d.missoes_diarias?.pendentes   || []).length;
+    return fixedPend + dailyPend;
   }
 
   // ── Progress ──────────────────────────────────────────────────────────────────
@@ -185,7 +243,7 @@ const Missions = (() => {
     _checkDailies();
   }
 
-  // Kept for backward compat — renders into modal's Conquistas list if open
+  // Kept for backward compat
   function renderMissions() {
     const list = document.getElementById('missions-local-list');
     if (!list) return;
@@ -212,5 +270,5 @@ const Missions = (() => {
     }
   }
 
-  return { init, initDailies, check, renderMissions, getProgress, rewardLabel };
+  return { init, initDailies, check, renderMissions, getProgress, rewardLabel, claimFixed, claimDaily, getPendingCount, updateBadge: _updateBadge };
 })();

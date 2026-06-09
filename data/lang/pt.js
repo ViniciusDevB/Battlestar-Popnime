@@ -375,6 +375,11 @@ const LANG_PT = {
   "hud_blocked": "BLOQUEADO",
   "missions_all_done": "Todas as conquistas disponíveis foram concluídas! 🎉",
   "mission_complete_toast": "✅ Missão completa: {label} → {reward}",
+  "mission_ready_claim": "🎁 Missão concluída! Vá resgatar: {label}",
+  "ms_claimed_label": "✅ Resgatado",
+  "ms_claimed_reward_toast": "🎉 +{reward} resgatado! ({label})",
+  "ms_pending_hint": "⚡ {n} pronta(s) para resgatar!",
+  "ms_fixed_counter": "{done}/{total} conquistas desbloqueadas",
 
   "tower_clone_spawned": "🌀 Clone de Naruto invocado! ({s}s)",
   "tower_invalid_spot": "Local inválido!",
