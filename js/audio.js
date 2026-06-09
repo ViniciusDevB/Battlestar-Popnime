@@ -1,6 +1,6 @@
 const AudioManager = (() => {
   // Inicializamos a música do menu
-  let menuBgm = new Audio('assets/audio/bgm/menu_theme.wav');
+  let menuBgm = new Audio('assets/audio/bgm/menu_theme.mp3');
   menuBgm.loop = true;
   menuBgm.volume = 0.4; // Volume agradável para não enjoar
 
@@ -45,6 +45,19 @@ const AudioManager = (() => {
     sfx.play().catch(e => {});
   }
 
+  function playGachaPull() {
+    playSFX('assets/audio/sfx/gacha_pull.mp3', 0.8);
+  }
+
+  function playGachaReveal(rarity) {
+    // Pode ter sons diferentes por raridade no futuro se quiser
+    if (rarity === 5) {
+      playSFX('assets/audio/sfx/gacha_reveal_5star.mp3', 1.0);
+    } else {
+      playSFX('assets/audio/sfx/gacha_reveal.mp3', 0.8);
+    }
+  }
+
   // Destrava o áudio no primeiro clique em qualquer lugar da tela
   document.addEventListener('click', unlock, { once: true });
 
@@ -52,6 +65,8 @@ const AudioManager = (() => {
     playMenuBgm,
     pauseBgm,
     playSFX,
+    playGachaPull,
+    playGachaReveal,
     unlock
   };
 })();

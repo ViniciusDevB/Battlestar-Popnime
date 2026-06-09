@@ -114,7 +114,9 @@ const Gacha = (() => {
     const grid = document.getElementById('gacha-results-grid');
     grid.innerHTML = '';
 
+    let maxRarity = 3;
     results.forEach((r, i) => {
+      if (r.rarity > maxRarity) maxRarity = r.rarity;
       const char = getCharById(r.id);
       if (!char) return;
       const card = document.createElement('div');
@@ -130,7 +132,39 @@ const Gacha = (() => {
       grid.appendChild(card);
     });
 
-    modal.style.display = 'flex';
+    const animOverlay = document.getElementById('gacha-animation-overlay');
+    if (animOverlay) {
+      // Configura a cor da estrela dependendo da maior raridade
+      let animClass = maxRarity >= 5 ? 'anim-gold' : (maxRarity === 4 ? 'anim-orange' : 'anim-red');
+      
+      // Reinicia a animação caso o elemento já estivesse no DOM
+      animOverlay.style.display = 'none';
+      void animOverlay.offsetWidth; // trigger reflow
+      
+      animOverlay.className = `gacha-anim-container ${animClass}`;
+      animOverlay.style.display = 'flex';
+      
+      if (typeof AudioManager !== 'undefined') AudioManager.playGachaPull();
+
+      // Tempo aproximado para a estrela cadente chegar ao meio da tela
+      setTimeout(() => {
+        animOverlay.classList.add('flash-active');
+        if (typeof AudioManager !== 'undefined') AudioManager.playGachaReveal(maxRarity);
+        
+        // Exibe as cartas logo após o clarão estourar
+        setTimeout(() => {
+          modal.style.display = 'flex';
+          
+          // Oculta a tela de animação de fundo quando o clarão sumir completamente
+          setTimeout(() => {
+            animOverlay.style.display = 'none';
+            animOverlay.className = 'gacha-anim-container';
+          }, 1000);
+        }, 150);
+      }, 1400);
+    } else {
+      modal.style.display = 'flex';
+    }
   }
 
   function closeResult() {
