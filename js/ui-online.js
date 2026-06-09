@@ -394,3 +394,167 @@ const OnlineUI = (() => {
 
   return { show, close, setTab, handleLogin, handleRegister, handleSync, handleLogout };
 })();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LoginScreen — tela de login dedicada exibida antes do hub
+// ══════════════════════════════════════════════════════════════════════════════
+
+const LoginScreen = (() => {
+  let _tab     = 'login';
+  let _loading = false;
+
+  function _screen() { return document.getElementById('screen-login'); }
+
+  function _activate() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    _screen()?.classList.add('active');
+  }
+
+  function showLoading() {
+    _activate();
+    _setContent(`
+      <div class="ls-loading">
+        <div class="ls-spinner">⏳</div>
+        <p>Verificando sessão...</p>
+      </div>
+    `);
+  }
+
+  function show() {
+    _tab = 'login';
+    _activate();
+    _render();
+    setTimeout(() => document.getElementById('ls-username')?.focus(), 80);
+  }
+
+  function _goToHub() {
+    _screen()?.classList.remove('active');
+    UI.showHub();
+    UI.updateCurrencyDisplay();
+  }
+
+  function _setContent(html) {
+    const el = document.getElementById('login-screen-content');
+    if (el) el.innerHTML = html;
+  }
+
+  function _render() {
+    _setContent(`
+      <div class="ls-tabs">
+        <button id="ls-tab-login"    class="ls-tab ${_tab==='login'?'active':''}"    onclick="LoginScreen.setTab('login')">Entrar</button>
+        <button id="ls-tab-register" class="ls-tab ${_tab==='register'?'active':''}" onclick="LoginScreen.setTab('register')">Criar Conta</button>
+      </div>
+      <div id="ls-form-area"></div>
+      <div id="ls-error" class="ls-error" style="display:none"></div>
+      <button id="ls-submit" class="ls-btn-primary" onclick="LoginScreen.handleSubmit()">
+        ${_tab === 'login' ? 'Entrar' : 'Criar Conta'}
+      </button>
+      <div class="ls-divider"><span>ou</span></div>
+      <button class="ls-btn-offline" onclick="LoginScreen.playOffline()">Jogar Offline</button>
+    `);
+    _renderForm();
+  }
+
+  function _renderForm() {
+    const area = document.getElementById('ls-form-area');
+    if (!area) return;
+    if (_tab === 'login') {
+      area.innerHTML = `
+        <div class="ls-field">
+          <label class="ls-label">Username</label>
+          <input id="ls-username" class="ls-input" type="text" placeholder="NarutoBR" maxlength="20" autocomplete="username">
+        </div>
+        <div class="ls-field">
+          <label class="ls-label">Senha</label>
+          <input id="ls-pass" class="ls-input" type="password" placeholder="••••••••" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter')LoginScreen.handleSubmit()">
+        </div>
+      `;
+    } else {
+      area.innerHTML = `
+        <div class="ls-field">
+          <label class="ls-label">Username <span class="ls-hint">(3–20 caracteres, letras/números/_)</span></label>
+          <input id="ls-username" class="ls-input" type="text" placeholder="NarutoBR" maxlength="20" autocomplete="username">
+        </div>
+        <div class="ls-field">
+          <label class="ls-label">Senha <span class="ls-hint">(mín. 6 caracteres)</span></label>
+          <input id="ls-pass" class="ls-input" type="password" placeholder="••••••••" autocomplete="new-password"
+            onkeydown="if(event.key==='Enter')LoginScreen.handleSubmit()">
+        </div>
+      `;
+    }
+    setTimeout(() => document.getElementById('ls-username')?.focus(), 50);
+  }
+
+  function setTab(tab) {
+    _tab = tab;
+    _render();
+  }
+
+  async function handleSubmit() {
+    if (_loading) return;
+    const username = document.getElementById('ls-username')?.value.trim();
+    const pass     = document.getElementById('ls-pass')?.value;
+
+    if (!username || !pass) return _showError('Preencha username e senha.');
+    if (_tab === 'register') {
+      if (username.length < 3) return _showError('Username deve ter pelo menos 3 caracteres.');
+      if (!/^[a-zA-Z0-9_]+$/.test(username)) return _showError('Username: apenas letras, números e _');
+      if (pass.length < 6) return _showError('Senha deve ter pelo menos 6 caracteres.');
+    }
+
+    _setLoading(true);
+    try {
+      const result = _tab === 'login'
+        ? await Online.login(username, pass)
+        : await Online.register(username, pass);
+      _setLoading(false);
+      if (result.error) {
+        _showError(_translateError(result.error));
+      } else {
+        _goToHub();
+        UI.toast(`✅ Bem-vindo${_tab === 'register' ? '' : ' de volta'}, ${username}!`, 3000);
+      }
+    } catch (_) {
+      _setLoading(false);
+      _showError('Erro inesperado. Tente novamente.');
+    }
+  }
+
+  function playOffline() {
+    _goToHub();
+  }
+
+  function _setLoading(on) {
+    _loading = on;
+    const btn = document.getElementById('ls-submit');
+    if (!btn) return;
+    btn.disabled  = on;
+    btn.textContent = on ? '⏳ Aguarde...' : (_tab === 'login' ? 'Entrar' : 'Criar Conta');
+  }
+
+  function _showError(msg) {
+    const el = document.getElementById('ls-error');
+    if (!el) return;
+    el.textContent  = msg;
+    el.style.display = 'block';
+  }
+
+  function _translateError(msg) {
+    if (!msg) return 'Erro desconhecido.';
+    if (msg.includes('Invalid login') || msg.includes('invalid_credentials'))
+      return 'Username ou senha incorretos.';
+    if (msg.includes('User already registered') || msg.includes('already been registered'))
+      return 'Este username já está em uso.';
+    if (msg.includes('duplicate key') && msg.includes('username'))
+      return 'Este username já está em uso.';
+    if (msg.includes('Password should') || msg.includes('password'))
+      return 'Senha muito curta (mín. 6 caracteres).';
+    if (msg.includes('Email signups are disabled'))
+      return 'Cadastro desativado no servidor. Contate o administrador.';
+    if (msg === 'offline') return 'Sem conexão com o servidor. Tente mais tarde.';
+    return msg;
+  }
+
+  return { show, showLoading, setTab, handleSubmit, playOffline };
+})();

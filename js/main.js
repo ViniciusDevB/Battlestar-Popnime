@@ -36,10 +36,18 @@ window.addEventListener('DOMContentLoaded', () => {
     Missions.init();       // inicia conquistas + reseta diárias se necessário
     Game.init();
 
-    // Start at hub
-    UI.showHub();
+    // Mostra loading enquanto Supabase verifica sessão salva
+    LoginScreen.showLoading();
     UI.updateCurrencyDisplay();
     UI.updateBannerDisplay(initBanner);
+
+    Online.onReady((hasSession) => {
+      if (hasSession) {
+        UI.showHub();
+      } else {
+        LoginScreen.show();
+      }
+    });
 
     if (Save.wasCorrupted()) {
       UI.toast('⚠️ Save corrompido detectado — progresso reiniciado automaticamente.', 8000);

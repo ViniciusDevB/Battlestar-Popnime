@@ -9,6 +9,8 @@ const Online = (() => {
   let _profilePromise  = null;   // Promise pendente de _loadProfile (evita race condition)
   let _activeMission   = null;
   let _missionChannel  = null;
+  let _onReadyCb       = null;   // Callback único disparado após 1ª resolução do auth state
+  let _authResolved    = false;
 
   // ── Init ──────────────────────────────────────────────────────────────────
 
@@ -39,16 +41,23 @@ const Online = (() => {
     _client.auth.onAuthStateChange((event, session) => {
       _session = session;
       if (session) {
-        // Guarda a Promise para que o UI possa aguardá-la antes de renderizar
         _profilePromise = _loadProfile().then(() => {
           _profilePromise = null;
           _showOnlineStatus(true);
           _setupRealtime();
+          if (!_authResolved) {
+            _authResolved = true;
+            if (_onReadyCb) { const cb = _onReadyCb; _onReadyCb = null; cb(true); }
+          }
         });
       } else {
         _profile        = null;
         _profilePromise = null;
         _showOnlineStatus(false);
+        if (!_authResolved) {
+          _authResolved = true;
+          if (_onReadyCb) { const cb = _onReadyCb; _onReadyCb = null; cb(false); }
+        }
       }
     });
     _ready = true;
@@ -58,6 +67,13 @@ const Online = (() => {
   function isReady()    { return _ready; }
   function isLoggedIn() { return !!_session; }
   function getProfile() { return _profile; }
+
+  // Chama cb(hasSession) assim que o estado inicial de auth é determinado.
+  // Se já foi resolvido, chama imediatamente.
+  function onReady(cb) {
+    if (_authResolved) { cb(!!_session); return; }
+    _onReadyCb = cb;
+  }
   function getSession() { return _session; }
 
   // Aguarda o carregamento do perfil (timeout de 6s para evitar loading infinito)
@@ -577,7 +593,7 @@ const Online = (() => {
   // ── Public API ─────────────────────────────────────────────────────────────
 
   return {
-    init, isReady, isLoggedIn, getProfile, getSession,
+    init, isReady, isLoggedIn, getProfile, getSession, onReady,
     waitForProfile, refreshProfile,
     register, login, logout, resetAccount,
     syncSave,
