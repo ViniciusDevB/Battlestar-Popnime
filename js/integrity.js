@@ -111,6 +111,12 @@ const Integrity = (() => {
 
   // ── Violation tracking ────────────────────────────────────────────────────
 
+  let _serverViolationCallback = null;
+
+  function setServerViolationCallback(fn) {
+    _serverViolationCallback = fn;
+  }
+
   function recordViolation(type, detail) {
     const v = { type, detail: detail || {}, ts: Date.now() };
     _violations.push(v);
@@ -120,6 +126,10 @@ const Integrity = (() => {
       if (d) {
         d._integrityViolations = [...((d._integrityViolations || []).slice(-19)), v];
       }
+    }
+    // Envia ao servidor (fire-and-forget) para log com IP real via Edge Function
+    if (_serverViolationCallback) {
+      try { _serverViolationCallback(type, detail || {}); } catch {}
     }
   }
 
@@ -214,6 +224,7 @@ const Integrity = (() => {
     validateSavePlausibility,
     auditGameState,
     recordViolation,
+    setServerViolationCallback,
     isClean, isCleanForTrades, assertCleanOrThrow,
     getViolations,
     FunctionGuard,

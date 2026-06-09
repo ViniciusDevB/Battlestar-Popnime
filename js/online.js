@@ -18,6 +18,24 @@ const Online = (() => {
       return false;
     }
     _client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Registra callback para enviar violações ao servidor via Edge Function
+    if (typeof Integrity !== 'undefined') {
+      Integrity.setServerViolationCallback(async (type, detail) => {
+        if (!_ready || !_session) return;
+        try {
+          await fetch(`${SUPABASE_URL}/functions/v1/log-violation`, {
+            method:  'POST',
+            headers: {
+              'Content-Type':  'application/json',
+              'Authorization': `Bearer ${_session.access_token}`,
+            },
+            body: JSON.stringify({ violation_type: type, detail }),
+          });
+        } catch {}
+      });
+    }
+
     _client.auth.onAuthStateChange((event, session) => {
       _session = session;
       if (session) {
@@ -116,6 +134,11 @@ const Online = (() => {
     if (error) return { error: error.message };
     _session = data.session;
     await _loadProfile();
+    if (_profile?.banned) {
+      await _client.auth.signOut();
+      _session = null; _profile = null;
+      return { error: 'Conta suspensa. Entre em contato com o suporte.' };
+    }
     await syncSave();
     return { ok: true };
   }
@@ -198,6 +221,12 @@ const Online = (() => {
   }
 
   async function _pushSave(saveData) {
+    // Valida delta server-side antes de aceitar o upsert
+    const { data: verdict } = await _client.rpc('validate_save_delta', { p_new: saveData });
+    if (verdict && verdict !== 'ok') {
+      console.warn('[Online] save delta rejeitado pelo servidor:', verdict);
+      throw new Error(verdict);
+    }
     const payload = {
       ...saveData,
       _lastSyncAt: new Date().toISOString(),
