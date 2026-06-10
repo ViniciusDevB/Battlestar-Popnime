@@ -93,6 +93,7 @@ function render() {
 
   drawBackground();
   drawPath();
+  drawDarkseidGroundCracks();
   drawBlockZones();
   drawTowerRangePreview();
   drawPlacementPreview();
@@ -416,6 +417,63 @@ function drawTowerRangePreview() {
   ctx.setLineDash([]);
 }
 
+// Rachaduras + magma do Darkseid desenhadas NO CHÃO (antes de torres/inimigos)
+function drawDarkseidGroundCracks() {
+  const towers = _renderCtx.towers;
+  const ctx    = _renderCtx.ctx;
+  const ds = towers.find(t => t.rarity >= 7);
+  if (!ds) return;
+
+  if (!ds._crackLines) {
+    const prng = (s) => { const x = Math.sin(s * 127.1 + 311.7) * 43758.5; return x - Math.floor(x); };
+    ds._crackLines = [];
+    for (let ci = 0; ci < 6; ci++) {          // 6 rachaduras — mais espaçadas
+      const segs = [{ x: ds.x, y: ds.y }];
+      let cx = ds.x, cy = ds.y, ang = prng(ci) * Math.PI * 2;
+      for (let s = 0; s < 5; s++) {            // segmentos mais longos
+        const len = 60 + prng(ci * 13 + s) * 90;  // 60-150px cada
+        ang += (prng(ci + s * 7) - 0.5) * 0.7;
+        cx += Math.cos(ang) * len;
+        cy += Math.sin(ang) * len;
+        segs.push({ x: cx, y: cy });
+      }
+      ds._crackLines.push(segs);
+    }
+  }
+
+  const n = Date.now();
+  const mp = (Math.sin(n / 230) + 1) / 2;     // magma pulse
+  ctx.save();
+  ctx.lineCap = 'round';
+
+  for (const segs of ds._crackLines) {
+    // Magma glow — source-over, não sangra por cima de unidades
+    ctx.beginPath();
+    for (let i = 0; i < segs.length; i++) i === 0 ? ctx.moveTo(segs[i].x, segs[i].y) : ctx.lineTo(segs[i].x, segs[i].y);
+    ctx.strokeStyle = `rgba(255,${55 + Math.round(mp * 85)},0,${0.32 + mp * 0.18})`;
+    ctx.lineWidth = 7 + mp * 5;
+    ctx.shadowBlur = 12 + mp * 10; ctx.shadowColor = '#ff5500';
+    ctx.stroke();
+    // Crack escura na superfície
+    ctx.beginPath();
+    for (let i = 0; i < segs.length; i++) i === 0 ? ctx.moveTo(segs[i].x, segs[i].y) : ctx.lineTo(segs[i].x, segs[i].y);
+    ctx.strokeStyle = `rgba(6,0,0,${0.72 + mp * 0.1})`;
+    ctx.lineWidth = 2; ctx.shadowBlur = 0;
+    ctx.stroke();
+  }
+
+  // Pool de magma central (sob Darkseid, no chão)
+  const pr = ctx.createRadialGradient(ds.x, ds.y, 0, ds.x, ds.y, 58 + mp * 14);
+  pr.addColorStop(0,   `rgba(255,100,0,${0.32 + mp * 0.16})`);
+  pr.addColorStop(0.55, `rgba(180,20,0,${0.15 + mp * 0.07})`);
+  pr.addColorStop(1,   'rgba(0,0,0,0)');
+  ctx.fillStyle = pr;
+  ctx.shadowBlur = 0;
+  ctx.beginPath(); ctx.arc(ds.x, ds.y, 72, 0, Math.PI * 2); ctx.fill();
+
+  ctx.restore();
+}
+
 function drawTowers() {
   const ctx = _renderCtx.ctx;
   const towers = _renderCtx.towers;
@@ -424,16 +482,75 @@ function drawTowers() {
   const _gojoBuffedSet = _renderCtx._gojoBuffedSet;
   const waveActive = _renderCtx.waveActive;
 
-  // Apokolips atmosphere — map-wide red vignette when Darkseid is present
+  // Apokolips atmosphere — borda única do Darkseid (diferente do Ichigo)
   if (towers.some(t => t.rarity >= 7)) {
-    const vPulse = (Math.sin(Date.now() / 600) + 1) / 2;
-    const vign = ctx.createRadialGradient(CANVAS_W / 2, CANVAS_H / 2, CANVAS_H * 0.25, CANVAS_W / 2, CANVAS_H / 2, CANVAS_H * 0.9);
-    vign.addColorStop(0,   'rgba(0,0,0,0)');
-    vign.addColorStop(0.6, `rgba(60,0,0,${0.10 + vPulse * 0.06})`);
-    vign.addColorStop(1,   `rgba(160,0,0,${0.32 + vPulse * 0.08})`);
+    const n = Date.now();
+    const vP = (Math.sin(n / 700) + 1) / 2;
     ctx.save();
-    ctx.fillStyle = vign;
-    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+    // 1. Escuridão opressiva nas bordas (preto profundo, não vermelho como Ichigo)
+    const darkV = ctx.createRadialGradient(CANVAS_W/2, CANVAS_H/2, CANVAS_H * 0.3, CANVAS_W/2, CANVAS_H/2, CANVAS_H * 1.05);
+    darkV.addColorStop(0,    'rgba(0,0,0,0)');
+    darkV.addColorStop(0.55, `rgba(4,0,0,0.08)`);
+    darkV.addColorStop(0.78, `rgba(8,0,0,${0.20 + vP * 0.05})`);
+    darkV.addColorStop(1,    `rgba(0,0,0,${0.55 + vP * 0.08})`);
+    ctx.fillStyle = darkV; ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+    // 2. Magma queimando pelos cantos
+    [[0,0],[CANVAS_W,0],[0,CANVAS_H],[CANVAS_W,CANVAS_H]].forEach(([cx,cy], i) => {
+      const cP = (Math.sin(n / 550 + i * 0.9) + 1) / 2;
+      const cG = ctx.createRadialGradient(cx, cy, 0, cx, cy, CANVAS_H * 0.38);
+      cG.addColorStop(0,    `rgba(150,18,0,${0.26 + cP * 0.13})`);
+      cG.addColorStop(0.45, `rgba(80,4,0,${0.09 + cP * 0.05})`);
+      cG.addColorStop(1,    'rgba(0,0,0,0)');
+      ctx.fillStyle = cG; ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    });
+
+    // 3. Rachaduras entrando pelas bordas da tela (geradas uma vez, estáveis)
+    if (!window._apokolipsBorderCracks) {
+      const rng = (s) => { const x = Math.sin(s * 91.3 + 78.9) * 43758.5; return x - Math.floor(x); };
+      window._apokolipsBorderCracks = [];
+      for (let ci = 0; ci < 8; ci++) {
+        const side = ci % 4;
+        let sx, sy, ang;
+        if (side === 0) { sx = 0.1*CANVAS_W + rng(ci)*0.8*CANVAS_W; sy = 0;        ang =  Math.PI/2 + (rng(ci+10)-0.5)*0.7; }
+        if (side === 1) { sx = CANVAS_W;  sy = 0.1*CANVAS_H + rng(ci)*0.8*CANVAS_H; ang =  Math.PI   + (rng(ci+10)-0.5)*0.7; }
+        if (side === 2) { sx = 0.1*CANVAS_W + rng(ci)*0.8*CANVAS_W; sy = CANVAS_H;  ang = -Math.PI/2 + (rng(ci+10)-0.5)*0.7; }
+        if (side === 3) { sx = 0;         sy = 0.1*CANVAS_H + rng(ci)*0.8*CANVAS_H; ang =            (rng(ci+10)-0.5)*0.7; }
+        const segs = [{ x: sx, y: sy }];
+        let bx = sx, by = sy, a = ang;
+        for (let s = 0; s < 3; s++) {
+          const len = 18 + rng(ci*5+s) * 28;
+          a += (rng(ci*3+s+20)-0.5)*0.8;
+          bx += Math.cos(a) * len; by += Math.sin(a) * len;
+          segs.push({ x: bx, y: by });
+        }
+        window._apokolipsBorderCracks.push(segs);
+      }
+    }
+    const bP = (Math.sin(n / 400) + 1) / 2;
+    ctx.lineCap = 'round';
+    for (const segs of window._apokolipsBorderCracks) {
+      ctx.beginPath();
+      for (let i = 0; i < segs.length; i++) i === 0 ? ctx.moveTo(segs[i].x, segs[i].y) : ctx.lineTo(segs[i].x, segs[i].y);
+      ctx.strokeStyle = `rgba(255,${45+Math.round(bP*70)},0,${0.38 + bP*0.25})`;
+      ctx.lineWidth = 3 + bP*2; ctx.shadowBlur = 10+bP*8; ctx.shadowColor = '#ff4500'; ctx.stroke();
+      ctx.beginPath();
+      for (let i = 0; i < segs.length; i++) i === 0 ? ctx.moveTo(segs[i].x, segs[i].y) : ctx.lineTo(segs[i].x, segs[i].y);
+      ctx.strokeStyle = 'rgba(4,0,0,0.82)'; ctx.lineWidth = 1.2; ctx.shadowBlur = 0; ctx.stroke();
+    }
+
+    // 4. Símbolo Ω nos 4 cantos — domínio de Darkseid
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const pad = 20;
+    [[pad,pad],[CANVAS_W-pad,pad],[pad,CANVAS_H-pad],[CANVAS_W-pad,CANVAS_H-pad]].forEach(([cx,cy], i) => {
+      const oP = (Math.sin(n / 650 + i * 0.75) + 1) / 2;
+      ctx.font = `bold ${14 + Math.round(oP*5)}px monospace`;
+      ctx.fillStyle = `rgba(180,22,0,${0.14 + oP*0.12})`;
+      ctx.shadowBlur = 5 + oP*7; ctx.shadowColor = '#ff4500';
+      ctx.fillText('Ω', cx, cy);
+    });
+
     ctx.restore();
   }
 
@@ -684,56 +801,6 @@ function drawTowers() {
 
       _drawOmegaBeam(bs.left);
       _drawOmegaBeam(bs.right);
-
-      // ── Ground Cracks + Magma around Darkseid ────────────────────────────
-      if (!t._crackLines) {
-        // Seed-stable crack network, generated once per tower instance
-        const prng = (seed) => { const x = Math.sin(seed * 127.1 + 311.7) * 43758.5; return x - Math.floor(x); };
-        t._crackLines = [];
-        for (let ci = 0; ci < 10; ci++) {
-          const ang0 = prng(ci) * Math.PI * 2;
-          const segs = [{ x: t.x, y: t.y }];
-          let cx = t.x, cy = t.y, ang = ang0;
-          for (let s = 0; s < 4; s++) {
-            // Each crack segment: 25-65px, slight angular deviation (not 90°, organic cracks)
-            const len = 25 + prng(ci * 13 + s) * 60;
-            ang += (prng(ci + s * 7) - 0.5) * 0.9;
-            cx += Math.cos(ang) * len;
-            cy += Math.sin(ang) * len;
-            segs.push({ x: cx, y: cy });
-          }
-          t._crackLines.push(segs);
-        }
-      }
-      const magmaPulse = (Math.sin(n7 / 230) + 1) / 2;
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      for (const segs of t._crackLines) {
-        // Magma glow (wide, orange-red)
-        ctx.beginPath();
-        for (let i = 0; i < segs.length; i++) i === 0 ? ctx.moveTo(segs[i].x, segs[i].y) : ctx.lineTo(segs[i].x, segs[i].y);
-        ctx.strokeStyle = `rgba(255,${70 + Math.round(magmaPulse * 90)},0,${0.55 + magmaPulse * 0.3})`;
-        ctx.lineWidth   = 5 + magmaPulse * 4;
-        ctx.shadowBlur  = 14 + magmaPulse * 12;
-        ctx.shadowColor = '#ff5500';
-        ctx.stroke();
-        // Dark crack line on top
-        ctx.beginPath();
-        for (let i = 0; i < segs.length; i++) i === 0 ? ctx.moveTo(segs[i].x, segs[i].y) : ctx.lineTo(segs[i].x, segs[i].y);
-        ctx.strokeStyle = 'rgba(10,0,0,0.85)';
-        ctx.lineWidth   = 1.5;
-        ctx.shadowBlur  = 0;
-        ctx.stroke();
-      }
-      // Central magma pool (glowing core beneath Darkseid)
-      const poolR = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, 38 + magmaPulse * 10);
-      poolR.addColorStop(0,   `rgba(255,120,0,${0.45 + magmaPulse * 0.2})`);
-      poolR.addColorStop(0.5, `rgba(200,30,0,${0.25 + magmaPulse * 0.1})`);
-      poolR.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = poolR;
-      ctx.beginPath(); ctx.arc(t.x, t.y, 48, 0, Math.PI * 2); ctx.fill();
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.restore();
 
       // ── Floating Embers + Rings (kept) ───────────────────────────────────
       ctx.save();
