@@ -46,13 +46,16 @@ const Online = (() => {
           // INITIAL_SESSION = sessão restaurada no refresh/reload da página.
           // login() e register() já chamam syncSave() explicitamente para logins novos,
           // mas no refresh o syncSave() nunca era chamado — save ficava zerado.
-          if (event === 'INITIAL_SESSION') await syncSave();
+          if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') await syncSave();
           _profilePromise = null;
           _showOnlineStatus(true);
           _setupRealtime();
           if (!_authResolved) {
             _authResolved = true;
             if (_onReadyCb) { const cb = _onReadyCb; _onReadyCb = null; cb(true); }
+          } else if (event === 'SIGNED_IN') {
+            // Re-login após logout: onReadyCb já foi consumido, navegar diretamente para o hub
+            if (typeof UI !== 'undefined') { UI.showHub(); UI.updateCurrencyDisplay(); }
           }
         });
       } else {
@@ -180,7 +183,6 @@ const Online = (() => {
     if (_profile?.is_admin) {
       if (typeof Integrity !== 'undefined') Integrity.setServerViolationCallback(null);
     }
-    await syncSave();
     return { ok: true };
   }
 
