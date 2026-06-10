@@ -4,22 +4,154 @@ Bem-vindos ao portal de atualizações de **Battlestar Popnime**. Aqui você enc
 
 ---
 
-## 🖥️ Lançamento do Instalador Desktop
+## 🔄 Update 3: Crise nas Infinitas Terras *(Em Desenvolvimento)*
 
-**Data de Lançamento:** 10 de Junho de 2026
-
-*"Battlestar Popnime agora tem uma versão instalável para Windows. Mesma experiência do jogo web, agora como um aplicativo nativo na sua máquina — com atualizações automáticas e sem abrir o navegador."*
-
-### ✨ O que muda
-
-* **Instalador Windows:** baixe e instale o jogo como qualquer outro programa. Atalho criado automaticamente na área de trabalho e no menu iniciar.
-* **Atualizações Automáticas:** ao abrir o jogo, ele verifica silenciosamente se há uma nova versão disponível. Caso haja, baixa em segundo plano e exibe uma notificação para reiniciar — sem precisar baixar um novo instalador manualmente.
-* **Sem acesso ao código-fonte:** os arquivos do jogo são empacotados e protegidos no instalador.
-* **Online idêntico à versão web:** conta, leaderboard, trocas, missões de comunidade e save sync funcionam normalmente.
+*"O maior update de Battlestar Popnime até hoje. Além do novo mundo DC e dos 9 novos personagens em desenvolvimento, o Update 3 traz o lançamento desktop, a camada online completa, rebalanceamento global e suporte a inglês — consolidando a base do jogo para o futuro."*
 
 ---
 
-## 🟢 Atualização 2: Invasão Secreta (Evento Marvel)
+### ↳ Lançamento Desktop — 10 de Junho de 2026
+
+*"Battlestar Popnime agora tem uma versão instalável para Windows. A mesma experiência do jogo web, agora como aplicativo nativo — sem abrir o navegador, com atualizações automáticas."*
+
+> ⚠️ **O jogo não possui modo offline.** Login e conexão com a internet são sempre obrigatórios para jogar, em qualquer versão.
+
+#### 🖥️ Instalador Windows
+
+* Baixe e instale como qualquer programa. Atalho criado automaticamente na área de trabalho e no menu iniciar.
+* Ao abrir o jogo, ele verifica silenciosamente se há nova versão disponível. Caso haja, baixa em segundo plano e exibe notificação para reiniciar — sem precisar baixar um novo instalador manualmente.
+* Os arquivos do jogo são empacotados e protegidos no instalador.
+* Conta, leaderboard, trocas, missões de comunidade e save sync funcionam normalmente.
+
+---
+
+### ↳ Internacionalização Completa — 09 de Junho de 2026
+
+*"Finalizamos a cobertura total do sistema de tradução. Todo o texto visível ao jogador agora responde corretamente ao idioma selecionado — seja na tela de login, no meio de uma wave ou nas telas de trocas."*
+
+#### 🌐 Suporte a Inglês (EN)
+
+Todas as seguintes áreas agora estão completamente traduzidas ao selecionar o idioma inglês:
+
+* **HUD de Jogo:** Stats de torres (Dano, Alcance, Velocidade, Tipo), painel de upgrade, botões de vender/maximizar, badge de habilidade pronta, tooltips dos controles de partida (Skip, Pause, Speed), toasts de combate (ouro insuficiente, seleção de slot, upgrade ativado, Last Stand da Tsunade).
+* **Seleção de Fase:** Botões de voltar, dificuldades, iniciar batalha, fases bloqueadas/concluídas, contador de fases por mundo.
+* **Pré-Batalha:** Hint de remover unidade do time, seção de recompensas possíveis, seção de unidades disponíveis.
+* **Pós-Batalha:** Título de recompensas, botões de Tentar Novamente, Mapa e Hub.
+* **Gacha:** Título do portal, seções "Com Gemas" e "Com Tickets", resultado da invocação, hint de pity.
+* **Inventário:** Título da tela, aba de Evolução, modal de Feed (título, labels de XP e materiais), modal de Evolução (título e botão Evoluir).
+* **Interface Online:** Formulários de login e registro, perfil do jogador, tela de servidor offline, erros de autenticação.
+* **Leaderboard:** Abas de categorias, mensagem de board vazio, linha de rank pessoal, convite para convidados, títulos de rank.
+* **Trocas:** Mensagens de board vazio, status de ofertas, fluxo completo de criação e aceite.
+* **Modo Infinito:** Nomes de tiers (Fácil → Além do Limite), toast de recompensa de wave.
+* **Missões:** Toast de missão concluída e mensagem de todas as missões feitas.
+
+#### 🔧 Melhorias Técnicas
+
+* Suporte ao atributo `data-i18n-title` para tooltips traduzidos automaticamente.
+* **~140 novas chaves de tradução** adicionadas nos arquivos de idioma EN e PT.
+* Todas as variáveis dinâmicas nos templates de tradução corrigidas (nomes de personagens, valores de ouro, contagens de wave).
+
+---
+
+### ↳ Segurança, Deploy Público e Missões Em Breve — 09 de Junho de 2026
+
+*"Neste patch de manutenção, focamos em preparar o terreno para os próximos eventos, tornar o jogo acessível ao público e reforçar a integridade competitiva."*
+
+#### 🛠️ Correções de Bugs
+
+* **Missões Diárias:** Corrigido problema crítico no rastreamento de partidas. Jogadores veteranos com a conquista de "Completar Mundo X" não estavam progredindo em missões diárias ao jogar o mesmo mundo novamente.
+* **Barra de Prestígio:** A barra de XP de Prestígio agora exibe o valor percentual correto após reiniciar a partida.
+
+#### ✨ Novidades e Melhorias
+
+* **Deploy Público:** O jogo está oficialmente disponível via GitHub Pages para qualquer jogador, sem instalação.
+* **Missões "Em Breve":** Nova seção na aba de Comunidade exibindo um carousel dinâmico com as próximas missões globais e eventos sazonais.
+* **Segurança e Anti-Cheat:** Reforçadas as camadas de validação para garantir que o Leaderboard seja justo. Jogadores com condições de rede adversas não são penalizados.
+* **Identidade Visual de Desenvolvedores:** Contas oficiais de desenvolvimento com identificação visual exclusiva no perfil e no leaderboard.
+
+---
+
+### ↳ Melhorias no Gacha e Áudio — 09 de Junho de 2026
+
+*"Nesta atualização focamos em polir a experiência visual do Gacha e melhorar o comportamento da trilha sonora para uma navegação mais fluida e imersiva."*
+
+#### ✨ Melhorias Visuais
+
+* **Animação do Gacha Reformulada:** A sequência agora exibe estrelas em warp speed, um portal mágico animado se abrindo, um meteoro caindo e uma onda de choque com intensidade proporcional à raridade obtida (3⭐, 4⭐ ou 5⭐).
+
+#### 🛠️ Correções e QoL
+
+* **Áudio do Menu:** Ao navegar entre o Hub, a Seleção de Mundo e o Inventário, a música agora mantém continuidade e volume sem reiniciar do zero.
+
+---
+
+### ↳ Rebalanceamento Global — 09 de Junho de 2026
+
+*"A versão 2.9 é um dos nossos maiores esforços de balanceamento até hoje. Ajustamos a economia para ser mais previsível e recompensadora, e reworkamos personagens que estavam fora da curva de poder."*
+
+#### 💰 Economia e Sistemas de Jogo
+
+* **Padronização de Ouro Inicial:** Ouro base no início de TODAS as partidas ajustado: `200` ⇒ `300`.
+* **Recompensa de Abates:** Ouro por eliminação padronizado: `Variável (35–65)` ⇒ `50 Fixo`. Inimigos Elite e Minibosses concedem bônus multiplicador fixo de `×3` (150 ouro).
+* **Bônus de Skip Progressivo:** Inicia em `+10 de ouro` na Wave 1 e cresce `+5 por wave pulada`, até teto de `+60` no late game.
+
+#### ⚔️ Personagens: Buffs, Nerfs e Reworks
+
+##### ⬆️ Buffs
+
+* **Naruto Sage (5⭐):** Dano Base `120` ⇒ `150` (+25%) | Dano Máximo `4.500` ⇒ `5.250` | Alcance `20` ⇒ `22`.
+* **Nami (4⭐):** Nova Passiva "Tempestade Acumulada" — a cada 8 ataques básicos, atinge todos os inimigos visíveis na tela, reduzindo velocidade em `40%` por `2.5s`.
+* **Orihime e Tsunade:** Escalonamento de Cura (Prestígio) `+0.5%` ⇒ `+1.2%`.
+
+##### ⬇️ Nerfs
+
+* **Hawkeye (4⭐):** Cooldown Base `1.2s` ⇒ `1.5s` | Cooldown Máximo `0.4s` ⇒ `0.65s`.
+* **Pain (5⭐):** Dano da Explosão reduzido em `10%` em todos os níveis | Raio de Impacto `15` ⇒ `18`.
+
+##### 🔄 Reworks
+
+* **L (Death Note) (4⭐):** Dano Bruto reduzido em `60%`. Nova Passiva Base "Dedução" — a cada abate no alcance de visão de L, gera `+5 de Ouro Extra`. Passiva P5 "Aura Investigativa" — torres aliadas num raio de `15` têm custo de upgrades reduzido em `10%`.
+
+##### ⚙️ Ajustes Menores de QoL
+
+* **Sanji, Byakuya e Sasuke:** Custo do Upgrade 1 e Upgrade 2 reduzido em `15%`.
+* **Ichigo Bankai:** Tempo de cast do Getsuga Tensho encurtado em `0.2s`.
+
+---
+
+### ↳ A Era do Online — 09 de Junho de 2026
+
+*"A atualização que conectou todos os jogadores. Com a Era do Online, Battlestar Popnime passou de um jogo local para uma experiência online completa."*
+
+#### 👤 Contas de Jogador
+
+* Jogadores recém-registrados iniciam com **Pacote de Boas-Vindas** contendo `500 Gemas` e as **três unidades 3⭐** do banner ativo no cadastro.
+* Sistema de autenticação por username e senha, sem necessidade de e-mail real.
+
+#### 🏆 Leaderboard e Rankings
+
+* Ranking global exibindo os melhores jogadores no Modo Infinito (por wave e por dano) e nas fases normais.
+* Cada jogador pode visualizar sua própria posição e porcentagem no ranking.
+
+#### 🔄 Sistema de Trocas
+
+* Jogadores podem publicar ofertas públicas de até `3 unidades` por oferta.
+* Ofertas expiram automaticamente após `7 dias` caso não sejam aceitas, devolvendo as unidades ao ofertante.
+* É possível especificar unidades desejadas em troca ou aceitar qualquer oferta.
+
+#### 📋 Missões Unificadas
+
+* **Missões Diárias:** `10 missões` sorteadas por dia com reset automático à meia-noite (UTC).
+* **Conquistas:** `55` conquistas permanentes cobrindo todos os mundos, kills, dano, gacha, coleção, Modo Infinito e prestígio.
+* **Missão de Comunidade:** Meta coletiva online com barra de progresso global em tempo real. Recompensa de personagem 5⭐ aleatório para todos os contribuintes ao completar.
+
+#### ☁️ Save Sync
+
+* O progresso é salvo automaticamente na nuvem a cada partida concluída.
+
+---
+
+## 🟢 Update 2: Invasão Secreta (Evento Marvel)
 
 <p align="center">
   <img src="assets/update2invas%C3%B5essecretas.jpg" alt="Update 2 — Invasão Secreta" width="100%">
@@ -55,176 +187,7 @@ Quatro capítulos narrativos com modificadores de gameplay únicos e inimigos te
 
 ---
 
-### ↳ Atualização 2.5 — A Era do Online
-
-**Data de Lançamento:** 09 de Junho de 2026
-
-*"A atualização que conectou todos os jogadores. Com 2.5, Battlestar Popnime passou de um jogo local para uma experiência online completa, com contas, rankings, trocas e missões coletivas."*
-
-#### 👤 Contas de Jogador
-
-* Jogadores recém-registrados iniciam com um **Pacote de Boas-Vindas** contendo `500 Gemas` e as **três unidades 3⭐** do banner ativo no momento do cadastro.
-* Sistema de autenticação por username e senha, sem necessidade de e-mail real.
-
-#### 🏆 Leaderboard e Rankings
-
-* Ranking global exibindo os melhores jogadores no Modo Infinito (por wave e por dano) e nas fases normais.
-* Cada jogador pode visualizar sua própria posição e porcentagem no ranking.
-
-#### 🔄 Sistema de Trocas
-
-* Jogadores podem publicar ofertas públicas de até `3 unidades` por oferta.
-* Ofertas expiram automaticamente após `7 dias` caso não sejam aceitas, devolvendo as unidades ao ofertante.
-* É possível especificar unidades desejadas em troca ou aceitar qualquer oferta.
-
-#### 📋 Missões Unificadas
-
-* **Missões Diárias:** `10 missões` sorteadas por dia com reset automático à meia-noite (UTC). Recompensas em Gemas e Tickets.
-* **Conquistas:** `55` conquistas permanentes cobrindo todos os mundos, kills, dano total, gacha, coleção de personagens, Modo Infinito e progresso de prestígio.
-* **Missão de Comunidade:** Meta coletiva online com barra de progresso global em tempo real. Recompensa de personagem 5⭐ aleatório para todos os contribuintes ao completar.
-
-#### ☁️ Save Sync
-
-* O progresso do jogador é salvo automaticamente na nuvem a cada partida concluída, garantindo segurança contra perda de dados.
-
----
-
-### ↳ Atualização 2.9 — A Grande Revisão de Balanceamento
-
-**Data de Lançamento:** 09 de Junho de 2026
-
-*"A versão 2.9 é um dos nossos maiores esforços de balanceamento até hoje. Sentimos que o early game estava punitivo demais para iniciantes, enquanto o late game era trivializado por personagens de suporte específicos. Ajustamos a economia para ser mais previsível e recompensadora."*
-
-#### 💰 Economia e Sistemas de Jogo
-
-* **Padronização de Ouro Inicial:**
-  * Ouro base no início de TODAS as partidas ajustado: `200` ⇒ `300`.
-  * *Comentário dos Devs:* Isso permite que os jogadores posicionem pelo menos uma unidade 4⭐ ou duas 3⭐ imediatamente, reduzindo a frustração extrema na Wave 1.
-
-* **Recompensa de Abates (Bounties):**
-  * Ouro por eliminação padronizado: `Variável (35–65)` ⇒ `50 Fixo` para inimigos comuns.
-  * Inimigos Elite e Minibosses agora concedem um bônus multiplicador fixo de `×3` (150 ouro).
-
-* **Bônus de Skip (Avanço Rápido de Wave):**
-  * Mecânica anterior: `+25 Ouro fixo` por skip, independente da wave.
-  * Nova Mecânica Progressiva: Inicia em `+10 de ouro` na Wave 1 e cresce `+5 por wave pulada`, até um teto de `+60 de ouro` no late game.
-
-#### ⚔️ Personagens: Buffs, Nerfs e Reworks
-
-##### ⬆️ Buffs
-
-* **Naruto Sage (5⭐)**
-  * *Comentário dos Devs:* Naruto estava caindo de rendimento contra chefes com muita armadura devido ao dano base defasado em comparação a outros lendários.
-  * **Dano Base:** `120` ⇒ `150` (+25%)
-  * **Dano (Nível Máximo):** `4.500` ⇒ `5.250`
-  * **Alcance:** `20` ⇒ `22`
-
-* **Nami (4⭐)**
-  * **Nova Passiva — "Tempestade Acumulada":** A cada 8 ataques básicos, o próximo ataque atinge todos os inimigos visíveis na tela, reduzindo a velocidade de movimento em `40%` por `2.5 segundos`.
-
-* **Orihime e Tsunade (Suportes)**
-  * **Escalonamento de Cura (Prestígio):** Ganho de regeneração da base por nível de prestígio aumentado: `+0.5%` ⇒ `+1.2%`.
-
-##### ⬇️ Nerfs
-
-* **Hawkeye (4⭐)**
-  * *Comentário dos Devs:* Hawkeye estava superando unidades 5⭐ graças à velocidade de ataque insana ao atingir o nível máximo de upgrades.
-  * **Cooldown Base:** `1.2s` ⇒ `1.5s`
-  * **Cooldown (Nível Máximo):** `0.4s` ⇒ `0.65s`
-
-* **Pain (5⭐)**
-  * **Dano da Explosão (Shinra Tensei):** Reduzido em `10%` em todos os níveis.
-  * **Raio de Impacto (Área):** `15` ⇒ `18`.
-  * *Comentário dos Devs:* Pain deve ser o melhor controlador e limpador de hordas (AOE), não um matador de chefes. Aumentamos o alcance efetivo em área, mas reduzimos o dano burst.
-
-##### 🔄 Reworks
-
-* **L (Death Note) (4⭐)**
-  * *Comentário dos Devs:* Transformamos totalmente o kit do L para convertê-lo na principal unidade de Farm Econômico do jogo.
-  * **Dano Bruto:** Reduzido em `60%`.
-  * **Nova Passiva Base — "Dedução":** A cada abate no alcance de visão de L, ele gera `+5 de Ouro Extra` diretamente para o jogador.
-  * **Passiva de Prestígio 5 — "Aura Investigativa":** Torres aliadas dentro de um raio de `15` têm o custo de todos os upgrades reduzido passivamente em `10%`.
-
-##### ⚙️ Ajustes Menores de QoL
-
-* **Sanji, Byakuya e Sasuke:** Custo do Upgrade 1 e Upgrade 2 reduzido em `15%`.
-* **Ichigo Bankai:** Tempo de cast do Getsuga Tensho encurtado em `0.2s` — o dano aplica mais rápido ao inimigo entrar no raio.
-
----
-
-### ↳ Atualização 2.9.5 — Segurança, Deploy Público e Missões Em Breve
-
-**Data de Lançamento:** 09 de Junho de 2026
-
-*"Neste patch de manutenção, focamos em preparar o terreno para os próximos eventos, tornar o jogo acessível ao público e reforçar a integridade competitiva."*
-
-#### 🛠️ Correções de Bugs
-
-* **Missões Diárias:** Corrigido problema crítico no rastreamento de partidas. Jogadores veteranos que já possuíam a conquista de "Completar Mundo X" não estavam progredindo em missões diárias ao jogar o mesmo mundo novamente.
-* **Barra de Prestígio:** A barra de XP de Prestígio agora exibe o valor percentual correto após reiniciar a partida — anteriormente podia mostrar 0% por um erro de sincronia de estado local.
-
-#### ✨ Novidades e Melhorias
-
-* **Deploy Público:** O jogo está oficialmente disponível via GitHub Pages para qualquer jogador, sem instalação.
-* **Missões "Em Breve":** Nova seção na aba de Comunidade exibindo um carousel dinâmico com as próximas missões globais e eventos sazonais, atualizado periodicamente.
-* **Segurança e Anti-Cheat:** Reforçamos as camadas de validação do jogo para garantir que o Leaderboard seja justo e preciso para todos os jogadores. Jogadores com condições de rede adversas não são penalizados indevidamente.
-* **Identidade Visual de Desenvolvedores:** Contas oficiais de desenvolvimento agora possuem identificação visual exclusiva no perfil e no leaderboard.
-
----
-
-### ↳ Atualização 2.5.10 — Melhorias no Gacha e Áudio
-
-**Data de Lançamento:** 09 de Junho de 2026
-
-*"Nesta atualização focamos em polir a experiência visual do Gacha e melhorar o comportamento da trilha sonora para uma navegação mais fluida e imersiva."*
-
-#### ✨ Melhorias Visuais
-
-* **Animação do Gacha Reformulada:** O sistema de invocações recebeu uma repaginada visual épica. A sequência agora exibe:
-  * Estrelas em velocidade de dobra (warp speed) atravessando a tela.
-  * Um portal mágico animado se abrindo ao centro.
-  * Um meteoro caindo em direção ao portal, gerando um feixe de luz.
-  * Uma onda de choque explosiva com intensidade proporcional à raridade obtida (3⭐, 4⭐ ou 5⭐).
-
-#### 🛠️ Correções e QoL
-
-* **Áudio do Menu:** Corrigido o comportamento da música de fundo (BGM). Ao navegar entre o Hub, a Seleção de Mundo e o Inventário, a música agora mantém continuidade e volume, sem reiniciar do zero a cada transição de tela.
-
----
-
-### ↳ Atualização 2.9.10 — Internacionalização Completa
-
-**Data de Lançamento:** 09 de Junho de 2026
-
-*"Finalizamos a cobertura total do sistema de tradução. Todo o texto visível ao jogador agora responde corretamente ao idioma selecionado — seja na tela de login, no meio de uma wave ou nas telas de trocas."*
-
-#### 🌐 Suporte a Inglês (EN)
-
-Todas as seguintes áreas agora estão completamente traduzidas ao selecionar o idioma inglês:
-
-* **HUD de Jogo:** Stats de torres (Dano, Alcance, Velocidade, Tipo), painel de upgrade, botões de vender/maximizar, badge de habilidade pronta, tooltips dos controles de partida (Skip, Pause, Speed), toasts de combate (ouro insuficiente, seleção de slot, upgrade ativado, Last Stand da Tsunade).
-* **Seleção de Fase:** Botões de voltar, dificuldades, iniciar batalha, fases bloqueadas/concluídas, contador de fases por mundo.
-* **Pré-Batalha:** Hint de remover unidade do time, seção de recompensas possíveis, seção de unidades disponíveis.
-* **Pós-Batalha:** Título de recompensas, botões de Tentar Novamente, Mapa e Hub.
-* **Gacha:** Título do portal, seções "Com Gemas" e "Com Tickets", resultado da invocação, hint de pity.
-* **Inventário:** Título da tela, aba de Evolução, modal de Feed (título, labels de XP e materiais), modal de Evolução (título e botão Evoluir).
-* **Interface Online:** Formulários de login e registro (labels, hints de campos, abas, botões), perfil do jogador (estatísticas, Modo Infinito, badges de rank, tempo de sync, botões Sync e Sair), tela de servidor offline, erros de autenticação.
-* **Leaderboard:** Abas de categorias, mensagem de board vazio, linha de rank pessoal, convite para convidados, títulos de rank.
-* **Trocas:** Mensagens de board vazio, status de ofertas (Aberta / Concluída / Cancelada / Expirada), fluxo completo de criação e aceite, tela de conclusão.
-* **Modo Infinito:** Nomes de tiers (Fácil → Além do Limite), toast de recompensa de wave.
-* **Eventos e Passivas:** Toasts de tempestade de areia, escudo quebrado, boss escapou, personagem desbloqueado, domínio expandido, passivas de L, Tsunade, Killer Bee e outras.
-* **Missões:** Toast de missão concluída e mensagem de todas as missões feitas.
-* **Sistema de Save:** Toasts de save modificado, armazenamento cheio e save corrompido.
-
-#### 🔧 Melhorias Técnicas do Sistema i18n
-
-* O sistema de tradução agora suporta o atributo `data-i18n-title`, permitindo que tooltips de botões (atributo `title`) também sejam traduzidos automaticamente junto com o restante da interface.
-* Adicionadas **~140 novas chaves de tradução** nos arquivos de idioma EN e PT.
-* Corrigidas todas as variáveis dinâmicas nos templates de tradução (nomes de personagens, valores de ouro, contagens de wave, etc.).
-
----
-
-## 🟢 Atualização 1: Soul Society (Evento Bleach)
+## 🟢 Update 1: Soul Society (Evento Bleach)
 
 ### 👿 Boss Final: Aizen & Hogyoku
 

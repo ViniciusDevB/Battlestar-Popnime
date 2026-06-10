@@ -10,15 +10,17 @@
 
 ## 🚀 Como Jogar
 
+> ⚠️ **Login obrigatório.** Battlestar Popnime é um jogo online — é necessário criar uma conta e estar conectado à internet para jogar. Não há modo offline.
+
 ### 🖥️ Instalador Desktop (Windows)
 
-Baixe e instale o jogo diretamente na sua máquina para a melhor experiência:
+Baixe e instale o jogo diretamente na sua máquina:
 
 **[⬇️ Download — Battlestar Popnime para Windows](https://github.com/ViniciusDevB/Battlestar-Popnime/releases/latest)**
 
-- Funciona offline (exceto recursos online que requerem conexão)
+- Abre como qualquer jogo — sem navegador, sem abas
 - Recebe atualizações automáticas ao abrir o jogo
-- Sem necessidade de abrir navegador
+- Requer internet e login para jogar
 
 ### 🌐 Versão Web (Navegador)
 
@@ -26,7 +28,7 @@ Acesse diretamente pelo navegador, sem instalação:
 
 **🔗 [viniciusdevb.github.io/Battlestar-Popnime](https://viniciusdevb.github.io/Battlestar-Popnime/)**
 
-Todos os recursos online (conta, leaderboard, trocas, missões da comunidade) funcionam perfeitamente nas duas versões. O progresso é sincronizado na nuvem — jogue onde quiser.
+O progresso é sincronizado na nuvem — sua conta funciona nas duas versões.
 
 ---
 
@@ -71,43 +73,64 @@ Todos os recursos online (conta, leaderboard, trocas, missões da comunidade) fu
 > ⚖️ **Procurando pelos detalhes de balanceamento?**
 > Veja o nosso documento de [Patch Notes (Buffs e Nerfs)](./PATCH_NOTES.md) para acompanhar todas as mudanças específicas em personagens e mundos!
 
+### 🔄 Update 3: Crise nas Infinitas Terras *(Em Desenvolvimento)*
+
+<p align="center">
+  <img src="assets/update3crisenasinfinitasterras.jpg" alt="Update 3 — Crise nas Infinitas Terras" width="100%">
+</p>
+
+- **Mundo 5 — Metrópolis Sitiada**: 6 novas fases sob a invasão de Apokolips, com Darkseid como Boss final de 2 fases.
+- **Mecânica Viva**: eventos ambientais em tempo real alteram o campo durante as waves — destroços de arranha-céus caem e blackouts afetam o alcance das torres.
+- **Caminhos que se Cruzam**: primeiro mundo com duas rotas independentes que se intersectam, criando zonas de cobertura dupla.
+- **9 novos personagens** do universo DC: Flash, Batgirl, Aquaman, Batman, Lois Lane, Lanterna Verde, Superman, Shazam e Flash Reverso.
+
+#### ↳ Lançamento Desktop
+- **Instalador Windows**: o jogo agora pode ser instalado como um executável nativo — sem navegador, com atalho na área de trabalho.
+- **Atualizações Automáticas**: novas versões são baixadas em segundo plano e aplicadas com um clique ao reiniciar.
+
+#### ↳ Internacionalização Completa
+- **Suporte completo a Inglês**: todo o texto visível do jogo traduzido ao selecionar EN — HUD, menus, toasts, online, leaderboard, trocas e missões.
+- **~140 novas chaves de tradução** e suporte a tooltips via `data-i18n-title`.
+
+#### ↳ Rebalanceamento Global
+- **Nova Economia**: ouro por kill padronizado (50), ouro inicial 300, skip progressivo.
+- **Rework de L (Death Note)**: transformado na principal unidade de farm econômico.
+- **Nova Passiva — Nami**: "Tempestade Acumulada" a cada 8 ataques.
+- **Buff Naruto Sage**: dano base 120 → 150.
+- **Nerf Hawkeye**: cooldown aumentado para evitar superação de unidades 5⭐.
+
+#### ↳ A Era do Online
+- **Contas e Perfil**: registro/login por username, pacote de boas-vindas com 500 💎.
+- **Leaderboard e Rankings**: ranking global com posição pessoal destacada.
+- **Sistema de Trocas**: ofertas assíncronas de até 3 unidades, expiração em 7 dias.
+- **Missões de Comunidade**: meta coletiva global com recompensa de personagem 5⭐.
+- **Save Sync**: progresso salvo automaticamente na nuvem.
+
+#### ↳ Segurança e Deploy
+- **Deploy Público** via GitHub Pages.
+- **Anti-Cheat e Banimento Automático**: múltiplas camadas de proteção para integridade do leaderboard.
+- **Sistema de Admin**: identificação visual exclusiva para contas de desenvolvedores.
+
+#### ↳ Gacha e Áudio
+- **Animação Épica no Gacha**: portal mágico, warp speed, meteoro e onda de choque.
+- **Áudio Contínuo**: música do menu sem reinício entre transições de tela.
+
+---
+
 ### ✅ Update 2: Invasão Secreta *(Lançado)*
 
 <p align="center">
   <img src="assets/update2invas%C3%B5essecretas.jpg" alt="Update 2 — Invasão Secreta" width="100%">
 </p>
-- **Mundo 4 — Nova York**: 6 novas fases enfrentando a invasão da Marvel, com Thanos como Boss final.
+
+- **Mundo 4 — Nova York**: 6 novas fases com Thanos como Boss final.
 - **8 novos personagens**: Homem-Aranha, Viúva Negra, Gavião Arqueiro, Pantera Negra, Thor, Hulk, Iron Man e World Breaker Hulk.
 - **Evento — Operação: Ressurreição**: 4 capítulos narrativos com modificadores e inimigos temáticos.
 
-#### ↳ 2.9 — Rebalanceamento Global
-- **Rebalanceamento Geral**: Ajuste completo nos atributos e passivas das torres em todas as raridades.
-- **Nova Economia**: Os inimigos agora concedem um valor fixo de ouro (50). O ouro inicial foi padronizado (300).
-- **Rework de Prestígio e Farm**: Personagens focados em farm como L (Death Note) receberam novas mecânicas.
-- **Passiva Única (Nami)**: Adicionada nova mecânica de "Tempestade Acumulada".
-- **Melhorias de Performance e Visuais**: Otimização do jogo em fases avançadas e novas animações no Gacha.
-
-#### ↳ 2.9.5 — Segurança, Deploy Público e Missões Em Breve
-- **Deploy Público**: jogo disponível via GitHub Pages.
-- **Missões Em Breve**: nova seção na aba Comunidade exibindo as próximas missões em carousel navegável.
-- **Correção de Missões Diárias**: missões de mundo específico agora rastreiam partidas jogadas corretamente.
-- **Melhorias de Segurança e Integridade**: múltiplas camadas de proteção, incluindo novo sistema de banimento automático.
-- **Sistema de Admin**: contas oficiais de desenvolvedores com identificação visual exclusiva no perfil e leaderboard.
-
-#### ↳ 2.5.10 — Melhorias no Gacha e Áudio
-- **Animação Épica no Gacha**: Novo overlay em CSS com portal mágico, warp speed, queda de meteoro e onda de choque.
-- **Áudio Contínuo**: A música do menu agora flui perfeitamente entre transições de tela sem reiniciar do zero.
-
-#### ↳ 2.9.10 — Internacionalização Completa
-- **Suporte completo a Inglês**: todo o texto visível do jogo — HUD, menus, toasts, modais, formulários online, leaderboard, trocas, missões, passivas e prestígio — agora traduzido corretamente ao selecionar EN.
-- **Sistema i18n expandido**: suporte a `data-i18n-title` para tooltips e ~140 novas chaves de tradução adicionadas.
-- **Cobertura total**: mais de 100 strings em PT hardcoded corrigidas em 20+ arquivos (JS e HTML).
-
 ### ✅ Update 1: Soul Society *(Lançado)*
-- **Mundo 3 — Bleach**: 6 novas fases enfrentando Hollows e Arrancars, com Aizen como Boss final.
-- **10 novos personagens**: do universo de Bleach.
-- **Sistema de Prestígio ✦**: progressão estendida para unidades nível 50.
-- **♾ Modo Infinito**: waves sem fim e sistema de Star Experience.
+- **Mundo 3 — Bleach**: 6 novas fases com Aizen como Boss final.
+- **10 novos personagens** do universo Bleach.
+- **Sistema de Prestígio ✦** e **♾ Modo Infinito**.
 
 ### ✅ Updates Anteriores
 - **0.6:** Evento — A Anomalia de Konoha.
@@ -120,23 +143,7 @@ Todos os recursos online (conta, leaderboard, trocas, missões da comunidade) fu
 
 ### ☣️ Evento: Protocolo Nemesis — Última Resistência
 
-Um modo de jogo temporário inspirado em **Resident Evil clássico**. Defenda Raccoon City contra ondas de infectados enquanto o **Nemesis caça ativamente suas torres**. O confronto exige gerenciamento de recursos, coletando itens pelo mapa enquanto uma bomba-relógio ameaça a partida.
-Completar runs desbloqueia o **Arquivo Umbrella**, uma meta-progressão permanente com bônus desbloqueáveis, além da unidade 5⭐ exclusiva **Nemesis**.
-
----
-
-## 🗺️ Roadmap
-
-### 🔜 Update 3: Crise nas Infinitas Terras *(Em Desenvolvimento)*
-
-<p align="center">
-  <img src="assets/update3crisenasinfinitasterras.jpg" alt="Update 3 — Crise nas Infinitas Terras" width="100%">
-</p>
-
-- **Mundo 5 — Metrópolis Sitiada**: 6 novas fases sob a invasão de Apokolips, com Darkseid como Boss final de 2 fases.
-- **Mecânica Viva**: eventos ambientais em tempo real alteram o campo durante as waves — destroços de arranha-céus caem e blackouts afetam o alcance das torres.
-- **Caminhos que se Cruzam**: primeiro mundo com duas rotas independentes que se intersectam, criando zonas de cobertura dupla.
-- **9 novos personagens** do universo DC.
+Um modo de jogo temporário inspirado em **Resident Evil clássico**. Defenda Raccoon City contra ondas de infectados enquanto o **Nemesis caça ativamente suas torres**, com bomba-relógio e meta-progressão permanente desbloqueando a unidade 5⭐ exclusiva **Nemesis**.
 
 ### 🔜 Update 4: Marvel vs DC *(Planejado)*
 Evento especial centrado no confronto entre os universos Marvel e DC.
