@@ -39,10 +39,13 @@ const MISSIONS_LIST = [
   { id:'stage_bleach',  label:'Complete todas as fases da Soul Society',    type:'stat_threshold', stat:'fases_bleach_completas', target:6, reward:{ tickets:5 } },
 
   // ── Nova York (Marvel) ──────────────────────────────────────────────────────
-  { id:'stage_marvel',  label:'Complete todas as fases de Nova York',       type:'stat_threshold', stat:'fases_marvel_completas', target:6, reward:{ tickets:5 } },
+  { id:'stage_marvel',  label:'Complete todas as fases de Nova York',       type:'stat_threshold', stat:'fases_marvel_completas', target:6,  reward:{ tickets:5 } },
 
-  // ── Conquistador de Mundos (todos os 4 mundos) ──────────────────────────────
-  { id:'stage_all_worlds', label:'Complete todos os mundos (24 fases)',     type:'stat_threshold', stat:'fases_completas',        target:24, reward:{ tickets:10 } },
+  // ── Metrópolis (DC) ─────────────────────────────────────────────────────────
+  { id:'stage_dc',      label:'Complete todas as fases de Metrópolis',      type:'stat_threshold', stat:'fases_dc_completas',     target:6,  reward:{ tickets:5 } },
+
+  // ── Conquistador de Mundos (todos os 5 mundos) ──────────────────────────────
+  { id:'stage_all_worlds', label:'Complete todos os mundos (30 fases)',     type:'stat_threshold', stat:'fases_completas',        target:30, reward:{ tickets:10 } },
 
   // ── Modo Infinito ───────────────────────────────────────────────────────────
   { id:'inf_wave5',    label:'Alcance a onda 5 no Modo Infinito',   type:'stat_threshold', stat:'melhor_onda_infinita',   target:5,   reward:{ gems:40  } },
@@ -159,6 +162,8 @@ const DAILY_MISSIONS_POOL = [
   { id:'d_stage_bleach_3', label:'Complete 3 fases na Soul Society',  type:'stat_delta', stat:'fases_bleach_jogadas', target:3, reward:{ gems:120 } },
   { id:'d_stage_marvel_1', label:'Complete 1 fase em Nova York',      type:'stat_delta', stat:'fases_marvel_jogadas', target:1, reward:{ gems:50  } },
   { id:'d_stage_marvel_3', label:'Complete 3 fases em Nova York',     type:'stat_delta', stat:'fases_marvel_jogadas', target:3, reward:{ gems:120 } },
+  { id:'d_stage_dc_1',     label:'Complete 1 fase em Metrópolis',     type:'stat_delta', stat:'fases_dc_jogadas',     target:1, reward:{ gems:50  } },
+  { id:'d_stage_dc_3',     label:'Complete 3 fases em Metrópolis',    type:'stat_delta', stat:'fases_dc_jogadas',     target:3, reward:{ gems:120 } },
   // ── Gacha ──────────────────────────────────────────────────────────────────
   { id:'d_pull_1',     label:'Role o banner 1 vez',           type:'stat_delta', stat:'pulls_realizados',       target:1,       reward:{ tickets:3 } },
   { id:'d_pull_3',     label:'Role o banner 3 vezes',         type:'stat_delta', stat:'pulls_realizados',       target:3,       reward:{ tickets:5 } },
