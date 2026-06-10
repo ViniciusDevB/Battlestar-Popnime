@@ -1300,21 +1300,16 @@ const Game = (() => {
     // o estado local com os valores autoritativos (gemas e drops reais do servidor)
     if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
       const duration_s = Math.max(0, Math.round((performance.now() - _gameStartTime) / 1000));
-      console.log('[Game] completeStage chamado:', { stageId, difficulty, duration_s });
       Online.completeStage(stageId, difficulty, duration_s, sessionBossKilled).then(result => {
-        console.log('[Game] completeStage resultado:', result);
         if (result?.ok && result.save) {
           Save._setData(result.save);
           if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
         } else {
-          console.warn('[Game] completeStage falhou, usando syncSave como fallback:', result?.error);
           Online.syncSave().then(r => {
-            console.log('[Game] syncSave fallback resultado:', r);
             if (r?.ok && typeof UI !== 'undefined') UI.updateCurrencyDisplay();
-          }).catch(e => console.error('[Game] syncSave fallback erro:', e));
+          }).catch(() => {});
         }
-      }).catch(e => {
-        console.error('[Game] completeStage exceção:', e);
+      }).catch(() => {
         Online.syncSave().catch(() => {});
       });
     }

@@ -272,12 +272,13 @@ const Inventory = (() => {
     Save.spendMaterial(matId, cost);
     Save.addMaterial(char.upgrades_to, 1);
     Missions.check();
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
 
     const nextChar = getCharById(char.upgrades_to);
     UI.toast(`✅ ${nextChar.name} ${I18N.t('msg_obtained')}!`);
     UI.openEvolution();
     renderGrid();
-    openMaterialDetail(matId); // atualiza painel com novas qtds
+    openMaterialDetail(matId);
   }
 
   function combineMaxMaterial(matId) {
@@ -291,12 +292,13 @@ const Inventory = (() => {
     Save.spendMaterial(matId, canMake * cost);
     Save.addMaterial(char.upgrades_to, canMake);
     Missions.check();
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
 
     const nextChar = getCharById(char.upgrades_to);
     UI.toast(`✅ ${canMake}x ${nextChar.name} ${I18N.t('msg_obtained')}!`);
     UI.openEvolution();
     renderGrid();
-    openMaterialDetail(matId); // atualiza painel com novas qtds
+    openMaterialDetail(matId);
   }
 
   function renderEvolutionTab() {
@@ -468,6 +470,7 @@ const Inventory = (() => {
     const currentPrestige = u.prestige || 0;
     if (!confirm(I18N.t('msg_confirm_prestige', { name: char?.name, lvl: currentPrestige+1 }))) return;
     Save.doPrestige(uid);
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
     UI.toast(`✦ ${char?.name} ${I18N.t('msg_transmuted')}! ${I18N.t('ui_prestige')} ${currentPrestige+1} ${I18N.t('msg_active')}.`, 3500);
     renderGrid();
     openDetail(uid);
@@ -552,6 +555,7 @@ const Inventory = (() => {
     Save.incStat('evolucoes_realizadas');
     if (char.rarity >= 5) Save.incStat('unidades_5estrelas_obtidas');
     Missions.check();
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
     closeEvolution();
 
     const d = Save.get();
@@ -737,6 +741,7 @@ const Inventory = (() => {
     Save.save();
     Save.incStat('feeds_realizados');
     Missions.check();
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
 
     const leveled = targetUnitData.nivel > prevLevel;
     const targetUid = feedTarget;

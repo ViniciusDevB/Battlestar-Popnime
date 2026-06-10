@@ -226,10 +226,7 @@ const OnlineUI = (() => {
         </div>
 
         <div class="prof-footer">
-          <div class="prof-sync-row">
-            <span class="prof-sync-ts">☁️ Sync: ${syncedAt}</span>
-            <button class="online-btn-secondary" id="online-sync-btn" onclick="OnlineUI.handleSync()">${I18N.t('online_sync_btn')}</button>
-          </div>
+          <span class="prof-sync-ts">☁️ Sync: ${syncedAt}</span>
           <button class="online-btn-danger" onclick="OnlineUI.handleLogout()">${I18N.t('online_logout_btn')}</button>
         </div>
 
@@ -400,7 +397,7 @@ const OnlineUI = (() => {
 
   // ── Public API ────────────────────────────────────────────────────────────
 
-  return { show, close, setTab, handleLogin, handleRegister, handleSync, handleLogout };
+  return { show, close, setTab, handleLogin, handleRegister, handleLogout };
 })();
 
 // ══════════════════════════════════════════════════════════════════════════════

@@ -83,14 +83,14 @@ const Online = (() => {
         }
       }
     });
-    // Sync periódico a cada 60s via fn_sync_progress (RPC server-authoritative).
-    // Usar syncSave() em vez de _pushSave() direto evita que dados econômicos
-    // manipulados no cliente (gems, inventário) sejam gravados no servidor.
+    // Sync periódico a cada 20s — apenas progresso (stats, fases, missões).
+    // Inventário é sincronizado imediatamente via updateInventory() após cada
+    // operação que o modifica (feed, prestígio, combinação, evolução).
     setInterval(() => {
       if (_ready && _session && _profile) {
         syncSave();
       }
-    }, 60_000);
+    }, 20_000);
 
     _ready = true;
     return true;
@@ -558,6 +558,23 @@ const Online = (() => {
       .subscribe();
   }
 
+  // ── Inventory Sync ───────────────────────────────────────────────────────
+  // Salva o inventário atual no servidor sem tocar em gemas/tickets.
+  // Chamado após feed, prestígio, combinação e evolução.
+  async function updateInventory() {
+    if (!_ready || !_session || !_profile) return { ok: false };
+    try {
+      const { data, error } = await _client.rpc('fn_update_inventory', {
+        p_inventory: Save.get().inventario,
+      });
+      if (error) { console.warn('[Online] updateInventory:', error.message); return { ok: false }; }
+      return data?.error ? { ok: false } : { ok: true };
+    } catch (e) {
+      console.warn('[Online] updateInventory error:', e);
+      return { ok: false };
+    }
+  }
+
   // ── Stage / Mission RPCs ──────────────────────────────────────────────────
 
   // Notifica o servidor que uma fase foi concluída. O servidor valida o tempo,
@@ -740,7 +757,7 @@ const Online = (() => {
     init, isReady, isLoggedIn, getProfile, getSession, onReady,
     waitForProfile, refreshProfile,
     register, login, logout, resetAccount,
-    syncSave, pushSave, pushSaveBeacon, gachaPull, completeStage, claimReward,
+    syncSave, updateInventory, pushSave, pushSaveBeacon, gachaPull, completeStage, claimReward,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,
     fetchActiveMission, fetchUpcomingMissions, getActiveMission, contributeToMission,
