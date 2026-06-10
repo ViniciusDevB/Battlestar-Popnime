@@ -112,12 +112,11 @@
       <span class="hab-label" data-i18n="hub_rank">RANKING</span>
       <span class="hab-sub" data-i18n="hub_rank_sub">Leaderboard Global</span>
     </button>
-    <!-- TROCAS: feature incompleta — reativar quando fn_accept_trade transferir inventário -->
-    <!-- <button class="hab hab--trades" onclick="TradesUI.show()">
+    <button class="hab hab--trades" onclick="TradesUI.show()">
       <span class="hab-icon">🔄</span>
       <span class="hab-label">TROCAS</span>
       <span class="hab-sub">Trocar Personagens</span>
-    </button> -->
+    </button>
   </div>
 
 </div>
@@ -198,6 +197,17 @@
       <div class="hud-wave-wrap">
         <span class="hud-wave-label"><span data-i18n="hud_wave_label">Onda</span> <b id="hud-wave">0</b> / <span id="hud-total-waves">10</span></span>
         <div class="hud-wave-bar"><div class="hud-wave-fill" id="hud-wave-fill"></div></div>
+      </div>
+      <div class="hud-chips">
+        <div class="hud-chip hud-chip-enemies" id="hud-chip-enemies" style="display:none">
+          <span class="chip-icon">👾</span><span class="chip-val" id="hud-enemies-count">0</span>
+        </div>
+        <div class="hud-chip hud-chip-skip" id="hud-chip-skip">
+          <span class="chip-icon">⏭</span><span class="chip-val" id="hud-skip-gold-val">100💰</span>
+        </div>
+        <div class="hud-chip hud-chip-next" id="hud-chip-next" style="display:none">
+          <span class="chip-val" id="hud-next-wave-info"></span>
+        </div>
       </div>
     </div>
     <div class="hud-controls">

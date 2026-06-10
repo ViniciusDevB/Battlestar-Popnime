@@ -180,6 +180,22 @@ function renderWavePreview() {
   el.style.display = betweenWaves ? 'flex' : 'none';
 }
 
+function updateHUDChips() {
+  const aliveCount = (_hudCtx._aliveEnemies || []).length;
+  const queueCount = (_hudCtx.spawnQueue || []).length;
+  const waveActive = _hudCtx.waveActive;
+  const total = aliveCount + queueCount;
+  const chip = document.getElementById('hud-chip-enemies');
+  const val  = document.getElementById('hud-enemies-count');
+  if (!chip) return;
+  if (waveActive && total > 0) {
+    if (chip.style.display !== 'flex') chip.style.display = 'flex';
+    if (val && val.textContent !== String(total)) val.textContent = total;
+  } else {
+    if (chip.style.display !== 'none') chip.style.display = 'none';
+  }
+}
+
 function updateHUD() {
   const el = id => document.getElementById(id);
   const lives = _hudCtx.lives;
@@ -216,6 +232,50 @@ function updateHUD() {
     } else {
       skipBtn.title = I18N.t('hud_tt_skip');
     }
+  }
+
+  // Enemies alive + queued chip
+  const aliveCount = (_hudCtx._aliveEnemies || []).length;
+  const queueCount = (_hudCtx.spawnQueue || []).length;
+  const enemiesChip = el('hud-chip-enemies');
+  const enemiesCountEl = el('hud-enemies-count');
+  if (enemiesChip) {
+    if (waveActive && (aliveCount + queueCount) > 0) {
+      enemiesChip.style.display = 'flex';
+      if (enemiesCountEl) enemiesCountEl.textContent = aliveCount + queueCount;
+    } else {
+      enemiesChip.style.display = 'none';
+    }
+  }
+
+  // Skip gold chip
+  const skipGoldEl = el('hud-skip-gold-val');
+  if (skipGoldEl) skipGoldEl.textContent = Math.round(_hudCtx.skipGold || 100) + '💰';
+
+  // Next wave chip
+  const nextChip = el('hud-chip-next');
+  const nextInfoEl = el('hud-next-wave-info');
+  if (nextChip && nextInfoEl && !isInfiniteMode && stage?.waves && waveActive) {
+    const nextWaveData = stage.waves[wave]; // wave is current (1-indexed), so waves[wave] is the next
+    if (nextWaveData && nextWaveData.length > 0) {
+      const hasBoss     = nextWaveData.some(e => ENEMY_DEFS[e.type]?.is_boss);
+      const hasMiniboss = nextWaveData.some(e => ENEMY_DEFS[e.type]?.is_miniboss);
+      if (hasBoss) {
+        nextInfoEl.textContent = '⚠️ PRÓXIMO: BOSS';
+        nextChip.className = 'hud-chip hud-chip-next hud-chip-danger';
+      } else if (hasMiniboss) {
+        nextInfoEl.textContent = '★ PRÓXIMO: MINI-BOSS';
+        nextChip.className = 'hud-chip hud-chip-next hud-chip-warning';
+      } else {
+        nextInfoEl.textContent = `→ Onda ${wave + 1}: ${nextWaveData.length} inimigos`;
+        nextChip.className = 'hud-chip hud-chip-next hud-chip-ok';
+      }
+      nextChip.style.display = 'flex';
+    } else {
+      nextChip.style.display = 'none';
+    }
+  } else if (nextChip) {
+    nextChip.style.display = 'none';
   }
 
   const panel = el('team-panel');

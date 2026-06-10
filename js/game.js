@@ -36,6 +36,7 @@ const Game = (() => {
 
   let screenShakeAmount = 0;
   let vizardOverlayAlpha = 0;
+  let _hudChipFrame = 0;
 
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // PASSIVE_SYSTEM â€” tabela central de todas as passivas de personagens.
@@ -218,6 +219,8 @@ const Game = (() => {
     deployingCharId:  { get: () => deployingCharId,  set: v => { deployingCharId = v; },  configurable: true },
     skipMultiplier:   { get: () => skipMultiplier,   configurable: true },
     skipGold:         { get: () => skipGold,         configurable: true },
+    _aliveEnemies:    { get: () => _aliveEnemies,    configurable: true },
+    spawnQueue:       { get: () => spawnQueue,       configurable: true },
   });
   _hudCtx.getTowerStats = getTowerStats;
   _hudCtx.buyUpgrade    = buyUpgrade;
@@ -472,6 +475,7 @@ const Game = (() => {
     gold = 300;
     skipMultiplier = 0;
     skipGold = 100;
+    _hudChipFrame = 0;
     wave = 0;
     totalWaves = isInfiniteMode ? Infinity : stage.waves.length;
     activeWavesCount = 1;
@@ -565,6 +569,8 @@ const Game = (() => {
       const e = enemies[i];
       if (!e.dead && !e.reached_end) _aliveEnemies.push(e);
     }
+
+    if (++_hudChipFrame >= 6) { _hudChipFrame = 0; if (typeof updateHUDChips === 'function') updateHUDChips(); }
 
     updateTowersLoop(dt);
     updateProjectiles(dt);

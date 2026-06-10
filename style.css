@@ -547,7 +547,7 @@ html,body{
 ══════════════════════════════ */
 .game-hud{
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 16px;height:54px;
+  padding:0 16px;height:72px;
   background:linear-gradient(180deg,rgba(2,6,3,0.98) 0%,rgba(3,8,4,0.92) 100%);
   border-bottom:1px solid rgba(57,255,20,0.15);
   box-shadow:0 2px 16px rgba(0,0,0,0.9);
@@ -575,13 +575,13 @@ html,body{
 
 /* Wave center section */
 .hud-center{
-  display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;
+  display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;
 }
 .hud-phase-name{
   font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.04em;
   text-transform:uppercase;line-height:1;
 }
-.hud-wave-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;max-width:180px;}
+.hud-wave-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;max-width:200px;}
 .hud-wave-label{font-size:10px;color:var(--t3);font-weight:500;}
 .hud-wave-bar{
   width:100%;height:5px;
@@ -594,6 +594,23 @@ html,body{
   transition:width 600ms var(--ease);
   box-shadow:0 0 8px rgba(57,255,20,0.5);
 }
+/* HUD info chips */
+.hud-chips{display:flex;align-items:center;gap:5px;flex-wrap:nowrap;}
+.hud-chip{
+  display:flex;align-items:center;gap:3px;
+  padding:2px 7px;border-radius:99px;
+  font-size:9px;font-weight:700;line-height:1;white-space:nowrap;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  color:var(--t2);
+}
+.chip-icon{font-size:10px;line-height:1;}
+.chip-val{font-size:9px;font-weight:800;}
+.hud-chip-enemies{background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.22);color:#fca5a5;}
+.hud-chip-skip{background:rgba(255,200,70,0.07);border-color:rgba(255,200,70,0.22);color:var(--gold);}
+.hud-chip-next{border-color:rgba(148,163,184,0.2);color:var(--t3);}
+.hud-chip-next.hud-chip-danger{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.4);color:#f87171;font-weight:800;}
+.hud-chip-next.hud-chip-warning{background:rgba(168,85,247,0.08);border-color:rgba(168,85,247,0.3);color:var(--purple);}
+.hud-chip-next.hud-chip-ok{border-color:rgba(57,255,20,0.18);color:var(--t3);}
 
 /* Controls */
 .hud-controls{display:flex;gap:6px;align-items:center;}
