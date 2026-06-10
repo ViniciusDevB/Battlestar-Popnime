@@ -1404,7 +1404,7 @@ const CHARACTERS = {
     deploy_cost: 4500,
     base_stats: { damage: 350, range: 195, attack_speed: 2.0, type: 'omega' },
     max_level: 50,
-    passive: { type: 'omega_chain_ray', triggerEveryNAttacks: 4, branches: 3, branchDamageRatio: 0.70, doubleHitDamageRatio: 2.50 },
+    passive: { type: 'omega_chain_ray', triggerEveryNAttacks: 4, branches: 3, branchDamageRatio: 0.70, doubleHitDamageRatio: 2.50, label: 'Raios Omega: a cada 4 ataques, dispara raios encadeados nos 3 inimigos com maior HP (70% dano cada). Acertos duplos causam 2.5× dano.' },
     prestige_passives: {
       1: { type: 'omega_decree', cooldown: 90, label: 'Decreto Omega: uma vez por wave, reduz o inimigo com maior HP a 1 HP (CD: 90s).' },
       5: { type: 'anti_life_spread', freeStacksGranted: 2, label: 'Propagação Anti-Vida: ao quebrar a vontade de um inimigo, todos os outros recebem 2 cargas de Corrupção.' },

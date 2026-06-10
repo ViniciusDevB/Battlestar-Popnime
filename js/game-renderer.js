@@ -576,8 +576,8 @@ function drawTowers() {
       ctx.restore();
     }
 
-    // ═══ 6★ Aura Visual ═══
-    if (!disabled && t.rarity >= 6) {
+    // ═══ 6★ Aura Visual (apenas rarity exatamente 6) ═══
+    if (!disabled && t.rarity === 6) {
       const n6 = Date.now();
       const p6a = (Math.sin(n6 / 800) + 1) / 2;
       const p6b = (Math.sin(n6 / 500 + Math.PI) + 1) / 2;

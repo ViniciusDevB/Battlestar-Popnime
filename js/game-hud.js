@@ -253,11 +253,12 @@ function renderTeamPanel() {
     if (!char) return;
     const cost = char.deploy_cost;
     const copies = towers.filter(t => t.charId === charId && !t.isClone).length;
-    const atLimit = copies >= 3;
+    const maxCopies = char.max_in_field || (char.rarity >= 6 ? 1 : 3);
+    const atLimit = copies >= maxCopies;
     const div = document.createElement('div');
     div.className = `tp-unit${deployingCharId === charId ? ' deploying' : ''}${(gold < cost || atLimit) ? ' cant-afford' : ''}`;
     div.dataset.charId = charId;
-    const copyLabel = copies > 0 ? ` <span style="color:${atLimit?'#f87171':'#fbbf24'};font-size:9px">${copies}/3</span>` : '';
+    const copyLabel = copies > 0 ? ` <span style="color:${atLimit?'#f87171':'#fbbf24'};font-size:9px">${copies}/${maxCopies}</span>` : '';
     div.innerHTML = `
       <div class="tp-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
       <div class="tp-name">${char.name}${copyLabel}</div>
