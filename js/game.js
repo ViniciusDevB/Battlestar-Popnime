@@ -614,7 +614,7 @@ const Game = (() => {
         _dcBlackoutTimer -= dt;
         if (_dcBlackoutTimer <= 0) {
           _dcBlackoutActive = false;
-          UI.toast('💡 Energia restaurada.', 1500);
+          UI.toast(I18N.t('evt_dc_power_restored'), 1500);
         }
       }
 

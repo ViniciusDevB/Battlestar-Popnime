@@ -418,7 +418,10 @@ const PASSIVE_ENTRIES = {
   // Chad — dano multiplicado contra bosses e minibosses
   boss_slayer: {
     onHit(tower, p, enemy, dmg) {
-      if (enemy.is_boss || enemy.is_miniboss) return dmg * (p.mult || 2.2);
+      if (enemy.is_boss || enemy.is_miniboss) {
+        if (p.bonus !== undefined) return dmg * (1 + p.bonus);
+        return dmg * (p.mult || 2.2);
+      }
       return dmg;
     }
   },

@@ -18,9 +18,9 @@ const CHARACTERS = {
   avenger_material_3: { id: 'avenger_material_3', name: 'Material Vingador III', rarity: 2, series: 'marvel', playable: false, xp_value: 400, initials: 'AM3', image: 'assets/ingredients/world4/Avenger 3.png' },
 
   // ── Materials DC ──
-  dc_material_1: { id: 'dc_material_1', name: 'Material Cósmico I', rarity: 0, series: 'dc', playable: false, xp_value: 50, initials: 'DC1', image: 'assets/ingredients/world5/DC 1.png', upgrades_to: 'dc_material_2', upgrade_cost: 3 },
-  dc_material_2: { id: 'dc_material_2', name: 'Material Cósmico II', rarity: 1, series: 'dc', playable: false, xp_value: 150, initials: 'DC2', image: 'assets/ingredients/world5/DC 2.png', upgrades_to: 'dc_material_3', upgrade_cost: 3 },
-  dc_material_3: { id: 'dc_material_3', name: 'Material Cósmico III', rarity: 2, series: 'dc', playable: false, xp_value: 400, initials: 'DC3', image: 'assets/ingredients/world5/DC 3.png' },
+  dc_material_1: { id: 'dc_material_1', name: 'Material Cósmico I', rarity: 0, series: 'dc', playable: false, xp_value: 50, initials: 'DC1', image: 'assets/ingredients/world5/DC1.png', upgrades_to: 'dc_material_2', upgrade_cost: 3 },
+  dc_material_2: { id: 'dc_material_2', name: 'Material Cósmico II', rarity: 1, series: 'dc', playable: false, xp_value: 150, initials: 'DC2', image: 'assets/ingredients/world5/DC2.png', upgrades_to: 'dc_material_3', upgrade_cost: 3 },
+  dc_material_3: { id: 'dc_material_3', name: 'Material Cósmico III', rarity: 2, series: 'dc', playable: false, xp_value: 400, initials: 'DC3', image: 'assets/ingredients/world5/DC3.png' },
 
   // ══════════════════════════════════════════════════════════════════════════
   //  3⭐  —  Sem AOE. Poder vem de passivas, status effects e multiplicadores.

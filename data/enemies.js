@@ -769,7 +769,7 @@ const ENEMY_SPECIAL_HANDLERS = {
         enemy.furiesTimer = 15;
         for (let i = 0; i < 2; i++)
           ctx.spawnEnemy('soldado_apokolips', enemy, { dist: Math.max(0, enemy.dist - i * 30) });
-        ctx.toast('🔥 Female Furies invocadas!', 2500);
+        ctx.toast(I18N.t('evt_dc_furies'), 2500);
       }
     }
   },
@@ -782,7 +782,7 @@ const ENEMY_SPECIAL_HANDLERS = {
         enemy.berserk = true;
         enemy.speed *= 1.8;
         ctx.addEffect({ type:'shockwave', x:enemy.x, y:enemy.y, maxR:60, color:'#b91c1c', timer:0.5, maxTimer:0.5 });
-        ctx.toast('💢 Kalibak entrou em Berserk!', 3000);
+        ctx.toast(I18N.t('evt_dc_kalibak_berserk'), 3000);
       }
     }
   },
@@ -797,7 +797,7 @@ const ENEMY_SPECIAL_HANDLERS = {
         const t = ctx.getNearestTower(enemy.x, enemy.y);
         if (t) { t.miniStunTimer = Math.max(t.miniStunTimer || 0, 4); t.disabled = true; }
         ctx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:80, color:'#a855f7', timer:0.6, maxTimer:0.6, r:0 });
-        ctx.toast('🧠 Controle Mental de Mantis! Torre paralisada por 4s!', 3000);
+        ctx.toast(I18N.t('evt_dc_mantis_control', { s: 4 }), 3000);
       }
     }
   },
@@ -813,7 +813,7 @@ const ENEMY_SPECIAL_HANDLERS = {
         affected.forEach(t => { t._tortureDmgMult = 0.65; t._tortureTimer = 5.0; });
         if (affected.length > 0) {
           ctx.addEffect({ type:'shockwave', x:enemy.x, y:enemy.y, maxR:120, color:'#7c3aed', timer:0.6, maxTimer:0.6, r:0 });
-          ctx.toast(`⚡ Tortura de DeSaad! ${affected.length} torre(s) −35% dano por 5s!`, 3500);
+          ctx.toast(I18N.t('evt_dc_desaad_torture', { count: affected.length, s: 5 }), 3500);
         }
       }
     }
@@ -854,18 +854,18 @@ const ENEMY_SPECIAL_HANDLERS = {
       if (enemy.gravTimer <= 0) {
         enemy.gravTimer = 20;
         ctx.createGravityZone(enemy.x, enemy.y, 100, 4.0);
-        ctx.toast('🌀 Gravidade Omega! Inimigos acelerados, torres com alcance reduzido!', 3500);
+        ctx.toast(I18N.t('evt_dc_gravity_zone'), 3500);
       }
       if (!enemy.finalWaveSpawned && enemy.hp / enemy.maxHp <= 0.20) {
         enemy.finalWaveSpawned = true;
         for (let i = 0; i < 3; i++)
           ctx.spawnEnemy('unidade_omega', enemy, { dist: Math.max(0, enemy.dist - i * 40) });
-        ctx.toast('⚠️ Darkseid invoca reforços finais!', 3000);
+        ctx.toast(I18N.t('evt_dc_darkseid_reinforce'), 3000);
       }
     },
     onDeath(enemy, ctx) {
       ctx.getAllTowers().forEach(t => { t._equacaoDebuff = 0; });
-      ctx.toast('✨ Equação Anti-Vida quebrada! Torres restauradas!', 3500);
+      ctx.toast(I18N.t('evt_dc_equacao_broken'), 3500);
     }
   },
 
