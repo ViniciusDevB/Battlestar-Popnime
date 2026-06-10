@@ -185,6 +185,7 @@ const Online = (() => {
     await _client.auth.signOut();
     _session = null;
     _profile = null;
+    Save.reset(); // limpa memória para não contaminar próxima conta
     _showOnlineStatus(false);
   }
 
