@@ -677,12 +677,14 @@ function drawTowers() {
       ctx.fillText(t.initials, t.x, t.y);
     }
     if (t.rarity >= 6) {
+      const is7 = t.rarity === 7;
       ctx.save();
-      ctx.shadowBlur = 8; ctx.shadowColor = '#dc2626';
-      ctx.fillStyle = '#e63939';
+      ctx.shadowBlur = is7 ? 10 : 8; 
+      ctx.shadowColor = is7 ? '#39FF14' : '#dc2626';
+      ctx.fillStyle = is7 ? '#39FF14' : '#e63939';
       ctx.font = 'bold 8px Inter,sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('6★', t.x + 16, t.y - 19);
+      ctx.fillText(is7 ? '7★' : '6★', t.x + 16, t.y - 19);
       ctx.restore();
     }
     if (t.upgradeLevel > 0) {

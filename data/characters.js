@@ -1462,7 +1462,7 @@ const ALL_CHARACTERS_POOL = {
 const GACHA_POOL = { star3: [], star4: [], star5: [] };
 
 const RARITY_COLORS = { 0: '#666', 1: '#27ae60', 2: '#2980b9', 3: '#9b59b6', 4: '#e67e22', 5: '#f1c40f', 6: '#e63939', 7: '#1a0a0a' };
-const RARITY_LABELS = { 0: '0⭐', 1: '1⭐', 2: '2⭐', 3: '3⭐', 4: '4⭐', 5: '5⭐', 6: '6⭐', 7: '★★★★★★★' };
+const RARITY_LABELS = { 0: '0⭐', 1: '1⭐', 2: '2⭐', 3: '3⭐', 4: '4⭐', 5: '5⭐', 6: '6⭐', 7: '7 <span style="color:#39FF14">⭐</span>' };
 const SERIES_LABELS = {
   naruto: 'Naruto', bleach: 'Bleach', dragonball: 'Dragon Ball',
   deathnote: 'Death Note', marvel: 'Marvel', onepiece: 'One Piece',
