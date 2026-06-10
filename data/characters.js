@@ -1510,7 +1510,7 @@ const CHARACTERS = {
 const ALL_CHARACTERS_POOL = {
   star3: ['ichigo_base', 'goku_base', 'l_deathnote', 'demolidor', 'sasuke_uchiha', 'killua_zoldyck', 'tanjiro_kamado', 'zoro_3', 'luffy_3', 'nami_3', 'usopp_3', 'brook_3', 'rukia_kuchiki', 'renji_abarai', 'uryu_ishida', 'orihime_inoue', 'chad_yasutora', 'spider_man', 'black_widow', 'hawkeye', 'flash_barry', 'batgirl', 'aquaman'],
   star4: ['naruto_shippuden', 'levi_ackerman', 'meliodas_base', 'sanji_4', 'robin_4', 'ace_4', 'byakuya_kuchiki', 'toshiro_hitsugaya', 'kenpachi_zaraki', 'black_panther', 'thor', 'hulk_base', 'batman_bruce', 'lois_lane', 'lanterna_verde'],
-  star5: ['gojo_satoru', 'luffy_5', 'ichigo_bankai', 'superman_clark', 'shazam_billy']
+  star5: ['gojo_satoru', 'luffy_5', 'ichigo_bankai', 'iron_man_mark50', 'superman_clark', 'shazam_billy']
 };
 
 // Populado em runtime por BannerSystem.init()

@@ -1,20 +1,20 @@
 -- =============================================================================
--- Update 3 — DC Sync (baseado no estado real do banco em 10/06/2026)
+-- Update 3 — DC Sync + Fix Iron Man (baseado no estado real do banco em 10/06/2026)
 -- Execute no SQL Editor do Supabase (mlywqfwrhbuwpxbzpsoq)
 -- =============================================================================
 
--- ── 1. gacha_config: adiciona personagens DC ─────────────────────────────────
--- Estado atual: star3 tem 20 chars, star4 tem 12, star5 tem 3
--- Adicionando: 3 chars 3★ DC, 3 chars 4★ DC, 2 chars 5★ DC
+-- ── 1. gacha_config: adiciona personagens DC + corrige iron_man_mark50 esquecido
+-- Estado atual: star3 tem 20, star4 tem 12, star5 tem 3 (iron_man_mark50 faltava)
+-- Adicionando: iron_man_mark50 (5★ Marvel), 3 chars 3★ DC, 3 chars 4★ DC, 2 chars 5★ DC
 
 UPDATE public.gacha_config
 SET
   pool_star3   = pool_star3   || ARRAY['flash_barry','batgirl','aquaman'],
   pool_star4   = pool_star4   || ARRAY['batman_bruce','lois_lane','lanterna_verde'],
-  pool_star5   = pool_star5   || ARRAY['superman_clark','shazam_billy'],
+  pool_star5   = pool_star5   || ARRAY['iron_man_mark50','superman_clark','shazam_billy'],
   playable_ids = playable_ids || ARRAY['flash_barry','batgirl','aquaman',
                                        'batman_bruce','lois_lane','lanterna_verde',
-                                       'superman_clark','shazam_billy'],
+                                       'iron_man_mark50','superman_clark','shazam_billy'],
   updated_at   = now()
 WHERE id = 1;
 
