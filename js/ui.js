@@ -152,11 +152,11 @@ const UI = (() => {
   }
 
   function showStageSelect(worldId) {
-    selectedWorld = worldId;
+    if (worldId !== undefined) selectedWorld = worldId;
     showScreen('stage-select');
-    const world = WORLDS.find(w => w.id === worldId);
-    document.getElementById('stage-select-world-name').textContent = world?.name || worldId;
-    renderStageGrid(worldId);
+    const world = WORLDS.find(w => w.id === selectedWorld);
+    document.getElementById('stage-select-world-name').textContent = world?.name || selectedWorld;
+    renderStageGrid(selectedWorld);
   }
 
   function renderStageGrid(worldId) {

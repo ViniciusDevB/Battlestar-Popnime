@@ -86,6 +86,13 @@ const Save = (() => {
     if (!_data.inventario.materiais) _data.inventario.materiais = [];
     if (!_data.stats)              _data.stats = defaultSave().stats;
     else _data.stats = Object.assign(defaultSave().stats, _data.stats);
+    // Remove das pendentes qualquer missão que o servidor já marcou como completa.
+    // fn_claim_reward/fn_sync_progress pode retornar save com missoes_conquistas_pendentes
+    // desatualizada; isso evita que missões já resgatadas apareçam como claimáveis novamente.
+    if (_data.missoes_conquistas_pendentes?.length && _data.missoes_completas?.length) {
+      const done = new Set(_data.missoes_completas);
+      _data.missoes_conquistas_pendentes = _data.missoes_conquistas_pendentes.filter(id => !done.has(id));
+    }
   }
 
 
