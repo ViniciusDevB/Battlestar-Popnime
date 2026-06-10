@@ -164,11 +164,14 @@ const Online = (() => {
       _session = null; _profile = null;
       return { error: I18N.t('online_suspended') };
     }
-    // Admin: desativa envio de violações ao servidor
-    if (_profile?.is_admin && typeof Integrity !== 'undefined') {
-      Integrity.setServerViolationCallback(null);
+    // Admin: desativa envio de violações ao servidor + concede inventário completo
+    if (_profile?.is_admin) {
+      if (typeof Integrity !== 'undefined') Integrity.setServerViolationCallback(null);
+      await syncSave();
+      _grantAdminInventory();
+    } else {
+      await syncSave();
     }
-    await syncSave();
     return { ok: true };
   }
 
@@ -251,6 +254,7 @@ const Online = (() => {
 
   async function postScore(scoreData) {
     if (!_ready || !_session || !_profile) return { ok: false, reason: 'not_logged_in' };
+    if (_profile.is_admin) return { ok: false, reason: 'admin_excluded' };
     try {
       Integrity.assertCleanOrThrow();
     } catch {
@@ -301,11 +305,12 @@ const Online = (() => {
 
     const { data, error } = await q;
     if (error) { console.warn('[Online] fetchLeaderboard:', error.message); return []; }
-    return data || [];
+    return (data || []).filter(e => !e.players?.is_admin);
   }
 
   async function fetchMyRank(mode) {
     if (!_ready || !_profile) return null;
+    if (_profile.is_admin) return null;
     const dbMode = (mode === 'infinite_dmg') ? 'infinite' : mode;
     const { data, error } = await _client.rpc('get_player_rank', {
       p_player_id: _profile.id,
@@ -598,6 +603,39 @@ const Online = (() => {
     } catch (e) {
       return { error: e.message };
     }
+  }
+
+  // ── Admin helpers ──────────────────────────────────────────────────────────
+
+  function _grantAdminInventory() {
+    if (typeof CHARACTERS === 'undefined' || typeof Save === 'undefined') return;
+
+    const allChars = Object.values(CHARACTERS).filter(c => c.playable);
+    const allMats  = Object.values(CHARACTERS).filter(c => !c.playable && c.id);
+
+    allChars.forEach(c => {
+      // Garante pelo menos 1 cópia de cada personagem jogável no nível máximo
+      if (!Save.getUnit(c.id)) {
+        Save.addUnit(c.id, c.max_level || 50, 0);
+      } else {
+        // Se já existe, eleva ao nível máximo
+        const d = Save.get();
+        const u = d.inventario.unidades.find(x => x.id === c.id);
+        if (u) { u.nivel = c.max_level || 50; Save.save(); }
+      }
+    });
+
+    allMats.forEach(m => {
+      // Garante 999 de cada material
+      const cur = Save.getMaterialQty(m.id);
+      if (cur < 999) Save.addMaterial(m.id, 999 - cur);
+    });
+
+    // Recursos ilimitados (visual; o servidor é autoritativo em contas normais)
+    const d = Save.get();
+    if (d.gemas < 999999) { d.gemas = 999999; Save.save(); }
+    if (d.tickets < 9999) { d.tickets = 9999; Save.save(); }
+    if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
   }
 
   // ── Public API ─────────────────────────────────────────────────────────────
