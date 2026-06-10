@@ -335,11 +335,7 @@ const Online = (() => {
     return data?.[0] || null;
   }
 
-  // ── Trades (Phase 4 — INCOMPLETO) ────────────────────────────────────────
-  // ATENÇÃO: accept_trade altera apenas o status no banco.
-  // A transferência real das unidades entre saves NÃO está implementada.
-  // Implementar na Fase 4: após aceite confirmado, remover offered_unit_uid
-  // do save do ofertante e inserir no save do aceitante via syncSave forçado.
+  // ── Trades ────────────────────────────────────────────────────────────────
 
   async function fetchOpenTrades(filters = {}) {
     if (!_ready) return [];
