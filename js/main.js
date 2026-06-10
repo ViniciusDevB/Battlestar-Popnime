@@ -1,3 +1,25 @@
+// ── Global UI sounds (hover + click on interactive elements) ─────────────
+(function () {
+  const INTERACTIVE = 'button, .btn, .avail-unit, .world-card, .stage-card, .gacha-card, select, [role="button"]';
+  let _lastHover = null;
+
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest(INTERACTIVE);
+    if (!el || el === _lastHover) return;
+    _lastHover = el;
+    if (typeof AudioManager !== 'undefined') AudioManager.playHover();
+  }, { passive: true });
+
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest(INTERACTIVE)) _lastHover = null;
+  }, { passive: true });
+
+  document.addEventListener('click', e => {
+    if (e.target.closest(INTERACTIVE))
+      if (typeof AudioManager !== 'undefined') AudioManager.playClick();
+  }, { passive: true });
+})();
+
 // Polyfill roundRect for older browsers
 if (!CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
@@ -146,6 +168,18 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+
+  // Sync volume panel labels/sliders to saved values
+  if (typeof AudioManager !== 'undefined') {
+    const bgmSlider = document.getElementById('vol-bgm');
+    const sfxSlider = document.getElementById('vol-sfx');
+    const bgmLabel  = document.getElementById('vol-bgm-label');
+    const sfxLabel  = document.getElementById('vol-sfx-label');
+    if (bgmSlider) bgmSlider.value = AudioManager.getBgmVolume();
+    if (sfxSlider) sfxSlider.value = AudioManager.getSfxVolume();
+    if (bgmLabel)  bgmLabel.textContent  = Math.round(AudioManager.getBgmVolume() * 100) + '%';
+    if (sfxLabel)  sfxLabel.textContent  = Math.round(AudioManager.getSfxVolume() * 100) + '%';
+  }
 
   console.log('Battlestar Popnime loaded!');
 });

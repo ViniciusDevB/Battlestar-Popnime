@@ -145,6 +145,20 @@ const ATTACK_TYPE_HANDLERS = {
     }
   },
 
+  // Omega — ataque único que ignora escudo e armadura (bypass em dealDamage)
+  omega: {
+    execute(tower, stats, inRange) {
+      const target = pickTarget(tower, inRange);
+      if (!_attackCtx.effectiveCanDamage(tower, target)) return [];
+      _attackCtx.spawnProjectile(tower, target, stats.damage, 'omega_proj');
+      return [target];
+    },
+    effect(tower, stats, hitEnemies) {
+      if (hitEnemies.length === 0) return;
+      _attackCtx.addEffect({ type:'line', x:tower.x, y:tower.y, tx:hitEnemies[0].x, ty:hitEnemies[0].y, color:'#ff4500', timer:0.15, maxTimer:0.15 });
+    }
+  },
+
   aoe_full: {
     execute(tower, stats, inRange) {
       const hits = [];

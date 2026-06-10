@@ -43,7 +43,25 @@
         <option value="pt">PT-BR</option>
         <option value="en">EN</option>
       </select>
+      <button id="vol-btn" class="btn-reset-save" onclick="AudioManager.toggleVolumePanel()" title="Volume">🔊</button>
       <button class="btn-reset-save" onclick="UI.confirmReset()" title="Resetar progresso">⚙</button>
+    </div>
+  </div>
+
+  <!-- Volume Panel — acessível em qualquer tela -->
+  <div id="vol-panel">
+    <div class="vol-panel-title">🔊 Volume</div>
+    <div class="vol-row">
+      <span class="vol-label">Música</span>
+      <input id="vol-bgm" type="range" min="0" max="1" step="0.01"
+        oninput="AudioManager.setBgmVolume(+this.value)">
+      <span id="vol-bgm-label" class="vol-pct">45%</span>
+    </div>
+    <div class="vol-row">
+      <span class="vol-label">Sons</span>
+      <input id="vol-sfx" type="range" min="0" max="1" step="0.01"
+        oninput="AudioManager.setSfxVolume(+this.value)">
+      <span id="vol-sfx-label" class="vol-pct">65%</span>
     </div>
   </div>
 

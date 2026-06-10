@@ -70,6 +70,16 @@ const Gacha = (() => {
       console.warn('[Gacha] RPC falhou, usando cliente:', result?.error);
     }
 
+    // Darkseid 7★ — roll secreto antes de qualquer lógica normal (não conta pity)
+    if (Math.random() < 0.000005) {
+      const darkChar = getCharById('darkseid_7star');
+      if (darkChar) {
+        Save.addUnit('darkseid_7star');
+        showResult([{ id: 'darkseid_7star', rarity: 7 }]);
+        return;
+      }
+    }
+
     // Fallback client-side (offline ou RPC indisponível)
     const d = Save.get();
     const cost = currency === 'gems' ? (count === 1 ? 100 : 950) : count;
@@ -113,6 +123,12 @@ const Gacha = (() => {
     const modal = document.getElementById('gacha-result-modal');
     const grid = document.getElementById('gacha-results-grid');
     grid.innerHTML = '';
+
+    // Darkseid 7★ — animação completamente diferente
+    if (results.length === 1 && results[0].rarity === 7) {
+      _showDarkseidReveal(modal, results[0]);
+      return;
+    }
 
     let maxRarity = 3;
     results.forEach((r, i) => {
@@ -208,6 +224,54 @@ const Gacha = (() => {
         .replace('{remaining}', remaining)
         .replace('{s}', remaining !== 1 ? 's' : '');
     }
+  }
+
+  function _showDarkseidReveal(modal, result) {
+    const char = getCharById(result.id);
+    const overlay = document.getElementById('gacha-animation-overlay') || document.body;
+
+    // Fade screen to absolute black
+    const curtain = document.createElement('div');
+    curtain.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;transition:opacity 0.4s';
+    curtain.style.opacity = '0';
+    document.body.appendChild(curtain);
+
+    requestAnimationFrame(() => { curtain.style.opacity = '1'; });
+
+    setTimeout(() => {
+      // Silence — 1.5s of nothing
+      setTimeout(() => {
+        // Ω symbol burns through
+        const omega = document.createElement('div');
+        omega.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:120px;font-family:monospace;font-weight:bold;color:#8b0000;z-index:10000;text-shadow:0 0 40px #ff0000,0 0 80px #880000;animation:darkseid-omega-burn 1.5s ease-out forwards';
+        omega.textContent = 'Ω';
+
+        const style = document.createElement('style');
+        style.textContent = '@keyframes darkseid-omega-burn{0%{opacity:0;transform:translate(-50%,-50%) scale(0.2)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.3);text-shadow:0 0 80px #ff0000,0 0 160px #880000}100%{opacity:0.8;transform:translate(-50%,-50%) scale(1)}}';
+        document.head.appendChild(style);
+        document.body.appendChild(omega);
+
+        setTimeout(() => {
+          omega.remove();
+          style.remove();
+          // Reveal card — dark style
+          const grid = document.getElementById('gacha-results-grid');
+          grid.innerHTML = '';
+          const card = document.createElement('div');
+          card.className = 'gacha-card';
+          card.style.cssText = 'border:2px solid #3d0000;box-shadow:0 0 30px #ff4500,0 0 60px #8b0000';
+          card.innerHTML = `
+            <div class="gacha-card-inner" style="background:linear-gradient(135deg,#0a0505,#1a0808);border:1px solid #3d0000">
+              <div class="gacha-card-icon" style="background:#1a0a0a;border:2px solid #ff4500;box-shadow:0 0 20px #ff4500">${charIconInner(char)}</div>
+              <div class="gacha-card-stars" style="color:#8b0000;letter-spacing:1px">${RARITY_LABELS[7]}</div>
+              <div class="gacha-card-name" style="color:#ff6b1a">${char?.name || 'Darkseid'}</div>
+            </div>`;
+          grid.appendChild(card);
+          curtain.style.opacity = '0';
+          setTimeout(() => { curtain.remove(); modal.style.display = 'flex'; }, 400);
+        }, 1500);
+      }, 1500);
+    }, 400);
   }
 
   return { pull, closeResult, updateGachaUI };

@@ -200,6 +200,38 @@ function render() {
     ctx.restore();
   }
 
+  // DC — Blackout overlay (Destruidor passa pelos cruzamentos)
+  if (_renderCtx._dcBlackoutActive) {
+    const t = Math.min(1, (_renderCtx._dcBlackoutTimer || 0) / 0.5);
+    ctx.save();
+    ctx.fillStyle = `rgba(10,8,40,${0.55 * t})`;
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    // Flicker de raios elétricos nos cantos
+    if (Math.random() < 0.25) {
+      ctx.strokeStyle = `rgba(100,80,255,${0.5 * t})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      const ex = Math.random() * CANVAS_W;
+      ctx.moveTo(ex, 0); ctx.lineTo(ex + (Math.random()-0.5)*40, CANVAS_H * 0.3);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  // DC — Gravity zones (círculos roxos translúcidos)
+  if (_renderCtx._gravityZones && _renderCtx._gravityZones.length > 0) {
+    ctx.save();
+    _renderCtx._gravityZones.forEach(gz => {
+      const alpha = Math.min(0.30, gz.timer * 0.15);
+      ctx.beginPath(); ctx.arc(gz.x, gz.y, gz.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(124,58,237,${alpha})`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(167,139,250,${alpha * 2})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
   drawOverlay();
   ctx.restore();
 }
@@ -392,6 +424,92 @@ function drawTowers() {
   const _gojoBuffedSet = _renderCtx._gojoBuffedSet;
   const waveActive = _renderCtx.waveActive;
 
+  // Darkseid 7★ — Omega Bond lines between paired enemies
+  const allEnemies = _renderCtx.enemies || [];
+  const drawnBonds = new Set();
+  allEnemies.forEach(e => {
+    const p = e._omegaBondPartner;
+    if (!p || p.dead || e.dead) return;
+    const key = [e, p].sort((a, b) => (a.x - b.x)).map(x => x.x + ',' + x.y).join('|');
+    if (drawnBonds.has(key)) return;
+    drawnBonds.add(key);
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(p.x, p.y);
+    ctx.strokeStyle = 'rgba(255,69,0,0.35)';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  });
+
+  // Darkseid 7★ — Apokolips Shadows
+  towers.forEach(t => {
+    if (!t._darkseidshadows) return;
+    t._darkseidshadows.forEach(sh => {
+      ctx.save();
+      ctx.globalAlpha = Math.min(0.85, sh.timer === Infinity ? 0.85 : sh.timer * 0.14);
+      // Shadow body — dark silhouette
+      ctx.beginPath(); ctx.arc(sh.x, sh.y, 18, 0, Math.PI * 2);
+      ctx.fillStyle = '#0a0505';
+      ctx.shadowBlur = 10; ctx.shadowColor = '#ff4500';
+      ctx.fill();
+      // Orange eyes
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ff4500';
+      ctx.beginPath(); ctx.arc(sh.x - 5, sh.y - 2, 3, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(sh.x + 5, sh.y - 2, 3, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    });
+  });
+
+  // Darkseid 7★ — Abyss Embrace converted enemies visual
+  allEnemies.forEach(e => {
+    if (!e._abyssConverted) return;
+    ctx.save();
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath(); ctx.arc(e.x, e.y, 16, 0, Math.PI * 2);
+    ctx.fillStyle = '#0a0505';
+    ctx.fill();
+    ctx.fillStyle = '#ff4500';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Ω', e.x, e.y);
+    ctx.restore();
+  });
+
+  // DC — Tide zones (Aquaman) e Construct barriers (GL)
+  towers.forEach(t => {
+    if (t._tideZones && t._tideZones.length > 0) {
+      t._tideZones.forEach(z => {
+        const alpha = Math.min(0.35, z.timer * 0.12);
+        ctx.save();
+        ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(56,189,248,${alpha})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(14,165,233,${alpha * 2.5})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
+    if (t._glBarriers && t._glBarriers.length > 0) {
+      t._glBarriers.forEach(b => {
+        const alpha = Math.min(0.55, b.timer * 0.10);
+        ctx.save();
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(34,197,94,${alpha * 0.5})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(74,222,128,${alpha})`;
+        ctx.lineWidth = 3;
+        ctx.setLineDash([6, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      });
+    }
+  });
+
   towers.forEach(t => {
     const disabled = t.disabled || shinraTenseiActive;
     ctx.globalAlpha = disabled ? 0.35 : (t.isClone ? 0.72 : 1);
@@ -424,6 +542,40 @@ function drawTowers() {
       ctx.lineWidth = 2;
       ctx.stroke();
     }
+    // ═══ 7★ Darkseid Aura ═══
+    if (!disabled && t.rarity >= 7) {
+      const n7 = Date.now();
+      const p7 = (Math.sin(n7 / 600) + 1) / 2;
+      const stacks = t._tyrantStacks || 0;
+      ctx.save();
+      ctx.translate(t.x, t.y);
+      // Dark void circle
+      ctx.beginPath(); ctx.arc(0, 0, 44 + p7 * 6, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(10,2,2,${0.25 + p7 * 0.15})`;
+      ctx.fill();
+      // Omega ring
+      ctx.rotate(n7 * 0.0006);
+      ctx.beginPath(); ctx.arc(0, 0, 42 + p7 * 4, 0, Math.PI * 2);
+      ctx.shadowBlur = 16 + stacks * 0.8; ctx.shadowColor = '#ff4500';
+      ctx.strokeStyle = `rgba(255,69,0,${0.5 + p7 * 0.35 + Math.min(stacks * 0.02, 0.3)})`;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.restore();
+      // Ω symbol above tower
+      ctx.save();
+      ctx.font = `bold ${10 + Math.min(stacks, 10)}px monospace`;
+      ctx.fillStyle = `rgba(255,100,30,${0.7 + p7 * 0.3})`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText('Ω', t.x, t.y - 36);
+      if (stacks > 0) {
+        ctx.font = 'bold 8px Inter,sans-serif';
+        ctx.fillStyle = '#ff8c5a';
+        ctx.fillText(`+${Math.round(stacks * 3)}%`, t.x, t.y - 46);
+      }
+      ctx.restore();
+    }
+
     // ═══ 6★ Aura Visual ═══
     if (!disabled && t.rarity >= 6) {
       const n6 = Date.now();
@@ -818,6 +970,42 @@ function drawEnemies() {
       });
     }
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+
+    // Darkseid — Corruption stacks indicator
+    if ((e._corruptionStacks || 0) > 0) {
+      const pulse = (Math.sin(Date.now() / 250) + 1) / 2;
+      ctx.save();
+      ctx.globalAlpha = 0.5 + pulse * 0.3;
+      ctx.beginPath(); ctx.arc(e.x, e.y, s/2 + 4, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(124,58,237,${0.4 + e._corruptionStacks * 0.08})`;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.font = 'bold 8px monospace';
+      ctx.fillStyle = '#c4b5fd';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText(`Ω${e._corruptionStacks}`, e.x, e.y - s/2 - 10);
+      ctx.restore();
+    }
+
+    // Darkseid — Will Break aura (moving backwards)
+    if (e._willBroken) {
+      const wp = (Math.sin(Date.now() / 180) + 1) / 2;
+      ctx.save();
+      ctx.beginPath(); ctx.arc(e.x, e.y, s/2 + 7 + wp * 4, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(88,28,135,${0.25 + wp * 0.20})`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(139,92,246,${0.6 + wp * 0.35})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.translate(e.x, e.y);
+      ctx.rotate(Date.now() * 0.003);
+      ctx.font = 'bold 14px monospace';
+      ctx.fillStyle = `rgba(196,181,253,${0.75 + wp * 0.25})`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('Ω', 0, -s/2 - 14);
+      ctx.restore();
+    }
+
     ctx.restore();
   });
   ctx.textAlign = 'left';

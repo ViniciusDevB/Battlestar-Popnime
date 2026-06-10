@@ -3182,3 +3182,58 @@ select:hover{border-color:var(--bd3);}
   color: var(--t3);
 }
 .ms-fixed-counter-icon { font-size: 14px; }
+
+/* ── Volume Panel ──────────────────────────────────────────────────────── */
+#vol-panel {
+  position: fixed;
+  top: 48px;
+  right: 56px;
+  z-index: 9000;
+  background: var(--gs, #111);
+  border: 1px solid var(--bd, #333);
+  border-radius: 10px;
+  padding: 12px 16px;
+  min-width: 220px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.7);
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  animation: vol-panel-in 0.15s ease;
+}
+#vol-panel.open { display: flex; }
+@keyframes vol-panel-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+.vol-panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1, #eee);
+  border-bottom: 1px solid var(--bd, #333);
+  padding-bottom: 8px;
+  margin-bottom: 2px;
+}
+.vol-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.vol-label {
+  font-size: 11px;
+  color: var(--t2, #aaa);
+  width: 40px;
+  flex-shrink: 0;
+}
+.vol-pct {
+  font-size: 11px;
+  color: var(--t3, #888);
+  width: 34px;
+  text-align: right;
+  flex-shrink: 0;
+}
+#vol-bgm, #vol-sfx {
+  flex: 1;
+  accent-color: #3b82f6;
+  cursor: pointer;
+  height: 4px;
+}

@@ -20,6 +20,10 @@ const Game = (() => {
   let selectedTowerIdx, deployingCharId;
   let shinraTenseiActive, shinraTenseiTimer, stageModifierTimer;
   let _sandStormTimer, _sandStormActive, _sandStormDuration, _lightningTimer;
+  let _dcDebrisTimer, _dcDebrisQueue, _dcBlackoutActive, _dcBlackoutTimer, _gravityZones;
+  // Crossings de Metrópolis onde o Destruidor aciona blackout
+  const _DC_CROSSINGS = [{x:400, y:350}, {x:650, y:150}];
+  function _dcDebrisBaseInterval() { return 75 + Math.random() * 25; }
   let stage, team;
   let difficulty;
   let _gojoBuffedSet = new Set();
@@ -189,7 +193,10 @@ const Game = (() => {
     renderScale:        { get: () => renderScale,        configurable: true },
     renderOffX:         { get: () => renderOffX,         configurable: true },
     renderOffY:         { get: () => renderOffY,         configurable: true },
-    _gojoBuffedSet:     { get: () => _gojoBuffedSet,     configurable: true },
+    _gojoBuffedSet:        { get: () => _gojoBuffedSet,        configurable: true },
+    _dcBlackoutActive:     { get: () => _dcBlackoutActive,     configurable: true },
+    _dcBlackoutTimer:      { get: () => _dcBlackoutTimer,      configurable: true },
+    _gravityZones:         { get: () => _gravityZones,         configurable: true },
   });
   _renderCtx.getTowerStats    = getTowerStats;
   _renderCtx.isValidPlacement = isValidPlacement;
@@ -298,6 +305,56 @@ const Game = (() => {
         spawned.x = pos.x; spawned.y = pos.y;
         enemies.push(spawned);
         return spawned;
+      },
+      getAllTowers() { return towers; },
+      getTowersInRadius(x, y, r) {
+        return towers.filter(t => !t.isClone && dist2d(t.x, t.y, x, y) <= r);
+      },
+      getNearestTower(x, y) {
+        let nearest = null, best = Infinity;
+        towers.forEach(t => {
+          if (t.isClone) return;
+          const d = dist2d(t.x, t.y, x, y);
+          if (d < best) { best = d; nearest = t; }
+        });
+        return nearest;
+      },
+      drainBase(n) {
+        lives = Math.max(0, lives - n);
+        updateHUD();
+        if (lives <= 0) endGame(false);
+      },
+      fireDarkseidBeam() {
+        const paths = window.currentPaths || [PATH_POINTS];
+        const path = paths[Math.floor(Math.random() * paths.length)];
+        let stunCount = 0;
+        towers.forEach(t => {
+          if (t.isClone) return;
+          for (let i = 1; i < path.length; i++) {
+            const ax = path[i-1].x, ay = path[i-1].y;
+            const bx = path[i].x,   by = path[i].y;
+            const dx = bx - ax, dy = by - ay;
+            const len = Math.sqrt(dx*dx + dy*dy);
+            if (len === 0) continue;
+            const t2 = Math.max(0, Math.min(1, ((t.x-ax)*dx + (t.y-ay)*dy) / (len*len)));
+            const cx = ax + t2*dx - t.x, cy = ay + t2*dy - t.y;
+            if (Math.sqrt(cx*cx + cy*cy) <= 40) {
+              t.miniStunTimer = Math.max(t.miniStunTimer || 0, 3);
+              t.disabled = true;
+              stunCount++;
+              break;
+            }
+          }
+        });
+        path.forEach((pt, i) => {
+          if (i === 0) return;
+          addEffect({ type:'line', x:path[i-1].x, y:path[i-1].y, tx:pt.x, ty:pt.y, color:'#f97316', timer:0.5, maxTimer:0.5 });
+        });
+        if (stunCount > 0) UI.toast(I18N.t('evt_dc_omega_beams', { count: stunCount, s: 3 }), 3000);
+      },
+      createGravityZone(x, y, r, duration) {
+        _gravityZones.push({ x, y, r, timer: duration });
+        addEffect({ type:'shockwave', x, y, maxR:r, color:'#7c3aed', timer:0.8, maxTimer:0.8, r:0 });
       }
     };
   }
@@ -395,6 +452,9 @@ const Game = (() => {
     if (stage.paths && stage.paths.length > 0) {
       window.currentPaths = stage.paths;
       updatePath(stage.paths[0]);
+    } else if (wdef && wdef.paths && wdef.paths.length > 0) {
+      window.currentPaths = wdef.paths;
+      updatePath(wdef.paths[0]);
     } else if (wdef && wdef.path) {
       window.currentPaths = [wdef.path];
       updatePath(wdef.path);
@@ -436,12 +496,21 @@ const Game = (() => {
     _infiniteSession.drops = {};
     _infiniteSession.gems  = 0;
 
+    // DC — Mecânica Viva reset
+    _dcDebrisTimer    = _dcDebrisBaseInterval();
+    _dcDebrisQueue    = [];
+    _dcBlackoutActive = false;
+    _dcBlackoutTimer  = 0;
+    _gravityZones     = [];
+
     // Free placement (no slots)
 
     UI.showGame();
     renderTeamPanel();
     updateHUD();
     closeUpgradePanel();
+
+    if (typeof AudioManager !== 'undefined') AudioManager.playWorldBgm(stage.world);
 
     running = true;
     paused = false;
@@ -532,6 +601,69 @@ const Game = (() => {
       }
     }
 
+    // ── DC — Mecânica Viva ────────────────────────────────────────────────────
+    if (stage?.world === 'dc') {
+      // Gravity zones tick
+      _gravityZones = (_gravityZones || []).filter(gz => {
+        gz.timer -= dt;
+        return gz.timer > 0;
+      });
+
+      // Blackout tick (Falha na Grade Elétrica)
+      if (_dcBlackoutActive) {
+        _dcBlackoutTimer -= dt;
+        if (_dcBlackoutTimer <= 0) {
+          _dcBlackoutActive = false;
+          UI.toast('💡 Energia restaurada.', 1500);
+        }
+      }
+
+      // Queda de Destroços — timer e queue de impactos
+      _dcDebrisTimer -= dt;
+      if (_dcDebrisTimer <= 0) {
+        // Escala por fase: F1-2 → 1 destroço, F3-4 → 2, F5-6 → 3
+        const phaseIdx = parseInt((stage.id || '').replace('dc_fase', '') || '1', 10);
+        const count    = phaseIdx <= 2 ? 1 : phaseIdx <= 4 ? 2 : 3;
+        const radius   = phaseIdx <= 2 ? 50 : phaseIdx <= 4 ? 65 : 85;
+        const stunDur  = phaseIdx <= 2 ? 2  : phaseIdx <= 4 ? 3  : 4;
+        for (let i = 0; i < count; i++) {
+          const wx = 60 + Math.random() * (CANVAS_W - 120);
+          const wy = 60 + Math.random() * (CANVAS_H - 120);
+          _dcDebrisQueue.push({ x:wx, y:wy, radius, stunDur, fireAt: 2.0 });
+          addEffect({ type:'ring', x:wx, y:wy, maxR:radius, color:'#ef4444', timer:2.0, maxTimer:2.0, r:0 });
+        }
+        // Frequência escala com fase
+        const minInt = phaseIdx <= 2 ? 75 : phaseIdx <= 4 ? 50 : 25;
+        const maxInt = phaseIdx <= 2 ? 100: phaseIdx <= 4 ? 70 : 40;
+        _dcDebrisTimer = minInt + Math.random() * (maxInt - minInt);
+      }
+
+      // Processar fila de impactos
+      _dcDebrisQueue = (_dcDebrisQueue || []).filter(d => {
+        d.fireAt -= dt;
+        if (d.fireAt <= 0) {
+          let stunCount = 0;
+          towers.forEach(t => {
+            if (!t.isClone && dist2d(t.x, t.y, d.x, d.y) <= d.radius) {
+              const passives = PASSIVE_SYSTEM._getPassives(t);
+              const immune = passives.some(x => x.type === 'shazam_stun_immune')
+                || ((t.prestige || 0) >= 5 && Math.random() < 0.5);
+              if (!immune) {
+                t.miniStunTimer = Math.max(t.miniStunTimer || 0, d.stunDur);
+                t.disabled = true;
+                stunCount++;
+              }
+            }
+          });
+          addEffect({ type:'shockwave', x:d.x, y:d.y, maxR:d.radius, color:'#92400e', timer:0.6, maxTimer:0.6, r:0 });
+          if (stunCount > 0) UI.toast(I18N.t('evt_dc_debris', { count: stunCount, s: d.stunDur }), 2500);
+          return false;
+        }
+        return true;
+      });
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     // Tsunami loop
     tsunamis.forEach(tsu => {
       tsu.dist -= tsu.speed * dt;
@@ -611,10 +743,43 @@ const Game = (() => {
       // Behaviors por ptype (regenerator, etc.)
       dispatchPtypeUpdate(e, dt);
 
+      // DC — Blackout: Destruidor cruza cruzamento dos caminhos
+      if (stage?.world === 'dc' && e.type === 'destruidor' && !_dcBlackoutActive) {
+        for (const cross of _DC_CROSSINGS) {
+          if (dist2d(e.x, e.y, cross.x, cross.y) < 35) {
+            const phaseIdx = parseInt((stage.id || '').replace('dc_fase', '') || '4', 10);
+            const blackoutSecs = phaseIdx <= 4 ? 3 : phaseIdx === 5 ? 4 : 5;
+            _dcBlackoutActive = true;
+            _dcBlackoutTimer  = blackoutSecs;
+            addEffect({ type:'shockwave', x:cross.x, y:cross.y, maxR:200, color:'#1e1b4b', timer:0.7, maxTimer:0.7, r:0 });
+            UI.toast(I18N.t('evt_dc_blackout', { s: blackoutSecs }), 3000);
+            break;
+          }
+        }
+      }
+
+      // DC — Gravity zone speed boost
+      let gravMult = 1;
+      if (stage?.world === 'dc' && (_gravityZones || []).length > 0) {
+        for (const gz of _gravityZones) {
+          if (dist2d(e.x, e.y, gz.x, gz.y) <= gz.r) { gravMult = 1.6; break; }
+        }
+      }
+
       // Movement
       const fogMult = (!isInfiniteMode && stage?.modifiers?.fogSpeedBonus) ? (1 + stage.modifiers.fogSpeedBonus) : 1;
-      const spd = getEffectiveSpeed(e) * fogMult * dt;
-      e.dist += spd;
+      const spd = getEffectiveSpeed(e) * fogMult * gravMult * dt;
+
+      if (e._willBroken) {
+        e._willBrokenTimer = (e._willBrokenTimer || 0) - dt;
+        if (e._willBrokenTimer <= 0) {
+          killEnemy(e, e._willBrokenBy || null);
+          return;
+        }
+        e.dist = Math.max(0, e.dist - spd);
+      } else {
+        e.dist += spd;
+      }
       const pos = getPosOnPath(e.dist, e.pathArr);
       e.x = pos.x;
       e.y = pos.y;
@@ -700,17 +865,79 @@ const Game = (() => {
         t._dmgAccum = 0;
         t._dpsTimer = 0;
       }
+      // Tortura de DeSaad — tick e limpeza
+      if ((t._tortureTimer || 0) > 0) {
+        t._tortureTimer -= dt;
+        if (t._tortureTimer <= 0) { t._tortureTimer = 0; t._tortureDmgMult = 1; }
+      }
+
       if (t.disabled || t.verdictActive) return;
       t.attackTimer -= dt;
       if (t.attackTimer <= 0) {
-        const stats = getTowerStats(t);
+        let stats = getTowerStats(t);
         if (stats.type === 'none' || stats.attack_speed <= 0) { t.attackTimer = 9999; return; }
+        // DC debuffs — cópia para não mutar o cache
+        if ((t._equacaoDebuff || 0) > 0 || (t._tortureDmgMult || 1) < 1) {
+          stats = { ...stats };
+          if (t._equacaoDebuff) {
+            stats.damage      *= (1 - t._equacaoDebuff);
+            stats.attack_speed *= (1 - t._equacaoDebuff);
+          }
+          if (t._tortureDmgMult) stats.damage *= t._tortureDmgMult;
+        }
         const frenzyMult = (t._frenzyTimer || 0) > 0 ? (t._frenzyMult || 1) : (t._vizardActive ? 2.0 : 1.0);
         t.attackTimer = 1 / (stats.attack_speed * frenzyMult);
         tryAttack(t, stats);
       }
     });
     if (expired.length) towers = towers.filter(t => !expired.includes(t));
+
+    // Darkseid 7★ — tick de sombras e inimigos convertidos pelo Abraço do Abismo
+    towers.forEach(t => {
+      if (t.charData?.id !== 'darkseid_7star') return;
+      const dStats = getTowerStats(t);
+      const tyrantBonus = 1 + (t._tyrantStacks || 0) * 0.03;
+
+      // Sombras de Apokolips
+      if (t._darkseidshadows) {
+        t._darkseidshadows = t._darkseidshadows.filter(sh => {
+          if (sh.timer !== Infinity) sh.timer -= dt;
+          sh._cdTimer = (sh._cdTimer || 0) - dt;
+          if (sh._cdTimer <= 0) {
+            sh._cdTimer = sh.cd || 1.0;
+            const nearby = enemies.filter(e => !e.dead && !e._abyssConverted &&
+              Math.sqrt((e.x-sh.x)**2 + (e.y-sh.y)**2) <= sh.range);
+            if (nearby.length > 0) {
+              const tgt = nearby.reduce((b, e) => e.dist > b.dist ? e : b, nearby[0]);
+              dealDamage(t, tgt, dStats.damage * 0.35 * tyrantBonus);
+            }
+          }
+          return sh.timer === Infinity || sh.timer > 0;
+        });
+      }
+
+      // Abraço do Abismo — inimigos convertidos atacam e expiram
+      enemies.forEach(e => {
+        if (!e._abyssConverted || e.dead) return;
+        e._abyssTimer -= dt;
+        if (e._abyssTimer <= 0) {
+          // Expira — morre sem dar ouro; a limpeza ocorre no próximo tick de updateEnemiesLoop
+          e._abyssConverted = false;
+          e._noGold         = true;
+          e.dead            = true;
+          return;
+        }
+        // Ataca inimigos próximos
+        e._abyssCdTimer = (e._abyssCdTimer || 0) - dt;
+        if (e._abyssCdTimer <= 0) {
+          e._abyssCdTimer = 1.2;
+          const tgt = enemies.find(en => !en.dead && !en._abyssConverted &&
+            Math.sqrt((en.x-e.x)**2 + (en.y-e.y)**2) <= 100);
+          if (tgt) dealDamage(t, tgt, e.maxHp * 0.05);
+        }
+      });
+    });
+
     // Atualiza set de torres buffadas pela aura do Gojo (uma vez por tick, não por frame)
     _gojoBuffedSet.clear();
     towers.forEach(gt => {
@@ -728,8 +955,15 @@ const Game = (() => {
   }
 
   function tryAttack(tower, stats) {
-    const stormMult = (_sandStormActive && stage?.modifiers?.sandStorm) ? 0.6 : 1;
-    const rangeThreshold = stats.range * stormMult;
+    const stormMult    = (_sandStormActive && stage?.modifiers?.sandStorm) ? 0.6 : 1;
+    // DC: blackout reduz alcance 50%; gravity zone reduz 30% se torre estiver dentro
+    let dcRangeMult = 1;
+    if (stage?.world === 'dc') {
+      if (_dcBlackoutActive) dcRangeMult *= 0.5;
+      if ((_gravityZones || []).some(gz => dist2d(tower.x, tower.y, gz.x, gz.y) <= gz.r))
+        dcRangeMult *= 0.7;
+    }
+    const rangeThreshold = stats.range * stormMult * dcRangeMult;
     const tx = tower.x, ty = tower.y;
     const inRange = [];
     for (let i = 0; i < _aliveEnemies.length; i++) {
@@ -795,10 +1029,14 @@ const Game = (() => {
     if (enemy.status?.cross_mark?.active) dmg *= (1 + enemy.status.cross_mark.bonus);
     if (enemy.status?.gyuki_ink?.active)  dmg *= (1 + enemy.status.gyuki_ink.bonus);
 
+    // Armadura do inimigo — ignorada por ataques omega
+    const isOmega = tower?.charData?.base_stats?.type === 'omega';
+    if (!isOmega && enemy._damageMult) dmg = Math.round(dmg * enemy._damageMult);
+
     // PTYPE onDamageTaken: sand_shield (burst), futuros behaviors de intercepção
     if (dispatchPtypeDamageTaken(enemy, dmg)) return;
 
-    if ((enemy.shieldHp || 0) > 0) {
+    if (!isOmega && (enemy.shieldHp || 0) > 0) {
       const absorbed = Math.min(enemy.shieldHp, dmg);
       enemy.shieldHp -= absorbed;
       dmg -= absorbed;
@@ -809,6 +1047,18 @@ const Game = (() => {
         UI.toast(I18N.t('evt_shield_broken', { name: enemy.name }), 2500);
       }
       if (dmg <= 0) { enemy.hitFlash = 0.1; return; }
+    }
+
+    // Omega Bond mirror damage — 40% replicado no parceiro vinculado
+    if (enemy._omegaBondPartner && !enemy._omegaBondPartner.dead) {
+      const partner = enemy._omegaBondPartner;
+      if (!partner._omegaBondMirrorGuard) {
+        partner._omegaBondMirrorGuard = true;
+        partner.hp -= Math.round(dmg * 0.40);
+        partner._omegaBondMirrorGuard = false;
+        addEffect({ type:'line', x:enemy.x, y:enemy.y, tx:partner.x, ty:partner.y, color:'#ff6b1a', timer:0.12, maxTimer:0.12 });
+        if (partner.hp <= 0) killEnemy(partner, tower);
+      }
     }
 
     enemy.hp -= dmg;
@@ -822,6 +1072,7 @@ const Game = (() => {
   function killEnemy(enemy, killingTower = null) {
     if (enemy.dead) return;
     enemy.dead = true;
+    if (enemy._noGold) { /* Abraço do Abismo — sem ouro */ } else
     gold += 50;
     sessionKills++;
     if (enemy.is_miniboss) sessionMinibosses++;
@@ -930,6 +1181,7 @@ const Game = (() => {
       }
       _contributeMissionStats(false);
       Missions.check();
+      if (typeof AudioManager !== 'undefined') AudioManager.stopBgm();
       UI.showPostBattle({
         victory: false,
         infiniteWave:    isInfiniteMode ? wave : 0,
@@ -1030,6 +1282,7 @@ const Game = (() => {
     _submitScore('stage');
     _contributeMissionStats(true);
     Missions.check();
+    if (typeof AudioManager !== 'undefined') AudioManager.stopBgm();
     UI.showPostBattle({ victory: true, gems, materials: dropsAcheived, bonusGems: firstTime ? Math.max(50, bonusGems) : 0 });
 
     // Confirma recompensas no servidor (background) — o save retornado sobrescreve
@@ -1097,13 +1350,17 @@ const Game = (() => {
 
   function getTowerStats(tower) {
     if (tower._statsCache) return tower._statsCache;
-    const stats = getCurrentStats(tower.charData, tower.level);
+    const charData = (tower._shazamTransformed && tower.charData.transformed_stats)
+      ? { ...tower.charData, base_stats: tower.charData.transformed_stats }
+      : tower.charData;
+    const stats = getCurrentStats(charData, tower.level);
     for (let i = 0; i < tower.upgradeLevel; i++) {
       const upg = tower.charData.upgrades[i];
-      if (upg.damage_mult) stats.damage *= upg.damage_mult;
-      if (upg.range_mult) stats.range *= upg.range_mult;
-      if (upg.speed_mult) stats.attack_speed *= upg.speed_mult;
-      if (upg.type) stats.type = upg.type;
+      if (upg.damage_mult)  stats.damage *= upg.damage_mult;
+      if (upg.damage_bonus) stats.damage += upg.damage_bonus;
+      if (upg.range_mult)   stats.range  *= upg.range_mult;
+      if (upg.speed_mult)   stats.attack_speed *= upg.speed_mult;
+      if (upg.type)         stats.type = upg.type;
     }
     if ((tower.prestige || 0) > 0) {
       stats.damage *= 1 + tower.prestige * 0.20;
@@ -1111,6 +1368,12 @@ const Game = (() => {
     }
     if (tower.cloneDamagePct != null && tower.cloneDamagePct < 1)
       stats.damage *= tower.cloneDamagePct;
+    // Darkseid 7★ Tyrant Rising — permanent kill-based bonus
+    if ((tower._tyrantStacks || 0) > 0) {
+      const tyrantPct = tower.charData?.upgrades?.slice(0, tower.upgradeLevel)
+        .reduce((v, u) => u.passive_override?.tyrant_dmgPerStack ?? v, 0.03) || 0.03;
+      stats.damage *= 1 + tower._tyrantStacks * tyrantPct;
+    }
     tower._statsCache = stats;
     return stats;
   }

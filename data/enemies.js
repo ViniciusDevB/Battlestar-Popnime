@@ -760,6 +760,115 @@ const ENEMY_SPECIAL_HANDLERS = {
     }
   },
 
+  // ── Granny Goodness ───────────────────────────────────────────────────────
+  granny_goodness_special: {
+    init(enemy, def) { enemy.furiesTimer = def.furiesInterval || 15; },
+    onUpdate(enemy, dt, ctx) {
+      enemy.furiesTimer -= dt;
+      if (enemy.furiesTimer <= 0) {
+        enemy.furiesTimer = 15;
+        for (let i = 0; i < 2; i++)
+          ctx.spawnEnemy('soldado_apokolips', enemy, { dist: Math.max(0, enemy.dist - i * 30) });
+        ctx.toast('🔥 Female Furies invocadas!', 2500);
+      }
+    }
+  },
+
+  // ── Kalibak ───────────────────────────────────────────────────────────────
+  kalibak_special: {
+    init(enemy) { enemy.berserk = false; },
+    onUpdate(enemy, dt, ctx) {
+      if (!enemy.berserk && enemy.hp / enemy.maxHp <= 0.5) {
+        enemy.berserk = true;
+        enemy.speed *= 1.8;
+        ctx.addEffect({ type:'shockwave', x:enemy.x, y:enemy.y, maxR:60, color:'#b91c1c', timer:0.5, maxTimer:0.5 });
+        ctx.toast('💢 Kalibak entrou em Berserk!', 3000);
+      }
+    }
+  },
+
+  // ── Mantis ────────────────────────────────────────────────────────────────
+  mantis_dc_special: {
+    init(enemy, def) { enemy.mindTimer = def.mindInterval || 20; },
+    onUpdate(enemy, dt, ctx) {
+      enemy.mindTimer -= dt;
+      if (enemy.mindTimer <= 0) {
+        enemy.mindTimer = 20;
+        const t = ctx.getNearestTower(enemy.x, enemy.y);
+        if (t) { t.miniStunTimer = Math.max(t.miniStunTimer || 0, 4); t.disabled = true; }
+        ctx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:80, color:'#a855f7', timer:0.6, maxTimer:0.6, r:0 });
+        ctx.toast('🧠 Controle Mental de Mantis! Torre paralisada por 4s!', 3000);
+      }
+    }
+  },
+
+  // ── DeSaad ────────────────────────────────────────────────────────────────
+  desaad_special: {
+    init(enemy, def) { enemy.tortureTimer = def.tortureInterval || 18; },
+    onUpdate(enemy, dt, ctx) {
+      enemy.tortureTimer -= dt;
+      if (enemy.tortureTimer <= 0) {
+        enemy.tortureTimer = 18;
+        const affected = ctx.getTowersInRadius(enemy.x, enemy.y, 120);
+        affected.forEach(t => { t._tortureDmgMult = 0.65; t._tortureTimer = 5.0; });
+        if (affected.length > 0) {
+          ctx.addEffect({ type:'shockwave', x:enemy.x, y:enemy.y, maxR:120, color:'#7c3aed', timer:0.6, maxTimer:0.6, r:0 });
+          ctx.toast(`⚡ Tortura de DeSaad! ${affected.length} torre(s) −35% dano por 5s!`, 3500);
+        }
+      }
+    }
+  },
+
+  // ── Darkseid — Armadura Omega ─────────────────────────────────────────────
+  darkseid_omega_special: {
+    init(enemy) { enemy.beamTimer = 15; enemy.drainTimer = 3; },
+    onUpdate(enemy, dt, ctx) {
+      enemy.beamTimer -= dt;
+      if (enemy.beamTimer <= 0) { enemy.beamTimer = 15; ctx.fireDarkseidBeam(); }
+      enemy.drainTimer -= dt;
+      if (enemy.drainTimer <= 0) { enemy.drainTimer = 3; ctx.drainBase(2); }
+    }
+  },
+
+  // ── Darkseid — Equação Anti-Vida ──────────────────────────────────────────
+  darkseid_equacao_special: {
+    init(enemy) { enemy.debuffAccum = 0; enemy.healAccum = 0; enemy.gravTimer = 20; enemy.finalWaveSpawned = false; },
+    onUpdate(enemy, dt, ctx) {
+      enemy.debuffAccum += dt;
+      if (enemy.debuffAccum >= 1) {
+        enemy.debuffAccum -= 1;
+        ctx.getAllTowers().forEach(t => {
+          if ((t._equacaoDebuff || 0) < 0.50)
+            t._equacaoDebuff = Math.min(0.50, (t._equacaoDebuff || 0) + 0.015);
+        });
+        const cappedCount = ctx.getAllTowers().filter(t => (t._equacaoDebuff || 0) >= 0.50).length;
+        if (cappedCount > 0) {
+          enemy.healAccum += 1;
+          if (enemy.healAccum >= 5) {
+            enemy.healAccum -= 5;
+            enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * cappedCount * 0.0667);
+          }
+        }
+      }
+      enemy.gravTimer -= dt;
+      if (enemy.gravTimer <= 0) {
+        enemy.gravTimer = 20;
+        ctx.createGravityZone(enemy.x, enemy.y, 100, 4.0);
+        ctx.toast('🌀 Gravidade Omega! Inimigos acelerados, torres com alcance reduzido!', 3500);
+      }
+      if (!enemy.finalWaveSpawned && enemy.hp / enemy.maxHp <= 0.20) {
+        enemy.finalWaveSpawned = true;
+        for (let i = 0; i < 3; i++)
+          ctx.spawnEnemy('unidade_omega', enemy, { dist: Math.max(0, enemy.dist - i * 40) });
+        ctx.toast('⚠️ Darkseid invoca reforços finais!', 3000);
+      }
+    },
+    onDeath(enemy, ctx) {
+      ctx.getAllTowers().forEach(t => { t._equacaoDebuff = 0; });
+      ctx.toast('✨ Equação Anti-Vida quebrada! Torres restauradas!', 3500);
+    }
+  },
+
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -872,6 +981,12 @@ const PTYPE_BEHAVIORS = {
       ctx.addEffect({ type:'shockwave', x:enemy.x, y:enemy.y, maxR:200, color:'#f39c12', timer:0.7, maxTimer:0.7, r:0 });
       if (count > 0) ctx.toast(`☠️ Kamikaze! ${count} inimigo(s) com +${Math.round(pct * 100)}% de vida!`, 3000);
     }
+  },
+
+  // ── Stun Immune ───────────────────────────────────────────────────────────
+  // Imune a paralisia e freeze. Usado pelo Destruidor (DC — W5).
+  stun_immune: {
+    init(enemy) { enemy.stunImmune = true; }
   },
 
   // ── Sand Shield ───────────────────────────────────────────────────────────
@@ -1481,6 +1596,87 @@ const ENEMY_DEFS = {
     immuneCycleInterval: 30,
     image:'assets/inimigos/eventos/op_ressureicao/Replicante Killer Bee.png'
   },
+
+  // ═══════════════════════════════════════════════
+  //  MUNDO 5 — DC
+  // ═══════════════════════════════════════════════
+
+  soldado_apokolips: {
+    name:'Soldado Apokolips', hp:2000, speed:85, gold:70,
+    ptype:'normal', size:22, col:'#374151',
+    image:'assets/inimigos/world5/Soldado Apokolips.png'
+  },
+  paradem_comum: {
+    name:'Parademônio', hp:2500, speed:155, gold:190,
+    ptype:['powerful1','speed'], size:17, col:'#4b5563',
+    image:'assets/inimigos/world5/Paradem Common.png'
+  },
+  paradem_elite: {
+    name:'Parademônio Elite', hp:27000, speed:50, gold:1600,
+    ptype:['powerful2','fortified'], shieldHp:12000,
+    size:38, col:'#1f2937',
+    image:'assets/inimigos/world5/Paradem Elite.png'
+  },
+  unidade_omega: {
+    name:'Unidade Omega', hp:32000, speed:40, gold:1900,
+    ptype:['powerful2','regenerator'], regenRate:280,
+    size:38, col:'#1e3a5f',
+    image:'assets/inimigos/world5/Omega Soldier.png'
+  },
+  destruidor: {
+    name:'Destruidor', hp:1800, speed:120, gold:100,
+    ptype:['powerful1','bomber','stun_immune'],
+    bomberRadius:140, bomberStun:2.0,
+    size:20, col:'#b45309',
+    image:'assets/inimigos/world5/Destruidor.png'
+  },
+  granny_goodness: {
+    name:'Granny Goodness', hp:27000, speed:95, gold:1200,
+    ptype:'powerful2', size:40, col:'#78350f',
+    is_miniboss:true, special:'granny_goodness_special', furiesInterval:15,
+    image:'assets/inimigos/world5/Granny Goodness.png'
+  },
+  kalibak: {
+    name:'Kalibak', hp:40000, speed:65, gold:2000,
+    ptype:['powerful2','fortified'], shieldHp:18000,
+    size:44, col:'#1c1917', is_miniboss:true,
+    special:'kalibak_special',
+    image:'assets/inimigos/world5/Kalibak.png'
+  },
+  steppenwolf: {
+    name:'Steppenwolf', hp:55000, speed:50, gold:3000,
+    ptype:['powerful2','fortified'], shieldHp:25000,
+    size:46, col:'#1e1b4b', is_miniboss:true,
+    on_death:{ type:'paradem_comum', count:4 },
+    image:'assets/inimigos/world5/Steppenwolf.png'
+  },
+  mantis_dc: {
+    name:'Mantis', hp:70000, speed:55, gold:4200,
+    ptype:['powerful3','regenerator'], regenRate:350,
+    size:46, col:'#1e3a5f', is_miniboss:true,
+    special:'mantis_dc_special', mindInterval:20,
+    image:'assets/inimigos/world5/Mantis.png'
+  },
+  desaad: {
+    name:'DeSaad', hp:90000, speed:48, gold:5500,
+    ptype:'powerful3', size:46, col:'#4a044e', is_miniboss:true,
+    special:'desaad_special', tortureInterval:18,
+    image:'assets/inimigos/world5/DeSaad.png'
+  },
+  darkseid_fase1: {
+    name:'Darkseid — Armadura Omega', hp:220000, speed:20, gold:12000,
+    ptype:'powerful3', damageMult:0.80,
+    size:60, col:'#1e1b4b', is_boss:true,
+    special:'darkseid_omega_special',
+    on_death:{ type:'darkseid_equacao', count:1 },
+    image:'assets/inimigos/world5/Darkseid Boss.png'
+  },
+  darkseid_equacao: {
+    name:'Darkseid — Equação Anti-Vida', hp:160000, speed:45, gold:8000,
+    ptype:'powerful3', size:60, col:'#3b0764', is_boss:true,
+    special:'darkseid_equacao_special',
+    image:'assets/inimigos/world5/Darkseid Boss Full Power.png'
+  },
 };
 
 let _enemyCounter = 0;
@@ -1516,6 +1712,7 @@ function createEnemy(typeId, distanceOffset = 0) {
     is_boss: d.is_boss || false,
     on_death: d.on_death || null,
     special: d.special || null,
+    _damageMult: d.damageMult || null,
     col: d.col,
     size: d.size,
     dist: distanceOffset,
@@ -1538,8 +1735,8 @@ function createEnemy(typeId, distanceOffset = 0) {
 }
 
 function applyStatus(enemy, type, params) {
-  // Fortified: imune a status enquanto o escudo estiver ativo
   if ((enemy.ptypes || []).includes('fortified') && (enemy.shieldHp || 0) > 0) return;
+  if ((enemy.ptypes || []).includes('stun_immune') && (type === 'paralisia' || type === 'freeze')) return;
   const def = STATUS_TYPES[type];
   if (!def) return;
   def.apply(enemy.status, params, enemy);

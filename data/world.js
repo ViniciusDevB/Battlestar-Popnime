@@ -55,6 +55,31 @@ const PATH_POINTS_W4 = [
   {x: 1044, y: 380}
 ];
 
+// Mundo 5 — DC: dois caminhos independentes que se cruzam em (400,350) e (650,150)
+const PATH_POINTS_W5_A = [
+  {x: -20,  y: 150},
+  {x: 150,  y: 150},
+  {x: 150,  y: 350},
+  {x: 400,  y: 350},
+  {x: 400,  y: 150},
+  {x: 650,  y: 150},
+  {x: 650,  y: 400},
+  {x: 870,  y: 400},
+  {x: 1044, y: 400}
+];
+
+const PATH_POINTS_W5_B = [
+  {x: -20,  y: 450},
+  {x: 200,  y: 450},
+  {x: 400,  y: 450},
+  {x: 400,  y: 350},
+  {x: 600,  y: 350},
+  {x: 650,  y: 150},
+  {x: 800,  y: 150},
+  {x: 900,  y: 300},
+  {x: 1044, y: 300}
+];
+
 // Caminho especial do Modo Infinito — curva em S com 3 viradas
 const PATH_POINTS_INF = [
   {x: -20,  y: 300},
@@ -108,6 +133,15 @@ const WORLDS = [
     description: 'Os Vingadores precisam de você. Nova York está sob ataque — defenda a cidade dos invasores.',
     color: '#b91c1c',
     path: PATH_POINTS_W4
+  },
+  {
+    id: 'dc', name: 'Metrópolis Sitiada',
+    unlocked: true,
+    completionStat: 'fases_dc_completas',
+    stages: ['dc_fase1','dc_fase2','dc_fase3','dc_fase4','dc_fase5','dc_fase6'],
+    description: 'Metrópolis está sob ataque de Apokolips. Enfrente o exército de Darkseid!',
+    color: '#1e3a5f',
+    paths: [PATH_POINTS_W5_A, PATH_POINTS_W5_B]
   },
   {
     id: 'infinito', name: '♾ Modo Infinito',

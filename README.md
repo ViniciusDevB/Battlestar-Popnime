@@ -115,8 +115,16 @@ Completar runs desbloqueia o **Arquivo Umbrella**, uma meta-progressão permanen
 
 ## 🗺️ Roadmap
 
-### 🔜 Update 3: Crise nas Infinitas Terras *(Planejado)*
-O universo DC chega ao Battlestar Popnime com um novo mundo temático e novos personagens.
+### 🔜 Update 3: Crise nas Infinitas Terras *(Em Desenvolvimento)*
+
+<p align="center">
+  <img src="assets/update3crisenasinfinitasterras.jpg" alt="Update 3 — Crise nas Infinitas Terras" width="100%">
+</p>
+
+- **Mundo 5 — Metrópolis Sitiada**: 6 novas fases sob a invasão de Apokolips, com Darkseid como Boss final de 2 fases.
+- **Mecânica Viva**: eventos ambientais em tempo real alteram o campo durante as waves — destroços de arranha-céus caem e blackouts afetam o alcance das torres.
+- **Caminhos que se Cruzam**: primeiro mundo com duas rotas independentes que se intersectam, criando zonas de cobertura dupla.
+- **9 novos personagens** do universo DC.
 
 ### 🔜 Update 4: Marvel vs DC *(Planejado)*
 Evento especial centrado no confronto entre os universos Marvel e DC.

@@ -17,6 +17,11 @@ const CHARACTERS = {
   avenger_material_2: { id: 'avenger_material_2', name: 'Material Vingador II', rarity: 1, series: 'marvel', playable: false, xp_value: 150, initials: 'AM2', image: 'assets/ingredients/world4/Avenger 2.png', upgrades_to: 'avenger_material_3', upgrade_cost: 3 },
   avenger_material_3: { id: 'avenger_material_3', name: 'Material Vingador III', rarity: 2, series: 'marvel', playable: false, xp_value: 400, initials: 'AM3', image: 'assets/ingredients/world4/Avenger 3.png' },
 
+  // ── Materials DC ──
+  dc_material_1: { id: 'dc_material_1', name: 'Material Cósmico I', rarity: 0, series: 'dc', playable: false, xp_value: 50, initials: 'DC1', image: 'assets/ingredients/world5/DC 1.png', upgrades_to: 'dc_material_2', upgrade_cost: 3 },
+  dc_material_2: { id: 'dc_material_2', name: 'Material Cósmico II', rarity: 1, series: 'dc', playable: false, xp_value: 150, initials: 'DC2', image: 'assets/ingredients/world5/DC 2.png', upgrades_to: 'dc_material_3', upgrade_cost: 3 },
+  dc_material_3: { id: 'dc_material_3', name: 'Material Cósmico III', rarity: 2, series: 'dc', playable: false, xp_value: 400, initials: 'DC3', image: 'assets/ingredients/world5/DC 3.png' },
+
   // ══════════════════════════════════════════════════════════════════════════
   //  3⭐  —  Sem AOE. Poder vem de passivas, status effects e multiplicadores.
   //  Tipos permitidos: single_target, linha, cone (1-2 unidades), AOE só L.
@@ -1135,6 +1140,285 @@ const CHARACTERS = {
   },
 
   // ══════════════════════════════════════════════════════════════════════════
+  //  DC — Mundo 5  |  3⭐ → 5⭐ | Crise nas Infinitas Terras
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Flash (Barry Allen) — DPS Acumulativo / Speed Force burst | 6 upgrades
+  // Single → Linha | speed_force: a cada N ataques dispara raio que atravessa todo o caminho
+  flash_barry: {
+    id: 'flash_barry', name: 'Flash (Barry Allen)', rarity: 3, series: 'dc', playable: true, xp_value: 1000, initials: 'FL',
+    image: 'assets/towers/update3/Flash.png',
+    passive: {
+      type: 'speed_force', burst_every: 8, burst_mult: 6.0,
+      label: 'Força da Velocidade: a cada 8 ataques dispara um Raio de Velocidade causando 6× dano base em TODOS os inimigos'
+    },
+    base_stats: { damage: 90, range: 112, attack_speed: 0.68, type: 'single_target' },
+    deploy_cost: 250, max_level: 50,
+    prestige_passives: {
+      1: { type: 'double_hit', chance: 0.30, label: 'Pós-Imagem: 30% de chance de atacar duas vezes no mesmo ciclo' },
+      5: { type: 'arc_chain', chain_r: 75, chain_mult: 0.60, chains: 1, label: 'Velocidade Suprema: ataques encadeiam para 1 inimigo próximo (60% dano)' },
+      10: { type: 'slow_aura', slow_pct: 0.30, label: 'Speed Force Global: aura da Speed Force desacelera inimigos próximos em 30%' }
+    },
+    upgrades: [
+      { name: 'Corrida Relâmpago', desc: 'Tipo → Linha | Dano ×1.25', type: 'linha', damage_mult: 1.25, cost: 200 },
+      { name: 'Velocidade da Luz', desc: 'Vel ×1.35', speed_mult: 1.35, cost: 340 },
+      { name: 'Speed Force Ampliada', desc: 'Burst a cada 7 ataques | Dano burst ×1.3', passive_override: { burst_every: 7, burst_mult: 7.8 }, cost: 480 },
+      { name: 'Corredor Escarlate', desc: 'Dano ×1.4 | Alcance ×1.15', damage_mult: 1.4, range_mult: 1.15, cost: 620 },
+      { name: 'Força Máxima', desc: 'Vel ×1.25 | Burst a cada 6 ataques', speed_mult: 1.25, passive_override: { burst_every: 6, burst_mult: 7.8 }, cost: 820 },
+      { name: 'Flash Completo', desc: 'Dano ×1.6 | Vel ×1.2 | Burst → 8× dano', damage_mult: 1.6, speed_mult: 1.2, passive_override: { burst_mult: 8.0 }, cost: 1100 }
+    ]
+  },
+
+  // Batgirl (Barbara Gordon) — Suporte / Marcação | 5 upgrades
+  // Single → Cone | target_mark: inimigos atingidos recebem cross_mark (+18% dano de todos)
+  batgirl: {
+    id: 'batgirl', name: 'Batgirl (Barbara Gordon)', rarity: 3, series: 'dc', playable: true, xp_value: 1000, initials: 'BG',
+    image: 'assets/towers/update3/Batgirl.png',
+    passive: {
+      type: 'target_mark', mark_duration: 4, mark_bonus: 0.18,
+      label: 'Alvo Marcado: inimigos atingidos ficam marcados por 4s e recebem +18% de dano de qualquer fonte'
+    },
+    base_stats: { damage: 132, range: 122, attack_speed: 1.32, type: 'single_target' },
+    deploy_cost: 255, max_level: 50,
+    prestige_passives: {
+      1: { type: 'status_on_hit', status: 'paralisia', duration: 0.8, label: 'Multimarca: cada acerto aplica paralisia relâmpago de 0.8s' },
+      5: { type: 'mark_on_nth_hit', n: 3, duration: 5, bonus: 0.25, label: 'Marca Propagante: cada 3º ataque reaaplica a marca (+25% bônus)' },
+      10: { type: 'kill_streak', stack_bonus: 0.08, max_stacks: 6, decay_time: 8, label: 'Marca Letal: kills acumulam marcas extras (+8% dano por stack, máx 6)' }
+    },
+    upgrades: [
+      { name: 'Pellet de Fumaça', desc: 'Vel ×1.2 | Alcance ×1.1', speed_mult: 1.2, range_mult: 1.1, cost: 220 },
+      { name: 'Batarang', desc: 'Tipo → Cone', type: 'cone', cost: 350 },
+      { name: 'Marca Profunda', desc: 'Marca: 4s→6s | Bônus: 18%→25%', passive_override: { mark_duration: 6, mark_bonus: 0.25 }, cost: 510 },
+      { name: 'Vigilante de Gotham', desc: 'Dano ×1.45 | Vel ×1.15', damage_mult: 1.45, speed_mult: 1.15, cost: 700 },
+      { name: 'Oracle', desc: 'Dano ×1.7 | Marca: 8s | +35% dano | Alcance ×1.2', damage_mult: 1.7, range_mult: 1.2, passive_override: { mark_duration: 8, mark_bonus: 0.35 }, cost: 1050 }
+    ]
+  },
+
+  // Aquaman (Arthur Curry) — Controle de Zona / Slow | 5 upgrades
+  // AOE | tide_zone: cada ataque cria zona de slow no ponto de impacto
+  aquaman: {
+    id: 'aquaman', name: 'Aquaman (Arthur Curry)', rarity: 3, series: 'dc', playable: true, xp_value: 1000, initials: 'AQ',
+    image: 'assets/towers/update3/Aquaman.png',
+    passive: {
+      type: 'tide_zone', zone_r: 40, zone_duration: 3, slow_pct: 0.40,
+      label: 'Zona de Maré: cada ataque cria uma zona no ponto de impacto (dura 3s, reduz velocidade em 40%)'
+    },
+    base_stats: { damage: 155, range: 132, attack_speed: 1.45, type: 'aoe' },
+    deploy_cost: 270, max_level: 50,
+    prestige_passives: {
+      1: { type: 'slow_aura', slow_pct: 0.20, label: 'Correnteza: aura passiva desacelera inimigos próximos em 20%' },
+      5: { type: 'tsunami', hp: 3500, interval: 55, label: 'Tsunami: invoca onda gigante a cada 55s' },
+      10: { type: 'status_on_hit', status: 'sangramento', dps: 80, duration: 3, label: 'Abismo: zona causa 80 DPS de pressão adicional além do slow' }
+    },
+    upgrades: [
+      { name: 'Tridente Afiado', desc: 'Dano ×1.3', damage_mult: 1.3, cost: 230 },
+      { name: 'Ondas Profundas', desc: 'Raio zona: 40→55 | Duração: 3s→4s', passive_override: { zone_r: 55, zone_duration: 4 }, cost: 380 },
+      { name: 'Comando Marítimo', desc: 'Slow: 40%→55%', passive_override: { slow_pct: 0.55 }, cost: 520 },
+      { name: 'Rei dos Sete Mares', desc: 'Dano ×1.5 | Vel ×1.15', damage_mult: 1.5, speed_mult: 1.15, cost: 720 },
+      { name: 'Força Atlante', desc: 'Dano ×1.8 | Raio zona: 70 | Slow: 65% | Duração: 5s', damage_mult: 1.8, passive_override: { zone_r: 70, slow_pct: 0.65, zone_duration: 5 }, cost: 1100 }
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  DC — 4⭐  |  Mecânicas de suporte e controle mais elaboradas
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Batman (Bruce Wayne) — DPS + Amplificador de Equipe | 6 upgrades
+  // Cone → AOE | detective_mark: inimigos marcados recebem +22% dano de TODOS os aliados
+  batman_bruce: {
+    id: 'batman_bruce', name: 'Batman (Bruce Wayne)', rarity: 4, series: 'dc', playable: true, xp_value: 2500, initials: 'BM',
+    image: 'assets/towers/update3/Batman.png',
+    passive: {
+      type: 'detective_mark', mark_duration: 5, mark_bonus: 0.22,
+      label: 'Detetive de Elite: inimigos atingidos recebem Marca do Detetive por 5s — aliados que os atacarem causam +22% dano'
+    },
+    base_stats: { damage: 218, range: 138, attack_speed: 1.28, type: 'cone' },
+    deploy_cost: 500, max_level: 50,
+    prestige_passives: {
+      1: { type: 'ally_damage_aura', bonus: 0.08, label: 'Vigilante: torres aliadas no alcance ganham +8% de dano' },
+      5: { type: 'boss_slayer', bonus: 0.40, label: 'Protocolo Arkham: +40% de dano contra minibosses e bosses' },
+      10: { type: 'arc_chain', chain_r: 100, chain_mult: 0.60, chains: 2, label: 'Bat-Família: ataques encadeiam para 2 inimigos próximos (60% dano)' }
+    },
+    upgrades: [
+      { name: 'Utilidade do Cinto', desc: 'Dano ×1.25 | Alcance ×1.15', damage_mult: 1.25, range_mult: 1.15, cost: 350 },
+      { name: 'Batarang Explosivo', desc: 'Cone → AOE', type: 'aoe', cost: 600 },
+      { name: 'Análise Tática', desc: 'Bônus aliados: 22%→30%', passive_override: { mark_bonus: 0.30 }, cost: 820 },
+      { name: 'Traje Blindado', desc: 'Vel ×1.2 | Dano ×1.4', speed_mult: 1.2, damage_mult: 1.4, cost: 1050 },
+      { name: 'Protocolo Batman', desc: 'Dano ×1.55 | Marca: 5s→7s', damage_mult: 1.55, passive_override: { mark_duration: 7 }, cost: 1300 },
+      { name: 'Cavaleiro das Trevas', desc: 'Dano ×1.8 | Vel ×1.15 | Bônus: 40% | Alcance ×1.2', damage_mult: 1.8, speed_mult: 1.15, range_mult: 1.2, passive_override: { mark_bonus: 0.40 }, cost: 1800 }
+    ]
+  },
+
+  // Lois Lane — Farmer Superior (supera L no late game) | 5 upgrades
+  // Passiva wave_gold com base maior e escalonamento de prestígio superior
+  lois_lane: {
+    id: 'lois_lane', name: 'Lois Lane', rarity: 4, series: 'dc', playable: true, xp_value: 2500, initials: 'LL',
+    image: 'assets/towers/update3/Lois Lane.png',
+    is_farm_unit: true,
+    passive: {
+      type: 'wave_gold', base: 80, perLevel: 3, prestigeMultPerLevel: 0.5,
+      label: 'Matéria de Capa: gera ouro ao fim de cada wave (base 80 + Nv×3). Prestígio multiplica o valor'
+    },
+    base_stats: { damage: 0, range: 128, attack_speed: 0, type: 'none' },
+    deploy_cost: 300, max_level: 50,
+    prestige_passives: {
+      1: { type: 'lois_kill_gold', label: 'Fonte Confiável: +8 ouro por kill na área de alcance' },
+      5: { type: 'lois_farm_bonus', label: 'Rede de Fontes: +30% gold/wave por unidade de farm aliada em campo' },
+      10: { type: 'lois_manchete', label: 'Manchete: dobra o gold/wave gerado enquanto 3+ unidades deployadas' }
+    },
+    upgrades: [
+      { name: 'Reportagem de Campo', desc: '+80 gold/wave | Alcance ×1.2', gold_bonus: 80, range_mult: 1.2, cost: 280 },
+      { name: 'Furo Exclusivo', desc: '+150 gold/wave', gold_bonus: 150, cost: 450 },
+      { name: 'Rede de Contatos', desc: '+200 gold/wave | +10 ouro por kill', gold_bonus: 200, kill_gold: 10, cost: 650 },
+      { name: 'Capa do Planeta', desc: '+200 gold/wave | kill bonus: 20 ouro | Alcance ×1.3', gold_bonus: 200, kill_gold: 20, range_mult: 1.3, cost: 900 },
+      { name: 'Superman Me Ligou', desc: '+200 gold/wave | kill bonus: 30 ouro', gold_bonus: 200, kill_gold: 30, cost: 1200 }
+    ]
+  },
+
+  // Lanterna Verde (Hal Jordan) — Controle / Barreiras no caminho | 5 upgrades
+  // Single | construct_barrier: cria barreira no caminho (slow + DPS aos inimigos que a atravessam)
+  lanterna_verde: {
+    id: 'lanterna_verde', name: 'Lanterna Verde (Hal Jordan)', rarity: 4, series: 'dc', playable: true, xp_value: 2500, initials: 'LV',
+    image: 'assets/towers/update3/Lanterna Verde.png',
+    passive: {
+      type: 'construct_barrier', barrier_cd: 15, barrier_dur: 8, barrier_dps: 180, slow_pct: 0.50, max_barriers: 1,
+      label: 'Barreira de Construto: a cada 15s cria barreira no caminho (dura 8s, slow 50%, 180 DPS aos inimigos que a atravessam)'
+    },
+    base_stats: { damage: 192, range: 145, attack_speed: 1.35, type: 'single_target' },
+    deploy_cost: 520, max_level: 50,
+    prestige_passives: {
+      1: { type: 'gl_barrier_explosion', label: 'Construto Ofensivo: barreiras causam explosão de impacto ao aparecer (500 dano em AOE)' },
+      5: { type: 'ally_damage_aura', bonus: 0.08, label: 'Juramento: torres aliadas ganham +8% de dano enquanto GL está em campo' },
+      10: { type: 'gl_barrier_power', label: 'Bateria de Poder: CD → 6s | barreiras duram 15s | cria barreira em cada caminho do Mundo 5' }
+    },
+    upgrades: [
+      { name: 'Anel de Poder', desc: 'Dano ×1.25 | Vel ×1.1', damage_mult: 1.25, speed_mult: 1.1, cost: 360 },
+      { name: 'Construto Reforçado', desc: 'Barreira: 8s→12s | DPS: 180→300', passive_override: { barrier_dur: 12, barrier_dps: 300 }, cost: 590 },
+      { name: 'Vontade de Ferro', desc: 'Dano ×1.4 | Slow barreira: 50%→65%', damage_mult: 1.4, passive_override: { slow_pct: 0.65 }, cost: 820 },
+      { name: 'Tropa dos Lanternas', desc: 'Vel ×1.2 | CD barreira: 15s→10s', speed_mult: 1.2, passive_override: { barrier_cd: 10 }, cost: 1080 },
+      { name: 'Guardião do Setor', desc: 'Dano ×1.75 | 2 barreiras simultâneas | DPS barreira: 400', damage_mult: 1.75, passive_override: { max_barriers: 2, barrier_dps: 400 }, cost: 1550 }
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  DC — 5⭐  |  Drop exclusivo (Fase 6) + evolução do Flash
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Superman (Clark Kent) — DPS + Aura Global | 6 upgrades
+  // AOE | heat_vision_aura: aura global +15% dano aliado + Visão de Calor periódica
+  superman_clark: {
+    id: 'superman_clark', name: 'Superman (Clark Kent)', rarity: 5, series: 'dc', playable: true, xp_value: 10000, initials: 'SC',
+    image: 'assets/towers/update3/Superman.png',
+    passive: {
+      type: 'heat_vision_aura', heat_vision_cd: 20, heat_vision_dmg: 3000, aura_bonus: 0.15,
+      label: 'Homem de Aço: torres aliadas ganham +15% dano. A cada 20s dispara Visão de Calor (3.000 dano em todos os inimigos)'
+    },
+    base_stats: { damage: 450, range: 162, attack_speed: 1.15, type: 'aoe' },
+    deploy_cost: 950, max_level: 50,
+    prestige_passives: {
+      1: { type: 'boss_slayer', bonus: 0.20, label: 'Invulnerabilidade: +20% dano contra bosses e minibosses' },
+      5: { type: 'superman_heat_burn', label: 'Calor de Krypton: Visão de Calor também aplica Burn (200 DPS / 3s) em todos os atingidos' },
+      10: { type: 'superman_prime', label: 'Superman Prime: aura sobe para +50% dano; Visão de Calor dispara nos dois caminhos' }
+    },
+    upgrades: [
+      { name: 'Aço de Krypton', desc: 'Dano ×1.3 | Vel ×1.1', damage_mult: 1.3, speed_mult: 1.1, cost: 600 },
+      { name: 'Visão de Raio X', desc: 'Alcance ×1.25 | Vel ×1.15', range_mult: 1.25, speed_mult: 1.15, cost: 900 },
+      { name: 'Velocidade Kryptoniana', desc: 'Dano ×1.4 | Vel ×1.2', damage_mult: 1.4, speed_mult: 1.2, cost: 1200 },
+      { name: 'Aura de Aço', desc: 'Aura: +15%→+25% dano aliado', passive_override: { aura_bonus: 0.25 }, cost: 1500 },
+      { name: 'Visão de Calor Amplificada', desc: 'CD: 20s→14s | Dano: 3.000→5.500', passive_override: { heat_vision_cd: 14, heat_vision_dmg: 5500 }, cost: 1800 },
+      { name: 'Homem de Aço', desc: 'Dano ×1.8 | Vel ×1.2 | Aura +35% | Visão CD 10s | Dano 8.000', damage_mult: 1.8, speed_mult: 1.2, passive_override: { aura_bonus: 0.35, heat_vision_cd: 10, heat_vision_dmg: 8000 }, cost: 2400 }
+    ]
+  },
+
+  // Shazam (Billy Batson → Shazam) — Transformação / Payoff Longo Prazo | 6 upgrades
+  // Billy: Single fraco → Shazam: AOE pesado | shazam_transform: 6 ataques revelam letras S-H-A-Z-A-M
+  shazam_billy: {
+    id: 'shazam_billy', name: 'Shazam (Billy Batson)', rarity: 5, series: 'dc', playable: true, xp_value: 10000, initials: 'SB',
+    image: 'assets/towers/update3/Shazam.png',
+    passive: {
+      type: 'shazam_transform', attacks_to_transform: 6, olympus_dmg: 4000, olympus_every: 10, chain_r: 80, chain_mult: 0.50, chain_count: 2,
+      label: 'SHAZAM!: Billy revela S-H-A-Z-A-M ao atacar. Após transformação: encadeia relâmpago para 2 alvos (50% dano) e a cada 10 ataques invoca Raio do Olimpo (4.000 dano AOE)'
+    },
+    base_stats: { damage: 45, range: 105, attack_speed: 2.5, type: 'single_target' },
+    transformed_stats: { damage: 550, range: 168, attack_speed: 1.02, type: 'aoe' },
+    deploy_cost: 1100, max_level: 50,
+    prestige_passives: {
+      1: { type: 'shazam_stun_immune', label: 'Proteção Mágica: Shazam é imune ao atordoamento de destroços da Mecânica Viva' },
+      5: { type: 'shazam_chain_para', label: 'Magia de Salomão: relâmpagos encadeados têm 25% de chance de paralisar o alvo por 1s' },
+      10: { type: 'shazam_final_ray', label: 'Campeão Eterno: ao completar a transformação, dispara Raio do Olimpo de 12.000 dano em TODOS os inimigos' }
+    },
+    upgrades: [
+      { name: 'SHAZAM!', desc: 'Vel ×1.3 (Billy) | Dano ×1.25 (Shazam)', speed_mult: 1.3, damage_mult: 1.25, cost: 650 },
+      { name: 'Poder de Salomão', desc: 'Vel ×1.2 | Raio do Olimpo: 4k→5.5k', speed_mult: 1.2, passive_override: { olympus_dmg: 5500 }, cost: 950 },
+      { name: 'Força de Hércules', desc: 'Dano ×1.4', damage_mult: 1.4, cost: 1200 },
+      { name: 'Coragem de Aquiles', desc: 'Vel ×1.2', speed_mult: 1.2, cost: 1500 },
+      { name: 'Velocidade de Hermes', desc: 'Vel ×1.2 | CD Raio: 10s→7s', speed_mult: 1.2, passive_override: { olympus_every: 7 }, cost: 1800 },
+      { name: 'O Campeão', desc: 'Dano ×1.8 | 3 alvos encadeados | Raio: 8.500', damage_mult: 1.8, passive_override: { chain_count: 3, olympus_dmg: 8500 }, cost: 2500 }
+    ]
+  },
+
+  // Flash Reverso (Eobard Thawne) — DPS + Paralisia | 5 upgrades (evolução do Flash)
+  // Linha | negative_speed: acumula stacks no alvo → 5 stacks = paralisia ou dano massivo (stun_immune)
+  flash_reverso: {
+    id: 'flash_reverso', name: 'Flash Reverso (Eobard Thawne)', rarity: 5, series: 'dc', playable: true, xp_value: 10000, initials: 'FR',
+    image: 'assets/towers/update3/Flash Reverso.png',
+    evolution: {
+      source: 'flash_barry',
+      requires: [
+        { id: 'flash_barry', quantity: 2 },
+        { id: 'batgirl', quantity: 1 },
+        { id: 'dc_material_3', quantity: 3 },
+        { id: 'dc_material_2', quantity: 5 },
+        { id: 'dc_material_1', quantity: 10 }
+      ]
+    },
+    passive: {
+      type: 'negative_speed', stacks_to_trigger: 5, paralysis_dur: 2, stun_immune_mult: 5,
+      label: 'Velocidade Negativa: cada acerto acumula 1 stack no alvo. 5 stacks → paralisia 2s (ou 5× dano em inimigos stun_immune)'
+    },
+    base_stats: { damage: 480, range: 148, attack_speed: 0.55, type: 'linha' },
+    deploy_cost: 800, max_level: 50,
+    prestige_passives: {
+      1: { type: 'status_on_hit', status: 'sangramento', dps: 100, duration: 2, label: 'Rastro de Ódio: cada ataque causa sangramento (100 DPS / 2s)' },
+      5: { type: 'kill_streak', stack_bonus: 0.10, max_stacks: 10, decay_time: 8, label: 'Linha do Tempo Corrompida: kills acumulam velocidade (+10% dano por stack, máx 10)' },
+      10: { type: 'negative_speed_p10', label: 'Velocidade Suprema: cada stack além do 3º adiciona +0.5s à paralisia (máx 6s)' }
+    },
+    upgrades: [
+      { name: 'Força Negativa', desc: 'Dano ×1.3 | Vel ×1.15', damage_mult: 1.3, speed_mult: 1.15, cost: 600 },
+      { name: 'Velocidade do Ódio', desc: 'Stacks para paralisia: 5→4', passive_override: { stacks_to_trigger: 4 }, cost: 900 },
+      { name: 'Singularidade Reversa', desc: 'Paralisia: 2s→3s | Dano stun_immune: 5×→7×', passive_override: { paralysis_dur: 3, stun_immune_mult: 7 }, cost: 1200 },
+      { name: 'Paradoxo Temporal', desc: 'Dano ×1.5 | Vel ×1.2', damage_mult: 1.5, speed_mult: 1.2, cost: 1500 },
+      { name: 'Professor Zoom', desc: 'Dano ×1.8 | Stacks: 3 | Paralisia: 3.5s | Dano stun_immune: 10×', damage_mult: 1.8, passive_override: { stacks_to_trigger: 3, paralysis_dur: 3.5, stun_immune_mult: 10 }, cost: 2000 }
+    ]
+  },
+
+  // ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+  //  Ω  Este registro foi corrompido.  Ω
+  // ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+  darkseid_7star: {
+    id: 'darkseid_7star', name: 'Darkseid', rarity: 7, series: 'dc', playable: true, xp_value: 99999, initials: 'Ω',
+    image: 'assets/towers/update3/Darkseid.png',
+    visible_in_banner: false,
+    counts_pity: false,
+    gacha_chance: 0.000005,
+    deploy_cost: 4500,
+    base_stats: { damage: 350, range: 195, attack_speed: 2.0, type: 'omega' },
+    max_level: 50,
+    passive: { type: 'omega_chain_ray', triggerEveryNAttacks: 4, branches: 3, branchDamageRatio: 0.70, doubleHitDamageRatio: 2.50 },
+    prestige_passives: {
+      1: { type: 'omega_decree', cooldown: 90, label: 'Decreto Omega: uma vez por wave, reduz o inimigo com maior HP a 1 HP (CD: 90s).' },
+      5: { type: 'anti_life_spread', freeStacksGranted: 2, label: 'Propagação Anti-Vida: ao quebrar a vontade de um inimigo, todos os outros recebem 2 cargas de Corrupção.' },
+      10: { type: 'absolute_dominion', maxPermanentShadows: 10, label: 'Domínio Absoluto: Sombras de Apokolips tornam-se permanentes (máx 10 simultâneas).' }
+    },
+    upgrades: [
+      { name: 'Foco Omega', desc: 'Dano +350 | Alcance ×1.10 | Raio Triplo a cada 3 ataques', damage_bonus: 350, range_mult: 1.10, passive_override: { triggerEveryNAttacks: 3 }, cost: 3000 },
+      { name: 'Equação Anti-Vida', desc: 'Dano +500 | Quebra de Vontade: 4 cargas (stun_immune: 6)', damage_bonus: 500, passive_override: { stacksRequired: 4, stacksRequiredStunImmune: 6 }, cost: 5500 },
+      { name: 'Soberania Absoluta', desc: 'Dano +700 | Alcance ×1.08 | Tirano: +4%/stack | Sombras: 28% / 8s', damage_bonus: 700, range_mult: 1.08, passive_override: { tyrant_dmgPerStack: 0.04, shadow_chance: 0.28, shadow_dur: 8 }, cost: 9000 },
+      { name: 'Senhor Apokolips', desc: 'Dano +1000 | Vínculo: trios | Abraço: 3 inimigos / 15s', damage_bonus: 1000, passive_override: { bond_trio: true, abyss_count: 3, abyss_dur: 15 }, cost: 14000 }
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
   //  NEMESIS — Unidade Exclusiva de Missão Global (5⭐ Evento)
   //  Perfil: Invocação + DoT | Invoca horda zumbi periódica + infecta inimigos
   //  Inimigos infectados que morrem ressurgem como zumbis no ponto de morte.
@@ -1169,21 +1453,21 @@ const CHARACTERS = {
 
 // Full pool — usado pelo BannerSystem
 const ALL_CHARACTERS_POOL = {
-  star3: ['ichigo_base', 'goku_base', 'l_deathnote', 'demolidor', 'sasuke_uchiha', 'killua_zoldyck', 'tanjiro_kamado', 'zoro_3', 'luffy_3', 'nami_3', 'usopp_3', 'brook_3', 'rukia_kuchiki', 'renji_abarai', 'uryu_ishida', 'orihime_inoue', 'chad_yasutora', 'spider_man', 'black_widow', 'hawkeye'],
-  star4: ['naruto_shippuden', 'levi_ackerman', 'meliodas_base', 'sanji_4', 'robin_4', 'ace_4', 'byakuya_kuchiki', 'toshiro_hitsugaya', 'kenpachi_zaraki', 'black_panther', 'thor', 'hulk_base'],
-  star5: ['gojo_satoru', 'luffy_5', 'ichigo_bankai']
+  star3: ['ichigo_base', 'goku_base', 'l_deathnote', 'demolidor', 'sasuke_uchiha', 'killua_zoldyck', 'tanjiro_kamado', 'zoro_3', 'luffy_3', 'nami_3', 'usopp_3', 'brook_3', 'rukia_kuchiki', 'renji_abarai', 'uryu_ishida', 'orihime_inoue', 'chad_yasutora', 'spider_man', 'black_widow', 'hawkeye', 'flash_barry', 'batgirl', 'aquaman'],
+  star4: ['naruto_shippuden', 'levi_ackerman', 'meliodas_base', 'sanji_4', 'robin_4', 'ace_4', 'byakuya_kuchiki', 'toshiro_hitsugaya', 'kenpachi_zaraki', 'black_panther', 'thor', 'hulk_base', 'batman_bruce', 'lois_lane', 'lanterna_verde'],
+  star5: ['gojo_satoru', 'luffy_5', 'ichigo_bankai', 'superman_clark', 'shazam_billy']
 };
 
 // Populado em runtime por BannerSystem.init()
 const GACHA_POOL = { star3: [], star4: [], star5: [] };
 
-const RARITY_COLORS = { 0: '#666', 1: '#27ae60', 2: '#2980b9', 3: '#9b59b6', 4: '#e67e22', 5: '#f1c40f', 6: '#e63939' };
-const RARITY_LABELS = { 0: '0⭐', 1: '1⭐', 2: '2⭐', 3: '3⭐', 4: '4⭐', 5: '5⭐', 6: '6⭐' };
+const RARITY_COLORS = { 0: '#666', 1: '#27ae60', 2: '#2980b9', 3: '#9b59b6', 4: '#e67e22', 5: '#f1c40f', 6: '#e63939', 7: '#1a0a0a' };
+const RARITY_LABELS = { 0: '0⭐', 1: '1⭐', 2: '2⭐', 3: '3⭐', 4: '4⭐', 5: '5⭐', 6: '6⭐', 7: '★★★★★★★' };
 const SERIES_LABELS = {
   naruto: 'Naruto', bleach: 'Bleach', dragonball: 'Dragon Ball',
   deathnote: 'Death Note', marvel: 'Marvel', onepiece: 'One Piece',
   hxh: 'HxH', kimetsu: 'Kimetsu', snk: 'SNK', nanatsu: '7DS', jjk: 'JJK',
-  evento: 'Evento'
+  dc: 'DC Comics', evento: 'Evento'
 };
 
 function getCharById(id) { return CHARACTERS[id] || null; }

@@ -319,6 +319,7 @@ const UI = (() => {
   function showPostBattle(result) {
     showScreen('postbattle');
     renderPostBattle(result);
+    if (typeof AudioManager !== 'undefined') setTimeout(() => AudioManager.playMenuBgm(), 600);
   }
 
   function renderPostBattle(result) {

@@ -857,6 +857,144 @@ const STAGES = [
   ]
 },
 
+  // ══════════════════════════════════════════════════════
+  //  DC FASE 1 — Invasão de Metrópolis
+  // ══════════════════════════════════════════════════════
+  {
+    id: 'dc_fase1', name: 'Invasão de Metrópolis', world: 'dc',
+    drops: [
+      { id: 'dc_material_1', chance: 70 },
+      { id: 'dc_material_2', chance: 20 },
+      { id: 'dc_material_3', chance: 10 }
+    ],
+    waves: [
+      buildWave([{type:'soldado_apokolips',count:6,gap:1.6}]),
+      buildWave([{type:'soldado_apokolips',count:7,gap:1.5}]),
+      buildWave([{type:'soldado_apokolips',count:8,gap:1.4}]),
+      buildWave([{type:'soldado_apokolips',count:9,gap:1.3}]),
+      buildWave([{type:'soldado_apokolips',count:10,gap:1.3}]),
+      buildWave([{type:'soldado_apokolips',count:10,gap:1.2}]),
+      buildWave([{type:'soldado_apokolips',count:11,gap:1.1}]),
+      buildWave([{type:'soldado_apokolips',count:13,gap:1.0}]),
+      buildWave([{type:'soldado_apokolips',count:15,gap:0.9}]),
+      buildWave([{type:'soldado_apokolips',count:4,gap:1.3},{type:'granny_goodness',count:1,gap:0}])
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════
+  //  DC FASE 2 — As Ruas em Chamas
+  // ══════════════════════════════════════════════════════
+  {
+    id: 'dc_fase2', name: 'As Ruas em Chamas', world: 'dc',
+    drops: [
+      { id: 'dc_material_1', chance: 50 },
+      { id: 'dc_material_2', chance: 30 },
+      { id: 'dc_material_3', chance: 15 }
+    ],
+    waves: [
+      buildWave([{type:'soldado_apokolips',count:7,gap:1.5}]),
+      buildWave([{type:'soldado_apokolips',count:8,gap:1.4}]),
+      buildWave([{type:'soldado_apokolips',count:9,gap:1.3}]),
+      buildWave([{type:'soldado_apokolips',count:6,gap:1.3},{type:'paradem_comum',count:2,gap:0.8}]),
+      buildWave([{type:'soldado_apokolips',count:5,gap:1.2},{type:'paradem_comum',count:3,gap:0.7}]),
+      buildWave([{type:'soldado_apokolips',count:5,gap:1.1},{type:'paradem_comum',count:4,gap:0.7}]),
+      buildWave([{type:'soldado_apokolips',count:4,gap:1.1},{type:'paradem_comum',count:5,gap:0.6}]),
+      buildWave([{type:'soldado_apokolips',count:4,gap:1.0},{type:'paradem_comum',count:5,gap:0.6}]),
+      buildWave([{type:'soldado_apokolips',count:3,gap:1.0},{type:'paradem_comum',count:6,gap:0.5}]),
+      buildWave([{type:'soldado_apokolips',count:3,gap:1.2},{type:'paradem_comum',count:2,gap:0.7},{type:'kalibak',count:1,gap:0}])
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════
+  //  DC FASE 3 — O Escudo Caiu
+  // ══════════════════════════════════════════════════════
+  {
+    id: 'dc_fase3', name: 'O Escudo Caiu', world: 'dc',
+    drops: [
+      { id: 'dc_material_2', chance: 50 },
+      { id: 'dc_material_3', chance: 40 }
+    ],
+    waves: [
+      buildWave([{type:'soldado_apokolips',count:8,gap:1.5}]),
+      buildWave([{type:'soldado_apokolips',count:9,gap:1.4}]),
+      buildWave([{type:'soldado_apokolips',count:10,gap:1.3}]),
+      buildWave([{type:'soldado_apokolips',count:7,gap:1.3},{type:'paradem_comum',count:3,gap:0.8}]),
+      buildWave([{type:'soldado_apokolips',count:6,gap:1.2},{type:'paradem_comum',count:4,gap:0.7}]),
+      buildWave([{type:'soldado_apokolips',count:6,gap:1.1},{type:'paradem_comum',count:4,gap:0.7}]),
+      buildWave([{type:'soldado_apokolips',count:5,gap:1.1},{type:'paradem_comum',count:4,gap:0.7},{type:'paradem_elite',count:1,gap:0}]),
+      buildWave([{type:'soldado_apokolips',count:5,gap:1.0},{type:'paradem_comum',count:4,gap:0.6},{type:'paradem_elite',count:2,gap:11.0}]),
+      buildWave([{type:'soldado_apokolips',count:4,gap:1.0},{type:'paradem_comum',count:4,gap:0.6},{type:'paradem_elite',count:3,gap:10.0}]),
+      buildWave([{type:'soldado_apokolips',count:3,gap:1.2},{type:'paradem_comum',count:2,gap:0.7},{type:'paradem_elite',count:1,gap:0},{type:'steppenwolf',count:1,gap:0}])
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════
+  //  DC FASE 4 — Equação Anti-Vida
+  // ══════════════════════════════════════════════════════
+  {
+    id: 'dc_fase4', name: 'Equação Anti-Vida', world: 'dc',
+    drops: [
+      { id: 'dc_material_2', chance: 20 },
+      { id: 'dc_material_3', chance: 70 }
+    ],
+    waves: [
+      buildWave([{type:'soldado_apokolips',count:8,gap:1.4},{type:'paradem_comum',count:2,gap:0.9}]),
+      buildWave([{type:'soldado_apokolips',count:8,gap:1.3},{type:'paradem_comum',count:3,gap:0.8}]),
+      buildWave([{type:'soldado_apokolips',count:7,gap:1.2},{type:'paradem_comum',count:3,gap:0.8},{type:'paradem_elite',count:1,gap:0}]),
+      buildWave([{type:'soldado_apokolips',count:6,gap:1.2},{type:'paradem_comum',count:3,gap:0.7},{type:'paradem_elite',count:2,gap:11.0}]),
+      buildWave([{type:'soldado_apokolips',count:6,gap:1.1},{type:'paradem_comum',count:3,gap:0.7},{type:'paradem_elite',count:2,gap:10.0}]),
+      buildWave([{type:'soldado_apokolips',count:5,gap:1.1},{type:'paradem_comum',count:4,gap:0.7},{type:'paradem_elite',count:2,gap:10.0}]),
+      buildWave([{type:'soldado_apokolips',count:5,gap:1.0},{type:'paradem_comum',count:3,gap:0.7},{type:'paradem_elite',count:2,gap:9.0},{type:'unidade_omega',count:1,gap:0}]),
+      buildWave([{type:'soldado_apokolips',count:4,gap:1.0},{type:'paradem_comum',count:3,gap:0.6},{type:'paradem_elite',count:2,gap:9.0},{type:'unidade_omega',count:2,gap:14.0}]),
+      buildWave([{type:'soldado_apokolips',count:4,gap:1.0},{type:'paradem_comum',count:3,gap:0.6},{type:'paradem_elite',count:2,gap:8.0},{type:'unidade_omega',count:3,gap:13.0}]),
+      buildWave([{type:'soldado_apokolips',count:3,gap:1.2},{type:'paradem_comum',count:2,gap:0.7},{type:'unidade_omega',count:1,gap:0},{type:'mantis_dc',count:1,gap:0}])
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════
+  //  DC FASE 5 — Linha de Frente
+  // ══════════════════════════════════════════════════════
+  {
+    id: 'dc_fase5', name: 'Linha de Frente', world: 'dc',
+    drops: [
+      { id: 'dc_material_3', chance: 90 }
+    ],
+    waves: [
+      buildWave([{type:'soldado_apokolips',count:7,gap:1.3},{type:'paradem_comum',count:2,gap:0.8},{type:'unidade_omega',count:1,gap:0}]),
+      buildWave([{type:'soldado_apokolips',count:6,gap:1.2},{type:'paradem_comum',count:3,gap:0.8},{type:'unidade_omega',count:2,gap:14.0}]),
+      buildWave([{type:'soldado_apokolips',count:6,gap:1.2},{type:'paradem_comum',count:3,gap:0.7},{type:'unidade_omega',count:2,gap:13.0}]),
+      buildWave([{type:'soldado_apokolips',count:5,gap:1.1},{type:'paradem_comum',count:3,gap:0.7},{type:'unidade_omega',count:2,gap:13.0},{type:'paradem_elite',count:1,gap:0}]),
+      buildWave([{type:'soldado_apokolips',count:5,gap:1.1},{type:'paradem_comum',count:3,gap:0.6},{type:'unidade_omega',count:2,gap:12.0},{type:'paradem_elite',count:2,gap:11.0}]),
+      buildWave([{type:'soldado_apokolips',count:4,gap:1.0},{type:'paradem_comum',count:3,gap:0.6},{type:'unidade_omega',count:2,gap:11.0},{type:'paradem_elite',count:2,gap:10.0}]),
+      buildWave([{type:'soldado_apokolips',count:4,gap:1.0},{type:'paradem_comum',count:3,gap:0.6},{type:'unidade_omega',count:2,gap:10.0},{type:'paradem_elite',count:2,gap:10.0},{type:'destruidor',count:2,gap:1.5}]),
+      buildWave([{type:'soldado_apokolips',count:3,gap:1.0},{type:'paradem_comum',count:3,gap:0.6},{type:'unidade_omega',count:2,gap:10.0},{type:'paradem_elite',count:2,gap:9.0},{type:'destruidor',count:3,gap:1.2}]),
+      buildWave([{type:'soldado_apokolips',count:3,gap:1.0},{type:'paradem_comum',count:3,gap:0.5},{type:'unidade_omega',count:2,gap:9.0},{type:'paradem_elite',count:2,gap:9.0},{type:'destruidor',count:4,gap:1.0}]),
+      buildWave([{type:'soldado_apokolips',count:2,gap:1.3},{type:'paradem_comum',count:2,gap:0.7},{type:'unidade_omega',count:1,gap:0},{type:'paradem_elite',count:1,gap:0},{type:'desaad',count:1,gap:0}])
+    ]
+  },
+
+  // ══════════════════════════════════════════════════════
+  //  DC FASE 6 — Convergência Final (Boss)
+  // ══════════════════════════════════════════════════════
+  {
+    id: 'dc_fase6', name: 'Convergência Final', world: 'dc', isBoss: true,
+    drops: [
+      { id: 'dc_material_3', chance: 40 }
+    ],
+    waves: [
+      buildWave([{type:'soldado_apokolips',count:8,gap:1.4},{type:'paradem_comum',count:2,gap:0.9}]),
+      buildWave([{type:'soldado_apokolips',count:7,gap:1.3},{type:'paradem_comum',count:3,gap:0.8}]),
+      buildWave([{type:'soldado_apokolips',count:7,gap:1.2},{type:'paradem_comum',count:4,gap:0.7},{type:'destruidor',count:2,gap:1.5}]),
+      buildWave([{type:'soldado_apokolips',count:6,gap:1.2},{type:'paradem_comum',count:3,gap:0.8},{type:'paradem_elite',count:2,gap:11.0}]),
+      buildWave([{type:'soldado_apokolips',count:5,gap:1.1},{type:'paradem_comum',count:3,gap:0.7},{type:'paradem_elite',count:2,gap:10.0},{type:'unidade_omega',count:1,gap:0}]),
+      buildWave([{type:'soldado_apokolips',count:5,gap:1.1},{type:'paradem_comum',count:3,gap:0.7},{type:'paradem_elite',count:2,gap:9.0},{type:'unidade_omega',count:2,gap:13.0}]),
+      buildWave([{type:'soldado_apokolips',count:4,gap:1.0},{type:'paradem_comum',count:3,gap:0.6},{type:'paradem_elite',count:2,gap:9.0},{type:'unidade_omega',count:2,gap:12.0},{type:'destruidor',count:2,gap:1.5}]),
+      buildWave([{type:'soldado_apokolips',count:4,gap:1.0},{type:'paradem_comum',count:3,gap:0.6},{type:'paradem_elite',count:2,gap:8.0},{type:'unidade_omega',count:2,gap:11.0},{type:'destruidor',count:3,gap:1.2}]),
+      buildWave([{type:'soldado_apokolips',count:3,gap:1.0},{type:'paradem_comum',count:3,gap:0.5},{type:'paradem_elite',count:3,gap:8.0},{type:'unidade_omega',count:2,gap:10.0},{type:'destruidor',count:4,gap:1.0}]),
+      buildWave([{type:'soldado_apokolips',count:2,gap:1.5},{type:'paradem_comum',count:2,gap:0.8},{type:'unidade_omega',count:1,gap:0},{type:'destruidor',count:2,gap:2.0},{type:'darkseid_fase1',count:1,gap:0}])
+    ]
+  },
+
   {
     id: 'infinito_partida',
     name: '♾ Modo Infinito',
