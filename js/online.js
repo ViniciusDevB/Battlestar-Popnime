@@ -42,7 +42,11 @@ const Online = (() => {
     _client.auth.onAuthStateChange((event, session) => {
       _session = session;
       if (session) {
-        _profilePromise = _loadProfile().then(() => {
+        _profilePromise = _loadProfile().then(async () => {
+          // INITIAL_SESSION = sessão restaurada no refresh/reload da página.
+          // login() e register() já chamam syncSave() explicitamente para logins novos,
+          // mas no refresh o syncSave() nunca era chamado — save ficava zerado.
+          if (event === 'INITIAL_SESSION') await syncSave();
           _profilePromise = null;
           _showOnlineStatus(true);
           _setupRealtime();
