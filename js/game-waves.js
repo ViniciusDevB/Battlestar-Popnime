@@ -118,8 +118,9 @@ function skipWave() {
     return;
   }
 
-  const bonus = Math.min(1000, Math.round(100 * Math.pow(1.01, _wavesCtx.skipMultiplier)));
+  const bonus = Math.min(1000, Math.round(_wavesCtx.skipGold));
   _wavesCtx.skipMultiplier++;
+  _wavesCtx.skipGold = Math.min(1000, _wavesCtx.skipGold * (1 + _wavesCtx.skipMultiplier / 100));
   _wavesCtx.gold += bonus;
   _wavesCtx.towers.forEach(t => PASSIVE_SYSTEM.onWaveEnd(t));
 

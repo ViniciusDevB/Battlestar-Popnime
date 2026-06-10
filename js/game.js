@@ -17,6 +17,7 @@ const Game = (() => {
   let _lastPlacedTower = null;
   let activeWavesCount = 1;
   let skipMultiplier = 0;
+  let skipGold = 100;
   let selectedTowerIdx, deployingCharId;
   let shinraTenseiActive, shinraTenseiTimer, stageModifierTimer;
   let _sandStormTimer, _sandStormActive, _sandStormDuration, _lightningTimer;
@@ -216,6 +217,7 @@ const Game = (() => {
     selectedTowerIdx: { get: () => selectedTowerIdx, set: v => { selectedTowerIdx = v; }, configurable: true },
     deployingCharId:  { get: () => deployingCharId,  set: v => { deployingCharId = v; },  configurable: true },
     skipMultiplier:   { get: () => skipMultiplier,   configurable: true },
+    skipGold:         { get: () => skipGold,         configurable: true },
   });
   _hudCtx.getTowerStats = getTowerStats;
   _hudCtx.buyUpgrade    = buyUpgrade;
@@ -250,6 +252,7 @@ const Game = (() => {
     gold:             { get: () => gold, set: v => { gold = v; }, configurable: true },
     activeWavesCount: { get: () => activeWavesCount, set: v => { activeWavesCount = v; }, configurable: true },
     skipMultiplier:   { get: () => skipMultiplier, set: v => { skipMultiplier = v; }, configurable: true },
+    skipGold:         { get: () => skipGold,       set: v => { skipGold = v; },       configurable: true },
     shinraTenseiActive: { get: () => shinraTenseiActive, set: v => { shinraTenseiActive = v; }, configurable: true },
     shinraTenseiTimer:  { get: () => shinraTenseiTimer, set: v => { shinraTenseiTimer = v; }, configurable: true },
     enemies:          { get: () => enemies, configurable: true },
@@ -468,6 +471,7 @@ const Game = (() => {
     lives = stage.base_hp || 20;
     gold = 300;
     skipMultiplier = 0;
+    skipGold = 100;
     wave = 0;
     totalWaves = isInfiniteMode ? Infinity : stage.waves.length;
     activeWavesCount = 1;
