@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell, dialog } = require('electron');
+const { app, BrowserWindow, shell, dialog, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
@@ -70,17 +70,21 @@ app.on('window-all-closed', () => {
 function checkForUpdates() {
   if (isDev) return;
 
-  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.checkForUpdates();
+
+  autoUpdater.on('update-available', (info) => {
+    mainWindow.webContents.send('update-available', info);
+  });
+
+  autoUpdater.on('download-progress', (progress) => {
+    mainWindow.webContents.send('download-progress', progress);
+  });
 
   autoUpdater.on('update-downloaded', () => {
-    dialog.showMessageBox(mainWindow, {
-      type: 'info',
-      title: 'Atualização disponível',
-      message: 'Uma nova versão foi baixada. Deseja reiniciar agora para atualizar?',
-      buttons: ['Reiniciar agora', 'Depois'],
-      defaultId: 0,
-    }).then(({ response }) => {
-      if (response === 0) autoUpdater.quitAndInstall();
-    });
+    mainWindow.webContents.send('update-downloaded');
+  });
+
+  ipcMain.on('install-update', () => {
+    autoUpdater.quitAndInstall();
   });
 }
