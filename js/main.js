@@ -1,17 +1,15 @@
 // ── Global UI sounds (hover + click on interactive elements) ─────────────
 (function () {
   const INTERACTIVE = 'button, .btn, .avail-unit, .world-card, .stage-card, .gacha-card, select, [role="button"]';
-  let _lastHover = null;
 
+  // Use relatedTarget to fire hover sound only when entering a new element,
+  // not when moving between child nodes inside the same button.
   document.addEventListener('mouseover', e => {
-    const el = e.target.closest(INTERACTIVE);
-    if (!el || el === _lastHover) return;
-    _lastHover = el;
+    const el   = e.target.closest(INTERACTIVE);
+    if (!el) return;
+    const from = e.relatedTarget?.closest?.(INTERACTIVE);
+    if (from === el) return; // still inside the same interactive element
     if (typeof AudioManager !== 'undefined') AudioManager.playHover();
-  }, { passive: true });
-
-  document.addEventListener('mouseout', e => {
-    if (e.target.closest(INTERACTIVE)) _lastHover = null;
   }, { passive: true });
 
   document.addEventListener('click', e => {

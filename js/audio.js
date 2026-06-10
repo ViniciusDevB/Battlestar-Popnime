@@ -5,11 +5,11 @@ const AudioManager = (() => {
 
   // ── World BGM map ─────────────────────────────────────────────────────────
   const WORLD_BGM = {
-    naruto:  'assets/audio/bgm/mundo naruto.mp3',
-    onepiece:'assets/audio/bgm/grand line.mp3',
-    bleach:  'assets/audio/bgm/soul society.mp3',
-    marvel:  'assets/audio/bgm/nova york.mp3',
-    dc:      'assets/audio/bgm/DC.mp3',
+    naruto:   'assets/audio/bgm/mundo naruto.mp3',
+    onepiece: 'assets/audio/bgm/grand line.mp3',
+    bleach:   'assets/audio/bgm/soul society.mp3',
+    marvel:   'assets/audio/bgm/nova york.mp3',
+    dc:       'assets/audio/bgm/DC.mp3',
   };
   const ALL_BGM_KEYS = Object.keys(WORLD_BGM);
 
@@ -18,10 +18,43 @@ const AudioManager = (() => {
   menuBgm.loop = true;
   menuBgm.volume = bgmVol;
 
-  let currentBgm = null;
+  let currentBgm  = null;
   let isUnlocked  = false;
-  let _fadeTimer  = null;
-  let _lastInfiniteKey = null; // prevent same track twice in a row
+  let _lastInfiniteKey = null;
+
+  // ── Per-element fade (no shared timer — solves cancel-before-pause bug) ───
+
+  function _stopFade(audio) {
+    if (audio._fadeTimer) { clearInterval(audio._fadeTimer); audio._fadeTimer = null; }
+  }
+
+  function _fadeIn(audio, target) {
+    _stopFade(audio);
+    audio.volume = 0;
+    audio._fadeTimer = setInterval(() => {
+      const next = Math.min(target, audio.volume + 0.04);
+      audio.volume = next;
+      if (next >= target) { audio.volume = target; _stopFade(audio); }
+    }, 80);
+  }
+
+  // fast=true → 300ms fade (used for stopBgm at game-end)
+  function _fadeOut(audio, onDone, fast = false) {
+    _stopFade(audio);
+    const step     = fast ? 0.12 : 0.04;
+    const interval = fast ? 60   : 80;
+    audio._fadeTimer = setInterval(() => {
+      const next = Math.max(0, audio.volume - step);
+      audio.volume = next;
+      if (next <= 0) {
+        audio.volume = 0;
+        audio.pause();
+        audio.currentTime = 0;
+        _stopFade(audio);
+        if (onDone) onDone();
+      }
+    }, interval);
+  }
 
   // ── Unlock (browser autoplay policy) ──────────────────────────────────────
   function unlock() {
@@ -30,56 +63,22 @@ const AudioManager = (() => {
     if (!currentBgm || currentBgm === menuBgm) playMenuBgm();
   }
 
-  // ── Fade helpers ───────────────────────────────────────────────────────────
-  function _clearFade() {
-    if (_fadeTimer) { clearInterval(_fadeTimer); _fadeTimer = null; }
-  }
-
-  function _fadeIn(audio, target, step = 0.04, interval = 80) {
-    _clearFade();
-    audio.volume = 0;
-    _fadeTimer = setInterval(() => {
-      if (audio.volume < target - step) {
-        audio.volume = Math.min(target, audio.volume + step);
-      } else {
-        audio.volume = target;
-        _clearFade();
-      }
-    }, interval);
-  }
-
-  function _fadeOut(audio, onDone, step = 0.05, interval = 80) {
-    _clearFade();
-    _fadeTimer = setInterval(() => {
-      if (audio.volume > step) {
-        audio.volume = Math.max(0, audio.volume - step);
-      } else {
-        audio.volume = 0;
-        audio.pause();
-        audio.currentTime = 0;
-        _clearFade();
-        if (onDone) onDone();
-      }
-    }, interval);
-  }
-
   // ── Menu BGM ──────────────────────────────────────────────────────────────
   function playMenuBgm() {
     if (!isUnlocked) return;
     if (currentBgm === menuBgm && !menuBgm.paused) return;
 
     if (currentBgm && currentBgm !== menuBgm) {
-      const prev = currentBgm;
-      currentBgm = menuBgm;
-      _fadeOut(prev, () => {
-        menuBgm.play().catch(() => {});
-        _fadeIn(menuBgm, bgmVol);
-      });
+      // Don't touch currentBgm here — it's already being faded out by stopBgm
+      menuBgm.currentTime = 0;
+      menuBgm.play().catch(() => {});
+      _fadeIn(menuBgm, bgmVol);
     } else {
       currentBgm = menuBgm;
       menuBgm.play().catch(() => {});
       _fadeIn(menuBgm, bgmVol);
     }
+    currentBgm = menuBgm;
   }
 
   // ── World BGM ─────────────────────────────────────────────────────────────
@@ -89,32 +88,22 @@ const AudioManager = (() => {
 
     const src = WORLD_BGM[worldId];
     if (!src) { stopBgm(); return; }
-
     _startTrack(src, true);
   }
 
   function _startTrack(src, loop) {
-    _clearFade();
-    if (currentBgm) {
-      const prev = currentBgm;
-      currentBgm = null;
-      _fadeOut(prev, () => _doPlay(src, loop));
-    } else {
-      _doPlay(src, loop);
-    }
-  }
-
-  function _doPlay(src, loop) {
+    const prev = currentBgm;
     const audio = new Audio(src);
-    audio.loop = !!loop;
-    audio.volume = 0;
-    currentBgm = audio;
+    audio.loop    = !!loop;
+    audio.volume  = 0;
+    currentBgm    = audio;
     audio.play().catch(() => {});
     _fadeIn(audio, bgmVol);
-    return audio;
+    // Fade out previous (each element owns its own timer — no conflict)
+    if (prev) _fadeOut(prev);
   }
 
-  // ── Infinite mode: shuffle, no repeat ─────────────────────────────────────
+  // ── Infinite mode: shuffle without consecutive repeat ─────────────────────
   function _pickInfiniteKey() {
     const pool = ALL_BGM_KEYS.filter(k => k !== _lastInfiniteKey);
     const key  = pool[Math.floor(Math.random() * pool.length)];
@@ -123,14 +112,9 @@ const AudioManager = (() => {
   }
 
   function _playInfinite() {
-    _clearFade();
-    if (currentBgm) {
-      const prev = currentBgm;
-      currentBgm = null;
-      _fadeOut(prev, _doInfiniteTrack);
-    } else {
-      _doInfiniteTrack();
-    }
+    const prev = currentBgm;
+    _doInfiniteTrack();
+    if (prev && prev !== currentBgm) _fadeOut(prev);
   }
 
   function _doInfiniteTrack() {
@@ -138,7 +122,7 @@ const AudioManager = (() => {
     const audio = new Audio(WORLD_BGM[key]);
     audio.loop  = false;
     audio.volume = 0;
-    currentBgm  = audio;
+    currentBgm   = audio;
     audio.play().catch(() => {});
     _fadeIn(audio, bgmVol);
     audio.addEventListener('ended', () => {
@@ -146,12 +130,12 @@ const AudioManager = (() => {
     }, { once: true });
   }
 
-  // ── Stop BGM (called on match end) ────────────────────────────────────────
+  // ── Stop BGM (called on match end) — fast fade, independent of menu ───────
   function stopBgm() {
     if (!currentBgm || currentBgm === menuBgm) return;
     const prev = currentBgm;
     currentBgm = null;
-    _fadeOut(prev);
+    _fadeOut(prev, null, true); // fast 300ms fade, no callback
   }
 
   function pauseBgm() { if (currentBgm) currentBgm.pause(); }
@@ -164,11 +148,11 @@ const AudioManager = (() => {
     sfx.play().catch(() => {});
   }
 
-  function playClick()  { playSFX('assets/audio/sfx/click sound.mp3', 0.55); }
-  function playHover()  { playSFX('assets/audio/sfx/click sound.mp3', 0.22); }
+  function playClick() { playSFX('assets/audio/sfx/click sound.mp3', 0.55); }
+  function playHover() { playSFX('assets/audio/sfx/click sound.mp3', 0.20); }
 
-  function playGachaPull()          { playSFX('assets/audio/sfx/gacha_pull.wav',          0.9); }
-  function playGachaReveal(rarity)  {
+  function playGachaPull()         { playSFX('assets/audio/sfx/gacha_pull.wav',         0.9); }
+  function playGachaReveal(rarity) {
     playSFX(
       rarity >= 5
         ? 'assets/audio/sfx/gacha_reveal_5star.wav'
@@ -181,8 +165,9 @@ const AudioManager = (() => {
   function setBgmVolume(v) {
     bgmVol = Math.max(0, Math.min(1, v));
     localStorage.setItem('bp_bgm_vol', bgmVol);
-    if (currentBgm) currentBgm.volume = bgmVol;
-    menuBgm.volume = bgmVol;
+    // Apply immediately to whatever is playing — stop any in-progress fade first
+    if (currentBgm) { _stopFade(currentBgm); currentBgm.volume = bgmVol; }
+    _stopFade(menuBgm); menuBgm.volume = bgmVol;
     _syncVolumeUI();
   }
 
@@ -202,8 +187,8 @@ const AudioManager = (() => {
     const sfxLabel  = document.getElementById('vol-sfx-label');
     if (bgmSlider) bgmSlider.value = bgmVol;
     if (sfxSlider) sfxSlider.value = sfxVol;
-    if (bgmLabel)  bgmLabel.textContent  = Math.round(bgmVol * 100) + '%';
-    if (sfxLabel)  sfxLabel.textContent  = Math.round(sfxVol * 100) + '%';
+    if (bgmLabel)  bgmLabel.textContent = Math.round(bgmVol * 100) + '%';
+    if (sfxLabel)  sfxLabel.textContent = Math.round(sfxVol * 100) + '%';
   }
 
   function toggleVolumePanel() {
@@ -223,7 +208,6 @@ const AudioManager = (() => {
     }
   });
 
-  // Unlock on first interaction
   document.addEventListener('click', unlock, { once: true });
 
   return {
