@@ -36,7 +36,7 @@ const CHARACTERS = {
       type: 'status_on_hit', status: 'sangramento', dps: 10, duration: 3,
       label: 'Espírito Feroz: cada acerto causa sangramento (10 DPS/3s, acumula)'
     },
-    base_stats: { damage: 83, range: 91, attack_speed: 1.54, type: 'single_target' },
+    base_stats: { damage: 83, range: 91, attack_speed: 1.23, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 65, chain_mult: 0.50, chains: 1, label: 'Zanpakutō Ressonante: cortes encadeiam para 1 inimigo próximo (50% dano)' },
@@ -62,7 +62,7 @@ const CHARACTERS = {
       type: 'critical', chance: 0.20, mult: 2.5,
       label: 'Ki Oculto: 20% de chance de acerto crítico (2.5× dano)'
     },
-    base_stats: { damage: 99, range: 94, attack_speed: 1.21, type: 'single_target' },
+    base_stats: { damage: 99, range: 94, attack_speed: 0.97, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'crit_splash', crit_chance: 0.20, crit_mult: 2.0, splash_r: 55, splash_mult: 0.40, label: 'Ki Explosivo: críticos liberam onda de ki (40% dano em área)' },
@@ -113,7 +113,7 @@ const CHARACTERS = {
       type: 'slow_aura', slow_pct: 0.30,
       label: 'Radar Tático: desacelera passivamente todos os inimigos na área em 30%'
     },
-    base_stats: { damage: 75, range: 84, attack_speed: 1.54, type: 'single_target' },
+    base_stats: { damage: 85, range: 84, attack_speed: 1.23, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 60, chain_mult: 0.48, chains: 1, label: 'Dupla Morte: bastão encadeia para 1 inimigo próximo (48% dano)' },
@@ -138,7 +138,7 @@ const CHARACTERS = {
       type: 'critical', chance: 0.18, mult: 2.5,
       label: 'Sharingan: antecipa os movimentos inimigos — 18% de chance de acerto crítico (2.5×)'
     },
-    base_stats: { damage: 105, range: 104, attack_speed: 0.99, type: 'single_target' },
+    base_stats: { damage: 105, range: 104, attack_speed: 0.79, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'spirit_surge', trigger_at: 4, mult: 3.0, label: 'Chidori Carregado: cada 4º ataque dispara um Chidori (3× dano)' },
@@ -163,7 +163,7 @@ const CHARACTERS = {
       type: 'double_hit', chance: 0.25,
       label: 'Velocidade Divina: 25% de chance de atacar duas vezes no mesmo ciclo'
     },
-    base_stats: { damage: 66, range: 78, attack_speed: 2.2, type: 'single_target' },
+    base_stats: { damage: 66, range: 78, attack_speed: 1.76, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 75, chain_mult: 0.55, chains: 1, label: 'Descarga Residual: relâmpago encadeia para 1 inimigo próximo (55% dano)' },
@@ -175,7 +175,7 @@ const CHARACTERS = {
       { name: 'Modo Assassino', desc: 'Paralisia 0.5s por acerto', status_effect: { type: 'paralisia', duration: 0.5 }, cost: 330 },
       { name: 'Velocidade Relâmpago', desc: 'Vel ×1.25 | Dano ×1.2', speed_mult: 1.25, damage_mult: 1.2, cost: 480 },
       { name: 'Campo de Raios', desc: 'Paralisia → 0.8s | Dano ×1.3', damage_mult: 1.3, status_effect: { type: 'paralisia', duration: 0.8 }, cost: 650 },
-      { name: 'Dança da Morte', desc: 'Tipo → Cone | Vel ×1.2', type: 'cone', speed_mult: 1.2, cost: 850 },
+      { name: 'Dança da Morte', desc: 'Vel ×1.2 | Dano ×1.3', speed_mult: 1.2, damage_mult: 1.3, cost: 850 },
       { name: 'Godspeed', desc: 'Vel ×1.3 | Dano ×1.4 | Double hit → 35%', speed_mult: 1.3, damage_mult: 1.4, passive_override: { chance: 0.35 }, cost: 1100 }
     ]
   },
@@ -189,7 +189,7 @@ const CHARACTERS = {
       type: 'bonus_vs_burned', mult: 2.0,
       label: 'Respiração Total: causa 2× de dano em inimigos que estão queimando'
     },
-    base_stats: { damage: 86, range: 91, attack_speed: 1.21, type: 'single_target' },
+    base_stats: { damage: 86, range: 91, attack_speed: 0.97, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'burn', dps: 15, duration: 3, label: 'Respiração Solar: cada acerto aplica chama solar (15 DPS/3s)' },
@@ -200,7 +200,7 @@ const CHARACTERS = {
       { name: 'Dança da Lareira', desc: 'Vel ×1.2 | Burn 15 DPS / 2s por acerto', speed_mult: 1.2, status_effect: { type: 'burn', dps: 15, duration: 2 }, cost: 175 },
       { name: 'Respiração Solar', desc: 'Dano ×1.5 | Alcance ×1.1', damage_mult: 1.5, range_mult: 1.21, cost: 360 },
       { name: 'Décima Forma', desc: 'Burn → 20 DPS / 3s | Dano ×1.3', damage_mult: 1.3, status_effect: { type: 'burn', dps: 20, duration: 3 }, cost: 520 },
-      { name: 'Hinokami Kagura', desc: 'Tipo → Cone | Dano ×1.5', type: 'cone', damage_mult: 1.5, cost: 720 },
+      { name: 'Hinokami Kagura', desc: 'Dano ×1.5 | Vel ×1.15', damage_mult: 1.5, speed_mult: 1.15, cost: 720 },
       { name: 'Dança do Deus Fogo', desc: 'Dano ×1.6 | Vel ×1.1 | Burn → 25 DPS / 4s', damage_mult: 1.6, speed_mult: 1.1, status_effect: { type: 'burn', dps: 25, duration: 4 }, cost: 950 }
     ]
   },
@@ -219,7 +219,7 @@ const CHARACTERS = {
       type: 'kill_cooldown', reduction: 0.20,
       label: 'Kage Bunshin: ao matar, próximo ataque vem com 80% do cooldown reduzido'
     },
-    base_stats: { damage: 163, range: 113, attack_speed: 1.43, type: 'aoe' },
+    base_stats: { damage: 163, range: 113, attack_speed: 1.14, type: 'single_target' },
     deploy_cost: 300, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 80, chain_mult: 0.60, chains: 2, label: 'Rasengan Duplo: chakra encadeia para 2 inimigos em sequência (60% dano)' },
@@ -231,7 +231,7 @@ const CHARACTERS = {
       { name: 'Modo Clone', desc: 'Vel ×1.3 | Alcance ×0.9', speed_mult: 1.3, range_mult: 0.94, cost: 400 },
       { name: 'Rasengan Gigante', desc: 'Dano ×1.4 | Alcance ×1.1', damage_mult: 1.4, range_mult: 1.21, cost: 580 },
       { name: 'Modo Sábio', desc: 'Vel ×1.2 | Alcance ×1.15 | Kill CD → 90% reduzido', speed_mult: 1.2, range_mult: 1.25, passive_override: { reduction: 0.10 }, cost: 750 },
-      { name: 'Rasenshuriken', desc: 'Dano ×1.7 | Vel ×0.85', damage_mult: 1.7, speed_mult: 0.85, cost: 950 },
+      { name: 'Rasenshuriken', desc: 'Tipo → Cone | Dano ×1.7', type: 'cone', damage_mult: 1.7, cost: 950 },
       { name: 'Modo Bijuu', desc: 'Dano ×1.5 | Vel ×1.15 | Alcance ×1.1', damage_mult: 1.5, speed_mult: 1.15, range_mult: 1.21, cost: 1300 }
     ]
   },
@@ -246,7 +246,7 @@ const CHARACTERS = {
       type: 'kill_streak', stack_bonus: 0.20, decay_time: 4, max_stacks: 5,
       label: 'Chacina: cada kill empilha +20% de dano (máx 5 stacks, reseta 4s sem matar)'
     },
-    base_stats: { damage: 141, range: 104, attack_speed: 1.87, type: 'single_target' },
+    base_stats: { damage: 141, range: 104, attack_speed: 1.50, type: 'single_target' },
     deploy_cost: 300, max_level: 50,
     prestige_passives: {
       1: { type: 'kill_frenzy', duration: 3.0, speed_mult: 3.0, label: 'ODM Veloz: ao matar, vel. de ataque 3× por 3s' },
@@ -273,7 +273,7 @@ const CHARACTERS = {
       type: 'dual_affliction', burn_dps: 14, burn_duration: 2, bleed_dps: 7, bleed_duration: 2,
       label: 'Dragão Pecado da Ira: todo acerto causa Burn (14 DPS) + Bleed (7 DPS) simultâneos'
     },
-    base_stats: { damage: 152, range: 104, attack_speed: 1.38, type: 'single_target' },
+    base_stats: { damage: 152, range: 104, attack_speed: 1.10, type: 'single_target' },
     deploy_cost: 300, max_level: 50,
     prestige_passives: {
       1: { type: 'crit_splash', crit_chance: 0.25, crit_mult: 2.0, splash_r: 65, splash_mult: 0.52, label: 'Daihāzan: críticos explodem em demonic slash (52% dano em área)' },
@@ -284,8 +284,8 @@ const CHARACTERS = {
       { name: 'Contra', desc: 'Tipo → Cone | Dano ×1.3', type: 'cone', damage_mult: 1.3, cost: 190 },
       { name: 'Escudo de Liz', desc: 'Vel ×1.3 | Dano ×1.2', speed_mult: 1.3, damage_mult: 1.2, cost: 380 },
       { name: 'Fúria do Dragão', desc: 'Burn → 18 DPS | Bleed → 10 DPS', passive_override: { burn_dps: 18, bleed_dps: 10 }, cost: 560 },
-      { name: 'Modo Demônio', desc: 'Tipo → AOE | Dano ×1.5', type: 'aoe', damage_mult: 1.5, cost: 750 },
-      { name: 'Dez Mandamentos', desc: 'Vel ×1.2 | Burn → 22 DPS | Bleed → 14 DPS', speed_mult: 1.2, passive_override: { burn_dps: 22, bleed_dps: 14 }, cost: 950 },
+      { name: 'Modo Demônio', desc: 'Dano ×1.5 | Vel ×1.15 | Burn → 22 DPS | Bleed → 14 DPS', damage_mult: 1.5, speed_mult: 1.15, passive_override: { burn_dps: 22, bleed_dps: 14 }, cost: 750 },
+      { name: 'Dez Mandamentos', desc: 'Vel ×1.1 | Burn → 24 DPS | Bleed → 16 DPS', speed_mult: 1.1, passive_override: { burn_dps: 24, bleed_dps: 16 }, cost: 950 },
       { name: 'Poder dos Demônios', desc: 'Dano ×1.8 | Alcance ×1.1 | Burn → 28 | Bleed → 18', damage_mult: 1.8, range_mult: 1.21, passive_override: { burn_dps: 28, bleed_dps: 18 }, cost: 1300 }
     ]
   },
@@ -303,7 +303,7 @@ const CHARACTERS = {
       type: 'clone_on_attack', chance: 0.15, duration: 60, maxClones: 3, damage_pct: 0.30,
       label: 'Senjutsu: 15% de chance por ataque de invocar um clone por 60s (máx 3, clones causam 30% do dano)'
     },
-    base_stats: { damage: 270, range: 130, attack_speed: 2.42, type: 'single_target' },
+    base_stats: { damage: 270, range: 130, attack_speed: 1.94, type: 'single_target' },
     deploy_cost: 500, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 100, chain_mult: 0.72, chains: 2, label: 'Modo Sábio Aprimorado: chakra da natureza encadeia 2 inimigos (72% dano)' },
@@ -336,7 +336,7 @@ const CHARACTERS = {
       label: 'Amplificação Maldita: torres dentro do alcance causam +25% de dano'
     },
     active_ability: { type: 'domain_expansion', stun_duration: 3, cooldown: 35, label: 'Domínio Expandido' },
-    base_stats: { damage: 407, range: 123, attack_speed: 1.87, type: 'aoe_full' },
+    base_stats: { damage: 407, range: 123, attack_speed: 1.50, type: 'aoe' },
     deploy_cost: 500, max_level: 50,
     prestige_passives: {
       1: { type: 'crit_splash', crit_chance: 0.32, crit_mult: 2.5, splash_r: 90, splash_mult: 0.70, label: 'Cursed Energy Overflow: críticos colapsam o infinito em área (70% dano)' },
@@ -386,7 +386,7 @@ const CHARACTERS = {
       type: 'freeze_on_hit', chance: 0.28, duration: 2.0,
       label: 'Sode no Shirayuki: 28% de chance de congelar o alvo por 2s a cada acerto'
     },
-    base_stats: { damage: 88, range: 145, attack_speed: 1.25, type: 'single' },
+    base_stats: { damage: 88, range: 145, attack_speed: 1.00, type: 'single' },
     deploy_cost: 225, max_level: 50,
     prestige_passives: {
       1: { type: 'spirit_surge', trigger_at: 5, mult: 3.2, label: 'Dança Segunda Aprimorada: cada 5º ataque é uma dança de gelo (3.2× dano)' },
@@ -396,7 +396,9 @@ const CHARACTERS = {
     upgrades: [
       { name: 'Dança Primeira', desc: 'Dano ×1.3 | Freeze dura 3s', damage_mult: 1.3, cost: 350 },
       { name: 'Dança Segunda', desc: 'Alcance ×1.2 | Vel ×1.15', range_mult: 1.2, speed_mult: 1.15, cost: 600 },
-      { name: 'Dança Terceira: Shirafune', desc: 'Dano ×1.5 | Tipo: linha (corte gelo)', damage_mult: 1.5, type: 'linha', cost: 1000 }
+      { name: 'Dança Terceira: Shirafune', desc: 'Dano ×1.5 | Tipo: linha (corte gelo)', damage_mult: 1.5, type: 'linha', cost: 1000 },
+      { name: 'Dança Quarta', desc: 'Freeze: 28%→42% | Dano ×1.3', damage_mult: 1.3, passive_override: { chance: 0.42, duration: 3 }, cost: 1400 },
+      { name: 'Dança Última: Juhaku', desc: 'Dano ×1.6 | Vel ×1.15 | Freeze → 58%/3.5s', damage_mult: 1.6, speed_mult: 1.15, passive_override: { chance: 0.58, duration: 3.5 }, cost: 2000 }
     ]
   },
   renji_abarai: {
@@ -407,7 +409,7 @@ const CHARACTERS = {
       type: 'snake_venom', stacks: 5, burstMult: 4.5,
       label: 'Zabimaru: a cada 5 acertos no mesmo inimigo, explode causando 4.5× dano'
     },
-    base_stats: { damage: 110, range: 115, attack_speed: 1.05, type: 'single' },
+    base_stats: { damage: 110, range: 115, attack_speed: 0.84, type: 'single' },
     deploy_cost: 240, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 90, chain_mult: 0.45, chains: 1, label: 'Serpente Extensível: Zabimaru encadeia para 1 inimigo distante (45% dano)' },
@@ -417,7 +419,9 @@ const CHARACTERS = {
     upgrades: [
       { name: 'Garra Alongada', desc: 'Alcance ×1.25 | Dano ×1.2', range_mult: 1.25, damage_mult: 1.2, cost: 380 },
       { name: 'Forma Serpente', desc: 'Vel ×1.3 | Stacks explodem em 4', speed_mult: 1.3, cost: 650 },
-      { name: 'Bankai: Hihiō Zabimaru', desc: 'Dano ×2 | AOE ao explodir os stacks', damage_mult: 2.0, type: 'aoe', cost: 1100 }
+      { name: 'Bankai: Hihiō Zabimaru', desc: 'Dano ×2 | Cone ao explodir os stacks', damage_mult: 2.0, type: 'cone', cost: 1100 },
+      { name: 'Zabimaru Devastador', desc: 'Burst stacks reduzem para 3 | Dano ×1.4', damage_mult: 1.4, passive_override: { stacks: 3 }, cost: 1500 },
+      { name: 'Bankai Supremo', desc: 'Dano ×1.8 | Vel ×1.15 | BurstMult → 6×', damage_mult: 1.8, speed_mult: 1.15, passive_override: { burstMult: 6.0 }, cost: 2200 }
     ]
   },
   uryu_ishida: {
@@ -425,7 +429,7 @@ const CHARACTERS = {
     playable: true, xp_value: 1000, initials: 'UI',
     image: 'assets/towers/update1/Uryu Ishida.png',
     passive: { type: 'quincy_pierce', label: 'Letzt Stil: flechas perfuram até 3 inimigos em linha' },
-    base_stats: { damage: 80, range: 200, attack_speed: 1.35, type: 'pierce' },
+    base_stats: { damage: 80, range: 200, attack_speed: 1.08, type: 'pierce' },
     deploy_cost: 230, max_level: 50,
     prestige_passives: {
       1: { type: 'crit_splash', crit_chance: 0.22, crit_mult: 2.0, splash_r: 55, splash_mult: 0.42, label: 'Flecha Explosiva: críticos explodem em energia Quincy (42% dano)' },
@@ -435,7 +439,9 @@ const CHARACTERS = {
     upgrades: [
       { name: 'Reishi Avançado', desc: 'Dano ×1.3 | Alcance ×1.1', damage_mult: 1.3, range_mult: 1.1, cost: 340 },
       { name: 'Blut Vene', desc: 'Vel ×1.2 | Dano ×1.2', speed_mult: 1.2, damage_mult: 1.2, cost: 580 },
-      { name: 'Vollständig', desc: 'Dano ×1.6 | Perfura 5 inimigos', damage_mult: 1.6, passive_override: { count: 5 }, cost: 950 }
+      { name: 'Vollständig', desc: 'Dano ×1.6 | Perfura 5 inimigos', damage_mult: 1.6, passive_override: { count: 5 }, cost: 950 },
+      { name: 'Reishi Quincy', desc: 'Vel ×1.25 | Dano ×1.3 | Perfura 7 inimigos', damage_mult: 1.3, speed_mult: 1.25, passive_override: { count: 7 }, cost: 1300 },
+      { name: 'Letzt Stil Quincy', desc: 'Dano ×1.7 | Vel ×1.15', damage_mult: 1.7, speed_mult: 1.15, cost: 2000 }
     ]
   },
   orihime_inoue: {
@@ -446,7 +452,7 @@ const CHARACTERS = {
       type: 'santen_kesshun', radius: 145,
       label: 'Santen Kesshun: torres no alcance de Orihime ficam imunes a stun continuamente'
     },
-    base_stats: { damage: 75, range: 145, attack_speed: 0.85, type: 'aoe' },
+    base_stats: { damage: 75, range: 145, attack_speed: 0.68, type: 'single' },
     deploy_cost: 210, max_level: 50,
     prestige_passives: {
       1: { type: 'gold_detector', bonus: 6, label: 'Cura de Campo: +6 ouro extra quando torres aliadas matam no alcance de Orihime' },
@@ -456,7 +462,9 @@ const CHARACTERS = {
     upgrades: [
       { name: 'Koten Zanshun', desc: 'Dano ×1.35 | Alcance do escudo ×1.2', damage_mult: 1.35, cost: 320 },
       { name: 'Sōten Kisshun', desc: 'Vel ×1.2 | Raio de proteção +40px', speed_mult: 1.2, cost: 550 },
-      { name: 'Tsubaki Pleno', desc: 'Dano ×1.5 | Tipo: AOE full (não requer upgrade de torre)', damage_mult: 1.5, type: 'aoe_full', cost: 900 }
+      { name: 'Tsubaki Pleno', desc: 'Dano ×1.5 | Tipo: cone (golpe à frente)', damage_mult: 1.5, type: 'cone', cost: 900 },
+      { name: 'Sanshunō Reijin', desc: 'Dano ×1.4 | Alcance ×1.15', damage_mult: 1.4, range_mult: 1.15, cost: 1300 },
+      { name: 'Sōten Kisshun Total', desc: 'Dano ×1.8 | Vel ×1.15 | Campo de Rejeição +30%', damage_mult: 1.8, speed_mult: 1.15, cost: 2000 }
     ]
   },
   chad_yasutora: {
@@ -467,7 +475,7 @@ const CHARACTERS = {
       type: 'boss_slayer', mult: 2.2,
       label: 'Brazo Derecho: causa 2.2× dano a minibosses e bosses'
     },
-    base_stats: { damage: 185, range: 85, attack_speed: 0.72, type: 'aoe' },
+    base_stats: { damage: 185, range: 85, attack_speed: 0.58, type: 'single_target' },
     deploy_cost: 260, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 65, chain_mult: 0.50, chains: 1, label: 'Impacto Ressoa: onda de choque encadeia para 1 inimigo próximo (50% dano)' },
@@ -476,8 +484,10 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Brazo Izquierda', desc: 'Dano ×1.4 | Alcance ×1.2', damage_mult: 1.4, range_mult: 1.2, cost: 420 },
-      { name: 'Armadura Completa', desc: 'Dano vs Boss ×3× (acumula)', damage_mult: 1.2, cost: 700 },
-      { name: 'El Directo', desc: 'Dano ×1.8 | Tipo: cone (esmaga à frente)', damage_mult: 1.8, type: 'cone', cost: 1200 }
+      { name: 'Armadura Completa', desc: 'Dano ×1.2 | Boss Slayer → 2.6×', damage_mult: 1.2, passive_override: { mult: 2.6 }, cost: 700 },
+      { name: 'El Directo', desc: 'Dano ×1.8 | Tipo: cone (esmaga à frente)', damage_mult: 1.8, type: 'cone', cost: 1200 },
+      { name: 'Braço de Ferro', desc: 'Dano ×1.5 | Boss Slayer → 3×', damage_mult: 1.5, passive_override: { mult: 3.0 }, cost: 1600 },
+      { name: 'El Directo Final', desc: 'Dano ×2.0 | Vel ×1.15 | Boss Slayer → 3.5×', damage_mult: 2.0, speed_mult: 1.15, passive_override: { mult: 3.5 }, cost: 2400 }
     ]
   },
 
@@ -490,7 +500,7 @@ const CHARACTERS = {
       type: 'petal_mark', splashRadius: 95, splashMult: 1.3,
       label: 'Senbonzakura: ao matar, pétalas explodem causando 1.3× dano em área'
     },
-    base_stats: { damage: 165, range: 160, attack_speed: 0.95, type: 'scatter' },
+    base_stats: { damage: 165, range: 160, attack_speed: 0.76, type: 'scatter' },
     deploy_cost: 380, max_level: 50,
     prestige_passives: {
       1: { type: 'spirit_surge', trigger_at: 4, mult: 4.0, label: 'Senbonzakura Dupla: cada 4º ataque desencadeia rajada de pétalas (4× dano)' },
@@ -500,7 +510,9 @@ const CHARACTERS = {
     upgrades: [
       { name: 'Senbonzakura Ativo', desc: 'Dano ×1.4 | Explosão de kill ×1.6×', damage_mult: 1.4, cost: 550 },
       { name: 'Kageyoshi', desc: 'Alcance ×1.2 | Vel ×1.15', range_mult: 1.2, speed_mult: 1.15, cost: 900 },
-      { name: 'Bankai: Senbonzakura Kageyoshi', desc: 'Dano ×1.8 | Tipo: scatter full (todo o mapa)', damage_mult: 1.8, type: 'scatter', cost: 1600 }
+      { name: 'Bankai: Senbonzakura Kageyoshi', desc: 'Dano ×1.8 | Tipo: scatter full (todo o mapa)', damage_mult: 1.8, type: 'scatter', cost: 1600 },
+      { name: 'Senbonzakura Avançada', desc: 'Explosão de kill: 1.6×→2.0× | Dano ×1.3', damage_mult: 1.3, passive_override: { splashMult: 2.0 }, cost: 2000 },
+      { name: 'Supremacia do Kuchiki', desc: 'Dano ×1.8 | Vel ×1.15 | Explosão de kill: 2.5×', damage_mult: 1.8, speed_mult: 1.15, passive_override: { splashMult: 2.5 }, cost: 3000 }
     ]
   },
   toshiro_hitsugaya: {
@@ -511,7 +523,7 @@ const CHARACTERS = {
       type: 'freeze_on_hit', chance: 0.45, duration: 3.0,
       label: 'Hyōrinmaru: 45% de chance de congelar o alvo por 3s a cada ataque'
     },
-    base_stats: { damage: 145, range: 148, attack_speed: 0.88, type: 'aoe' },
+    base_stats: { damage: 145, range: 148, attack_speed: 0.70, type: 'single_target' },
     deploy_cost: 400, max_level: 50,
     prestige_passives: {
       1: { type: 'damage_pulse', interval: 4.0, dmg_mult: 0.55, label: 'Tempestade de Gelo: blizzard pulsa a cada 4s em toda a área' },
@@ -520,8 +532,10 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Tensō Jūrin', desc: 'Dano ×1.3 | Freeze dura 4s', damage_mult: 1.3, cost: 580 },
-      { name: 'Ryūsenka', desc: 'Freeze aplica a todos no AOE', damage_mult: 1.2, status_effect: { type: 'freeze', duration: 2.5 }, cost: 950 },
-      { name: 'Bankai: Daiguren Hyōrinmaru', desc: 'Dano ×1.7 | Alcance ×1.3 | Freeze 5s', damage_mult: 1.7, range_mult: 1.3, cost: 1700 }
+      { name: 'Ryūsenka', desc: 'Tipo → Cone | Freeze em todos no cone', damage_mult: 1.2, type: 'cone', status_effect: { type: 'freeze', duration: 2.5 }, cost: 950 },
+      { name: 'Bankai: Daiguren Hyōrinmaru', desc: 'Dano ×1.7 | Alcance ×1.3 | Freeze 5s', damage_mult: 1.7, range_mult: 1.3, cost: 1700 },
+      { name: 'Gelo Eterno', desc: 'Freeze: 45%→62% | Dano ×1.3', damage_mult: 1.3, passive_override: { chance: 0.62, duration: 4 }, cost: 2100 },
+      { name: 'Dragão Divino', desc: 'Dano ×1.8 | Vel ×1.15 | Freeze → 80%/5s', damage_mult: 1.8, speed_mult: 1.15, passive_override: { chance: 0.80, duration: 5 }, cost: 3000 }
     ]
   },
   kenpachi_zaraki: {
@@ -532,7 +546,7 @@ const CHARACTERS = {
       type: 'berserker', maxStacks: 40, dmgPerStack: 0.04,
       label: 'Sede de Batalha: cada kill aumenta dano permanentemente (+4% por kill, máx 40 stacks)'
     },
-    base_stats: { damage: 230, range: 85, attack_speed: 0.68, type: 'single' },
+    base_stats: { damage: 230, range: 85, attack_speed: 0.54, type: 'single' },
     deploy_cost: 420, max_level: 50,
     prestige_passives: {
       1: { type: 'kill_frenzy', duration: 4.0, speed_mult: 3.5, label: 'Sede de Sangue: ao matar, vel. de ataque 3.5× por 4s' },
@@ -542,7 +556,9 @@ const CHARACTERS = {
     upgrades: [
       { name: 'Eyepatch Removido', desc: 'Vel ×1.5 | Dano ×1.3', speed_mult: 1.5, damage_mult: 1.3, cost: 600 },
       { name: 'Kenpachi Liberado', desc: 'Alcance ×1.3 | Dano ×1.4', range_mult: 1.3, damage_mult: 1.4, cost: 1000 },
-      { name: 'Bankai: Unnamed', desc: 'Dano ×2 | Tipo: cone | Stacks máx: 60 (+4%/stack)', damage_mult: 2.0, type: 'cone', cost: 1800 }
+      { name: 'Bankai: Unnamed', desc: 'Dano ×2 | Tipo: cone | Stacks máx: 60 (+4%/stack)', damage_mult: 2.0, type: 'cone', cost: 1800 },
+      { name: 'Berserker Pleno', desc: 'Dano ×1.5 | Stacks máx → 80 | +4.5%/kill', damage_mult: 1.5, passive_override: { maxStacks: 80, dmgPerStack: 0.045 }, cost: 2300 },
+      { name: 'Zaraki Definitivo', desc: 'Dano ×1.8 | Vel ×1.2 | Stacks máx → 100', damage_mult: 1.8, speed_mult: 1.2, passive_override: { maxStacks: 100 }, cost: 3500 }
     ]
   },
 
@@ -555,7 +571,7 @@ const CHARACTERS = {
       type: 'bankai_pressure', mult: 1.55,
       label: 'Pressão do Bankai: inimigos no alcance de Ichigo recebem 1.55× de dano de todas as torres'
     },
-    base_stats: { damage: 640, range: 135, attack_speed: 0.75, type: 'single' },
+    base_stats: { damage: 640, range: 135, attack_speed: 0.60, type: 'single' },
     deploy_cost: 600, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 100, chain_mult: 0.72, chains: 2, label: 'Getsuga Expansivo: Getsuga encadeia 2 inimigos em sequência (72% dano)' },
@@ -565,7 +581,9 @@ const CHARACTERS = {
     upgrades: [
       { name: 'Getsuga Tensho', desc: 'Dano ×1.4 | Tipo: linha (corte de alcance total)', damage_mult: 1.4, type: 'linha', cost: 750 },
       { name: 'Tensão Máxima', desc: 'Aura de pressão ×1.8×', damage_mult: 1.2, cost: 1300 },
-      { name: 'Bankai Completo', desc: 'Dano ×1.6 | Alcance ×1.25', damage_mult: 1.6, range_mult: 1.25, cost: 2200 }
+      { name: 'Bankai Completo', desc: 'Dano ×1.6 | Alcance ×1.25', damage_mult: 1.6, range_mult: 1.25, cost: 2200 },
+      { name: 'Getsuga Final', desc: 'Dano ×1.4 | Pressão do Bankai → 1.75×', damage_mult: 1.4, passive_override: { mult: 1.75 }, cost: 3200 },
+      { name: 'Além do Bankai', desc: 'Dano ×1.8 | Vel ×1.15 | Pressão → 2.0×', damage_mult: 1.8, speed_mult: 1.15, passive_override: { mult: 2.0 }, cost: 4500 }
     ]
   },
 
@@ -598,8 +616,8 @@ const CHARACTERS = {
         label: 'Máscara Eterna: 66 ataques carregam a Máscara → 20s de Modo Vizard Total (2× dano, 2× vel, AOE total)'
       }
     ],
-    base_stats: { damage: 980, range: 160, attack_speed: 0.65, type: 'single' },
-    deploy_cost: 1400, max_level: 60,
+    base_stats: { damage: 980, range: 160, attack_speed: 0.52, type: 'single' },
+    deploy_cost: 1400, max_level: 50,
     prestige_passives: {
       1: { type: 'kill_frenzy', duration: 5.0, speed_mult: 4.0, label: 'Descarga do Hollow: ao matar, máscara acelera 4× por 5s' },
       5: { type: 'crit_splash', crit_chance: 0.30, crit_mult: 3.0, splash_r: 95, splash_mult: 0.75, label: 'Cero Oscuras Total: críticos disparam Cero em área (75% dano)' },
@@ -622,7 +640,7 @@ const CHARACTERS = {
       type: 'double_hit', chance: 1.0,
       label: 'Borracha Elástica: Luffy sempre ataca duas vezes no mesmo ciclo'
     },
-    base_stats: { damage: 119, range: 70, attack_speed: 1.76, type: 'single_target' },
+    base_stats: { damage: 119, range: 90, attack_speed: 1.41, type: 'single_target' },
     deploy_cost: 120, max_level: 50,
     prestige_passives: {
       1: { type: 'kill_frenzy', duration: 2.0, speed_mult: 2.5, label: 'Gum-Gum Jet: ao matar, vel. 2.5× por 2s (Gear 2!)' },
@@ -631,7 +649,10 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Gomu Gomu no Pistol', desc: 'Dano ×1.5', damage_mult: 1.5, cost: 150 },
-      { name: 'Gomu Gomu no Gatling', desc: 'Vel ×1.4 | Dano ×1.2', speed_mult: 1.4, damage_mult: 1.2, cost: 300 }
+      { name: 'Gomu Gomu no Gatling', desc: 'Vel ×1.3 | Dano ×1.2', speed_mult: 1.3, damage_mult: 1.2, cost: 300 },
+      { name: 'Gear 2', desc: 'Vel ×1.25 | Dano ×1.25', speed_mult: 1.25, damage_mult: 1.25, cost: 480 },
+      { name: 'Gear 3', desc: 'Dano ×1.6 | Alcance ×1.2', damage_mult: 1.6, range_mult: 1.2, cost: 800 },
+      { name: 'Rei dos Piratas', desc: 'Dano ×1.5 | Vel ×1.15 | Double Hit sempre (100%)', damage_mult: 1.5, speed_mult: 1.15, passive_override: { chance: 1.0 }, cost: 1200 }
     ]
   },
   zoro_3: {
@@ -641,7 +662,7 @@ const CHARACTERS = {
       type: 'slow_aura', slow_pct: 0.15,
       label: 'Corte Debilitante: inimigos na área de Zoro ficam enfraquecidos (−15% velocidade)'
     },
-    base_stats: { damage: 158, range: 60, attack_speed: 1.32, type: 'cone' },
+    base_stats: { damage: 158, range: 60, attack_speed: 1.06, type: 'cone' },
     deploy_cost: 140, max_level: 50,
     prestige_passives: {
       1: { type: 'crit_splash', crit_chance: 0.22, crit_mult: 2.0, splash_r: 50, splash_mult: 0.40, label: 'Três Espadas: críticos explodem em corte triplo (40% dano em área)' },
@@ -650,14 +671,17 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Oni Giri', desc: 'Dano ×1.5', damage_mult: 1.5, cost: 200 },
-      { name: 'Tatsumaki', desc: 'Alcance ×1.2 | Dano ×1.3', range_mult: 1.35, damage_mult: 1.3, cost: 400 }
+      { name: 'Tatsumaki', desc: 'Alcance ×1.2 | Dano ×1.3', range_mult: 1.35, damage_mult: 1.3, cost: 400 },
+      { name: 'Espírito Assassino', desc: 'Vel ×1.25 | Slow → 22%', speed_mult: 1.25, passive_override: { slow_pct: 0.22 }, cost: 580 },
+      { name: 'Três Estilos Plenos', desc: 'Dano ×1.5', damage_mult: 1.5, cost: 900 },
+      { name: 'Alma de Espadas', desc: 'Dano ×1.7 | Vel ×1.15 | Slow → 32%', damage_mult: 1.7, speed_mult: 1.15, passive_override: { slow_pct: 0.32 }, cost: 1300 }
     ]
   },
   nami_3: {
     id: 'nami_3', name: 'Nami', rarity: 3, series: 'onepiece', playable: true, xp_value: 1000, initials: 'NA',
     image: 'assets/towers/update1/Nami.png',
     passive: { type: 'tempo_acumulado', max_charges: 8, slow_pct: 0.40, slow_duration: 2.5, label: 'Tempestade Acumulada: a cada 8 ataques desencadeia tempestade global — desacelera TODOS os inimigos em tela em 40% por 2.5s' },
-    base_stats: { damage: 79, range: 90, attack_speed: 1.1, type: 'cone' },
+    base_stats: { damage: 79, range: 90, attack_speed: 0.88, type: 'cone' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 90, chain_mult: 0.45, chains: 1, label: 'Climatact Elétrico: relâmpago encadeia para 1 inimigo (45% dano)' },
@@ -666,14 +690,17 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Thunderbolt Tempo', desc: 'Dano ×1.5', damage_mult: 1.5, cost: 200 },
-      { name: 'Tornado Tempo', desc: 'Vel ×1.3', speed_mult: 1.3, cost: 350 }
+      { name: 'Tornado Tempo', desc: 'Vel ×1.25', speed_mult: 1.25, cost: 350 },
+      { name: 'Navegação Perfeita', desc: 'Dano ×1.35 | Alcance ×1.2', damage_mult: 1.35, range_mult: 1.2, cost: 530 },
+      { name: 'Tempestade Perfeita', desc: 'Vel ×1.2 | Tempestade a cada 7 ataques', speed_mult: 1.2, passive_override: { max_charges: 7 }, cost: 800 },
+      { name: 'Rainha dos Mares', desc: 'Dano ×1.6 | Tempestade desacelera 56%', damage_mult: 1.6, passive_override: { slow_pct: 0.56 }, cost: 1200 }
     ]
   },
   usopp_3: {
     id: 'usopp_3', name: 'Usopp', rarity: 3, series: 'onepiece', playable: true, xp_value: 1000, initials: 'US',
     image: 'assets/towers/update1/Usopp.png',
     passive: { type: 'status_on_hit_chance', chance: 0.10, status: 'paralisia', duration: 0.5, label: 'Bala de Chumbo: 10% chance de Stun (0.5s)' },
-    base_stats: { damage: 92, range: 200, attack_speed: 0.88, type: 'single_target' },
+    base_stats: { damage: 92, range: 200, attack_speed: 0.70, type: 'single_target' },
     deploy_cost: 160, max_level: 50,
     prestige_passives: {
       1: { type: 'crit_splash', crit_chance: 0.20, crit_mult: 2.0, splash_r: 60, splash_mult: 0.38, label: 'Munição Explosiva: críticos explodem (38% dano em área)' },
@@ -682,14 +709,17 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Estilingue Kabuto', desc: 'Dano ×1.4', damage_mult: 1.4, cost: 200 },
-      { name: 'Firebird Star', desc: 'Dano ×1.5 | Alcance ×1.1', damage_mult: 1.5, range_mult: 1.25, cost: 400 }
+      { name: 'Firebird Star', desc: 'Dano ×1.5 | Alcance ×1.1', damage_mult: 1.5, range_mult: 1.25, cost: 400 },
+      { name: 'Rei Atirador', desc: 'Vel ×1.2 | Dano ×1.3', speed_mult: 1.2, damage_mult: 1.3, cost: 600 },
+      { name: 'Munição Verde', desc: 'Stun: 10%→28% chance | 0.5s→1.2s', passive_override: { chance: 0.28, duration: 1.2 }, cost: 900 },
+      { name: 'Sogeking', desc: 'Dano ×1.7 | Alcance ×1.15 | Stun → 40%/1.8s', damage_mult: 1.7, range_mult: 1.15, passive_override: { chance: 0.40, duration: 1.8 }, cost: 1300 }
     ]
   },
   brook_3: {
     id: 'brook_3', name: 'Brook', rarity: 3, series: 'onepiece', playable: true, xp_value: 1000, initials: 'BR',
     image: 'assets/towers/update1/Brook.png',
     passive: { type: 'status_on_hit', status: 'freeze', duration: 1.5, label: 'Soul Solid: Lentidão severa' },
-    base_stats: { damage: 66, range: 120, attack_speed: 1.65, type: 'linha' },
+    base_stats: { damage: 66, range: 120, attack_speed: 1.32, type: 'linha' },
     deploy_cost: 180, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'freeze', slow_pct: 0.5, duration: 1.5, label: 'Gelo Espiritual: cada acerto aplica frio da alma (1.5s slow 50%)' },
@@ -697,8 +727,11 @@ const CHARACTERS = {
       10: { type: 'phantom_strike', trigger_at: 6, phantom_mult: 1.6, label: 'Pulso da Morte: cada 6º ataque propaga energia espiritual em área' }
     },
     upgrades: [
-      { name: 'Yahazu Giri', desc: 'Vel ×1.4', speed_mult: 1.4, cost: 220 },
-      { name: 'Nemuri Uta', desc: 'Dano ×1.5', damage_mult: 1.5, cost: 400 }
+      { name: 'Yahazu Giri', desc: 'Vel ×1.35', speed_mult: 1.35, cost: 220 },
+      { name: 'Nemuri Uta', desc: 'Dano ×1.5', damage_mult: 1.5, cost: 400 },
+      { name: 'Soul King', desc: 'Vel ×1.25 | Freeze dura 2.5s', speed_mult: 1.25, passive_override: { duration: 2.5 }, cost: 620 },
+      { name: 'Âncora Fria', desc: 'Dano ×1.5 | Alcance ×1.15', damage_mult: 1.5, range_mult: 1.15, cost: 950 },
+      { name: 'Milha de Gelo', desc: 'Dano ×1.6 | Freeze dura 3.5s | Vel ×1.15', damage_mult: 1.6, speed_mult: 1.15, passive_override: { duration: 3.5 }, cost: 1350 }
     ]
   },
 
@@ -707,7 +740,7 @@ const CHARACTERS = {
     id: 'sanji_4', name: 'Sanji', rarity: 4, series: 'onepiece', playable: true, xp_value: 3000, initials: 'SJ',
     image: 'assets/towers/update1/Sanji.png',
     passive: { type: 'status_on_hit', status: 'burn', dps: 30, duration: 3, label: 'Diable Jambe: Causa Burn' },
-    base_stats: { damage: 190, range: 65, attack_speed: 1.98, type: 'single_target' },
+    base_stats: { damage: 190, range: 65, attack_speed: 1.58, type: 'single_target' },
     deploy_cost: 250, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'burn', dps: 20, duration: 3, label: 'Diable Jambe: cada chute incendeia o alvo (20 DPS/3s)' },
@@ -716,14 +749,17 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Flambage Shot', desc: 'Dano ×1.4', damage_mult: 1.4, cost: 300 },
-      { name: 'Hell Memories', desc: 'Vel ×1.3 | Burn → 50 DPS', speed_mult: 1.3, passive_override: { dps: 50 }, cost: 600 }
+      { name: 'Hell Memories', desc: 'Vel ×1.25 | Burn → 50 DPS', speed_mult: 1.25, passive_override: { dps: 50 }, cost: 600 },
+      { name: 'Sky Walk', desc: 'Alcance ×1.25 | Vel ×1.1', range_mult: 1.25, speed_mult: 1.1, cost: 850 },
+      { name: 'Ifrit Jambe', desc: 'Dano ×1.5 | Burn → 80 DPS', damage_mult: 1.5, passive_override: { dps: 80 }, cost: 1300 },
+      { name: 'Sangre de la Flamme', desc: 'Dano ×1.8 | Vel ×1.15 | Burn → 110 DPS / 5s', damage_mult: 1.8, speed_mult: 1.15, passive_override: { dps: 110, duration: 5 }, cost: 1900 }
     ]
   },
   robin_4: {
     id: 'robin_4', name: 'Robin', rarity: 4, series: 'onepiece', playable: true, xp_value: 3000, initials: 'RB',
     image: 'assets/towers/update1/Robin.png',
     passive: { type: 'status_on_hit_chance', chance: 0.20, status: 'paralisia', duration: 1.0, label: 'Mil Fleurs: 20% chance de Stun (1s)' },
-    base_stats: { damage: 185, range: 100, attack_speed: 0.99, type: 'aoe_full' },
+    base_stats: { damage: 185, range: 100, attack_speed: 0.79, type: 'single_target' },
     deploy_cost: 300, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 85, chain_mult: 0.62, chains: 2, label: 'Fleurs de Grapple: flores brotam em 2 inimigos próximos (62% dano)' },
@@ -731,15 +767,18 @@ const CHARACTERS = {
       10: { type: 'phantom_strike', trigger_at: 5, phantom_mult: 2.0, label: 'Mil Flores: cada 5º ataque faz mil flores brotarem em toda a área' }
     },
     upgrades: [
-      { name: 'Clutch', desc: 'Dano ×1.5', damage_mult: 1.5, cost: 350 },
-      { name: 'Gigantesco Mano', desc: 'Alcance ×1.2 | Dano ×1.4', range_mult: 1.35, damage_mult: 1.4, cost: 700 }
+      { name: 'Clutch', desc: 'Dano ×1.5 | Tipo → Cone', damage_mult: 1.5, type: 'cone', cost: 350 },
+      { name: 'Gigantesco Mano', desc: 'Alcance ×1.2 | Dano ×1.4', range_mult: 1.35, damage_mult: 1.4, cost: 700 },
+      { name: 'Cien Fleur', desc: 'Vel ×1.2 | Paralisia → 1.5s', speed_mult: 1.2, passive_override: { duration: 1.5 }, cost: 950 },
+      { name: 'Mil Fleurs', desc: 'Dano ×1.5 | Stun: 20%→35%', damage_mult: 1.5, passive_override: { chance: 0.35 }, cost: 1400 },
+      { name: 'Gigantesco Mano Completo', desc: 'Dano ×1.8 | Tipo → AOE | Paralisia → 2.5s', damage_mult: 1.8, type: 'aoe', passive_override: { duration: 2.5 }, cost: 2000 }
     ]
   },
   ace_4: {
     id: 'ace_4', name: 'Ace', rarity: 4, series: 'onepiece', playable: true, xp_value: 3000, initials: 'AC',
     image: 'assets/towers/update1/Ace.png',
     passive: { type: 'status_on_hit', status: 'burn', dps: 60, duration: 4, label: 'Mera Mera: Dano em chamas massivo' },
-    base_stats: { damage: 290, range: 110, attack_speed: 1.1, type: 'cone' },
+    base_stats: { damage: 290, range: 110, attack_speed: 0.88, type: 'cone' },
     deploy_cost: 320, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'burn', dps: 25, duration: 4, label: 'Chama Residual: cada acerto queima profundamente (25 DPS/4s)' },
@@ -748,7 +787,10 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Hiken', desc: 'Dano ×1.5', damage_mult: 1.5, cost: 400 },
-      { name: 'Entei', desc: 'Dano ×1.6 | Burn → 100 DPS', damage_mult: 1.6, passive_override: { dps: 100 }, cost: 800 }
+      { name: 'Entei', desc: 'Dano ×1.6 | Burn → 100 DPS', damage_mult: 1.6, passive_override: { dps: 100 }, cost: 800 },
+      { name: 'Chamas Espalhadas', desc: 'Dano ×1.3 | Burn → 120 DPS', damage_mult: 1.3, passive_override: { dps: 120 }, cost: 1100 },
+      { name: 'Punho de Fogo', desc: 'Vel ×1.2 | Dano ×1.4', speed_mult: 1.2, damage_mult: 1.4, cost: 1600 },
+      { name: 'Entidade do Inferno', desc: 'Dano ×1.8 | Burn → 150 DPS / 5s', damage_mult: 1.8, passive_override: { dps: 150, duration: 5 }, cost: 2200 }
     ]
   },
 
@@ -767,7 +809,7 @@ const CHARACTERS = {
       ]
     },
     passive: { type: 'zoro_burst', label: 'Foco Ashura: 3x Dano Base, ataca 3 vezes e descansa 3' },
-    base_stats: { damage: 594, range: 130, attack_speed: 1.32, type: 'linha' },
+    base_stats: { damage: 594, range: 130, attack_speed: 1.06, type: 'linha' },
     deploy_cost: 600, max_level: 50,
     prestige_passives: {
       1: { type: 'crit_splash', crit_chance: 0.30, crit_mult: 2.5, splash_r: 80, splash_mult: 0.65, label: 'Espírito do Rei das Espadas: críticos causam explosão de corte (65% dano)' },
@@ -776,14 +818,16 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Kiki Kyutoryu', desc: 'Dano ×1.4', damage_mult: 1.4, cost: 700 },
-      { name: 'Ichidai Sanzen', desc: 'Alcance ×1.15 | Dano ×1.5', range_mult: 1.30, damage_mult: 1.5, cost: 1500 }
+      { name: 'Ichidai Sanzen', desc: 'Alcance ×1.15 | Dano ×1.5', range_mult: 1.30, damage_mult: 1.5, cost: 1500 },
+      { name: 'Ashura Plena', desc: 'Dano ×1.4 | Vel ×1.15', damage_mult: 1.4, speed_mult: 1.15, cost: 2200 },
+      { name: 'Rei do Inferno Absoluto', desc: 'Dano ×1.7 | Alcance ×1.1', damage_mult: 1.7, range_mult: 1.1, cost: 3200 }
     ]
   },
   luffy_5: {
     id: 'luffy_5', name: 'Luffy (Gear 4)', rarity: 5, series: 'onepiece', playable: true, xp_value: 10000, initials: 'L4',
     image: 'assets/towers/update1/Luffy G4.png',
     passive: { type: 'silence_buffs', chance: 0.3, label: 'Haki: 30% chance no 1º hit de anular o buff inimigo' },
-    base_stats: { damage: 500, range: 100, attack_speed: 1.54, type: 'aoe' },
+    base_stats: { damage: 500, range: 100, attack_speed: 1.23, type: 'cone' },
     deploy_cost: 650, max_level: 50,
     prestige_passives: {
       1: { type: 'battle_rage', per_enemy: 0.050, max_bonus: 1.0, label: 'Haki do Rei: Haki do Conquistador escala com inimigos (+5%/inimigo, máx 100%!)' },
@@ -792,14 +836,16 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Kong Gun', desc: 'Dano ×1.4', damage_mult: 1.4, cost: 800 },
-      { name: 'King Kong Gun', desc: 'Dano ×1.6 | Alcance ×1.1', damage_mult: 1.6, range_mult: 1.25, cost: 1600 }
+      { name: 'King Kong Gun', desc: 'Dano ×1.6 | Alcance ×1.1', damage_mult: 1.6, range_mult: 1.25, cost: 1600 },
+      { name: 'Gear 4 Pleno', desc: 'Dano ×1.3 | Vel ×1.15', damage_mult: 1.3, speed_mult: 1.15, cost: 2300 },
+      { name: 'Gear 5', desc: 'Dano ×1.7 | Vel ×1.1 | Haki: 50% chance anular buff', damage_mult: 1.7, speed_mult: 1.1, passive_override: { chance: 0.50 }, cost: 3200 }
     ]
   },
   barbabranca_5: {
     id: 'barbabranca_5', name: 'Barba Branca', rarity: 5, series: 'onepiece', playable: true, xp_value: 10000, initials: 'BB',
     image: 'assets/towers/update1/Barba Branca.png',
     passive: { type: 'tsunami', interval: 15, hp: 5000, label: 'Tsunami: Invoca onda reversa na base a cada 15s (HP 5000)' },
-    base_stats: { damage: 554, range: 150, attack_speed: 0.88, type: 'linha' },
+    base_stats: { damage: 554, range: 150, attack_speed: 0.70, type: 'linha' },
     deploy_cost: 700, max_level: 50,
     prestige_passives: {
       1: { type: 'crit_splash', crit_chance: 0.28, crit_mult: 2.5, splash_r: 100, splash_mult: 0.65, label: 'Tremor de Terra: críticos provocam terremoto maciço (65% dano em área)' },
@@ -808,7 +854,9 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Gura Gura', desc: 'Dano ×1.4 | Tsunami HP 8000', damage_mult: 1.4, passive_override: { hp: 8000 }, cost: 900 },
-      { name: 'Terremoto', desc: 'Dano ×1.5 | Tsunami HP 15000', damage_mult: 1.5, passive_override: { hp: 15000 }, cost: 1800 }
+      { name: 'Terremoto', desc: 'Dano ×1.5 | Tsunami HP 15000', damage_mult: 1.5, passive_override: { hp: 15000 }, cost: 1800 },
+      { name: 'Tsunami Gigante', desc: 'Dano ×1.3 | Tsunami HP 22000', damage_mult: 1.3, passive_override: { hp: 22000 }, cost: 2600 },
+      { name: 'Lendário dos Mares', desc: 'Dano ×1.7 | Vel ×1.15 | Tsunami HP 32000', damage_mult: 1.7, speed_mult: 1.15, passive_override: { hp: 32000 }, cost: 3800 }
     ]
   },
 
@@ -822,7 +870,7 @@ const CHARACTERS = {
       { type: 'status_on_hit', status: 'sangramento', dps: 20, duration: 3, label: 'Marca da Maldição: Aplica DoT venenoso' },
       { type: 'edo_tensei_economy', label: 'Imortalidade: Vende por 100% do ouro investido' }
     ],
-    base_stats: { damage: 200, range: 120, attack_speed: 1.1, type: 'cone' },
+    base_stats: { damage: 200, range: 120, attack_speed: 0.88, type: 'cone' },
     deploy_cost: 450, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 85, chain_mult: 0.58, chains: 2, label: 'Serpente Multiplicada: cobras encadeiam 2 inimigos em sequência (58% dano)' },
@@ -831,7 +879,7 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Serpente Branca', desc: 'Dano ×1.3 | Veneno 35 DPS', damage_mult: 1.3, passive_override: { dps: 35, duration: 3 }, cost: 500 },
-      { name: 'Kusanagi', desc: 'Tipo → AOE | Dano ×1.5 | Veneno 60 DPS', type: 'aoe', damage_mult: 1.5, passive_override: { dps: 60, duration: 4 }, cost: 950 }
+      { name: 'Kusanagi', desc: 'Dano ×1.5 | Veneno 60 DPS | Tipo → cone maior', damage_mult: 1.5, passive_override: { dps: 60, duration: 4 }, cost: 950 }
     ]
   },
   pain_base: {
@@ -841,7 +889,7 @@ const CHARACTERS = {
       { type: 'sharingan', label: 'Rinnegan: Ignora qualquer imunidade do inimigo (Bypass)' },
       { type: 'bansho_tenin', attacks_required: 4, push_dist: 35, label: 'Bansho Ten\'in: A cada 4 ataques, puxa os inimigos para trás' }
     ],
-    base_stats: { damage: 350, range: 150, attack_speed: 1.1, type: 'aoe' },
+    base_stats: { damage: 350, range: 150, attack_speed: 0.88, type: 'cone' },
     deploy_cost: 800, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 110, chain_mult: 0.70, chains: 2, label: 'Gravitação: força gravitacional do Rinnegan encadeia 2 inimigos (70% dano)' },
@@ -863,7 +911,7 @@ const CHARACTERS = {
       { type: 'cem_sobrancelhas', drain_interval_mult: 1.5, label: 'Cem Sobrancelhas: inimigos com drain drenam a base 50% mais devagar enquanto Tsunade está em campo' },
       { type: 'byakugou', trigger_at: 40, cooldown: 40, label: 'Byakugou: após 40s de wave ativa, restaura 1 vida perdida nessa wave (máx 1 por ativação)' }
     ],
-    base_stats: { damage: 480, range: 75, attack_speed: 0.6, type: 'aoe' },
+    base_stats: { damage: 480, range: 75, attack_speed: 0.48, type: 'single_target' },
     deploy_cost: 600, max_level: 50,
     prestige_passives: {
       1: { type: 'field_commander', bonus: 0.10, label: 'Vontade de Ferro: presença de Tsunade inspira o time, +10% de dano a todas as torres' },
@@ -892,7 +940,7 @@ const CHARACTERS = {
         label: 'Modo Bijuu (Gyuki): a cada 15s transforma por 4s — paralisa todos por 1.5s, marca TODOS com Tinta do Gyuki e causa 4× dano base'
       }
     ],
-    base_stats: { damage: 320, range: 145, attack_speed: 1.2, type: 'scatter' },
+    base_stats: { damage: 320, range: 145, attack_speed: 0.96, type: 'scatter' },
     deploy_cost: 800, max_level: 50,
     prestige_passives: {
       1: { type: 'mark_on_nth_hit', n: 5, bonus: 0.30, duration: 3, label: 'Mestre do Enka: a cada 5ª espada que acerta, o inimigo fica Marcado (+30% dano por 3s)' },
@@ -921,7 +969,7 @@ const CHARACTERS = {
       type: 'web_zone', web_radius: 55, duration: 2.5,
       label: 'Teia de Aranha: cada acerto deixa teia no solo (slow 60% / 2.5s em raio de 55px)'
     },
-    base_stats: { damage: 105, range: 100, attack_speed: 1.65, type: 'single_target' },
+    base_stats: { damage: 105, range: 100, attack_speed: 1.32, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'double_hit', chance: 0.30, label: 'Sentido Aranha: 30% de chance de atacar uma segunda vez no mesmo ciclo' },
@@ -947,7 +995,7 @@ const CHARACTERS = {
       type: 'cross_mark', bonus: 0.25, duration: 6,
       label: 'Mira de Mestre: kills marcam inimigos próximos por 6s (todos recebem +25% dano)'
     },
-    base_stats: { damage: 90, range: 118, attack_speed: 1.85, type: 'single_target' },
+    base_stats: { damage: 90, range: 118, attack_speed: 1.48, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'paralisia', duration: 1.2, label: 'Pistola de Viúva: cada acerto aplica paralisia de 1.2s' },
@@ -973,7 +1021,7 @@ const CHARACTERS = {
       type: 'arrow_rotation', freeze_dur: 3,
       label: 'Aljava Tática: cicla entre flechas Normal (×1.8), Explosiva (AOE), Gelo (3s), Perfurante (×3)'
     },
-    base_stats: { damage: 85, range: 132, attack_speed: 0.95, type: 'single_target' },
+    base_stats: { damage: 85, range: 132, attack_speed: 0.76, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'boss_slayer', bonus: 0.30, label: 'Olho de Falcão: +30% de dano contra minibosses e bosses' },
@@ -1003,7 +1051,7 @@ const CHARACTERS = {
       type: 'ricochet_aura', bounces: 2, radius: 80, mult: 0.55,
       label: 'Vibranium Cinético: cada acerto ricocheteia para 2 inimigos próximos (55% dano, raio 80px)'
     },
-    base_stats: { damage: 195, range: 118, attack_speed: 1.42, type: 'single_target' },
+    base_stats: { damage: 195, range: 118, attack_speed: 1.14, type: 'single_target' },
     deploy_cost: 350, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'sangramento', dps: 30, duration: 4, label: 'Garras de Vibranium: cada acerto causa sangramento (30 DPS / 4s)' },
@@ -1029,7 +1077,7 @@ const CHARACTERS = {
       type: 'chain_lightning', chains: 3, radius: 90, mult: 0.40,
       label: 'Relâmpago de Asgard: cada acerto encadeia raio para 3 inimigos próximos (40% dano, raio 90px)'
     },
-    base_stats: { damage: 215, range: 128, attack_speed: 1.28, type: 'single_target' },
+    base_stats: { damage: 215, range: 128, attack_speed: 1.02, type: 'single_target' },
     deploy_cost: 350, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'paralisia', duration: 1.5, label: 'Mjolnir Atordoante: cada acerto aplica paralisia de 1.5s' },
@@ -1038,9 +1086,9 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Mjolnir', desc: 'Dano ×1.4 | Raio → 50% dano', damage_mult: 1.4, passive_override: { mult: 0.50 }, cost: 400 },
-      { name: 'Deus do Trovão', desc: 'Tipo → AOE | Dano ×0.85', type: 'aoe', damage_mult: 0.85, cost: 600 },
+      { name: 'Deus do Trovão', desc: 'Vel ×1.2 | Dano ×1.2', speed_mult: 1.2, damage_mult: 1.2, cost: 600 },
       { name: 'Tempestade de Asgard', desc: 'Cadeia → 4 inimigos | Raio 100px', passive_override: { chains: 4, radius: 100 }, cost: 820 },
-      { name: 'Stormbreaker', desc: 'Vel ×1.2 | Dano ×1.4', speed_mult: 1.2, damage_mult: 1.4, cost: 1100 },
+      { name: 'Stormbreaker', desc: 'Vel ×1.15 | Dano ×1.4', speed_mult: 1.15, damage_mult: 1.4, cost: 1100 },
       { name: 'Raio Divino', desc: 'Cadeia → 5 inimigos | 60% dano', passive_override: { chains: 5, radius: 110, mult: 0.60 }, cost: 1500 },
       { name: 'Odinson', desc: 'Dano ×1.9 | Cadeia paralisa 1.5s', damage_mult: 1.9, passive_override: { chains: 5, radius: 120, mult: 0.65 }, cost: 2200 }
     ]
@@ -1055,7 +1103,7 @@ const CHARACTERS = {
       type: 'rage_stack', per_enemy: 0.05, max_bonus: 0.50, fade_time: 3,
       label: 'Fúria Implacável: +5% dano por inimigo no alcance (máx 50%); bônus persiste 3s'
     },
-    base_stats: { damage: 180, range: 95, attack_speed: 0.88, type: 'aoe' },
+    base_stats: { damage: 180, range: 95, attack_speed: 0.70, type: 'single_target' },
     deploy_cost: 350, max_level: 50,
     prestige_passives: {
       1: { type: 'berserker', per_enemy: 0.05, max_bonus: 0.50, label: 'Modo Rage: +5% de vel de ataque por inimigo próximo (máx 50%)' },
@@ -1065,7 +1113,7 @@ const CHARACTERS = {
     upgrades: [
       { name: 'Punho do Hulk', desc: '+6% / inimigo (máx 55%)', passive_override: { per_enemy: 0.06, max_bonus: 0.55 }, cost: 400 },
       { name: 'Fúria Verde', desc: 'Vel ×1.3 | Alcance ×1.1', speed_mult: 1.3, range_mult: 1.1, cost: 600 },
-      { name: 'Hulk Definitivo', desc: 'Dano ×1.4 | +7% / inimigo (máx 65%)', damage_mult: 1.4, passive_override: { per_enemy: 0.07, max_bonus: 0.65 }, cost: 820 },
+      { name: 'Hulk Definitivo', desc: 'Tipo → Cone | Dano ×1.4 | +7% / inimigo (máx 65%)', type: 'cone', damage_mult: 1.4, passive_override: { per_enemy: 0.07, max_bonus: 0.65 }, cost: 820 },
       { name: 'Rage Mode', desc: 'Bônus persiste 4s | Dano ×1.2', damage_mult: 1.2, passive_override: { per_enemy: 0.07, max_bonus: 0.70, fade_time: 4 }, cost: 1100 },
       { name: 'Punho Sísmico', desc: 'Alcance ×1.15 | Dano ×1.4', range_mult: 1.15, damage_mult: 1.4, cost: 1500 },
       { name: 'HULK SMASH!!!', desc: 'Dano ×1.8 | +8% / inimigo (máx 80%)', damage_mult: 1.8, passive_override: { per_enemy: 0.08, max_bonus: 0.80, fade_time: 5 }, cost: 2200 }
@@ -1085,7 +1133,7 @@ const CHARACTERS = {
       type: 'unibeam', attacks_required: 8, mult: 8,
       label: 'Unibeam: a cada 8 ataques, dispara o Unibeam central (8× dano em linha, acerta todos)'
     },
-    base_stats: { damage: 340, range: 152, attack_speed: 1.18, type: 'linha' },
+    base_stats: { damage: 340, range: 152, attack_speed: 0.94, type: 'linha' },
     deploy_cost: 800, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 90, chain_mult: 0.50, chains: 2, label: 'Repulsor Duplo: disparos encadeiam para 2 inimigos próximos (50% dano)' },
@@ -1122,7 +1170,7 @@ const CHARACTERS = {
       type: 'gamma_burst', burst_mult: 3.0, streak_bonus: 0.20, streak_dur: 3, radius: 120,
       label: 'Explosão Gamma: kills causam explosão em área (3× dano / raio 120px; +20% por kill consecutiva em 3s)'
     },
-    base_stats: { damage: 370, range: 108, attack_speed: 0.95, type: 'aoe' },
+    base_stats: { damage: 370, range: 108, attack_speed: 0.76, type: 'cone' },
     deploy_cost: 1000, max_level: 50,
     prestige_passives: {
       1: { type: 'bankai_pressure', aoe_r: 100, aoe_mult: 1.0, label: 'Fúria Gamma: kills adicionais criam ondas de choque duplas (100% dano, raio 100px)' },
@@ -1152,7 +1200,7 @@ const CHARACTERS = {
       type: 'speed_force', burst_every: 8, burst_mult: 6.0,
       label: 'Força da Velocidade: a cada 8 ataques dispara um Raio de Velocidade causando 6× dano base em TODOS os inimigos'
     },
-    base_stats: { damage: 90, range: 112, attack_speed: 0.68, type: 'single_target' },
+    base_stats: { damage: 90, range: 112, attack_speed: 0.54, type: 'single_target' },
     deploy_cost: 250, max_level: 50,
     prestige_passives: {
       1: { type: 'double_hit', chance: 0.30, label: 'Pós-Imagem: 30% de chance de atacar duas vezes no mesmo ciclo' },
@@ -1178,7 +1226,7 @@ const CHARACTERS = {
       type: 'target_mark', mark_duration: 4, mark_bonus: 0.18,
       label: 'Alvo Marcado: inimigos atingidos ficam marcados por 4s e recebem +18% de dano de qualquer fonte'
     },
-    base_stats: { damage: 132, range: 122, attack_speed: 1.32, type: 'single_target' },
+    base_stats: { damage: 132, range: 122, attack_speed: 1.06, type: 'single_target' },
     deploy_cost: 255, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'paralisia', duration: 0.8, label: 'Multimarca: cada acerto aplica paralisia relâmpago de 0.8s' },
@@ -1203,7 +1251,7 @@ const CHARACTERS = {
       type: 'tide_zone', zone_r: 40, zone_duration: 3, slow_pct: 0.40,
       label: 'Zona de Maré: cada ataque cria uma zona no ponto de impacto (dura 3s, reduz velocidade em 40%)'
     },
-    base_stats: { damage: 155, range: 132, attack_speed: 1.45, type: 'aoe' },
+    base_stats: { damage: 155, range: 132, attack_speed: 1.16, type: 'single_target' },
     deploy_cost: 270, max_level: 50,
     prestige_passives: {
       1: { type: 'slow_aura', slow_pct: 0.20, label: 'Correnteza: aura passiva desacelera inimigos próximos em 20%' },
@@ -1232,7 +1280,7 @@ const CHARACTERS = {
       type: 'detective_mark', mark_duration: 5, mark_bonus: 0.22,
       label: 'Detetive de Elite: inimigos atingidos recebem Marca do Detetive por 5s — aliados que os atacarem causam +22% dano'
     },
-    base_stats: { damage: 218, range: 138, attack_speed: 1.28, type: 'cone' },
+    base_stats: { damage: 218, range: 138, attack_speed: 1.02, type: 'cone' },
     deploy_cost: 500, max_level: 50,
     prestige_passives: {
       1: { type: 'ally_damage_aura', bonus: 0.08, label: 'Vigilante: torres aliadas no alcance ganham +8% de dano' },
@@ -1241,7 +1289,7 @@ const CHARACTERS = {
     },
     upgrades: [
       { name: 'Utilidade do Cinto', desc: 'Dano ×1.25 | Alcance ×1.15', damage_mult: 1.25, range_mult: 1.15, cost: 350 },
-      { name: 'Batarang Explosivo', desc: 'Cone → AOE', type: 'aoe', cost: 600 },
+      { name: 'Batarang Explosivo', desc: 'Dano ×1.3 | Vel ×1.15', damage_mult: 1.3, speed_mult: 1.15, cost: 600 },
       { name: 'Análise Tática', desc: 'Bônus aliados: 22%→30%', passive_override: { mark_bonus: 0.30 }, cost: 820 },
       { name: 'Traje Blindado', desc: 'Vel ×1.2 | Dano ×1.4', speed_mult: 1.2, damage_mult: 1.4, cost: 1050 },
       { name: 'Protocolo Batman', desc: 'Dano ×1.55 | Marca: 5s→7s', damage_mult: 1.55, passive_override: { mark_duration: 7 }, cost: 1300 },
@@ -1284,7 +1332,7 @@ const CHARACTERS = {
       type: 'construct_barrier', barrier_cd: 15, barrier_dur: 8, barrier_dps: 180, slow_pct: 0.50, max_barriers: 1,
       label: 'Barreira de Construto: a cada 15s cria barreira no caminho (dura 8s, slow 50%, 180 DPS aos inimigos que a atravessam)'
     },
-    base_stats: { damage: 192, range: 145, attack_speed: 1.35, type: 'single_target' },
+    base_stats: { damage: 192, range: 145, attack_speed: 1.08, type: 'single_target' },
     deploy_cost: 520, max_level: 50,
     prestige_passives: {
       1: { type: 'gl_barrier_explosion', label: 'Construto Ofensivo: barreiras causam explosão de impacto ao aparecer (500 dano em AOE)' },
@@ -1313,7 +1361,7 @@ const CHARACTERS = {
       type: 'heat_vision_aura', heat_vision_cd: 20, heat_vision_dmg: 3000, aura_bonus: 0.15,
       label: 'Homem de Aço: torres aliadas ganham +15% dano. A cada 20s dispara Visão de Calor (3.000 dano em todos os inimigos)'
     },
-    base_stats: { damage: 450, range: 162, attack_speed: 1.15, type: 'aoe' },
+    base_stats: { damage: 450, range: 162, attack_speed: 0.92, type: 'single_target' },
     deploy_cost: 950, max_level: 50,
     prestige_passives: {
       1: { type: 'boss_slayer', bonus: 0.20, label: 'Invulnerabilidade: +20% dano contra bosses e minibosses' },
@@ -1339,8 +1387,8 @@ const CHARACTERS = {
       type: 'shazam_transform', attacks_to_transform: 6, olympus_dmg: 4000, olympus_every: 10, chain_r: 80, chain_mult: 0.50, chain_count: 2,
       label: 'SHAZAM!: Billy revela S-H-A-Z-A-M ao atacar. Após transformação: encadeia relâmpago para 2 alvos (50% dano) e a cada 10 ataques invoca Raio do Olimpo (4.000 dano AOE)'
     },
-    base_stats: { damage: 45, range: 105, attack_speed: 2.5, type: 'single_target' },
-    transformed_stats: { damage: 550, range: 168, attack_speed: 1.02, type: 'aoe' },
+    base_stats: { damage: 45, range: 105, attack_speed: 0.6, type: 'single_target' },
+    transformed_stats: { damage: 550, range: 168, attack_speed: 0.82, type: 'cone' },
     deploy_cost: 1100, max_level: 50,
     prestige_passives: {
       1: { type: 'shazam_stun_immune', label: 'Proteção Mágica: Shazam é imune ao atordoamento de destroços da Mecânica Viva' },
@@ -1376,7 +1424,7 @@ const CHARACTERS = {
       type: 'negative_speed', stacks_to_trigger: 5, paralysis_dur: 2, stun_immune_mult: 5,
       label: 'Velocidade Negativa: cada acerto acumula 1 stack no alvo. 5 stacks → paralisia 2s (ou 5× dano em inimigos stun_immune)'
     },
-    base_stats: { damage: 480, range: 148, attack_speed: 0.55, type: 'linha' },
+    base_stats: { damage: 480, range: 148, attack_speed: 0.44, type: 'linha' },
     deploy_cost: 800, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'sangramento', dps: 100, duration: 2, label: 'Rastro de Ódio: cada ataque causa sangramento (100 DPS / 2s)' },
@@ -1402,7 +1450,7 @@ const CHARACTERS = {
     counts_pity: false,
     gacha_chance: 0.000005,
     deploy_cost: 4500,
-    base_stats: { damage: 350, range: 195, attack_speed: 2.0, type: 'omega' },
+    base_stats: { damage: 350, range: 195, attack_speed: 1.60, type: 'omega' },
     max_level: 50,
     passive: [
       { type: 'omega_chain_ray', triggerEveryNAttacks: 4, branches: 3, branchDamageRatio: 0.70, doubleHitDamageRatio: 2.50, label: '⚡ Raios Omega: a cada 4 ataques, dispara raios encadeados nos 3 inimigos com maior HP (70% dano cada). Acertos duplos causam 2.5× dano.' },
@@ -1442,7 +1490,7 @@ const CHARACTERS = {
       zombie_dps: 100,
       label: 'Praga Zumbi: invoca horda de zumbis na base a cada 18s — caminham devagar infectando tudo que tocam. Inimigos infectados que morrem ressurgem como zumbis no ponto de morte.'
     },
-    base_stats: { damage: 520, range: 130, attack_speed: 0.90, type: 'aoe' },
+    base_stats: { damage: 520, range: 130, attack_speed: 0.72, type: 'aoe' },
     deploy_cost: 750, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'infectado', dps: 35, duration: 7, label: 'Vírus Primário: cada acerto aplica infecção zumbi (35 DPS/7s, desacelera 35%)' },
