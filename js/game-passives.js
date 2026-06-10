@@ -1514,9 +1514,9 @@ const PASSIVE_ENTRIES = {
 
 function _applyCorruptionStack(tower, enemy, passives) {
   if (!enemy || enemy.dead || enemy._willBroken) return;
-  const cfg = passives.find(x => x.type === 'omega_chain_ray') || {};
-  const stacksReq   = cfg.stacksRequired          || 5;
-  const stacksReqSI = cfg.stacksRequiredStunImmune || 8;
+  const pWill = passives.find(x => x.type === 'will_break') || {};
+  const stacksReq   = _passiveCtx.getPassiveValue(tower, 'stacksRequired', pWill.stacksRequired || 5);
+  const stacksReqSI = _passiveCtx.getPassiveValue(tower, 'stacksRequiredStunImmune', pWill.stacksRequiredStunImmune || 8);
   enemy._corruptionStacks = (enemy._corruptionStacks || 0) + 1;
   const threshold = (enemy.ptypes || []).includes('stun_immune') ? stacksReqSI : stacksReq;
   if (enemy._corruptionStacks >= threshold) {
@@ -1542,9 +1542,11 @@ function _fireOmegaChainRay(tower, passives) {
   if (enemies.length === 0) return;
   const sorted = [...enemies].sort((a, b) => b.hp - a.hp);
   const cfg = passives.find(x => x.type === 'omega_chain_ray') || {};
-  const branchRatio = cfg.branchDamageRatio   || 0.70;
-  const doubleRatio = cfg.doubleHitDamageRatio || 2.50;
-  const tyrantBonus = 1 + (tower._tyrantStacks || 0) * (cfg.tyrant_dmgPerStack || 0.03);
+  const branchRatio = _passiveCtx.getPassiveValue(tower, 'branchDamageRatio', cfg.branchDamageRatio || 0.70);
+  const doubleRatio = _passiveCtx.getPassiveValue(tower, 'doubleHitDamageRatio', cfg.doubleHitDamageRatio || 2.50);
+  const pTyrant = passives.find(x => x.type === 'tyrant_rising') || {};
+  const dmgPerStack = _passiveCtx.getPassiveValue(tower, 'tyrant_dmgPerStack', pTyrant.tyrant_dmgPerStack || 0.02);
+  const tyrantBonus = 1 + (tower._tyrantStacks || 0) * dmgPerStack;
 
   // Fill 3 branch slots — repeat highest-HP enemy if fewer than 3 available
   const slots = [sorted[0], sorted[1] || sorted[0], sorted[2] || sorted[0]];
@@ -1565,8 +1567,8 @@ function _fireOmegaChainRay(tower, passives) {
 function _renewOmegaBonds(tower) {
   const enemies = _passiveCtx.enemies.filter(e => !e.dead);
   const passives = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower);
-  const cfg = passives.find(x => x.type === 'omega_chain_ray') || {};
-  const isTrio = cfg.bond_trio === true;
+  const bondP = passives.find(x => x.type === 'omega_bond') || {};
+  const isTrio = _passiveCtx.getPassiveValue(tower, 'bond_trio', bondP.bond_trio) === true;
 
   // Clear old bonds
   _passiveCtx.enemies.forEach(e => { e._omegaBondPartner = null; });
@@ -1587,9 +1589,9 @@ function _renewOmegaBonds(tower) {
 
 function _maybeSpawnShadow(tower) {
   const passives = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower);
-  const cfg = passives.find(x => x.type === 'omega_chain_ray') || {};
-  const chance    = cfg.shadow_chance || 0.20;
-  const duration  = cfg.shadow_dur    || 6;
+  const shadowP = passives.find(x => x.type === 'apokolips_shadows') || {};
+  const chance    = _passiveCtx.getPassiveValue(tower, 'shadow_chance', shadowP.shadow_chance || 0.20);
+  const duration  = _passiveCtx.getPassiveValue(tower, 'shadow_dur', shadowP.shadow_dur || 5);
   const permanent = passives.some(x => x.type === 'absolute_dominion');
   const maxP      = (passives.find(x => x.type === 'absolute_dominion') || {}).maxPermanentShadows || 10;
 
@@ -1602,7 +1604,9 @@ function _maybeSpawnShadow(tower) {
   }
 
   const stats = _passiveCtx.getTowerStats(tower);
-  const tyrantBonus = 1 + (tower._tyrantStacks || 0) * (cfg.tyrant_dmgPerStack || 0.03);
+  const pTyrant = passives.find(x => x.type === 'tyrant_rising') || {};
+  const dmgPerStack = _passiveCtx.getPassiveValue(tower, 'tyrant_dmgPerStack', pTyrant.tyrant_dmgPerStack || 0.02);
+  const tyrantBonus = 1 + (tower._tyrantStacks || 0) * dmgPerStack;
   const shadowDmg = stats.damage * 0.35 * tyrantBonus;
 
   // Pick random position along path
@@ -1624,9 +1628,9 @@ function _maybeSpawnShadow(tower) {
 
 function _abyssEmbrace(tower) {
   const passives = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower);
-  const cfg     = passives.find(x => x.type === 'omega_chain_ray') || {};
-  const count   = cfg.abyss_count || 2;
-  const dur     = cfg.abyss_dur   || 12;
+  const abyssP  = passives.find(x => x.type === 'abyss_embrace') || {};
+  const count   = _passiveCtx.getPassiveValue(tower, 'abyss_count', abyssP.abyss_count || 2);
+  const dur     = _passiveCtx.getPassiveValue(tower, 'abyss_dur', abyssP.abyss_dur || 10);
 
   const candidates = _passiveCtx.enemies
     .filter(e => !e.dead && !e.is_boss && !e.is_miniboss && !e._abyssConverted)

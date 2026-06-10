@@ -1406,9 +1406,9 @@ const CHARACTERS = {
     max_level: 50,
     passive: [
       { type: 'omega_chain_ray', triggerEveryNAttacks: 4, branches: 3, branchDamageRatio: 0.70, doubleHitDamageRatio: 2.50, label: '⚡ Raios Omega: a cada 4 ataques, dispara raios encadeados nos 3 inimigos com maior HP (70% dano cada). Acertos duplos causam 2.5× dano.' },
-      { type: 'anti_life_will', stacksRequired: 5, stacksRequiredStunImmune: 8, label: '🧠 Quebra de Vontade: ao aplicar 5 cargas (ou 8 em imunes), o inimigo sofre Dano Real igual a 15% do seu HP máximo.' },
-      { type: 'tyrant_escalation', tyrant_dmgPerStack: 0.02, label: '👑 Tirano Implacável: cada Quebra de Vontade aumenta permanentemente o dano de Darkseid em +2% (acumula).' },
-      { type: 'shadows_of_apokolips', shadow_chance: 0.20, shadow_dur: 5, label: '👤 Sombras de Apokolips: 20% de chance por acerto de invocar uma Sombra que ataca o inimigo por 5s.' },
+      { type: 'will_break', stacksRequired: 5, stacksRequiredStunImmune: 8, label: '🧠 Quebra de Vontade: ao aplicar 5 cargas (ou 8 em imunes), o inimigo sofre Dano Real igual a 15% do seu HP máximo.' },
+      { type: 'tyrant_rising', tyrant_dmgPerStack: 0.02, label: '👑 Tirano Implacável: cada Quebra de Vontade aumenta permanentemente o dano de Darkseid em +2% (acumula).' },
+      { type: 'apokolips_shadows', shadow_chance: 0.20, shadow_dur: 5, label: '👤 Sombras de Apokolips: 20% de chance por acerto de invocar uma Sombra que ataca o inimigo por 5s.' },
       { type: 'omega_bond', bond_trio: false, label: '⛓️ Vínculo Omega: vincula 2 inimigos. Dano causado a um também afeta o outro.' },
       { type: 'abyss_embrace', abyss_count: 2, abyss_dur: 10, label: '🕳️ Abraço do Abismo: envia até 2 inimigos menores para o abismo, instakill (CD: 10s).' }
     ],

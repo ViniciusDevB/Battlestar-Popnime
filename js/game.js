@@ -1371,7 +1371,7 @@ const Game = (() => {
     // Darkseid 7★ Tyrant Rising — permanent kill-based bonus
     if ((tower._tyrantStacks || 0) > 0) {
       const tyrantPct = tower.charData?.upgrades?.slice(0, tower.upgradeLevel)
-        .reduce((v, u) => u.passive_override?.tyrant_dmgPerStack ?? v, 0.03) || 0.03;
+        .reduce((v, u) => u.passive_override?.tyrant_dmgPerStack ?? v, 0.02) || 0.02;
       stats.damage *= 1 + tower._tyrantStacks * tyrantPct;
     }
     tower._statsCache = stats;
