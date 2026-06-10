@@ -64,6 +64,7 @@ const Save = (() => {
   }
 
   function _setData(d) {
+    console.log('[Save] _setData fases_completas:', JSON.stringify(d?.fases_completas));
     // Migrate stacked unit format if server returns old format
     if (d?.inventario?.unidades) {
       const migrated = [];
@@ -192,6 +193,7 @@ const Save = (() => {
     const d = get();
     if (!d.fases_completas[stageId]) d.fases_completas[stageId] = {};
     d.fases_completas[stageId][diff] = true;
+    console.log('[Save] markStageComplete:', stageId, diff, JSON.stringify(d.fases_completas));
     save();
   }
 
