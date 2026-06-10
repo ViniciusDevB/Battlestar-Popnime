@@ -35,16 +35,19 @@ SELECT
     'killua_zoldyck','tanjiro_kamado','rukia_kuchiki','renji_abarai',
     'uryu_ishida','orihime_inoue','chad_yasutora',
     'luffy_3','zoro_3','nami_3','usopp_3','brook_3',
-    'spider_man','black_widow','hawkeye'
+    'spider_man','black_widow','hawkeye',
+    'flash_barry','batgirl','aquaman'
   ],
   ARRAY[
     'naruto_shippuden','levi_ackerman','meliodas_base',
     'byakuya_kuchiki','toshiro_hitsugaya','kenpachi_zaraki',
     'sanji_4','robin_4','ace_4',
-    'black_panther','thor','hulk_base'
+    'black_panther','thor','hulk_base',
+    'batman_bruce','lois_lane','lanterna_verde'
   ],
   ARRAY[
-    'gojo_satoru','luffy_5','ichigo_bankai'
+    'gojo_satoru','luffy_5','ichigo_bankai',
+    'superman_clark','shazam_billy'
   ],
   -- playable_ids = union dos três pools
   ARRAY[
@@ -53,11 +56,14 @@ SELECT
     'uryu_ishida','orihime_inoue','chad_yasutora',
     'luffy_3','zoro_3','nami_3','usopp_3','brook_3',
     'spider_man','black_widow','hawkeye',
+    'flash_barry','batgirl','aquaman',
     'naruto_shippuden','levi_ackerman','meliodas_base',
     'byakuya_kuchiki','toshiro_hitsugaya','kenpachi_zaraki',
     'sanji_4','robin_4','ace_4',
     'black_panther','thor','hulk_base',
-    'gojo_satoru','luffy_5','ichigo_bankai'
+    'batman_bruce','lois_lane','lanterna_verde',
+    'gojo_satoru','luffy_5','ichigo_bankai',
+    'superman_clark','shazam_billy'
   ]
 WHERE NOT EXISTS (SELECT 1 FROM public.gacha_config);
 

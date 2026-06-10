@@ -45,6 +45,8 @@ INSERT INTO public.stage_config (stage_id, is_boss, min_duration_s) VALUES
   ('bl_fase4',    false, 30), ('bl_fase5',    false, 30), ('bl_fase6',    true,  60),
   ('mv_fase1',    false, 30), ('mv_fase2',    false, 30), ('mv_fase3',    false, 30),
   ('mv_fase4',    false, 30), ('mv_fase5',    false, 30), ('mv_fase6',    true,  60),
+  ('dc_fase1',    false, 30), ('dc_fase2',    false, 30), ('dc_fase3',    false, 30),
+  ('dc_fase4',    false, 30), ('dc_fase5',    false, 30), ('dc_fase6',    true,  60),
   ('infinito_partida', false, 0)
 ON CONFLICT (stage_id) DO NOTHING;
 
@@ -85,7 +87,16 @@ INSERT INTO public.stage_drops (stage_id, item_id, chance, pity_threshold, is_pl
   ('mv_fase5','avenger_material_3',90,NULL,false),
   -- Marvel 6 boss
   ('mv_fase6','avenger_material_3',40,NULL,false),
-  ('mv_fase6','hulk_base',        0.1,200,true)
+  ('mv_fase6','hulk_base',        0.1,200,true),
+  -- DC 1–5
+  ('dc_fase1','dc_material_1',70,  NULL,false), ('dc_fase1','dc_material_2',20,NULL,false), ('dc_fase1','dc_material_3',10,NULL,false),
+  ('dc_fase2','dc_material_1',50,  NULL,false), ('dc_fase2','dc_material_2',30,NULL,false), ('dc_fase2','dc_material_3',15,NULL,false),
+  ('dc_fase3','dc_material_2',50,  NULL,false), ('dc_fase3','dc_material_3',40,NULL,false),
+  ('dc_fase4','dc_material_2',20,  NULL,false), ('dc_fase4','dc_material_3',70,NULL,false),
+  ('dc_fase5','dc_material_3',90,  NULL,false),
+  -- DC 6 boss
+  ('dc_fase6','dc_material_3',40,  NULL,false),
+  ('dc_fase6','superman_clark',0.1,200, true)
 ON CONFLICT DO NOTHING;
 
 -- ─── 5. Tabela de recompensas de missões ──────────────────────────────────────
