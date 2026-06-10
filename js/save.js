@@ -1,6 +1,7 @@
-const Save = (() => {
-  const KEY = 'astd_save_v1';
+// js/save.js — In-memory save (no localStorage). Persistence is handled
+// exclusively by Online.syncSave() which talks to Supabase.
 
+const Save = (() => {
   function generateUid() {
     return Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
   }
@@ -8,8 +9,8 @@ const Save = (() => {
   function defaultSave() {
     return {
       inventario: {
-        unidades: [],   // {uid, id, nivel, xp_atual}
-        materiais: []   // {id, quantidade}
+        unidades: [],
+        materiais: []
       },
       gemas: 500,
       tickets: 0,
@@ -44,117 +45,59 @@ const Save = (() => {
   }
 
   let _data = null;
-  let _corruptedSave = false;
-  let _saveFailed = false;
 
+  // Initialise in-memory state. Called at startup before login.
+  // Real data is loaded from the server via Online.syncSave() after login.
   function load() {
-    _corruptedSave = false;
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) {
-        try {
-          _data = Object.assign(defaultSave(), JSON.parse(raw));
-        } catch(parseErr) {
-          _corruptedSave = true;
-          _data = defaultSave();
-          try { localStorage.removeItem(KEY); } catch {}
-          return _data;
-        }
-        _data.inventario = _data.inventario || { unidades:[], materiais:[] };
-        _data.stats = Object.assign(defaultSave().stats, _data.stats || {});
-
-        // Migrate stacked format {id, quantidade} → individual instances {uid, id}
-        const newUnidades = [];
-        (_data.inventario.unidades || []).forEach(u => {
-          if (u.quantidade !== undefined) {
-            const qty = Math.min(u.quantidade || 1, 500); // cap: previne freeze na migração
-            for (let i = 0; i < qty; i++) {
-              newUnidades.push({
-                uid: generateUid(),
-                id: u.id,
-                nivel: u.nivel || 1,
-                xp_atual: i === 0 ? (u.xp_atual || 0) : 0
-              });
-            }
-          } else {
-            if (!u.uid) u.uid = generateUid();
-            newUnidades.push(u);
-          }
-        });
-        _data.inventario.unidades = newUnidades;
-
-        // Integrity: HMAC async (fire-and-forget) + plausibility sync
-        if (typeof Integrity !== 'undefined') {
-          // Plausibility roda em sincrono para estar disponível antes do .then()
-          const plViolations = Integrity.validateSavePlausibility(_data);
-          plViolations.forEach(v => Integrity.recordViolation(v, {}));
-
-          Integrity.verify(raw).then(verdict => {
-            if (verdict === 'tampered') {
-              Integrity.recordViolation('hmac_mismatch', {});
-              if (typeof UI !== 'undefined' && UI.toast) {
-                UI.toast(I18N.t('save_modified'), 8000);
-              }
-            } else if (verdict === 'no_seal') {
-              // Antes de selar um save sem HMAC (saves pré-2.5 ou HMAC deletado),
-              // verifica plausibilidade. Se houver violações, não sela — isso fecha
-              // o bypass de deletar HMAC_KEY + editar o save manualmente.
-              if (plViolations.length > 0) {
-                Integrity.recordViolation('hmac_mismatch', { reason: 'no_seal_with_violations' });
-                if (typeof UI !== 'undefined' && UI.toast) {
-                  UI.toast(I18N.t('save_modified'), 8000);
-                }
-              } else {
-                Integrity.seal(raw); // só sela se o save passar na plausibilidade
-              }
-            }
-          }).catch(() => {});
-        }
-      } else {
-        _data = defaultSave();
-      }
-    } catch(e) {
-      _data = defaultSave();
-    }
+    if (!_data) _data = defaultSave();
     return _data;
   }
 
+  // No-op for localStorage — _data lives in memory.
+  // Online.syncSave() handles actual persistence to Supabase.
   function save() {
     if (!_data) return;
-    _saveFailed = false;
-    const json = JSON.stringify(_data);
-    try {
-      localStorage.setItem(KEY, json);
-      if (typeof Integrity !== 'undefined') {
-        Integrity.invalidate();
-        Integrity.seal(json).catch(() => {});
-      }
-    } catch(e) {
-      _saveFailed = true;
-      console.warn('Save failed:', e);
-      if (typeof UI !== 'undefined' && UI.toast) {
-        UI.toast(I18N.t('save_full'), 6000);
-      }
-    }
+    // Integrity tamper-detection snapshot (in-memory only, no HMAC sealing)
+    // — nothing to do here in the online-only model.
   }
 
   function _setData(d) {
+    // Migrate stacked unit format if server returns old format
+    if (d?.inventario?.unidades) {
+      const migrated = [];
+      d.inventario.unidades.forEach(u => {
+        if (u.quantidade !== undefined) {
+          const qty = Math.min(u.quantidade || 1, 500);
+          for (let i = 0; i < qty; i++) {
+            migrated.push({ uid: generateUid(), id: u.id, nivel: u.nivel || 1, xp_atual: i === 0 ? (u.xp_atual || 0) : 0 });
+          }
+        } else {
+          if (!u.uid) u.uid = generateUid();
+          migrated.push(u);
+        }
+      });
+      d.inventario.unidades = migrated;
+    }
     _data = d;
-    save();
+    if (!_data.inventario)         _data.inventario = { unidades: [], materiais: [] };
+    if (!_data.inventario.unidades) _data.inventario.unidades = [];
+    if (!_data.inventario.materiais) _data.inventario.materiais = [];
+    if (!_data.stats)              _data.stats = defaultSave().stats;
+    else _data.stats = Object.assign(defaultSave().stats, _data.stats);
   }
 
-  function wasCorrupted() { return _corruptedSave; }
-  function didSaveFail()  { return _saveFailed; }
+  function wasCorrupted() { return false; }
+  function didSaveFail()  { return false; }
 
   function get() { return _data || load(); }
 
   function reset() {
     _data = defaultSave();
-    save();
     return _data;
   }
 
-  // Inventory helpers
+  // ── Inventory helpers ──────────────────────────────────────────────────────
+
   function addUnit(id, nivel = 1, xp_atual = 0) {
     const d = get();
     const uid = generateUid();
@@ -171,7 +114,6 @@ const Save = (() => {
     save();
   }
 
-  // Remove first N instances of a character by id (used by evolution)
   function removeUnit(id, qty = 1) {
     const d = get();
     let removed = 0;
@@ -184,7 +126,6 @@ const Save = (() => {
     return removed;
   }
 
-  // Remove a specific unit instance by uid (used by feed)
   function removeUnitByUid(uid) {
     const d = get();
     d.inventario.unidades = d.inventario.unidades.filter(u => u.uid !== uid);
@@ -216,33 +157,20 @@ const Save = (() => {
     return true;
   }
 
-  function getUnitData(id) {
-    return get().inventario.unidades.find(u => u.id === id) || null;
-  }
-
+  function getUnitData(id)    { return get().inventario.unidades.find(u => u.id === id) || null; }
   function getBestUnitData(id) {
     const units = get().inventario.unidades.filter(u => u.id === id);
     if (units.length === 0) return null;
     return units.reduce((best, u) => u.nivel > best.nivel ? u : best, units[0]);
   }
+  function getUnitByUid(uid)  { return get().inventario.unidades.find(u => u.uid === uid) || null; }
+  function getMaterialQty(id) { const m = get().inventario.materiais.find(m => m.id === id); return m ? m.quantidade : 0; }
+  function getUnitQty(id)     { return get().inventario.unidades.filter(u => u.id === id).length; }
 
-  function getUnitByUid(uid) {
-    return get().inventario.unidades.find(u => u.uid === uid) || null;
-  }
-
-  function getMaterialQty(id) {
-    const m = get().inventario.materiais.find(m => m.id === id);
-    return m ? m.quantidade : 0;
-  }
-
-  function getUnitQty(id) {
-    return get().inventario.unidades.filter(u => u.id === id).length;
-  }
-
-  function addGems(n) { get().gemas += n; save(); }
-  function spendGems(n) { const d=get(); if(d.gemas<n) return false; d.gemas-=n; save(); return true; }
-  function addTickets(n) { get().tickets += n; save(); }
-  function spendTickets(n) { const d=get(); if(d.tickets<n) return false; d.tickets-=n; save(); return true; }
+  function addGems(n)      { get().gemas += n; save(); }
+  function spendGems(n)    { const d = get(); if (d.gemas < n) return false; d.gemas -= n; save(); return true; }
+  function addTickets(n)   { get().tickets += n; save(); }
+  function spendTickets(n) { const d = get(); if (d.tickets < n) return false; d.tickets -= n; save(); return true; }
 
   function incStat(stat, val = 1) {
     const d = get();
@@ -251,11 +179,7 @@ const Save = (() => {
     save();
   }
 
-  function setStat(stat, val) {
-    const d = get();
-    d.stats[stat] = val;
-    save();
-  }
+  function setStat(stat, val) { const d = get(); d.stats[stat] = val; save(); }
 
   function markStageComplete(stageId, diff) {
     const d = get();
@@ -278,11 +202,7 @@ const Save = (() => {
     return d.time_salvo;
   }
 
-  function setTeam(teamArr) {
-    const d = get();
-    d.time_salvo = teamArr;
-    save();
-  }
+  function setTeam(teamArr) { const d = get(); d.time_salvo = teamArr; save(); }
 
   function getPrestige(charId) {
     const units = get().inventario.unidades.filter(u => u.id === charId);
@@ -312,7 +232,8 @@ const Save = (() => {
     return true;
   }
 
-  // ── Trocas — bloqueio de unidades em oferta ──────────────────────────────
+  // ── Trade lock ─────────────────────────────────────────────────────────────
+
   function lockUnit(uid) {
     const d = get();
     const u = d.inventario.unidades.find(x => x.uid === uid);
@@ -327,19 +248,16 @@ const Save = (() => {
     return false;
   }
 
-  function isUnitLocked(uid) {
-    const u = getUnitByUid(uid);
-    return !!(u?.in_trade);
-  }
+  function isUnitLocked(uid) { return !!(getUnitByUid(uid)?.in_trade); }
 
-
-
-  return { load, save, get, reset, _setData,
-           addUnit, addMaterial, removeUnit, removeUnitByUid,
-           removeMaterial, getUnitData, getBestUnitData, getUnitByUid, getMaterialQty, getUnitQty,
-           addGems, spendGems, addTickets, spendTickets, incStat, setStat,
-           markStageComplete, isStageComplete, getTeam, setTeam,
-           getPrestige, canPrestige, doPrestige,
-           lockUnit, unlockUnit, isUnitLocked,
-           wasCorrupted, didSaveFail };
+  return {
+    load, save, get, reset, _setData,
+    addUnit, addMaterial, removeUnit, removeUnitByUid,
+    removeMaterial, getUnitData, getBestUnitData, getUnitByUid, getMaterialQty, getUnitQty,
+    addGems, spendGems, addTickets, spendTickets, incStat, setStat,
+    markStageComplete, isStageComplete, getTeam, setTeam,
+    getPrestige, canPrestige, doPrestige,
+    lockUnit, unlockUnit, isUnitLocked,
+    wasCorrupted, didSaveFail
+  };
 })();

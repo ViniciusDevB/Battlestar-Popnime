@@ -64,6 +64,13 @@ const Online = (() => {
         }
       }
     });
+    // Periodic save push every 60s (online-only model — no localStorage)
+    setInterval(() => {
+      if (_ready && _session && _profile && !_profile.is_admin) {
+        _pushSave(Save.get());
+      }
+    }, 60_000);
+
     _ready = true;
     return true;
   }
@@ -214,39 +221,21 @@ const Online = (() => {
     if (!_ready || !_session || !_profile) return { ok: false, reason: 'not_logged_in' };
 
     // Admin: never sync with server. Inventory is locally managed.
-    // Skipping prevents the server save from overwriting locally-granted items,
-    // and avoids integrity violations from unidades_excedentes on next load.
     if (_profile.is_admin) {
       _grantAdminInventory();
       return { ok: true };
     }
 
     try {
-      const localSave  = Save.get();
-      // Previne contaminação entre contas: se o save local foi gerado por outro player_id,
-      // envia payload vazio — o servidor devolve o save correto sem mesclar progresso alheio.
-      const isOwnSave  = !localSave._ownerId || localSave._ownerId === _profile.id;
-      if (!isOwnSave) {
-        console.warn('[Online] Save local pertence a outra conta — progresso local descartado.');
-      }
       const { data, error } = await _client.rpc('fn_sync_progress', {
-        p_progress: isOwnSave ? localSave : {},
+        p_progress: Save.get(),
       });
       if (error) return { ok: false, reason: error.message };
       if (data?.error) return { ok: false, reason: data.error };
       if (data?.save) {
-        if (typeof Integrity !== 'undefined') {
-          const violations = Integrity.validateSavePlausibility(data.save);
-          const HARD_BLOCK = ['gemas_absurdas', 'tickets_absurdos', 'unidades_excedentes'];
-          const blocking   = violations.filter(v => HARD_BLOCK.some(b => v.startsWith(b)));
-          violations.forEach(v => Integrity.recordViolation(v, { source: 'server_sync' }));
-          if (blocking.length > 0) {
-            console.warn('[Online] syncSave bloqueado por violações no save do servidor:', blocking);
-            return { ok: false, reason: 'integrity_block: ' + blocking.join(', ') };
-          }
-        }
-        // Grava _ownerId no save local para detectar troca de conta futura
-        Save._setData({ ...data.save, _ownerId: _profile.id });
+        Save._setData(data.save);
+        // Seed starter items for brand-new accounts (server returns empty save)
+        await _seedNewAccount();
       }
       return { ok: true };
     } catch (e) {
@@ -662,13 +651,57 @@ const Online = (() => {
     if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
   }
 
+  // ── Push full save to server (online-only model) ──────────────────────────
+  // Direct upsert to saves table — bypasses fn_sync_progress so inventory/gems
+  // are written as-is. Used for new-account seeding and periodic/beforeunload push.
+  async function _pushSave(saveData) {
+    if (!_ready || !_session || !_profile) return;
+    try {
+      const clean = { ...saveData };
+      delete clean._ownerId;
+      const { error } = await _client
+        .from('saves')
+        .upsert(
+          { player_id: _profile.id, data: clean, updated_at: new Date().toISOString() },
+          { onConflict: 'player_id' }
+        );
+      if (error) console.warn('[Online] _pushSave:', error.message);
+    } catch (e) {
+      console.warn('[Online] _pushSave error:', e);
+    }
+  }
+
+  // Exposed wrapper — called by main.js on beforeunload
+  async function pushSave() { return _pushSave(Save.get()); }
+
+  // Grants starter items to brand-new accounts (no units, no pulls).
+  // Called after syncSave() applies the server save.
+  async function _seedNewAccount() {
+    if (typeof Save === 'undefined') return;
+    const d = Save.get();
+    const isNew = (!d.inventario?.unidades?.length) && (!(d.stats?.pulls_realizados));
+    if (!isNew) return;
+
+    if (typeof BannerSystem !== 'undefined') {
+      const banner = BannerSystem.getCurrent();
+      if (banner?.star3) banner.star3.forEach(id => Save.addUnit(id, 1, 0));
+    }
+
+    Save.addMaterial('ninja_generico_1', 5);
+    Save.addMaterial('ninja_generico_2', 2);
+    if (d.gemas < 500) d.gemas = 500;
+
+    await _pushSave(Save.get());
+    if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
+  }
+
   // ── Public API ─────────────────────────────────────────────────────────────
 
   return {
     init, isReady, isLoggedIn, getProfile, getSession, onReady,
     waitForProfile, refreshProfile,
     register, login, logout, resetAccount,
-    syncSave, gachaPull, completeStage, claimReward,
+    syncSave, pushSave, gachaPull, completeStage, claimReward,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,
     fetchActiveMission, fetchUpcomingMissions, getActiveMission, contributeToMission,

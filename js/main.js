@@ -45,18 +45,7 @@ window.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // Initialize banner before new-player seed so starters match current banner
   const initBanner = BannerSystem.init();
-
-  // Seed starter inventory if new player — grants the 3★ units from the active banner
-  const d = Save.get();
-  if (!d._initialized) {
-    initBanner.star3.forEach(id => Save.addUnit(id, 1, 0));
-    Save.addMaterial('ninja_generico_1', 5);
-    Save.addMaterial('ninja_generico_2', 2);
-    d._initialized = true;
-    Save.save();
-  }
 
   // Initialize systems
   try {
@@ -74,6 +63,11 @@ window.addEventListener('DOMContentLoaded', () => {
       } else {
         LoginScreen.show();
       }
+    });
+
+    // Push in-memory save to server before the tab closes
+    window.addEventListener('beforeunload', () => {
+      if (Online.isLoggedIn()) Online.pushSave();
     });
 
     if (Save.wasCorrupted()) {
