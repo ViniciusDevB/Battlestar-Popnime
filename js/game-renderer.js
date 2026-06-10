@@ -424,6 +424,19 @@ function drawTowers() {
   const _gojoBuffedSet = _renderCtx._gojoBuffedSet;
   const waveActive = _renderCtx.waveActive;
 
+  // Apokolips atmosphere — map-wide red vignette when Darkseid is present
+  if (towers.some(t => t.rarity >= 7)) {
+    const vPulse = (Math.sin(Date.now() / 600) + 1) / 2;
+    const vign = ctx.createRadialGradient(CANVAS_W / 2, CANVAS_H / 2, CANVAS_H * 0.25, CANVAS_W / 2, CANVAS_H / 2, CANVAS_H * 0.9);
+    vign.addColorStop(0,   'rgba(0,0,0,0)');
+    vign.addColorStop(0.6, `rgba(60,0,0,${0.10 + vPulse * 0.06})`);
+    vign.addColorStop(1,   `rgba(160,0,0,${0.32 + vPulse * 0.08})`);
+    ctx.save();
+    ctx.fillStyle = vign;
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    ctx.restore();
+  }
+
   // Darkseid 7★ — Omega Bond lines between paired enemies
   const allEnemies = _renderCtx.enemies || [];
   const drawnBonds = new Set();
@@ -545,57 +558,90 @@ function drawTowers() {
     // ═══ 7★ Darkseid Aura ═══
     if (!disabled && t.rarity >= 7) {
       const n7 = Date.now();
-      const stacks = t._tyrantStacks || 0;
-      const intensity = Math.min(1 + stacks * 0.03, 2.5); // aura gets faster/bigger based on stacks
-      
+      const stacks    = t._tyrantStacks || 0;
+      const intensity = Math.min(1 + stacks * 0.03, 2.5);
+      const pulse1    = (Math.sin(n7 / 400 * intensity) + 1) / 2;
+
+      // Shared beam geometry (used by rays + ground effects)
+      const NUM_RAYS  = 4;
+      const sweepAngle = n7 * 0.00055 * intensity;
+      const rayLen     = Math.min(260 + stacks * 5, 390);
+
+      // === OMEGA RAYS — sweep symmetrically from Darkseid's eyes ===
+      ctx.save();
+      ctx.translate(t.x, t.y);
+      ctx.globalCompositeOperation = 'lighter';
+      for (let ri = 0; ri < NUM_RAYS; ri++) {
+        const base    = sweepAngle + (ri / NUM_RAYS) * Math.PI * 2;
+        const wobble  = Math.sin(n7 * 0.0009 * intensity + ri * 1.5) * 0.28;
+        const ctrlAng = base + wobble;
+        const ctrlLen = rayLen * 0.5;
+        const eyeX    = (ri % 2 === 0) ? -5 : 5;
+        const eyeY    = -8;
+        const endX    = Math.cos(base) * rayLen;
+        const endY    = Math.sin(base) * rayLen;
+        const ctrlX   = Math.cos(ctrlAng) * ctrlLen;
+        const ctrlY   = Math.sin(ctrlAng) * ctrlLen;
+
+        // Outer diffuse glow
+        ctx.beginPath(); ctx.moveTo(eyeX, eyeY);
+        ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
+        ctx.strokeStyle = 'rgba(255,30,0,0.15)';
+        ctx.lineWidth = 22; ctx.shadowBlur = 35; ctx.shadowColor = '#ff1800';
+        ctx.stroke();
+
+        // Mid glow
+        ctx.beginPath(); ctx.moveTo(eyeX, eyeY);
+        ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
+        ctx.strokeStyle = `rgba(255,100,0,${0.45 + pulse1 * 0.15})`;
+        ctx.lineWidth = 7; ctx.shadowBlur = 18; ctx.shadowColor = '#ff4500';
+        ctx.stroke();
+
+        // Bright core
+        ctx.beginPath(); ctx.moveTo(eyeX, eyeY);
+        ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
+        ctx.strokeStyle = 'rgba(255,215,130,0.9)';
+        ctx.lineWidth = 2.5; ctx.shadowBlur = 10; ctx.shadowColor = '#ffaa44';
+        ctx.stroke();
+
+        // Tip impact corona
+        const tipP = (Math.sin(n7 * 0.005 * intensity + ri * 1.8) + 1) / 2;
+        ctx.beginPath(); ctx.arc(endX, endY, 9 + tipP * 11, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,80,0,0.7)';
+        ctx.shadowBlur = 28; ctx.shadowColor = '#ff4500'; ctx.fill();
+        ctx.beginPath(); ctx.arc(endX, endY, 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,235,180,0.95)'; ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.restore();
+
+      // === Ground scorched earth at beam endpoints (map-space) ===
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let ri = 0; ri < NUM_RAYS; ri++) {
+        const base = sweepAngle + (ri / NUM_RAYS) * Math.PI * 2;
+        const gx   = t.x + Math.cos(base) * rayLen;
+        const gy   = t.y + Math.sin(base) * rayLen;
+        const gRad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 45);
+        gRad.addColorStop(0,   'rgba(255,90,0,0.45)');
+        gRad.addColorStop(0.5, 'rgba(180,15,0,0.18)');
+        gRad.addColorStop(1,   'rgba(0,0,0,0)');
+        ctx.fillStyle = gRad;
+        ctx.beginPath(); ctx.arc(gx, gy, 45, 0, Math.PI * 2); ctx.fill();
+        ctx.font = 'bold 11px monospace';
+        ctx.fillStyle = 'rgba(255,69,0,0.35)';
+        ctx.shadowBlur = 8; ctx.shadowColor = '#ff4500';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('Ω', gx, gy);
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.restore();
+
+      // === Floating Embers + Rings (kept) ===
       ctx.save();
       ctx.translate(t.x, t.y);
 
-      // 1. Apokolips Magma Floor (Base Aura)
-      const pulse1 = (Math.sin(n7 / 400 * intensity) + 1) / 2;
-      const baseR = 48 + pulse1 * 8 + stacks * 0.5;
-      const grad = ctx.createRadialGradient(0, 0, baseR * 0.1, 0, 0, baseR);
-      grad.addColorStop(0, 'rgba(0,0,0,0.95)');
-      grad.addColorStop(0.6, 'rgba(139,0,0,0.6)');
-      grad.addColorStop(1, 'rgba(255,69,0,0)');
-      ctx.fillStyle = grad;
-      ctx.beginPath(); ctx.arc(0, 0, baseR, 0, Math.PI * 2); ctx.fill();
-
-      // 2. Cosmic Dark Matter Tendrils
-      ctx.save();
-      ctx.rotate(n7 * 0.0004 * intensity);
-      const layers = [
-        { color: 'rgba(255, 69, 0, 0.5)', blur: 25, comp: 'lighter', r: 42, spikes: 14, h: 25 },
-        { color: 'rgba(139, 0, 0, 0.8)', blur: 15, comp: 'source-over', r: 34, spikes: 11, h: 20 },
-        { color: 'rgba(5, 1, 1, 0.98)', blur: 5, comp: 'source-over', r: 26, spikes: 8, h: 16 }
-      ];
-      layers.forEach((ly, idx) => {
-        ctx.globalCompositeOperation = ly.comp;
-        ctx.fillStyle = ly.color;
-        ctx.shadowBlur = ly.blur;
-        ctx.shadowColor = '#ff4500';
-        ctx.beginPath();
-        for (let i = 0; i <= ly.spikes * 2; i++) {
-          const angle = (i / (ly.spikes * 2)) * Math.PI * 2;
-          const isTip = i % 2 === 0;
-          const timePhase = n7 * 0.003 * intensity + idx * 8 + i;
-          let dist = ly.r;
-          if (isTip) {
-            dist += ly.h + Math.sin(timePhase) * (ly.h * 0.6);
-          } else {
-            dist -= 4; // valley
-          }
-          const px = Math.cos(angle) * dist;
-          const py = Math.sin(angle) * dist;
-          if (i === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        }
-        ctx.closePath();
-        ctx.fill();
-      });
-      ctx.restore();
-
-      // 3. Floating Embers (Anti-Life sparks)
+      // Floating Embers (Anti-Life sparks / red balls)
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       for (let i = 0; i < 10; i++) {
@@ -603,7 +649,7 @@ function drawTowers() {
         const sr = 25 + Math.abs(Math.cos(sparkPhase * 2)) * 30;
         const sa = sparkPhase * 1.5;
         const sx = Math.cos(sa) * sr;
-        const sy = Math.sin(sa) * sr - (sparkPhase * 15); // Float upwards
+        const sy = Math.sin(sa) * sr - (sparkPhase * 15);
         ctx.beginPath();
         ctx.arc(sx, sy, 1.5 + Math.random() * 2, 0, Math.PI * 2);
         ctx.fillStyle = i % 2 === 0 ? '#ff8c00' : '#ff2200';
@@ -612,37 +658,31 @@ function drawTowers() {
       }
       ctx.restore();
 
-      // 4. Double Omega Rings with counter-rotation
+      // Double Omega Rings with counter-rotation
       ctx.save();
       ctx.rotate(-n7 * 0.0012 * intensity);
       ctx.beginPath(); ctx.arc(0, 0, 52 + pulse1 * 5, 0, Math.PI * 2);
       ctx.strokeStyle = `rgba(255, 69, 0, ${0.5 + pulse1 * 0.4})`;
-      ctx.lineWidth = 2.5;
-      ctx.setLineDash([15, 12, 5, 12]);
-      ctx.stroke();
+      ctx.lineWidth = 2.5; ctx.setLineDash([15, 12, 5, 12]); ctx.stroke();
       ctx.restore();
 
       ctx.save();
       ctx.rotate(n7 * 0.0018 * intensity);
       ctx.beginPath(); ctx.arc(0, 0, 58 + pulse1 * 3, 0, Math.PI * 2);
       ctx.strokeStyle = `rgba(139, 0, 0, ${0.6 + pulse1 * 0.4})`;
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([35, 15]);
-      ctx.stroke();
+      ctx.lineWidth = 1.5; ctx.setLineDash([35, 15]); ctx.stroke();
       ctx.restore();
 
       ctx.restore();
 
-      // 5. Giant Omega Hologram
+      // Omega Hologram + TYRANT counter
       ctx.save();
       const pOmega = (Math.sin(n7 / 300 * intensity) + 1) / 2;
       ctx.font = `bold ${18 + Math.min(stacks, 12)}px monospace`;
       ctx.fillStyle = `rgba(255, 69, 0, ${0.85 + pOmega * 0.15})`;
-      ctx.shadowBlur = 15 + pOmega * 15;
-      ctx.shadowColor = '#ff0000';
+      ctx.shadowBlur = 15 + pOmega * 15; ctx.shadowColor = '#ff0000';
       ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
       ctx.fillText('Ω', t.x, t.y - 42);
-      
       if (stacks > 0) {
         ctx.font = 'bold 9px Inter,sans-serif';
         ctx.fillStyle = '#ffc846';
