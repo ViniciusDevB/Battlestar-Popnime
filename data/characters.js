@@ -160,13 +160,13 @@ const CHARACTERS = {
     id: 'killua_zoldyck', name: 'Killua Zoldyck', rarity: 3, series: 'hxh', playable: true, xp_value: 1000, initials: 'KZ',
     image: 'assets/towers/update0/Kilua.png',
     passive: {
-      type: 'double_hit', chance: 0.25,
-      label: 'Velocidade Divina: 25% de chance de atacar duas vezes no mesmo ciclo'
+      type: 'chain_lightning', chains: 1, radius: 65, mult: 0.45,
+      label: 'Godspeed Elétrico: cada ataque encadeia um raio de eletricidade para 1 inimigo próximo (45% dano)'
     },
     base_stats: { damage: 66, range: 78, attack_speed: 1.23, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
-      1: { type: 'arc_chain', chain_r: 75, chain_mult: 0.55, chains: 1, label: 'Descarga Residual: relâmpago encadeia para 1 inimigo próximo (55% dano)' },
+      1: { type: 'status_on_hit', status: 'paralisia', duration: 0.5, label: 'Descarga Residual: eletricidade residual paralisa o alvo por 0.5s' },
       5: { type: 'kill_frenzy', duration: 3.0, speed_mult: 3.5, label: 'Godspeed: ao matar, vel. de ataque 3.5× por 3s' },
       10: { type: 'spirit_surge', trigger_at: 5, mult: 4.5, label: 'Descarga Total: cada 5º ataque libera toda a eletricidade (4.5× dano)' }
     },
@@ -176,7 +176,7 @@ const CHARACTERS = {
       { name: 'Velocidade Relâmpago', desc: 'Vel ×1.25 | Dano ×1.2', speed_mult: 1.25, damage_mult: 1.2, cost: 480 },
       { name: 'Campo de Raios', desc: 'Paralisia → 0.8s | Dano ×1.3', damage_mult: 1.3, status_effect: { type: 'paralisia', duration: 0.8 }, cost: 650 },
       { name: 'Dança da Morte', desc: 'Vel ×1.2 | Dano ×1.3', speed_mult: 1.2, damage_mult: 1.3, cost: 850 },
-      { name: 'Godspeed', desc: 'Vel ×1.3 | Dano ×1.4 | Double hit → 35%', speed_mult: 1.3, damage_mult: 1.4, passive_override: { chance: 0.35 }, cost: 1100 }
+      { name: 'Godspeed', desc: 'Vel ×1.3 | Dano ×1.4 | Raio encadeia +2 inimigos', speed_mult: 1.3, damage_mult: 1.4, passive_override: { chains: 2 }, cost: 1100 }
     ]
   },
 
@@ -520,22 +520,22 @@ const CHARACTERS = {
     playable: true, xp_value: 4000, initials: 'TH',
     image: 'assets/towers/update1/Toshiro Hitsugaya.png',
     passive: {
-      type: 'freeze_on_hit', chance: 0.45, duration: 3.0,
-      label: 'Hyōrinmaru: 45% de chance de congelar o alvo por 3s a cada ataque'
+      type: 'damage_pulse', interval: 5.0, dmg_mult: 0.45,
+      label: 'Hyōrinmaru — Domínio do Dragão: o dragão de gelo pulsa a cada 5s causando dano glacial em área (45% dano)'
     },
     base_stats: { damage: 145, range: 148, attack_speed: 0.49, type: 'single_target' },
     deploy_cost: 400, max_level: 50,
     prestige_passives: {
-      1: { type: 'damage_pulse', interval: 4.0, dmg_mult: 0.55, label: 'Tempestade de Gelo: blizzard pulsa a cada 4s em toda a área' },
+      1: { type: 'arc_chain', chain_r: 90, chain_mult: 0.60, chains: 1, label: 'Tensō Jūrin: raio de gelo encadeia para 1 inimigo adicional (60% dano)' },
       5: { type: 'spirit_surge', trigger_at: 4, mult: 4.5, label: 'Ryūsenka Aprimorado: cada 4º ataque é a mordida do dragão de gelo (4.5×)' },
       10: { type: 'phantom_strike', trigger_at: 5, phantom_mult: 2.2, label: 'Dragão de Gelo: cada 5º ataque o dragão varre toda a área' }
     },
     upgrades: [
-      { name: 'Tensō Jūrin', desc: 'Dano ×1.3 | Freeze dura 4s', damage_mult: 1.3, cost: 580 },
-      { name: 'Ryūsenka', desc: 'Tipo → Cone | Freeze em todos no cone', damage_mult: 1.2, type: 'cone', status_effect: { type: 'freeze', duration: 2.5 }, cost: 950 },
-      { name: 'Bankai: Daiguren Hyōrinmaru', desc: 'Dano ×1.7 | Alcance ×1.3 | Freeze 5s', damage_mult: 1.7, range_mult: 1.3, cost: 1700 },
-      { name: 'Gelo Eterno', desc: 'Freeze: 45%→62% | Dano ×1.3', damage_mult: 1.3, passive_override: { chance: 0.62, duration: 4 }, cost: 2100 },
-      { name: 'Dragão Divino', desc: 'Dano ×1.8 | Vel ×1.15 | Freeze → 80%/5s', damage_mult: 1.8, speed_mult: 1.15, passive_override: { chance: 0.80, duration: 5 }, cost: 3000 }
+      { name: 'Tensō Jūrin', desc: 'Dano ×1.3 | Pulso a cada 4.5s', damage_mult: 1.3, passive_override: { interval: 4.5 }, cost: 580 },
+      { name: 'Ryūsenka', desc: 'Tipo → Cone | Congela todos no cone', damage_mult: 1.2, type: 'cone', status_effect: { type: 'freeze', duration: 2.5 }, cost: 950 },
+      { name: 'Bankai: Daiguren Hyōrinmaru', desc: 'Dano ×1.7 | Alcance ×1.3', damage_mult: 1.7, range_mult: 1.3, cost: 1700 },
+      { name: 'Gelo Eterno', desc: 'Dano ×1.3 | Pulso a cada 3.5s/0.6×', damage_mult: 1.3, passive_override: { interval: 3.5, dmg_mult: 0.60 }, cost: 2100 },
+      { name: 'Dragão Divino', desc: 'Dano ×1.8 | Vel ×1.15 | Pulso a cada 2.5s/0.75×', damage_mult: 1.8, speed_mult: 1.15, passive_override: { interval: 2.5, dmg_mult: 0.75 }, cost: 3000 }
     ]
   },
   kenpachi_zaraki: {
@@ -659,8 +659,8 @@ const CHARACTERS = {
     id: 'zoro_3', name: 'Zoro (East Blue)', rarity: 3, series: 'onepiece', playable: true, xp_value: 1000, initials: 'ZR',
     image: 'assets/towers/update0/Zoro.png',
     passive: {
-      type: 'slow_aura', slow_pct: 0.15,
-      label: 'Corte Debilitante: inimigos na área de Zoro ficam enfraquecidos (−15% velocidade)'
+      type: 'critical', chance: 0.15, mult: 2.0,
+      label: 'Espadachim Supremo: golpes de Zoro têm 15% de chance de corte perfeito (2.0× dano)'
     },
     base_stats: { damage: 158, range: 60, attack_speed: 0.74, type: 'cone' },
     deploy_cost: 140, max_level: 50,
@@ -672,9 +672,9 @@ const CHARACTERS = {
     upgrades: [
       { name: 'Oni Giri', desc: 'Dano ×1.5', damage_mult: 1.5, cost: 200 },
       { name: 'Tatsumaki', desc: 'Alcance ×1.2 | Dano ×1.3', range_mult: 1.35, damage_mult: 1.3, cost: 400 },
-      { name: 'Espírito Assassino', desc: 'Vel ×1.25 | Slow → 22%', speed_mult: 1.25, passive_override: { slow_pct: 0.22 }, cost: 580 },
+      { name: 'Espírito Assassino', desc: 'Vel ×1.25 | Crítico → 20%', speed_mult: 1.25, passive_override: { chance: 0.20 }, cost: 580 },
       { name: 'Três Estilos Plenos', desc: 'Dano ×1.5', damage_mult: 1.5, cost: 900 },
-      { name: 'Alma de Espadas', desc: 'Dano ×1.7 | Vel ×1.15 | Slow → 32%', damage_mult: 1.7, speed_mult: 1.15, passive_override: { slow_pct: 0.32 }, cost: 1300 }
+      { name: 'Alma de Espadas', desc: 'Dano ×1.7 | Vel ×1.15 | Crítico → 25%/2.3×', damage_mult: 1.7, speed_mult: 1.15, passive_override: { chance: 0.25, mult: 2.3 }, cost: 1300 }
     ]
   },
   nami_3: {
@@ -718,20 +718,20 @@ const CHARACTERS = {
   brook_3: {
     id: 'brook_3', name: 'Brook', rarity: 3, series: 'onepiece', playable: true, xp_value: 1000, initials: 'BR',
     image: 'assets/towers/update1/Brook.png',
-    passive: { type: 'status_on_hit', status: 'freeze', duration: 1.5, label: 'Soul Solid: Lentidão severa' },
+    passive: { type: 'echo_strike', chance: 0.40, dmg_mult: 0.45, label: 'Yomi Yomi no Mi: energia da alma ressoa em cada ataque — 40% de chance de eco (45% dano extra)' },
     base_stats: { damage: 66, range: 120, attack_speed: 0.92, type: 'linha' },
     deploy_cost: 180, max_level: 50,
     prestige_passives: {
-      1: { type: 'status_on_hit', status: 'freeze', slow_pct: 0.5, duration: 1.5, label: 'Gelo Espiritual: cada acerto aplica frio da alma (1.5s slow 50%)' },
+      1: { type: 'kill_streak', stack_bonus: 0.12, decay_time: 5, max_stacks: 5, label: 'Músico da Morte: cada kill aumenta o ritmo (+12% dano por stack, máx 5)' },
       5: { type: 'arc_chain', chain_r: 85, chain_mult: 0.50, chains: 1, label: 'Melodia da Alma: música encadeia para 1 inimigo próximo (50% dano)' },
       10: { type: 'phantom_strike', trigger_at: 6, phantom_mult: 1.6, label: 'Pulso da Morte: cada 6º ataque propaga energia espiritual em área' }
     },
     upgrades: [
       { name: 'Yahazu Giri', desc: 'Vel ×1.35', speed_mult: 1.35, cost: 220 },
       { name: 'Nemuri Uta', desc: 'Dano ×1.5', damage_mult: 1.5, cost: 400 },
-      { name: 'Soul King', desc: 'Vel ×1.25 | Freeze dura 2.5s', speed_mult: 1.25, passive_override: { duration: 2.5 }, cost: 620 },
-      { name: 'Âncora Fria', desc: 'Dano ×1.5 | Alcance ×1.15', damage_mult: 1.5, range_mult: 1.15, cost: 950 },
-      { name: 'Milha de Gelo', desc: 'Dano ×1.6 | Freeze dura 3.5s | Vel ×1.15', damage_mult: 1.6, speed_mult: 1.15, passive_override: { duration: 3.5 }, cost: 1350 }
+      { name: 'Soul King', desc: 'Vel ×1.25 | Eco → 55%', speed_mult: 1.25, passive_override: { chance: 0.55 }, cost: 620 },
+      { name: 'Âncora da Alma', desc: 'Dano ×1.5 | Alcance ×1.15', damage_mult: 1.5, range_mult: 1.15, cost: 950 },
+      { name: 'Milha da Alma', desc: 'Dano ×1.6 | Eco → 60%/0.6× | Vel ×1.15', damage_mult: 1.6, speed_mult: 1.15, passive_override: { chance: 0.60, dmg_mult: 0.60 }, cost: 1350 }
     ]
   },
 
@@ -1223,22 +1223,22 @@ const CHARACTERS = {
     id: 'batgirl', name: 'Batgirl (Barbara Gordon)', rarity: 3, series: 'dc', playable: true, xp_value: 1000, initials: 'BG',
     image: 'assets/towers/update3/Batgirl.png',
     passive: {
-      type: 'target_mark', mark_duration: 4, mark_bonus: 0.18,
-      label: 'Alvo Marcado: inimigos atingidos ficam marcados por 4s e recebem +18% de dano de qualquer fonte'
+      type: 'critical', chance: 0.20, mult: 2.2,
+      label: 'Combate de Precisão: treinamento do Batman deu a Barbara reflexos de elite — 20% de chance de crítico (2.2× dano)'
     },
     base_stats: { damage: 132, range: 122, attack_speed: 0.74, type: 'single_target' },
     deploy_cost: 255, max_level: 50,
     prestige_passives: {
-      1: { type: 'status_on_hit', status: 'paralisia', duration: 0.8, label: 'Multimarca: cada acerto aplica paralisia relâmpago de 0.8s' },
+      1: { type: 'status_on_hit', status: 'paralisia', duration: 0.8, label: 'Batcombate: cada acerto aplica paralisia relâmpago de 0.8s' },
       5: { type: 'mark_on_nth_hit', n: 3, duration: 5, bonus: 0.25, label: 'Marca Propagante: cada 3º ataque reaaplica a marca (+25% bônus)' },
-      10: { type: 'kill_streak', stack_bonus: 0.08, max_stacks: 6, decay_time: 8, label: 'Marca Letal: kills acumulam marcas extras (+8% dano por stack, máx 6)' }
+      10: { type: 'kill_streak', stack_bonus: 0.08, max_stacks: 6, decay_time: 8, label: 'Vigilante Implacável: cada kill acumula maestria de combate (+8% dano por stack, máx 6)' }
     },
     upgrades: [
       { name: 'Pellet de Fumaça', desc: 'Vel ×1.2 | Alcance ×1.1', speed_mult: 1.2, range_mult: 1.1, cost: 220 },
       { name: 'Batarang', desc: 'Tipo → Cone', type: 'cone', cost: 350 },
-      { name: 'Marca Profunda', desc: 'Marca: 4s→6s | Bônus: 18%→25%', passive_override: { mark_duration: 6, mark_bonus: 0.25 }, cost: 510 },
+      { name: 'Foco de Batalha', desc: 'Dano ×1.2 | Crítico → 26%', damage_mult: 1.2, passive_override: { chance: 0.26 }, cost: 510 },
       { name: 'Vigilante de Gotham', desc: 'Dano ×1.45 | Vel ×1.15', damage_mult: 1.45, speed_mult: 1.15, cost: 700 },
-      { name: 'Oracle', desc: 'Dano ×1.7 | Marca: 8s | +35% dano | Alcance ×1.2', damage_mult: 1.7, range_mult: 1.2, passive_override: { mark_duration: 8, mark_bonus: 0.35 }, cost: 1050 }
+      { name: 'Oracle', desc: 'Dano ×1.7 | Crítico → 32%/2.5× | Alcance ×1.2', damage_mult: 1.7, range_mult: 1.2, passive_override: { chance: 0.32, mult: 2.5 }, cost: 1050 }
     ]
   },
 
