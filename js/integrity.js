@@ -2,66 +2,7 @@
 // Carregado ANTES de save.js. Não tem dependências em outros módulos do jogo.
 
 const Integrity = (() => {
-  const SALT_KEY = 'astd_integrity_v1';
-  const HMAC_KEY = 'astd_save_hmac_v1';
-
   let _violations = [];
-
-  // ── HMAC ──────────────────────────────────────────────────────────────────
-
-  async function _getSalt() {
-    let salt = localStorage.getItem(SALT_KEY);
-    if (!salt) {
-      const buf = crypto.getRandomValues(new Uint8Array(32));
-      salt = Array.from(buf).map(b => b.toString(16).padStart(2, '0')).join('');
-      localStorage.setItem(SALT_KEY, salt);
-    }
-    return salt;
-  }
-
-  async function _getKey(salt) {
-    const enc = new TextEncoder();
-    const raw = enc.encode(salt + '_astd_v3_k9x2mQ7r');
-    return crypto.subtle.importKey(
-      'raw', raw, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']
-    );
-  }
-
-  async function _computeHmac(saveJson) {
-    const salt = await _getSalt();
-    const key  = await _getKey(salt);
-    const enc  = new TextEncoder();
-    const sig  = await crypto.subtle.sign('HMAC', key, enc.encode(saveJson));
-    return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
-  // Grava o HMAC após cada save legítimo (fire-and-forget pelo save.js)
-  async function seal(saveJson) {
-    try {
-      const hmac = await _computeHmac(saveJson);
-      localStorage.setItem(HMAC_KEY, hmac);
-    } catch (e) {
-      console.warn('[Integrity] seal error:', e);
-    }
-  }
-
-  // Remove o HMAC atual antes de um novo seal assíncrono, evitando falso 'tampered'
-  // se o browser fechar entre o localStorage.setItem do save e a conclusão do seal.
-  function invalidate() {
-    try { localStorage.removeItem(HMAC_KEY); } catch {}
-  }
-
-  // Retorna 'ok' | 'no_seal' | 'tampered'
-  async function verify(saveJson) {
-    try {
-      const stored = localStorage.getItem(HMAC_KEY);
-      if (!stored) return 'no_seal';
-      const computed = await _computeHmac(saveJson);
-      return computed === stored ? 'ok' : 'tampered';
-    } catch (e) {
-      return 'no_seal';
-    }
-  }
 
   // ── Plausibilidade do save ─────────────────────────────────────────────────
 
@@ -220,7 +161,6 @@ const Integrity = (() => {
   // ── Public API ────────────────────────────────────────────────────────────
 
   return {
-    seal, invalidate, verify,
     validateSavePlausibility,
     auditGameState,
     recordViolation,

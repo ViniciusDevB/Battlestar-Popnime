@@ -67,7 +67,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Push in-memory save to server before the tab closes
     window.addEventListener('beforeunload', () => {
-      if (Online.isLoggedIn()) Online.pushSave();
+      if (Online.isLoggedIn()) Online.pushSaveBeacon();
     });
 
     if (Save.wasCorrupted()) {

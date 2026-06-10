@@ -73,7 +73,7 @@ const Online = (() => {
     });
     // Periodic save push every 60s (online-only model — no localStorage)
     setInterval(() => {
-      if (_ready && _session && _profile && !_profile.is_admin) {
+      if (_ready && _session && _profile) {
         _pushSave(Save.get());
       }
     }, 60_000);
@@ -227,12 +227,6 @@ const Online = (() => {
   async function syncSave() {
     if (!_ready || !_session || !_profile) return { ok: false, reason: 'not_logged_in' };
 
-    // Admin: never sync with server. Inventory is locally managed.
-    if (_profile.is_admin) {
-      _grantAdminInventory();
-      return { ok: true };
-    }
-
     try {
       const { data, error } = await _client.rpc('fn_sync_progress', {
         p_progress: Save.get(),
@@ -241,8 +235,12 @@ const Online = (() => {
       if (data?.error) return { ok: false, reason: data.error };
       if (data?.save) {
         Save._setData(data.save);
-        // Seed starter items for brand-new accounts (server returns empty save)
-        await _seedNewAccount();
+        if (_profile.is_admin) {
+          _grantAdminInventory();
+        } else {
+          // Seed starter items for brand-new accounts (server returns empty save)
+          await _seedNewAccount();
+        }
       }
       return { ok: true };
     } catch (e) {
@@ -678,8 +676,32 @@ const Online = (() => {
     }
   }
 
+  function _pushSaveBeacon(saveData) {
+    if (!_ready || !_session || !_profile) return;
+    try {
+      const clean = { ...saveData };
+      delete clean._ownerId;
+      const url = `${SUPABASE_URL}/rest/v1/saves?on_conflict=player_id`;
+      const body = JSON.stringify({ player_id: _profile.id, data: clean, updated_at: new Date().toISOString() });
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${_session.access_token}`,
+          'apikey': SUPABASE_ANON_KEY,
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: body,
+        keepalive: true
+      });
+    } catch (e) {
+      console.warn('[Online] _pushSaveBeacon error:', e);
+    }
+  }
+
   // Exposed wrapper — called by main.js on beforeunload
   async function pushSave() { return _pushSave(Save.get()); }
+  function pushSaveBeacon() { return _pushSaveBeacon(Save.get()); }
 
   // Grants starter items to brand-new accounts (no units, no pulls).
   // Called after syncSave() applies the server save.
@@ -708,7 +730,7 @@ const Online = (() => {
     init, isReady, isLoggedIn, getProfile, getSession, onReady,
     waitForProfile, refreshProfile,
     register, login, logout, resetAccount,
-    syncSave, pushSave, gachaPull, completeStage, claimReward,
+    syncSave, pushSave, pushSaveBeacon, gachaPull, completeStage, claimReward,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,
     fetchActiveMission, fetchUpcomingMissions, getActiveMission, contributeToMission,
