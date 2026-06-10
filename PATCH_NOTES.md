@@ -4,6 +4,21 @@ Bem-vindos ao portal de atualizações de **Battlestar Popnime**. Aqui você enc
 
 ---
 
+## 🖥️ Lançamento do Instalador Desktop
+
+**Data de Lançamento:** 10 de Junho de 2026
+
+*"Battlestar Popnime agora tem uma versão instalável para Windows. Mesma experiência do jogo web, agora como um aplicativo nativo na sua máquina — com atualizações automáticas e sem abrir o navegador."*
+
+### ✨ O que muda
+
+* **Instalador Windows:** baixe e instale o jogo como qualquer outro programa. Atalho criado automaticamente na área de trabalho e no menu iniciar.
+* **Atualizações Automáticas:** ao abrir o jogo, ele verifica silenciosamente se há uma nova versão disponível. Caso haja, baixa em segundo plano e exibe uma notificação para reiniciar — sem precisar baixar um novo instalador manualmente.
+* **Sem acesso ao código-fonte:** os arquivos do jogo são empacotados e protegidos no instalador.
+* **Online idêntico à versão web:** conta, leaderboard, trocas, missões de comunidade e save sync funcionam normalmente.
+
+---
+
 ## 🟢 Atualização 2: Invasão Secreta (Evento Marvel)
 
 <p align="center">

@@ -1,0 +1,60 @@
+{
+  "name": "battlestar-popnime",
+  "productName": "Battlestar Popnime",
+  "version": "1.0.0",
+  "description": "Battlestar Popnime - Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "node scripts/copy-game.js && electron-builder --win",
+    "dist:mac": "node scripts/copy-game.js && electron-builder --mac",
+    "dist:linux": "node scripts/copy-game.js && electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.battlestarpopnime.game",
+    "productName": "Battlestar Popnime",
+    "copyright": "Copyright © 2026",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "build/icon.png",
+      "game/**/*"
+    ],
+    "asar": true,
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Battlestar Popnime"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "ViniciusDevB",
+      "repo": "Battlestar-Popnime"
+    }
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "dependencies": {
+    "electron-updater": "^6.0.0"
+  }
+}

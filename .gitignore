@@ -64,3 +64,9 @@ generate_music.py
 
 # Ignorar arquivos temporários do Supabase CLI
 supabase/.temp/
+
+# Desktop (Electron)
+desktop/node_modules/
+desktop/dist/
+desktop/game/
+desktop/secrets.json

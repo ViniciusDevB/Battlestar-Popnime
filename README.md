@@ -10,11 +10,23 @@
 
 ## 🚀 Como Jogar
 
-Acesse diretamente pelo navegador, sem necessidade de instalação ou download:
+### 🖥️ Instalador Desktop (Windows)
+
+Baixe e instale o jogo diretamente na sua máquina para a melhor experiência:
+
+**[⬇️ Download — Battlestar Popnime para Windows](https://github.com/ViniciusDevB/Battlestar-Popnime/releases/latest)**
+
+- Funciona offline (exceto recursos online que requerem conexão)
+- Recebe atualizações automáticas ao abrir o jogo
+- Sem necessidade de abrir navegador
+
+### 🌐 Versão Web (Navegador)
+
+Acesse diretamente pelo navegador, sem instalação:
 
 **🔗 [viniciusdevb.github.io/Battlestar-Popnime](https://viniciusdevb.github.io/Battlestar-Popnime/)**
 
-Todos os recursos online (conta, leaderboard, trocas, missões da comunidade) funcionam perfeitamente na versão web.
+Todos os recursos online (conta, leaderboard, trocas, missões da comunidade) funcionam perfeitamente nas duas versões. O progresso é sincronizado na nuvem — jogue onde quiser.
 
 ---
 
