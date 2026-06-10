@@ -164,14 +164,12 @@ const Online = (() => {
       _session = null; _profile = null;
       return { error: I18N.t('online_suspended') };
     }
-    // Admin: desativa envio de violações ao servidor + concede inventário completo
+    // Admin: desativa envio de violações ao servidor
+    // (inventário concedido dentro de syncSave para admin)
     if (_profile?.is_admin) {
       if (typeof Integrity !== 'undefined') Integrity.setServerViolationCallback(null);
-      await syncSave();
-      _grantAdminInventory();
-    } else {
-      await syncSave();
     }
+    await syncSave();
     return { ok: true };
   }
 
@@ -214,6 +212,15 @@ const Online = (() => {
 
   async function syncSave() {
     if (!_ready || !_session || !_profile) return { ok: false, reason: 'not_logged_in' };
+
+    // Admin: never sync with server. Inventory is locally managed.
+    // Skipping prevents the server save from overwriting locally-granted items,
+    // and avoids integrity violations from unidades_excedentes on next load.
+    if (_profile.is_admin) {
+      _grantAdminInventory();
+      return { ok: true };
+    }
+
     try {
       const localSave  = Save.get();
       // Previne contaminação entre contas: se o save local foi gerado por outro player_id,
@@ -610,31 +617,48 @@ const Online = (() => {
   function _grantAdminInventory() {
     if (typeof CHARACTERS === 'undefined' || typeof Save === 'undefined') return;
 
-    const allChars = Object.values(CHARACTERS).filter(c => c.playable);
-    const allMats  = Object.values(CHARACTERS).filter(c => !c.playable && c.id);
+    const d = Save.get();
+    if (!d) return;
+    if (!d.inventario) d.inventario = { unidades: [], materiais: [] };
+    if (!d.stats)      d.stats = {};
 
-    allChars.forEach(c => {
-      // Garante pelo menos 1 cópia de cada personagem jogável no nível máximo
-      if (!Save.getUnit(c.id)) {
-        Save.addUnit(c.id, c.max_level || 50, 0);
+    // Build lookup maps for O(1) checks
+    const existingIds = new Set(d.inventario.unidades.map(u => u.id));
+    const matsMap     = new Map(d.inventario.materiais.map(m => [m.id, m]));
+    const _uid        = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
+
+    Object.values(CHARACTERS).forEach(c => {
+      if (!c.id) return;
+      if (c.playable === false) {
+        // Material — set to 999
+        if (matsMap.has(c.id)) {
+          matsMap.get(c.id).quantidade = 999;
+        } else {
+          const m = { id: c.id, quantidade: 999 };
+          d.inventario.materiais.push(m);
+          matsMap.set(c.id, m);
+        }
       } else {
-        // Se já existe, eleva ao nível máximo
-        const d = Save.get();
-        const u = d.inventario.unidades.find(x => x.id === c.id);
-        if (u) { u.nivel = c.max_level || 50; Save.save(); }
+        // Playable character — ensure at max level
+        if (!existingIds.has(c.id)) {
+          d.inventario.unidades.push({ uid: _uid(), id: c.id, nivel: c.max_level || 50, xp_atual: 0 });
+          existingIds.add(c.id);
+        } else {
+          const u = d.inventario.unidades.find(x => x.id === c.id);
+          if (u) u.nivel = Math.max(u.nivel || 1, c.max_level || 50);
+        }
       }
     });
 
-    allMats.forEach(m => {
-      // Garante 999 de cada material
-      const cur = Save.getMaterialQty(m.id);
-      if (cur < 999) Save.addMaterial(m.id, 999 - cur);
-    });
+    d.gemas   = 999999;
+    d.tickets = 9999;
 
-    // Recursos ilimitados (visual; o servidor é autoritativo em contas normais)
-    const d = Save.get();
-    if (d.gemas < 999999) { d.gemas = 999999; Save.save(); }
-    if (d.tickets < 9999) { d.tickets = 9999; Save.save(); }
+    // Set pulls_realizados high so integrity plausibility check never flags
+    // unidades_excedentes (which would trigger the "save modified" toast on next load)
+    d.stats.pulls_realizados = Math.max(d.stats.pulls_realizados || 0, 99999);
+
+    // Single save call — one HMAC seal, no race between multiple async seals
+    Save.save();
     if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
   }
 
