@@ -1375,7 +1375,13 @@ const Game = (() => {
       const upg = tower.charData.upgrades[i];
       if (upg.damage_mult)  stats.damage *= upg.damage_mult;
       if (upg.damage_bonus) stats.damage += upg.damage_bonus;
-      if (upg.range_mult)   stats.range  *= upg.range_mult;
+      if (upg.range_mult) {
+        const rarity = tower.charData?.rarity ?? 0;
+        const effectiveMult = (rarity >= 3)
+          ? 1 + (upg.range_mult - 1) * 0.5
+          : upg.range_mult;
+        stats.range *= effectiveMult;
+      }
       if (upg.speed_mult)   stats.attack_speed *= upg.speed_mult;
       if (upg.type)         stats.type = upg.type;
     }

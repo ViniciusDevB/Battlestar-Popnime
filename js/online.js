@@ -67,6 +67,7 @@ const Online = (() => {
       } else {
         _profile        = null;
         _profilePromise = null;
+        Save.reset();
         _showOnlineStatus(false);
         if (!_authResolved) {
           _authResolved = true;
@@ -240,6 +241,7 @@ const Online = (() => {
 
   async function syncSave() {
     if (!_ready || !_session || !_profile) return { ok: false, reason: 'not_logged_in' };
+    const sessionUserId = _session.user.id;
 
     try {
       const { data, error } = await _client.rpc('fn_sync_progress', {
@@ -247,6 +249,8 @@ const Online = (() => {
       });
       if (error) return { ok: false, reason: error.message };
       if (data?.error) return { ok: false, reason: data.error };
+      // Descarta resposta se a sessão mudou enquanto o RPC estava em andamento
+      if (_session?.user.id !== sessionUserId) return { ok: false, reason: 'session_changed' };
       if (data?.save) {
         Save._mergeData(data.save);
         if (_profile.is_admin) {
