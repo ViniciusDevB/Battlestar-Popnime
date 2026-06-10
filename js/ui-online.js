@@ -270,10 +270,13 @@ const OnlineUI = (() => {
     _setLoading(true);
     try {
       const result = await Online.login(username, pass);
-      _setLoading(false);
       if (result.error) {
+        _setLoading(false);
         _showError(_translateError(result.error));
       } else {
+        // Aguarda syncSave para garantir que o perfil renderize com dados reais
+        await Online.syncSave();
+        _setLoading(false);
         close();
         UI.toast(I18N.t('online_welcome_back', { username }), 3000);
         _render();
@@ -297,10 +300,12 @@ const OnlineUI = (() => {
     _setLoading(true);
     try {
       const result = await Online.register(username, pass);
-      _setLoading(false);
       if (result.error) {
+        _setLoading(false);
         _showError(_translateError(result.error));
       } else {
+        await Online.syncSave();
+        _setLoading(false);
         close();
         UI.toast(I18N.t('online_account_created', { username }), 3500);
         _render();
@@ -330,9 +335,10 @@ const OnlineUI = (() => {
 
   async function handleLogout() {
     if (!window.confirm(I18N.t('online_logout_confirm'))) return;
+    // Fecha o modal antes do logout para que a tela de login apareça limpa.
+    // onAuthStateChange cuida de LoginScreen.show() após signOut().
+    close();
     await Online.logout();
-    _tab = 'login';
-    _render();
     UI.toast(I18N.t('online_logged_out'), 2000);
   }
 
@@ -520,10 +526,14 @@ const LoginScreen = (() => {
       const result = _tab === 'login'
         ? await Online.login(username, pass)
         : await Online.register(username, pass);
-      _setLoading(false);
       if (result.error) {
+        _setLoading(false);
         _showError(_translateError(result.error));
       } else {
+        // Aguarda o save ser sincronizado antes de exibir o hub.
+        // Sem isso o hub abre com dados padrão (500 gemas) e só atualiza segundos depois.
+        await Online.syncSave();
+        _setLoading(false);
         _goToHub();
         UI.toast(_tab === 'register' ? I18N.t('online_account_created', { username }) : I18N.t('online_welcome_back', { username }), 3000);
       }

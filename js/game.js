@@ -1425,10 +1425,18 @@ const Game = (() => {
     updateHUD();
   }
 
+  // Interrompe o loop imediatamente sem exibir tela pós-batalha.
+  // Chamado pelo sistema online quando a sessão expira ou o usuário faz logout.
+  function forceStop() {
+    if (!running) return;
+    running = false;
+    if (typeof AudioManager !== 'undefined') AudioManager.stopBgm();
+  }
+
   return {
     init, startGame, togglePause, toggleSpeed, sellTower, buyNextUpgrade,
     retryStage, handleClick, getTowers, deployTower, selectTower,
     useAbility, deselectTower, skipWave,
-    undoLastTower
+    undoLastTower, forceStop
   };
 })();

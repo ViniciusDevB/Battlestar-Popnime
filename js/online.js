@@ -72,15 +72,23 @@ const Online = (() => {
           _authResolved = true;
           if (_onReadyCb) { const cb = _onReadyCb; _onReadyCb = null; cb(false); }
         } else {
-          // Sessão encerrada após login (logout ou expiração) — força tela de login
+          // Sessão encerrada (logout do usuário ou expiração de token).
+          // 1. Fecha o modal de perfil se estiver aberto.
+          // 2. Para o jogo se estiver rodando (evita loop órfão sem sessão).
+          // 3. Exibe a tela de login obrigatória.
+          const modal = document.getElementById('online-modal');
+          if (modal) modal.style.display = 'none';
+          if (typeof Game !== 'undefined' && typeof Game.forceStop === 'function') Game.forceStop();
           if (typeof LoginScreen !== 'undefined') LoginScreen.show();
         }
       }
     });
-    // Periodic save push every 60s (online-only model — no localStorage)
+    // Sync periódico a cada 60s via fn_sync_progress (RPC server-authoritative).
+    // Usar syncSave() em vez de _pushSave() direto evita que dados econômicos
+    // manipulados no cliente (gems, inventário) sejam gravados no servidor.
     setInterval(() => {
       if (_ready && _session && _profile) {
-        _pushSave(Save.get());
+        syncSave();
       }
     }, 60_000);
 
