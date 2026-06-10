@@ -105,11 +105,11 @@ const Save = (() => {
     // fases_completas: union profunda (servidor + local, nunca perde conclusão)
     const localFases  = local.fases_completas  || {};
     const serverFases = serverSave.fases_completas || {};
-    const merged = { ...serverFases };
+    const mergedFases = { ...serverFases };
     for (const [sid, diffs] of Object.entries(localFases)) {
-      merged[sid] = { ...(merged[sid] || {}), ...diffs };
+      mergedFases[sid] = { ...(mergedFases[sid] || {}), ...diffs };
     }
-    serverSave.fases_completas = merged;
+    serverSave.fases_completas = mergedFases;
 
     // stats: max de cada campo
     const localStats  = local.stats  || {};
@@ -120,6 +120,27 @@ const Save = (() => {
       }
     }
     serverSave.stats = serverStats;
+
+    // missoes_completas: union (nunca perde missão já resgatada localmente)
+    const localDone  = local.missoes_completas  || [];
+    const serverDone = serverSave.missoes_completas || [];
+    const mergedDone = [...new Set([...serverDone, ...localDone])];
+    serverSave.missoes_completas = mergedDone;
+
+    // missoes_conquistas_pendentes: remove as já presentes em mergedDone
+    if (serverSave.missoes_conquistas_pendentes?.length) {
+      const doneSet = new Set(mergedDone);
+      serverSave.missoes_conquistas_pendentes =
+        serverSave.missoes_conquistas_pendentes.filter(id => !doneSet.has(id));
+    }
+
+    // missoes_diarias.completas: union dentro da sessão diária
+    const localDaily  = local.missoes_diarias?.completas  || [];
+    const serverDaily = serverSave.missoes_diarias?.completas || [];
+    if (localDaily.length && serverSave.missoes_diarias) {
+      serverSave.missoes_diarias.completas =
+        [...new Set([...serverDaily, ...localDaily])];
+    }
 
     _setData(serverSave);
   }
