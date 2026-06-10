@@ -72,7 +72,7 @@ const Gacha = (() => {
     }
 
     // Darkseid 7★ — roll secreto antes de qualquer lógica normal (não conta pity)
-    if (Math.random() < 0.000005) {
+    if (Math.random() < 0.0000005) {
       const darkChar = getCharById('darkseid_7star');
       if (darkChar) {
         Save.addUnit('darkseid_7star');
@@ -225,50 +225,114 @@ const Gacha = (() => {
 
   function _showDarkseidReveal(modal, result) {
     const char = getCharById(result.id);
-    const overlay = document.getElementById('gacha-animation-overlay') || document.body;
 
-    // Fade screen to absolute black
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes dk-lightning{0%,100%{opacity:0}4%{opacity:1}8%{opacity:0}14%{opacity:.7}18%{opacity:0}24%{opacity:.9}28%{opacity:0}}
+      @keyframes dk-eq-text{0%{opacity:0;letter-spacing:.3em}25%{opacity:1}75%{opacity:1}100%{opacity:0;letter-spacing:.7em}}
+      @keyframes dk-omega-corner{0%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.2)}30%{opacity:1}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+      @keyframes dk-omega-pulse{0%,100%{text-shadow:0 0 30px #f00,0 0 60px #800}50%{text-shadow:0 0 70px #f40,0 0 140px #c00,0 0 200px #800}}
+      @keyframes dk-shake{0%,100%{transform:translateX(0) translateY(0)}10%{transform:translateX(-9px) rotate(-1.5deg)}20%{transform:translateX(9px) rotate(1.5deg)}30%{transform:translateX(-7px) translateY(-3px)}40%{transform:translateX(7px) translateY(3px)}50%{transform:translateX(-5px)}60%{transform:translateX(5px)}70%{transform:translateX(-3px) translateY(-2px)}80%{transform:translateX(3px)}}
+      @keyframes dk-explode{0%{opacity:1;transform:translate(-50%,-50%) scale(1);filter:brightness(1)}25%{transform:translate(-50%,-50%) scale(2.8);filter:brightness(4)}60%{transform:translate(-50%,-50%) scale(5);opacity:.4;filter:brightness(6) saturate(2)}100%{transform:translate(-50%,-50%) scale(8);opacity:0}}
+      @keyframes dk-redflash{0%{opacity:0}15%{opacity:.9}65%{opacity:.5}100%{opacity:0}}
+      @keyframes dk-beams{0%{opacity:0;transform:translateX(-50%) scaleX(0)}20%{opacity:1}60%{opacity:.6}100%{opacity:0;transform:translateX(-50%) scaleX(1)}}
+      @keyframes dk-card-shatter{0%{opacity:0;transform:scale(.3) translateY(40px);filter:brightness(5) blur(4px)}40%{transform:scale(1.12) translateY(-6px);filter:brightness(2) blur(0)}70%{transform:scale(.97) translateY(2px)}100%{opacity:1;transform:scale(1) translateY(0);filter:brightness(1)}}
+      @keyframes dk-glow-card{0%,100%{box-shadow:0 0 30px #f45,0 0 60px #800}50%{box-shadow:0 0 60px #f45,0 0 120px #c00,0 0 180px #500}}
+    `;
+    document.head.appendChild(style);
+
+    // Tela preta
     const curtain = document.createElement('div');
-    curtain.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;transition:opacity 0.4s';
-    curtain.style.opacity = '0';
+    curtain.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;opacity:0;transition:opacity 0.35s';
     document.body.appendChild(curtain);
-
     requestAnimationFrame(() => { curtain.style.opacity = '1'; });
 
     setTimeout(() => {
-      // Silence — 1.5s of nothing
+
+      // Relâmpagos vermelhos cruzando a tela
+      for (let i = 0; i < 7; i++) {
+        const bolt = document.createElement('div');
+        const top = 5 + Math.random() * 90;
+        const rot = -20 + Math.random() * 40;
+        bolt.style.cssText = `position:fixed;top:${top}%;left:0;width:100%;height:${1 + Math.random() * 2}px;background:linear-gradient(90deg,transparent 0%,#cc0000 20%,#ff6600 50%,#cc0000 80%,transparent 100%);z-index:10000;transform-origin:left center;transform:rotate(${rot}deg);animation:dk-lightning ${0.6 + Math.random() * 0.5}s ease-in-out ${i * 0.1}s 4`;
+        document.body.appendChild(bolt);
+        setTimeout(() => bolt.remove(), 2400);
+      }
+
+      // Texto "EQUAÇÃO ANTI-VIDA"
       setTimeout(() => {
-        // Ω symbol burns through
-        const omega = document.createElement('div');
-        omega.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:120px;font-family:monospace;font-weight:bold;color:#8b0000;z-index:10000;text-shadow:0 0 40px #ff0000,0 0 80px #880000;animation:darkseid-omega-burn 1.5s ease-out forwards';
-        omega.textContent = 'Ω';
+        const eq = document.createElement('div');
+        eq.style.cssText = 'position:fixed;top:18%;left:50%;transform:translateX(-50%);color:#cc0000;font-size:12px;font-family:monospace;font-weight:bold;letter-spacing:.3em;z-index:10002;white-space:nowrap;animation:dk-eq-text 1.6s ease-in-out forwards;text-shadow:0 0 12px #ff0000,0 0 24px #880000';
+        eq.textContent = '— EQUAÇÃO ANTI-VIDA ATIVADA —';
+        document.body.appendChild(eq);
+        setTimeout(() => eq.remove(), 1700);
+      }, 200);
 
-        const style = document.createElement('style');
-        style.textContent = '@keyframes darkseid-omega-burn{0%{opacity:0;transform:translate(-50%,-50%) scale(0.2)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.3);text-shadow:0 0 80px #ff0000,0 0 160px #880000}100%{opacity:0.8;transform:translate(-50%,-50%) scale(1)}}';
-        document.head.appendChild(style);
-        document.body.appendChild(omega);
+      // 4 símbolos Ω disparados dos cantos em direção ao centro
+      const corners = [
+        { x: '15%', y: '15%', tx: 'calc(-15vw - 50%)', ty: 'calc(-15vh - 50%)' },
+        { x: '85%', y: '15%', tx: 'calc(15vw - 50%)',  ty: 'calc(-15vh - 50%)' },
+        { x: '15%', y: '85%', tx: 'calc(-15vw - 50%)', ty: 'calc(15vh - 50%)'  },
+        { x: '85%', y: '85%', tx: 'calc(15vw - 50%)',  ty: 'calc(15vh - 50%)'  },
+      ];
+      corners.forEach(({ x, y, tx, ty }, idx) => {
+        const o = document.createElement('div');
+        o.style.cssText = `position:fixed;top:50%;left:50%;font-size:68px;font-family:serif;font-weight:bold;color:#8b0000;z-index:10001;--tx:${tx};--ty:${ty};transform:translate(${tx},${ty}) scale(.2);opacity:0;animation:dk-omega-corner .9s cubic-bezier(.2,1,.3,1) ${600 + idx * 80}ms forwards,dk-omega-pulse .7s ease-in-out ${1.5 + idx * .08}s 2;text-shadow:0 0 40px #ff0000,0 0 80px #880000`;
+        o.textContent = 'Ω';
+        document.body.appendChild(o);
+        setTimeout(() => o.remove(), 3000);
+      });
 
-        setTimeout(() => {
-          omega.remove();
-          style.remove();
-          // Reveal card — dark style
-          const grid = document.getElementById('gacha-results-grid');
-          grid.innerHTML = '';
-          const card = document.createElement('div');
-          card.className = 'gacha-card';
-          card.style.cssText = 'border:2px solid #3d0000;box-shadow:0 0 30px #ff4500,0 0 60px #8b0000';
-          card.innerHTML = `
-            <div class="gacha-card-inner" style="background:linear-gradient(135deg,#0a0505,#1a0808);border:1px solid #3d0000">
-              <div class="gacha-card-icon" style="background:#1a0a0a;border:2px solid #ff4500;box-shadow:0 0 20px #ff4500">${charIconInner(char)}</div>
-              <div class="gacha-card-stars" style="color:#8b0000;letter-spacing:1px">${RARITY_LABELS[7]}</div>
-              <div class="gacha-card-name" style="color:#ff6b1a">${char?.name || 'Darkseid'}</div>
-            </div>`;
-          grid.appendChild(card);
-          curtain.style.opacity = '0';
-          setTimeout(() => { curtain.remove(); modal.style.display = 'flex'; }, 400);
-        }, 1500);
-      }, 1500);
-    }, 400);
+      // Raios Omega — linhas diagonais convergindo ao centro
+      setTimeout(() => {
+        [['-45deg','top:50%;left:0;width:100%'],['45deg','top:50%;left:0;width:100%']].forEach(([rot, pos]) => {
+          const beam = document.createElement('div');
+          beam.style.cssText = `position:fixed;${pos};height:2px;background:linear-gradient(90deg,transparent,#cc0000 30%,#ff4400 50%,#cc0000 70%,transparent);z-index:10000;transform-origin:center;transform:rotate(${rot}) translateX(-50%);animation:dk-beams .5s ease-out 1.4s forwards;opacity:0`;
+          document.body.appendChild(beam);
+          setTimeout(() => beam.remove(), 2100);
+        });
+      }, 1400);
+
+      // Tela treme
+      setTimeout(() => {
+        document.body.style.animation = 'dk-shake .65s ease-in-out';
+        setTimeout(() => { document.body.style.animation = ''; }, 650);
+      }, 1700);
+
+      // Ω central gigante explode
+      setTimeout(() => {
+        const bigO = document.createElement('div');
+        bigO.style.cssText = 'position:fixed;top:50%;left:50%;font-size:180px;font-family:serif;font-weight:bold;color:#ff2200;z-index:10003;animation:dk-explode 1s ease-out forwards;text-shadow:0 0 80px #ff0000,0 0 160px #cc0000,0 0 240px #880000;pointer-events:none';
+        bigO.textContent = 'Ω';
+        document.body.appendChild(bigO);
+
+        const flash = document.createElement('div');
+        flash.style.cssText = 'position:fixed;inset:0;background:radial-gradient(circle,#cc0000 0%,#550000 60%,#000 100%);z-index:10002;opacity:0;animation:dk-redflash .8s ease-out forwards;pointer-events:none';
+        document.body.appendChild(flash);
+
+        setTimeout(() => { bigO.remove(); flash.remove(); }, 1100);
+      }, 2100);
+
+      // Carta irrompe
+      setTimeout(() => {
+        style.remove();
+        const grid = document.getElementById('gacha-results-grid');
+        grid.innerHTML = '';
+        const card = document.createElement('div');
+        card.className = 'gacha-card';
+        card.style.cssText = 'border:2px solid #3d0000;animation:dk-card-shatter .7s cubic-bezier(.2,1.2,.4,1) forwards,dk-glow-card 1.5s ease-in-out 0.7s infinite';
+        card.innerHTML = `
+          <div class="gacha-card-inner" style="background:linear-gradient(135deg,#0a0505 0%,#1a0808 50%,#0d0202 100%);border:1px solid #3d0000">
+            <div class="gacha-card-icon" style="background:#1a0a0a;border:2px solid #ff4500;box-shadow:0 0 25px #ff4500,inset 0 0 15px #3d0000">${charIconInner(char)}</div>
+            <div class="gacha-card-stars" style="color:#8b0000;letter-spacing:2px;text-shadow:0 0 12px #ff0000">${RARITY_LABELS[7]}</div>
+            <div class="gacha-card-name" style="color:#ff6b1a;text-shadow:0 0 10px #ff4500">${char?.name || 'Darkseid'}</div>
+          </div>`;
+        grid.appendChild(card);
+        curtain.style.opacity = '0';
+        setTimeout(() => { curtain.remove(); modal.style.display = 'flex'; }, 400);
+      }, 3000);
+
+    }, 350);
   }
 
   return { pull, closeResult, updateGachaUI };

@@ -2,7 +2,7 @@
 
 > **Status:** Planejamento  
 > **Raridade:** ★★★★★★★ (7 estrelas — não existe outra)  
-> **Chance no gacha:** `0.0005%` (1 em 200.000 pulls)  
+> **Chance no gacha:** `0.00005%` (1 em 2.000.000 pulls)  
 > **Visibilidade:** Completamente oculto — não aparece nas odds do banner, não conta pity, não aparece na tela de informações do banner
 
 ---
@@ -37,7 +37,7 @@ darkseid_7star: {
   rarity: 7,
   stars: 7,
   world: 'secret',
-  gacha_chance: 0.000005,    // 0.0005%
+  gacha_chance: 0.0000005,   // 0.00005%
   visible_in_banner: false,
   counts_pity: false,
   deploy_cost: 4500,
