@@ -55,7 +55,13 @@ const Online = (() => {
             if (_onReadyCb) { const cb = _onReadyCb; _onReadyCb = null; cb(true); }
           } else if (event === 'SIGNED_IN') {
             // Re-login após logout: onReadyCb já foi consumido, navegar diretamente para o hub
-            if (typeof UI !== 'undefined') { UI.showHub(); UI.updateCurrencyDisplay(); }
+            if (typeof UI !== 'undefined') {
+              const loginScr = document.getElementById('screen-login');
+              if (loginScr && loginScr.classList.contains('active')) {
+                UI.showHub();
+              }
+              UI.updateCurrencyDisplay();
+            }
           }
         });
       } else {
