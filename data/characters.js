@@ -86,7 +86,7 @@ const CHARACTERS = {
     image: 'assets/towers/update0/L.png',
     is_farm_unit: true,
     passive: {
-      type: 'wave_gold', base: 50, perLevel: 2, prestigeMultPerLevel: 0.4,
+      type: 'wave_gold', base: 50, perLevel: 2,
       label: 'Análise Dedutiva: gera ouro ao fim de cada wave (escala com nível, upgrades e prestígio)'
     },
     base_stats: { damage: 0, range: 136, attack_speed: 0, type: 'none' },
@@ -1304,8 +1304,8 @@ const CHARACTERS = {
     image: 'assets/towers/update3/Lois Lane.png',
     is_farm_unit: true,
     passive: {
-      type: 'wave_gold', base: 80, perLevel: 3, prestigeMultPerLevel: 0.5,
-      label: 'Matéria de Capa: gera ouro ao fim de cada wave (base 80 + Nv×3). Prestígio multiplica o valor'
+      type: 'wave_gold', base: 80, perLevel: 3,
+      label: 'Matéria de Capa: gera ouro ao fim de cada wave (base 80 + Nv×3). Prestígio amplifica o valor'
     },
     base_stats: { damage: 0, range: 128, attack_speed: 0, type: 'none' },
     deploy_cost: 300, max_level: 50,

@@ -273,6 +273,7 @@ const LANG_PT = {
   "event_stage_evt2_p4_story": "A Aldeia das Nuvens. O Replicante de Killer Bee usa o poder do Gyuki corrompido para alternar imunidades a tipos de ataque. Seus olhos brilham em tons roxos — cada 30 segundos, muda o que pode machucá-lo. Raios errantes caem sobre o campo de batalha, tornando o combate ainda mais caótico. Tsunade está com você. Adapte-se ou perca.",
   "event_stage_evt2_p4_desc": "⚠️ Modo Jinchuuriki — boss alterna imunidade a tipos de ataque a cada 30s. Raio Errante a cada 12s atinge inimigos em área. Farm de Killer Bee (10% por conclusão, pity 80).",
   "hud_prestige": "✦ Prestígio {prestige} (+{dmg}% dano, +{rng}% alc.)",
+  "hud_prestige_farm": "✦ Prestígio {prestige} (+{gold}% ouro/wave, +{rng}% alc.)",
   "ms_title_missions": "📋 Missões",
   "ms_tab_daily": "Diárias",
   "ms_tab_fixed": "Conquistas",

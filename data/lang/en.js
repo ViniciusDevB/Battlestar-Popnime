@@ -682,6 +682,7 @@ const LANG_EN = {
   "event_stage_evt2_p4_story": "The Cloud Village. The Killer Bee Replicate uses the power of the corrupted Gyuki to alternate immunities to attack types. His eyes glow in shades of purple — every 30 seconds, what can harm him changes. Stray lightning crashes across the battlefield, making combat even more chaotic. Tsunade is with you. Adapt or lose.",
   "event_stage_evt2_p4_desc": "⚠️ Jinchuuriki Mode — boss alternates attack type immunity every 30s. Stray Lightning every 12s strikes enemies in an area. Killer Bee farm (10% per completion, pity 80).",
   "hud_prestige": "✦ Prestige {prestige} (+{dmg}% dmg, +{rng}% rng)",
+  "hud_prestige_farm": "✦ Prestige {prestige} (+{gold}% gold/wave, +{rng}% rng)",
   "ms_title_missions": "📋 Missions",
   "ms_tab_daily": "Daily",
   "ms_tab_fixed": "Achievements",

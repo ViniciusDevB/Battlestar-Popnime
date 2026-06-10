@@ -47,7 +47,11 @@ function openUpgradePanel(tower, slotIdx) {
   const waveActive = _hudCtx.waveActive;
   const frenzyMult  = (tower._frenzyTimer || 0) > 0 ? ` ×${tower._frenzyMult||1} FRENZY` : '';
   const prestigeRow = (tower.prestige || 0) > 0
-    ? `<div class="upg-stat-row" style="color:#fbbf24">${I18N.t('hud_prestige', { prestige: tower.prestige, dmg: tower.prestige * 20, rng: tower.prestige * 6 })}</div>`
+    ? `<div class="upg-stat-row" style="color:#fbbf24">${
+        tower.charData?.is_farm_unit
+          ? I18N.t('hud_prestige_farm', { prestige: tower.prestige, gold: tower.prestige * 2, rng: tower.prestige * 2 })
+          : I18N.t('hud_prestige', { prestige: tower.prestige, dmg: tower.prestige * 10, rng: tower.prestige * 2 })
+      }</div>`
     : '';
 
   const nextUpgIdx = tower.upgradeLevel;

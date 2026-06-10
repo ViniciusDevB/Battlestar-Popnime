@@ -1374,8 +1374,12 @@ const Game = (() => {
       if (upg.type)         stats.type = upg.type;
     }
     if ((tower.prestige || 0) > 0) {
-      stats.damage *= 1 + tower.prestige * 0.20;
-      stats.range  *= 1 + tower.prestige * 0.06;
+      if (tower.charData?.is_farm_unit) {
+        stats.range *= 1 + tower.prestige * 0.02;
+      } else {
+        stats.damage *= 1 + tower.prestige * 0.10;
+        stats.range  *= 1 + tower.prestige * 0.02;
+      }
     }
     if (tower.cloneDamagePct != null && tower.cloneDamagePct < 1)
       stats.damage *= tower.cloneDamagePct;

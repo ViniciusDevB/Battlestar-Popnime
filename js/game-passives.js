@@ -340,7 +340,7 @@ const PASSIVE_ENTRIES = {
       if (tower.isClone) return;
       let wg = p.base + (tower.level - 1) * (p.perLevel || 0);
       for (let i = 0; i < tower.upgradeLevel; i++) wg += tower.charData.upgrades[i]?.gold_bonus || 0;
-      const prestigeMult = 1 + (tower.prestige || 0) * (p.prestigeMultPerLevel || 0);
+      const prestigeMult = 1 + (tower.prestige || 0) * 0.02;
       wg = Math.round(wg * prestigeMult);
       // Lois P5: +30% per farm unit in field
       const passives = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower);
@@ -378,7 +378,7 @@ const PASSIVE_ENTRIES = {
         if (!tp || tp.type !== 'wave_gold') return;
         let wg = tp.base + (t.level - 1) * (tp.perLevel || 0);
         for (let i = 0; i < t.upgradeLevel; i++) wg += t.charData.upgrades[i]?.gold_bonus || 0;
-        const tMult = 1 + (t.prestige || 0) * (tp.prestigeMultPerLevel || 0);
+        const tMult = 1 + (t.prestige || 0) * 0.02;
         bonus += Math.round(wg * tMult * (p.bonus_pct || 0.20));
       });
       if (bonus > 0) { _passiveCtx.gold += bonus; _passiveCtx.updateHUD(); UI.toast(I18N.t('passive_farm_aura', { bonus }), 2000); }
