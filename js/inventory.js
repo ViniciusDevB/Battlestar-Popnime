@@ -370,8 +370,9 @@ const Inventory = (() => {
     panel.style.display = 'flex';
 
     const stats = getCurrentStats(char, unitData.nivel);
+    const maxLevel = char.max_level || 50;
     const xpNeeded = xpForNextLevel(unitData.nivel, char.rarity);
-    const xpPct = unitData.nivel >= 50 ? 100 : Math.round((unitData.xp_atual / xpNeeded) * 100);
+    const xpPct = unitData.nivel >= maxLevel ? 100 : Math.round((unitData.xp_atual / xpNeeded) * 100);
     const totalCopies = Save.getUnitQty(char.id);
     const passives = char.passive ? (Array.isArray(char.passive) ? char.passive : [char.passive]) : [];
     const prestigeLevel = unitData.prestige || 0;
@@ -394,11 +395,11 @@ const Inventory = (() => {
       ${passiveHtml}`;
 
     const xpRowHtml = `
-      <div class="stat-row"><span>${I18N.t('ui_level')}</span><span>${unitData.nivel}/50</span></div>
+      <div class="stat-row"><span>${I18N.t('ui_level')}</span><span>${unitData.nivel}/${maxLevel}</span></div>
       <div class="stat-row xp-row">
         <span>XP</span>
         <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${xpPct}%"></div></div>
-        <span>${unitData.nivel >= 50 ? 'MAX' : `${unitData.xp_atual}/${xpNeeded}`}</span>
+        <span>${unitData.nivel >= maxLevel ? 'MAX' : `${unitData.xp_atual}/${xpNeeded}`}</span>
       </div>`;
 
     const inTeam = Save.getTeam().includes(char.id);
@@ -576,7 +577,7 @@ const Inventory = (() => {
         <div class="feed-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
         <div>
           <div>${char.name}</div>
-          <div>${I18N.t('ui_level')} ${unitData.nivel}/50 | XP: ${unitData.xp_atual}/${xpForNextLevel(unitData.nivel, char.rarity)}</div>
+          <div>${I18N.t('ui_level')} ${unitData.nivel}/${char.max_level||50} | XP: ${unitData.xp_atual}/${xpForNextLevel(unitData.nivel, char.rarity)}</div>
         </div>
       </div>`;
 
