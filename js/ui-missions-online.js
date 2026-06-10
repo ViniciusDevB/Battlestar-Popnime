@@ -550,6 +550,7 @@ const MissionsUI = (() => {
     if (result.ok) {
       if (btn) _burstParticles(btn, { gems: _mission?.reward_gems });
 
+      const hasUnitRewards = (_mission?.reward_units || []).length > 0;
       (_mission?.reward_units || []).forEach(id => {
         if (id === '__random_5star__') {
           _grantRandom5Star();
@@ -559,6 +560,9 @@ const MissionsUI = (() => {
           Save.addUnit(id);
         }
       });
+      if (hasUnitRewards && typeof Online !== 'undefined' && Online.isLoggedIn()) {
+        Online.updateInventory();
+      }
       if (typeof UI !== 'undefined') {
         _bumpCurrency();
         UI.toast(I18N.t('ms_claimed_toast'), 3000);
