@@ -744,6 +744,7 @@ const LANG_EN = {
   "err_server_auth": "Please log in to continue.",
   "err_server_qty": "Invalid quantity.",
   "err_server_currency": "Invalid currency.",
+  "err_server_gacha": "⚠️ Server unavailable. Please try again shortly.",
 
   "ms_loading": "Loading...",
   "ms_time_ended": "Ended",

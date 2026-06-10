@@ -88,8 +88,6 @@ const Save = (() => {
     else _data.stats = Object.assign(defaultSave().stats, _data.stats);
   }
 
-  function wasCorrupted() { return false; }
-  function didSaveFail()  { return false; }
 
   function get() { return _data || load(); }
 
@@ -260,6 +258,5 @@ const Save = (() => {
     markStageComplete, isStageComplete, getTeam, setTeam,
     getPrestige, canPrestige, doPrestige,
     lockUnit, unlockUnit, isUnitLocked,
-    wasCorrupted, didSaveFail
   };
 })();

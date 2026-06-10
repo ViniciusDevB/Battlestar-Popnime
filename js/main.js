@@ -70,10 +70,6 @@ window.addEventListener('DOMContentLoaded', () => {
       if (Online.isLoggedIn()) Online.pushSaveBeacon();
     });
 
-    if (Save.wasCorrupted()) {
-      UI.toast(I18N.t('save_corrupted'), 8000);
-    }
-
     // Integrity guards — snapshot das funções críticas + monitoramento de DevTools
     Integrity.FunctionGuard.snapshot({
       'Save.addUnit':     Save.addUnit,

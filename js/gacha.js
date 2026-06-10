@@ -13,13 +13,11 @@ const Gacha = (() => {
     if (typeof Integrity !== 'undefined' && d.pity_contador > 151) {
       Integrity.recordViolation('pity_overflow', { pity: d.pity_contador });
     }
-    Save.save();
 
     let rarity;
     if (d.pity_contador >= 150) {
       rarity = GACHA_POOL.star5.length > 0 ? 5 : 4;
       Save.get().pity_contador = 0;
-      Save.save();
     } else {
       const r = Math.random();
       if (r < rates.s5 && GACHA_POOL.star5.length > 0) rarity = 5;
@@ -47,12 +45,12 @@ const Gacha = (() => {
       if (result?.ok) {
         // Aplica o save autoritativo do servidor localmente
         Save._setData(result.save);
-        // Incrementa stats de estrela (servidor não rastreia, merge por max no próximo sync)
+        // Stats não rastreados pelo servidor — incrementar localmente e mesclar no próximo sync
+        Save.incStat('pulls_realizados', count);
         result.results.forEach(r => {
           if (r.rarity === 4) Save.incStat('unidades_4estrelas_obtidas');
           if (r.rarity === 5) Save.incStat('unidades_5estrelas_obtidas');
         });
-        Save.save();
         const _cm = Online.getActiveMission();
         if (_cm && _cm.goal_type === 'pulls') Online.contributeToMission(_cm.id, count);
         Missions.check();
@@ -66,8 +64,11 @@ const Gacha = (() => {
         UI.toast(HARD_ERRORS[result.error]);
         return;
       }
-      // Erro de rede/servidor — usa cliente como fallback
-      console.warn('[Gacha] RPC falhou, usando cliente:', result?.error);
+      // Servidor indisponível — não usar fallback cliente pois syncSave reverteria
+      // as mudanças econômicas (gems/inventário são autoritativos do servidor)
+      console.warn('[Gacha] RPC falhou:', result?.error);
+      UI.toast(I18N.t('err_server_gacha'), 3000);
+      return;
     }
 
     // Darkseid 7★ — roll secreto antes de qualquer lógica normal (não conta pity)
@@ -80,7 +81,7 @@ const Gacha = (() => {
       }
     }
 
-    // Fallback client-side (offline ou RPC indisponível)
+    // Fallback client-side — só ativo se não estiver logado (modo demo/offline)
     const d = Save.get();
     const cost = currency === 'gems' ? (count === 1 ? 100 : 950) : count;
     const useTickets = currency === 'tickets';
@@ -110,10 +111,6 @@ const Gacha = (() => {
     }
 
     Save.incStat('pulls_realizados', count);
-    if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
-      const _cm = Online.getActiveMission();
-      if (_cm && _cm.goal_type === 'pulls') Online.contributeToMission(_cm.id, count);
-    }
     Missions.check();
     updateGachaUI();
     showResult(results);

@@ -74,7 +74,7 @@ const Integrity = (() => {
     }
   }
 
-  const _BLOCKERS_LEADERBOARD = ['hmac_mismatch', 'unidades_excedentes', 'nivel_invalido',
+  const _BLOCKERS_LEADERBOARD = ['unidades_excedentes', 'nivel_invalido',
                                   'function_patched', 'gold_spike', 'dmg_per_kill_absurdo'];
   const _BLOCKERS_TRADES      = ['unidades_excedentes', 'nivel_invalido'];
 
@@ -161,7 +161,6 @@ const Integrity = (() => {
   // ── Public API ────────────────────────────────────────────────────────────
 
   return {
-    validateSavePlausibility,
     auditGameState,
     recordViolation,
     setServerViolationCallback,

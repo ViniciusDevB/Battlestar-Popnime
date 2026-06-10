@@ -335,6 +335,7 @@ const LANG_PT = {
   "err_server_auth": "Faça login para continuar.",
   "err_server_qty": "Quantidade inválida.",
   "err_server_currency": "Moeda inválida.",
+  "err_server_gacha": "⚠️ Servidor indisponível. Tente novamente em instantes.",
 
   "ms_loading": "Carregando...",
   "ms_time_ended": "Encerrado",
