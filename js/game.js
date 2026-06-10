@@ -1378,7 +1378,7 @@ const Game = (() => {
       if (upg.range_mult) {
         const rarity = tower.charData?.rarity ?? 0;
         const effectiveMult = (rarity >= 3)
-          ? 1 + (upg.range_mult - 1) * 0.5
+          ? 1 + (upg.range_mult - 1) * 0.2
           : upg.range_mult;
         stats.range *= effectiveMult;
       }
@@ -1387,7 +1387,7 @@ const Game = (() => {
     }
     if ((tower.prestige || 0) > 0) {
       if (tower.charData?.is_farm_unit) {
-        stats.range *= 1 + tower.prestige * 0.02;
+        stats.range *= 1 + tower.prestige * 0.01;
       } else {
         stats.damage *= 1 + tower.prestige * 0.10;
         stats.range  *= 1 + tower.prestige * 0.02;

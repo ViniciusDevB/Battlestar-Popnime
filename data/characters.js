@@ -1538,7 +1538,7 @@ function getCurrentStats(charData, level) {
   const b = level - 1;
   return {
     damage: charData.base_stats.damage * (1 + 0.02 * b),
-    range: charData.base_stats.range * (1 + 0.01 * b),
+    range: charData.base_stats.range * (1 + 0.005 * b),
     attack_speed: charData.base_stats.attack_speed * (1 + 0.01 * b),
     type: charData.base_stats.type
   };
