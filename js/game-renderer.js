@@ -562,86 +562,183 @@ function drawTowers() {
       const intensity = Math.min(1 + stacks * 0.03, 2.5);
       const pulse1    = (Math.sin(n7 / 400 * intensity) + 1) / 2;
 
-      // Shared beam geometry (used by rays + ground effects)
-      const NUM_RAYS  = 4;
-      const sweepAngle = n7 * 0.00055 * intensity;
-      const rayLen     = Math.min(260 + stacks * 5, 390);
+      // ── Omega Beam path generator (right-angle turns like the comics) ──
+      const _genOmegaPath = (sx, sy, mirror) => {
+        const pts = [{ x: sx, y: sy }];
+        // 8 possible starting angles (octants), mirrored for right eye
+        const startAngles = [0, Math.PI/4, Math.PI/2, 3*Math.PI/4, Math.PI, 5*Math.PI/4, 3*Math.PI/2, 7*Math.PI/4];
+        let ang = startAngles[Math.floor(Math.random() * startAngles.length)];
+        if (mirror) ang = Math.PI - ang;
+        let cx = sx, cy = sy;
+        for (let s = 0; s < 5; s++) {
+          const len = 120 + Math.random() * 200;
+          cx += Math.cos(ang) * len;
+          cy += Math.sin(ang) * len;
+          // Allow beams to go slightly off-map for dramatic effect
+          cx = Math.max(-120, Math.min(CANVAS_W + 120, cx));
+          cy = Math.max(-120, Math.min(CANVAS_H + 120, cy));
+          pts.push({ x: cx, y: cy });
+          ang += (Math.random() < 0.5 ? 1 : -1) * Math.PI / 2; // exact 90° turn
+        }
+        let total = 0;
+        for (let i = 1; i < pts.length; i++) {
+          const ddx = pts[i].x - pts[i-1].x, ddy = pts[i].y - pts[i-1].y;
+          total += Math.sqrt(ddx*ddx + ddy*ddy);
+        }
+        return { pts, total, drawn: 0 };
+      };
 
-      // === OMEGA RAYS — sweep symmetrically from Darkseid's eyes ===
-      ctx.save();
-      ctx.translate(t.x, t.y);
-      ctx.globalCompositeOperation = 'lighter';
-      for (let ri = 0; ri < NUM_RAYS; ri++) {
-        const base    = sweepAngle + (ri / NUM_RAYS) * Math.PI * 2;
-        const wobble  = Math.sin(n7 * 0.0009 * intensity + ri * 1.5) * 0.28;
-        const ctrlAng = base + wobble;
-        const ctrlLen = rayLen * 0.5;
-        const eyeX    = (ri % 2 === 0) ? -5 : 5;
-        const eyeY    = -8;
-        const endX    = Math.cos(base) * rayLen;
-        const endY    = Math.sin(base) * rayLen;
-        const ctrlX   = Math.cos(ctrlAng) * ctrlLen;
-        const ctrlY   = Math.sin(ctrlAng) * ctrlLen;
+      // ── Initialize beam state machine ──
+      if (!t._omegaBeamState) {
+        t._omegaBeamState = {
+          left:      _genOmegaPath(t.x - 5, t.y - 8, false),
+          right:     _genOmegaPath(t.x + 5, t.y - 8, true),
+          phase:     'extend',   // extend | hold | retract
+          holdMs:    0,
+          lastTime:  n7,
+        };
+      }
+
+      // ── Update beam animation ──
+      const bs = t._omegaBeamState;
+      const dt = Math.min(n7 - bs.lastTime, 100); // cap to avoid jumps
+      bs.lastTime = n7;
+      const BEAM_SPEED = 380 * intensity; // px/s
+
+      if (bs.phase === 'extend') {
+        const delta = BEAM_SPEED * dt / 1000;
+        bs.left.drawn  = Math.min(bs.left.drawn  + delta, bs.left.total);
+        bs.right.drawn = Math.min(bs.right.drawn + delta, bs.right.total);
+        if (bs.left.drawn >= bs.left.total && bs.right.drawn >= bs.right.total) {
+          bs.phase = 'hold'; bs.holdMs = 0;
+        }
+      } else if (bs.phase === 'hold') {
+        bs.holdMs += dt;
+        if (bs.holdMs > 500) bs.phase = 'retract';
+      } else {
+        const delta = BEAM_SPEED * 2.2 * dt / 1000;
+        bs.left.drawn  = Math.max(bs.left.drawn  - delta, 0);
+        bs.right.drawn = Math.max(bs.right.drawn - delta, 0);
+        if (bs.left.drawn <= 0 && bs.right.drawn <= 0) {
+          bs.left  = _genOmegaPath(t.x - 5, t.y - 8, false);
+          bs.right = _genOmegaPath(t.x + 5, t.y - 8, true);
+          bs.phase = 'extend';
+        }
+      }
+
+      // ── Draw one Omega Beam (sharp right-angle corners, 3-layer glow) ──
+      const _drawOmegaBeam = (beam) => {
+        if (beam.drawn <= 0) return;
+        ctx.save();
+        ctx.lineJoin   = 'miter';
+        ctx.miterLimit = 12;
+        ctx.globalCompositeOperation = 'lighter';
+        let tipX = beam.pts[0].x, tipY = beam.pts[0].y;
+
+        // Build partial polyline up to `drawn` pixels
+        const buildPath = () => {
+          ctx.beginPath();
+          ctx.moveTo(beam.pts[0].x, beam.pts[0].y);
+          let rem = beam.drawn;
+          for (let i = 1; i < beam.pts.length; i++) {
+            const ddx = beam.pts[i].x - beam.pts[i-1].x;
+            const ddy = beam.pts[i].y - beam.pts[i-1].y;
+            const slen = Math.sqrt(ddx*ddx + ddy*ddy);
+            if (rem <= slen) {
+              const frac = rem / slen;
+              tipX = beam.pts[i-1].x + ddx * frac;
+              tipY = beam.pts[i-1].y + ddy * frac;
+              ctx.lineTo(tipX, tipY);
+              break;
+            }
+            ctx.lineTo(beam.pts[i].x, beam.pts[i].y);
+            tipX = beam.pts[i].x; tipY = beam.pts[i].y;
+            rem -= slen;
+          }
+        };
 
         // Outer diffuse glow
-        ctx.beginPath(); ctx.moveTo(eyeX, eyeY);
-        ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
-        ctx.strokeStyle = 'rgba(255,30,0,0.15)';
-        ctx.lineWidth = 22; ctx.shadowBlur = 35; ctx.shadowColor = '#ff1800';
-        ctx.stroke();
-
+        buildPath();
+        ctx.strokeStyle = 'rgba(255,20,0,0.14)';
+        ctx.lineWidth = 24; ctx.shadowBlur = 40; ctx.shadowColor = '#ff1800'; ctx.stroke();
         // Mid glow
-        ctx.beginPath(); ctx.moveTo(eyeX, eyeY);
-        ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
-        ctx.strokeStyle = `rgba(255,100,0,${0.45 + pulse1 * 0.15})`;
-        ctx.lineWidth = 7; ctx.shadowBlur = 18; ctx.shadowColor = '#ff4500';
-        ctx.stroke();
-
+        buildPath();
+        ctx.strokeStyle = `rgba(255,90,0,${0.4 + pulse1 * 0.15})`;
+        ctx.lineWidth = 8; ctx.shadowBlur = 20; ctx.shadowColor = '#ff4500'; ctx.stroke();
         // Bright core
-        ctx.beginPath(); ctx.moveTo(eyeX, eyeY);
-        ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
-        ctx.strokeStyle = 'rgba(255,215,130,0.9)';
-        ctx.lineWidth = 2.5; ctx.shadowBlur = 10; ctx.shadowColor = '#ffaa44';
-        ctx.stroke();
+        buildPath();
+        ctx.strokeStyle = 'rgba(255,210,120,0.92)';
+        ctx.lineWidth = 2.5; ctx.shadowBlur = 10; ctx.shadowColor = '#ffbb44'; ctx.stroke();
 
-        // Tip impact corona
-        const tipP = (Math.sin(n7 * 0.005 * intensity + ri * 1.8) + 1) / 2;
-        ctx.beginPath(); ctx.arc(endX, endY, 9 + tipP * 11, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,80,0,0.7)';
-        ctx.shadowBlur = 28; ctx.shadowColor = '#ff4500'; ctx.fill();
-        ctx.beginPath(); ctx.arc(endX, endY, 3, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,235,180,0.95)'; ctx.fill();
+        // Tip corona
+        const tipPulse = (Math.sin(n7 * 0.006 * intensity) + 1) / 2;
+        ctx.beginPath(); ctx.arc(tipX, tipY, 10 + tipPulse * 12, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,70,0,0.75)';
+        ctx.shadowBlur = 32; ctx.shadowColor = '#ff4500'; ctx.fill();
+        ctx.beginPath(); ctx.arc(tipX, tipY, 4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,235,180,0.98)'; ctx.shadowBlur = 6; ctx.fill();
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.restore();
+      };
+
+      _drawOmegaBeam(bs.left);
+      _drawOmegaBeam(bs.right);
+
+      // ── Ground Cracks + Magma around Darkseid ────────────────────────────
+      if (!t._crackLines) {
+        // Seed-stable crack network, generated once per tower instance
+        const prng = (seed) => { const x = Math.sin(seed * 127.1 + 311.7) * 43758.5; return x - Math.floor(x); };
+        t._crackLines = [];
+        for (let ci = 0; ci < 10; ci++) {
+          const ang0 = prng(ci) * Math.PI * 2;
+          const segs = [{ x: t.x, y: t.y }];
+          let cx = t.x, cy = t.y, ang = ang0;
+          for (let s = 0; s < 4; s++) {
+            // Each crack segment: 25-65px, slight angular deviation (not 90°, organic cracks)
+            const len = 25 + prng(ci * 13 + s) * 60;
+            ang += (prng(ci + s * 7) - 0.5) * 0.9;
+            cx += Math.cos(ang) * len;
+            cy += Math.sin(ang) * len;
+            segs.push({ x: cx, y: cy });
+          }
+          t._crackLines.push(segs);
+        }
       }
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.restore();
-
-      // === Ground scorched earth at beam endpoints (map-space) ===
+      const magmaPulse = (Math.sin(n7 / 230) + 1) / 2;
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      for (let ri = 0; ri < NUM_RAYS; ri++) {
-        const base = sweepAngle + (ri / NUM_RAYS) * Math.PI * 2;
-        const gx   = t.x + Math.cos(base) * rayLen;
-        const gy   = t.y + Math.sin(base) * rayLen;
-        const gRad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 45);
-        gRad.addColorStop(0,   'rgba(255,90,0,0.45)');
-        gRad.addColorStop(0.5, 'rgba(180,15,0,0.18)');
-        gRad.addColorStop(1,   'rgba(0,0,0,0)');
-        ctx.fillStyle = gRad;
-        ctx.beginPath(); ctx.arc(gx, gy, 45, 0, Math.PI * 2); ctx.fill();
-        ctx.font = 'bold 11px monospace';
-        ctx.fillStyle = 'rgba(255,69,0,0.35)';
-        ctx.shadowBlur = 8; ctx.shadowColor = '#ff4500';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('Ω', gx, gy);
+      for (const segs of t._crackLines) {
+        // Magma glow (wide, orange-red)
+        ctx.beginPath();
+        for (let i = 0; i < segs.length; i++) i === 0 ? ctx.moveTo(segs[i].x, segs[i].y) : ctx.lineTo(segs[i].x, segs[i].y);
+        ctx.strokeStyle = `rgba(255,${70 + Math.round(magmaPulse * 90)},0,${0.55 + magmaPulse * 0.3})`;
+        ctx.lineWidth   = 5 + magmaPulse * 4;
+        ctx.shadowBlur  = 14 + magmaPulse * 12;
+        ctx.shadowColor = '#ff5500';
+        ctx.stroke();
+        // Dark crack line on top
+        ctx.beginPath();
+        for (let i = 0; i < segs.length; i++) i === 0 ? ctx.moveTo(segs[i].x, segs[i].y) : ctx.lineTo(segs[i].x, segs[i].y);
+        ctx.strokeStyle = 'rgba(10,0,0,0.85)';
+        ctx.lineWidth   = 1.5;
+        ctx.shadowBlur  = 0;
+        ctx.stroke();
       }
+      // Central magma pool (glowing core beneath Darkseid)
+      const poolR = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, 38 + magmaPulse * 10);
+      poolR.addColorStop(0,   `rgba(255,120,0,${0.45 + magmaPulse * 0.2})`);
+      poolR.addColorStop(0.5, `rgba(200,30,0,${0.25 + magmaPulse * 0.1})`);
+      poolR.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = poolR;
+      ctx.beginPath(); ctx.arc(t.x, t.y, 48, 0, Math.PI * 2); ctx.fill();
       ctx.globalCompositeOperation = 'source-over';
       ctx.restore();
 
-      // === Floating Embers + Rings (kept) ===
+      // ── Floating Embers + Rings (kept) ───────────────────────────────────
       ctx.save();
       ctx.translate(t.x, t.y);
 
-      // Floating Embers (Anti-Life sparks / red balls)
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       for (let i = 0; i < 10; i++) {
@@ -658,7 +755,6 @@ function drawTowers() {
       }
       ctx.restore();
 
-      // Double Omega Rings with counter-rotation
       ctx.save();
       ctx.rotate(-n7 * 0.0012 * intensity);
       ctx.beginPath(); ctx.arc(0, 0, 52 + pulse1 * 5, 0, Math.PI * 2);
