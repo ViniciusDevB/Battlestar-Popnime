@@ -1280,6 +1280,110 @@ function drawEffects() {
       ctx.globalAlpha = alpha * 0.18;
       ctx.fillStyle = ef.color; ctx.fill();
       ctx.globalAlpha = alpha;
+    } else if (ef.type === 'omega_beam_strike') {
+      // Darkseid chain ray: right-angle glowing beam + impact burst
+      const dx = ef.tx - ef.x, dy = ef.ty - ef.y;
+      const useH = Math.abs(dx) >= Math.abs(dy); // horizontal first?
+      const midX = useH ? ef.tx : ef.x;
+      const midY = useH ? ef.y : ef.ty;
+      const prog = 1 - alpha;
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineJoin = 'miter'; ctx.miterLimit = 15;
+      const _beamPath = () => { ctx.beginPath(); ctx.moveTo(ef.x, ef.y); ctx.lineTo(midX, midY); ctx.lineTo(ef.tx, ef.ty); };
+      // Outer diffuse glow
+      _beamPath(); ctx.strokeStyle = `rgba(255,20,0,${alpha * 0.18})`; ctx.lineWidth = 28; ctx.shadowBlur = 42; ctx.shadowColor = '#ff1800'; ctx.stroke();
+      // Mid glow
+      _beamPath(); ctx.strokeStyle = `rgba(255,90,0,${alpha * 0.7})`; ctx.lineWidth = 10; ctx.shadowBlur = 22; ctx.shadowColor = '#ff4500'; ctx.stroke();
+      // Bright core
+      _beamPath(); ctx.strokeStyle = `rgba(255,210,120,${alpha * 0.95})`; ctx.lineWidth = 3; ctx.shadowBlur = 12; ctx.shadowColor = '#ffbb44'; ctx.stroke();
+      // Source flash at Darkseid
+      ctx.beginPath(); ctx.arc(ef.x, ef.y, 9 * alpha, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,235,180,${alpha})`; ctx.shadowBlur = 18; ctx.shadowColor = '#ff4500'; ctx.fill();
+      // Impact burst at target
+      ctx.beginPath(); ctx.arc(ef.tx, ef.ty, 18 + 12 * prog, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,55,0,${alpha * 0.65})`; ctx.shadowBlur = 38; ctx.shadowColor = '#ff4500'; ctx.fill();
+      ctx.beginPath(); ctx.arc(ef.tx, ef.ty, 5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,235,150,${alpha})`; ctx.fill();
+      // Cross beams at impact (4 cardinal spokes)
+      for (let ci = 0; ci < 4; ci++) {
+        const ca = ci * Math.PI / 2;
+        ctx.beginPath(); ctx.moveTo(ef.tx, ef.ty);
+        ctx.lineTo(ef.tx + Math.cos(ca) * (22 + 14 * prog), ef.ty + Math.sin(ca) * (22 + 14 * prog));
+        ctx.strokeStyle = `rgba(255,140,0,${alpha * 0.7})`; ctx.lineWidth = 1.8; ctx.shadowBlur = 10; ctx.stroke();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    } else if (ef.type === 'omega_eye_flash') {
+      // Flash at Darkseid's eyes when chain ray fires
+      const prog = 1 - alpha;
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.beginPath(); ctx.arc(ef.x, ef.y, 55 * prog, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,20,0,${alpha * 0.14})`; ctx.shadowBlur = 35; ctx.shadowColor = '#ff2200'; ctx.fill();
+      for (const offX of [-5, 5]) {
+        ctx.beginPath(); ctx.arc(ef.x + offX, ef.y - 8, 7 + 5 * prog, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,200,80,${alpha})`; ctx.shadowBlur = 22; ctx.shadowColor = '#ff4500'; ctx.fill();
+        ctx.beginPath(); ctx.arc(ef.x + offX, ef.y - 8, 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,200,${alpha})`; ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    } else if (ef.type === 'will_shatter') {
+      // Will Break — soul fracture: dark void implosion + purple fractures + Ω
+      const prog = 1 - alpha;
+      ctx.globalCompositeOperation = 'lighter';
+      for (let ri = 0; ri < 3; ri++) {
+        const rp = Math.max(0, prog - ri * 0.08);
+        ctx.beginPath(); ctx.arc(ef.x, ef.y, (22 + ri * 20) * rp + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${90 + ri * 35},0,${170 + ri * 25},${alpha * (0.75 - ri * 0.18)})`;
+        ctx.lineWidth = 3.5 - ri * 0.7; ctx.shadowBlur = 22 - ri * 4; ctx.shadowColor = '#7c3aed'; ctx.stroke();
+      }
+      for (let i = 0; i < 8; i++) {
+        const ang = (i / 8) * Math.PI * 2;
+        const bend = ang + (i % 2 === 0 ? 0.38 : -0.38);
+        const fLen = 48 * prog;
+        ctx.beginPath(); ctx.moveTo(ef.x, ef.y);
+        ctx.lineTo(ef.x + Math.cos(bend) * fLen * 0.5, ef.y + Math.sin(bend) * fLen * 0.5);
+        ctx.lineTo(ef.x + Math.cos(ang) * fLen, ef.y + Math.sin(ang) * fLen);
+        ctx.strokeStyle = `rgba(167,85,247,${alpha * 0.82})`; ctx.lineWidth = 1.5; ctx.shadowBlur = 9; ctx.shadowColor = '#a855f7'; ctx.stroke();
+      }
+      ctx.beginPath(); ctx.arc(ef.x, ef.y, 13 * alpha, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(60,0,140,${alpha * 0.9})`; ctx.shadowBlur = 28; ctx.shadowColor = '#7c3aed'; ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.font = `bold ${10 + prog * 11}px monospace`;
+      ctx.fillStyle = `rgba(200,150,255,${alpha})`;
+      ctx.shadowBlur = 18; ctx.shadowColor = '#a855f7';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('Ω', ef.x, ef.y);
+    } else if (ef.type === 'omega_decree_blast') {
+      // Omega Decree — cosmic smiting: doom pillar + rings + descending Ω
+      const prog = 1 - alpha;
+      ctx.globalCompositeOperation = 'lighter';
+      // Vertical doom pillar
+      const pH = 170 * prog;
+      const pGrad = ctx.createLinearGradient(ef.x, ef.y, ef.x, ef.y - pH);
+      pGrad.addColorStop(0, `rgba(255,65,0,${alpha * 0.9})`);
+      pGrad.addColorStop(0.4, `rgba(255,175,55,${alpha * 0.55})`);
+      pGrad.addColorStop(1, 'rgba(255,255,200,0)');
+      ctx.beginPath();
+      ctx.moveTo(ef.x - 9, ef.y); ctx.lineTo(ef.x + 9, ef.y);
+      ctx.lineTo(ef.x + 3, ef.y - pH); ctx.lineTo(ef.x - 3, ef.y - pH);
+      ctx.closePath();
+      ctx.fillStyle = pGrad; ctx.shadowBlur = 38; ctx.shadowColor = '#ff4500'; ctx.fill();
+      // Expanding rings
+      for (let ri = 0; ri < 3; ri++) {
+        const rp = Math.max(0, prog - ri * 0.09);
+        ctx.beginPath(); ctx.arc(ef.x, ef.y, (28 + ri * 24) * rp, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,${15 + ri * 28},0,${alpha * (0.85 - ri * 0.2)})`;
+        ctx.lineWidth = 4.5 - ri; ctx.shadowBlur = 24; ctx.shadowColor = '#ff3300'; ctx.stroke();
+      }
+      // Ground corona
+      ctx.beginPath(); ctx.arc(ef.x, ef.y, 22 * alpha, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,90,0,${alpha * 0.55})`; ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+      // Descending Ω
+      const symY = ef.y - 70 + 70 * prog;
+      ctx.font = `bold ${22 + prog * 16}px monospace`;
+      ctx.fillStyle = `rgba(255,69,0,${alpha})`; ctx.shadowBlur = 32; ctx.shadowColor = '#ff0000';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('Ω', ef.x, symY);
     } else if (ef.type === 'death') {
       ctx.beginPath();
       ctx.arc(ef.x, ef.y, 15 * (1 - alpha), 0, Math.PI * 2);

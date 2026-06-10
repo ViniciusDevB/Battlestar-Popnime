@@ -1499,7 +1499,7 @@ const PASSIVE_ENTRIES = {
         });
       }
       target.hp = 1;
-      _passiveCtx.addEffect({ type:'ring', x:target.x, y:target.y, maxR:50, color:'#ff4500', timer:0.4, maxTimer:0.4, r:0 });
+      _passiveCtx.addEffect({ type:'omega_decree_blast', x:target.x, y:target.y, timer:0.9, maxTimer:0.9 });
       UI.toast(I18N.t('passive_omega_decree', { name: target.name }), 3000);
     }
   },
@@ -1527,7 +1527,7 @@ function _applyCorruptionStack(tower, enemy, passives) {
     enemy._willBroken      = true;
     enemy._willBrokenTimer = 7;
     enemy._willBrokenBy    = tower;
-    _passiveCtx.addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:40, color:'#7c3aed', timer:0.5, maxTimer:0.5, r:0 });
+    _passiveCtx.addEffect({ type:'will_shatter', x:enemy.x, y:enemy.y, timer:0.7, maxTimer:0.7 });
     // Anti-life spread (Prestígio 2)
     if (passives.some(x => x.type === 'anti_life_spread')) {
       const freeStacks = passives.find(x => x.type === 'anti_life_spread').freeStacksGranted || 2;
@@ -1559,11 +1559,11 @@ function _fireOmegaChainRay(tower, passives) {
     const mult = prevHits > 0 ? doubleRatio : branchRatio;
     const dmg  = Math.round(stats.damage * mult * tyrantBonus);
     _passiveCtx.dealDamage(tower, t, dmg);
-    _passiveCtx.addEffect({ type:'line', x:tower.x, y:tower.y, tx:t.x, ty:t.y, color:'#ff4500', timer:0.20, maxTimer:0.20 });
+    _passiveCtx.addEffect({ type:'omega_beam_strike', x:tower.x, y:tower.y - 8, tx:t.x, ty:t.y, timer:0.40, maxTimer:0.40 });
     hitOrder.set(t, prevHits + 1);
   });
 
-  _passiveCtx.addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:30, color:'#ff4500', timer:0.3, maxTimer:0.3, r:0 });
+  _passiveCtx.addEffect({ type:'omega_eye_flash', x:tower.x, y:tower.y, timer:0.45, maxTimer:0.45 });
   UI.toast(I18N.t('passive_omega_chain_ray'), 1500);
 }
 

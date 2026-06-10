@@ -342,6 +342,38 @@ function drawProjectileShape(ctx, id, angle, color, now) {
       });
       break;
     }
+    case 'darkseid_7star': {
+      // Omega Beam projectile — glowing energy bolt with right-angle cross
+      ctx.rotate(angle);
+      ctx.globalCompositeOperation = 'lighter';
+      // Outer halo
+      ctx.shadowBlur = 32; ctx.shadowColor = '#ff1800';
+      ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(180,0,0,0.22)'; ctx.fill();
+      // Mid glow
+      ctx.shadowBlur = 20; ctx.shadowColor = '#ff4500';
+      ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,50,0,0.7)'; ctx.fill();
+      // Hot core
+      ctx.shadowBlur = 12; ctx.shadowColor = '#ffaa44';
+      ctx.beginPath(); ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,160,60,0.95)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(0, 0, 2, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff'; ctx.fill();
+      // Right-angle cross beams (Omega direction indicator)
+      ctx.strokeStyle = 'rgba(255,110,0,0.75)';
+      ctx.lineWidth = 1.8; ctx.shadowBlur = 8; ctx.shadowColor = '#ff4500';
+      ctx.beginPath(); ctx.moveTo(-16, 0); ctx.lineTo(16, 0); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, -11); ctx.lineTo(0, 11); ctx.stroke();
+      // Ω glyph
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.font = 'bold 8px monospace';
+      ctx.fillStyle = `rgba(255,200,100,${0.65 + (Math.sin(now * 0.009) + 1) * 0.15})`;
+      ctx.shadowBlur = 10; ctx.shadowColor = '#ff4500';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('Ω', 0, 0);
+      break;
+    }
     default: {
       ctx.beginPath(); ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
       ctx.fillStyle = color; ctx.fill();
