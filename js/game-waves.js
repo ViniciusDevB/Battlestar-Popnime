@@ -118,7 +118,7 @@ function skipWave() {
     return;
   }
 
-  const bonus = 100 * _wavesCtx.skipMultiplier;
+  const bonus = Math.min(1000, Math.round(100 * Math.pow(1.01, _wavesCtx.skipMultiplier)));
   _wavesCtx.skipMultiplier++;
   _wavesCtx.gold += bonus;
   _wavesCtx.towers.forEach(t => PASSIVE_SYSTEM.onWaveEnd(t));
@@ -133,7 +133,7 @@ function skipWave() {
   _wavesCtx.spawnQueue.sort((a, b) => a.delay - b.delay);
 
   updateHUD();
-  UI.toast(I18N.t('wave_skip_done', { wave: _wavesCtx.wave, bonus, mult: _wavesCtx.skipMultiplier - 1 }));
+  UI.toast(I18N.t('wave_skip_done', { wave: _wavesCtx.wave, bonus }));
 }
 
 function updateSpawn(dt) {

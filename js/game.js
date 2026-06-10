@@ -16,7 +16,7 @@ const Game = (() => {
   let waveActive, spawnQueue, betweenWaves, betweenTimer, waveElapsed;
   let _lastPlacedTower = null;
   let activeWavesCount = 1;
-  let skipMultiplier = 2;
+  let skipMultiplier = 0;
   let selectedTowerIdx, deployingCharId;
   let shinraTenseiActive, shinraTenseiTimer, stageModifierTimer;
   let _sandStormTimer, _sandStormActive, _sandStormDuration, _lightningTimer;
@@ -215,6 +215,7 @@ const Game = (() => {
     isInfiniteMode:   { get: () => isInfiniteMode,   configurable: true },
     selectedTowerIdx: { get: () => selectedTowerIdx, set: v => { selectedTowerIdx = v; }, configurable: true },
     deployingCharId:  { get: () => deployingCharId,  set: v => { deployingCharId = v; },  configurable: true },
+    skipMultiplier:   { get: () => skipMultiplier,   configurable: true },
   });
   _hudCtx.getTowerStats = getTowerStats;
   _hudCtx.buyUpgrade    = buyUpgrade;
@@ -466,7 +467,7 @@ const Game = (() => {
     isInfiniteMode = !!(stage.isInfinite);
     lives = stage.base_hp || 20;
     gold = 300;
-    skipMultiplier = 2;
+    skipMultiplier = 0;
     wave = 0;
     totalWaves = isInfiniteMode ? Infinity : stage.waves.length;
     activeWavesCount = 1;
@@ -1073,7 +1074,7 @@ const Game = (() => {
     if (enemy.dead) return;
     enemy.dead = true;
     if (enemy._noGold) { /* Abraço do Abismo — sem ouro */ } else
-    gold += 50;
+    gold += 35;
     sessionKills++;
     if (enemy.is_miniboss) sessionMinibosses++;
     if (enemy.is_boss) sessionBossKilled = true;

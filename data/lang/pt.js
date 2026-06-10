@@ -393,7 +393,7 @@ const LANG_PT = {
   "wave_lightning": "⚡ Raio Errante! {dmg} dano em área!",
   "wave_new_tier": "⚡ NOVO NÍVEL: {tier}",
   "wave_skip_limit": "⚠️ Limite de 2 waves extras atingido!",
-  "wave_skip_done": "⏩ Wave {wave} chamada! +{bonus}💰 (×{mult})",
+  "wave_skip_done": "⏩ Wave {wave} chamada! +{bonus}💰",
   "wave_shinra_tensei": "⚡ SHINRA TENSEI! Torres stunadas aleatoriamente!",
   "wave_complete": "Wave {wave} completa! +{bonus} 💰",
 

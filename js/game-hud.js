@@ -212,7 +212,8 @@ function updateHUD() {
   const skipBtn = el('btn-skip');
   if (skipBtn) {
     if (waveActive && wave < (totalWaves || 10)) {
-      skipBtn.title = I18N.t('hud_tt_skip_wave', { gold: wave * 11 });
+      const skipGold = Math.min(1000, Math.round(100 * Math.pow(1.01, _hudCtx.skipMultiplier || 0)));
+      skipBtn.title = I18N.t('hud_tt_skip_wave', { gold: skipGold });
     } else {
       skipBtn.title = I18N.t('hud_tt_skip');
     }
