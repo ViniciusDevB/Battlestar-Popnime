@@ -427,9 +427,11 @@ function drawDarkseidGroundCracks() {
   if (!ds._crackLines) {
     const prng = (s) => { const x = Math.sin(s * 127.1 + 311.7) * 43758.5; return x - Math.floor(x); };
     ds._crackLines = [];
-    for (let ci = 0; ci < 6; ci++) {          // 6 rachaduras — mais espaçadas
+    for (let ci = 0; ci < 8; ci++) {          // 8 rachaduras em setores iguais de 45°
       const segs = [{ x: ds.x, y: ds.y }];
-      let cx = ds.x, cy = ds.y, ang = prng(ci) * Math.PI * 2;
+      // Setor garantido: cada rachadura ocupa 1/8 do círculo, com pequena variação
+      const sectorAng = (ci / 8) * Math.PI * 2;
+      let cx = ds.x, cy = ds.y, ang = sectorAng + (prng(ci) - 0.5) * (Math.PI / 8);
       for (let s = 0; s < 5; s++) {            // segmentos mais longos
         const len = 60 + prng(ci * 13 + s) * 90;  // 60-150px cada
         ang += (prng(ci + s * 7) - 0.5) * 0.7;
