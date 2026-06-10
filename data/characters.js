@@ -113,7 +113,7 @@ const CHARACTERS = {
       type: 'slow_aura', slow_pct: 0.30,
       label: 'Radar Tático: desacelera passivamente todos os inimigos na área em 30%'
     },
-    base_stats: { damage: 85, range: 84, attack_speed: 0.86, type: 'single_target' },
+    base_stats: { damage: 68, range: 84, attack_speed: 0.86, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 60, chain_mult: 0.48, chains: 1, label: 'Dupla Morte: bastão encadeia para 1 inimigo próximo (48% dano)' },
@@ -189,7 +189,7 @@ const CHARACTERS = {
       type: 'bonus_vs_burned', mult: 2.0,
       label: 'Respiração Total: causa 2× de dano em inimigos que estão queimando'
     },
-    base_stats: { damage: 86, range: 91, attack_speed: 0.68, type: 'single_target' },
+    base_stats: { damage: 72, range: 91, attack_speed: 0.68, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'burn', dps: 15, duration: 3, label: 'Respiração Solar: cada acerto aplica chama solar (15 DPS/3s)' },
@@ -273,7 +273,7 @@ const CHARACTERS = {
       type: 'dual_affliction', burn_dps: 14, burn_duration: 2, bleed_dps: 7, bleed_duration: 2,
       label: 'Dragão Pecado da Ira: todo acerto causa Burn (14 DPS) + Bleed (7 DPS) simultâneos'
     },
-    base_stats: { damage: 152, range: 104, attack_speed: 0.77, type: 'single_target' },
+    base_stats: { damage: 126, range: 104, attack_speed: 0.77, type: 'single_target' },
     deploy_cost: 300, max_level: 50,
     prestige_passives: {
       1: { type: 'crit_splash', crit_chance: 0.25, crit_mult: 2.0, splash_r: 65, splash_mult: 0.52, label: 'Daihāzan: críticos explodem em demonic slash (52% dano em área)' },
@@ -386,7 +386,7 @@ const CHARACTERS = {
       type: 'freeze_on_hit', chance: 0.28, duration: 2.0,
       label: 'Sode no Shirayuki: 28% de chance de congelar o alvo por 2s a cada acerto'
     },
-    base_stats: { damage: 88, range: 145, attack_speed: 0.7, type: 'single' },
+    base_stats: { damage: 70, range: 145, attack_speed: 0.7, type: 'single' },
     deploy_cost: 225, max_level: 50,
     prestige_passives: {
       1: { type: 'spirit_surge', trigger_at: 5, mult: 3.2, label: 'Dança Segunda Aprimorada: cada 5º ataque é uma dança de gelo (3.2× dano)' },
@@ -409,7 +409,7 @@ const CHARACTERS = {
       type: 'snake_venom', stacks: 5, burstMult: 4.5,
       label: 'Zabimaru: a cada 5 acertos no mesmo inimigo, explode causando 4.5× dano'
     },
-    base_stats: { damage: 110, range: 115, attack_speed: 0.59, type: 'single' },
+    base_stats: { damage: 92, range: 115, attack_speed: 0.59, type: 'single' },
     deploy_cost: 240, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 90, chain_mult: 0.45, chains: 1, label: 'Serpente Extensível: Zabimaru encadeia para 1 inimigo distante (45% dano)' },
@@ -452,7 +452,7 @@ const CHARACTERS = {
       type: 'santen_kesshun', radius: 145,
       label: 'Santen Kesshun: torres no alcance de Orihime ficam imunes a stun continuamente'
     },
-    base_stats: { damage: 75, range: 145, attack_speed: 0.48, type: 'single' },
+    base_stats: { damage: 60, range: 145, attack_speed: 0.48, type: 'single' },
     deploy_cost: 210, max_level: 50,
     prestige_passives: {
       1: { type: 'gold_detector', bonus: 6, label: 'Cura de Campo: +6 ouro extra quando torres aliadas matam no alcance de Orihime' },
@@ -475,7 +475,7 @@ const CHARACTERS = {
       type: 'boss_slayer', mult: 2.2,
       label: 'Brazo Derecho: causa 2.2× dano a minibosses e bosses'
     },
-    base_stats: { damage: 185, range: 85, attack_speed: 0.41, type: 'single_target' },
+    base_stats: { damage: 145, range: 85, attack_speed: 0.41, type: 'single_target' },
     deploy_cost: 260, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 65, chain_mult: 0.50, chains: 1, label: 'Impacto Ressoa: onda de choque encadeia para 1 inimigo próximo (50% dano)' },
@@ -546,7 +546,7 @@ const CHARACTERS = {
       type: 'berserker', maxStacks: 40, dmgPerStack: 0.04,
       label: 'Sede de Batalha: cada kill aumenta dano permanentemente (+4% por kill, máx 40 stacks)'
     },
-    base_stats: { damage: 230, range: 85, attack_speed: 0.38, type: 'single' },
+    base_stats: { damage: 258, range: 85, attack_speed: 0.38, type: 'single' },
     deploy_cost: 420, max_level: 50,
     prestige_passives: {
       1: { type: 'kill_frenzy', duration: 4.0, speed_mult: 3.5, label: 'Sede de Sangue: ao matar, vel. de ataque 3.5× por 4s' },
@@ -700,7 +700,7 @@ const CHARACTERS = {
     id: 'usopp_3', name: 'Usopp', rarity: 3, series: 'onepiece', playable: true, xp_value: 1000, initials: 'US',
     image: 'assets/towers/update1/Usopp.png',
     passive: { type: 'status_on_hit_chance', chance: 0.10, status: 'paralisia', duration: 0.5, label: 'Bala de Chumbo: 10% chance de Stun (0.5s)' },
-    base_stats: { damage: 92, range: 200, attack_speed: 0.49, type: 'single_target' },
+    base_stats: { damage: 78, range: 200, attack_speed: 0.49, type: 'single_target' },
     deploy_cost: 160, max_level: 50,
     prestige_passives: {
       1: { type: 'crit_splash', crit_chance: 0.20, crit_mult: 2.0, splash_r: 60, splash_mult: 0.38, label: 'Munição Explosiva: críticos explodem (38% dano em área)' },
@@ -759,7 +759,7 @@ const CHARACTERS = {
     id: 'robin_4', name: 'Robin', rarity: 4, series: 'onepiece', playable: true, xp_value: 3000, initials: 'RB',
     image: 'assets/towers/update1/Robin.png',
     passive: { type: 'status_on_hit_chance', chance: 0.20, status: 'paralisia', duration: 1.0, label: 'Mil Fleurs: 20% chance de Stun (1s)' },
-    base_stats: { damage: 185, range: 100, attack_speed: 0.55, type: 'single_target' },
+    base_stats: { damage: 148, range: 100, attack_speed: 0.55, type: 'single_target' },
     deploy_cost: 300, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 85, chain_mult: 0.62, chains: 2, label: 'Fleurs de Grapple: flores brotam em 2 inimigos próximos (62% dano)' },
@@ -845,7 +845,7 @@ const CHARACTERS = {
     id: 'barbabranca_5', name: 'Barba Branca', rarity: 5, series: 'onepiece', playable: true, xp_value: 10000, initials: 'BB',
     image: 'assets/towers/update1/Barba Branca.png',
     passive: { type: 'tsunami', interval: 15, hp: 5000, label: 'Tsunami: Invoca onda reversa na base a cada 15s (HP 5000)' },
-    base_stats: { damage: 554, range: 150, attack_speed: 0.49, type: 'linha' },
+    base_stats: { damage: 470, range: 150, attack_speed: 0.49, type: 'linha' },
     deploy_cost: 700, max_level: 50,
     prestige_passives: {
       1: { type: 'crit_splash', crit_chance: 0.28, crit_mult: 2.5, splash_r: 100, splash_mult: 0.65, label: 'Tremor de Terra: críticos provocam terremoto maciço (65% dano em área)' },
@@ -889,7 +889,7 @@ const CHARACTERS = {
       { type: 'sharingan', label: 'Rinnegan: Ignora qualquer imunidade do inimigo (Bypass)' },
       { type: 'bansho_tenin', attacks_required: 4, push_dist: 35, label: 'Bansho Ten\'in: A cada 4 ataques, puxa os inimigos para trás' }
     ],
-    base_stats: { damage: 350, range: 150, attack_speed: 0.62, type: 'cone' },
+    base_stats: { damage: 252, range: 150, attack_speed: 0.62, type: 'cone' },
     deploy_cost: 800, max_level: 50,
     prestige_passives: {
       1: { type: 'arc_chain', chain_r: 110, chain_mult: 0.70, chains: 2, label: 'Gravitação: força gravitacional do Rinnegan encadeia 2 inimigos (70% dano)' },
@@ -911,7 +911,7 @@ const CHARACTERS = {
       { type: 'cem_sobrancelhas', drain_interval_mult: 1.5, label: 'Cem Sobrancelhas: inimigos com drain drenam a base 50% mais devagar enquanto Tsunade está em campo' },
       { type: 'byakugou', trigger_at: 40, cooldown: 40, label: 'Byakugou: após 40s de wave ativa, restaura 1 vida perdida nessa wave (máx 1 por ativação)' }
     ],
-    base_stats: { damage: 480, range: 75, attack_speed: 0.34, type: 'single_target' },
+    base_stats: { damage: 240, range: 75, attack_speed: 0.34, type: 'single_target' },
     deploy_cost: 600, max_level: 50,
     prestige_passives: {
       1: { type: 'field_commander', bonus: 0.10, label: 'Vontade de Ferro: presença de Tsunade inspira o time, +10% de dano a todas as torres' },
@@ -969,7 +969,7 @@ const CHARACTERS = {
       type: 'web_zone', web_radius: 55, duration: 2.5,
       label: 'Teia de Aranha: cada acerto deixa teia no solo (slow 60% / 2.5s em raio de 55px)'
     },
-    base_stats: { damage: 105, range: 100, attack_speed: 0.92, type: 'single_target' },
+    base_stats: { damage: 84, range: 100, attack_speed: 0.92, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'double_hit', chance: 0.30, label: 'Sentido Aranha: 30% de chance de atacar uma segunda vez no mesmo ciclo' },
@@ -995,7 +995,7 @@ const CHARACTERS = {
       type: 'cross_mark', bonus: 0.25, duration: 6,
       label: 'Mira de Mestre: kills marcam inimigos próximos por 6s (todos recebem +25% dano)'
     },
-    base_stats: { damage: 90, range: 118, attack_speed: 1.04, type: 'single_target' },
+    base_stats: { damage: 78, range: 118, attack_speed: 1.04, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'paralisia', duration: 1.2, label: 'Pistola de Viúva: cada acerto aplica paralisia de 1.2s' },
@@ -1021,7 +1021,7 @@ const CHARACTERS = {
       type: 'arrow_rotation', freeze_dur: 3,
       label: 'Aljava Tática: cicla entre flechas Normal (×1.8), Explosiva (AOE), Gelo (3s), Perfurante (×3)'
     },
-    base_stats: { damage: 85, range: 132, attack_speed: 0.53, type: 'single_target' },
+    base_stats: { damage: 95, range: 132, attack_speed: 0.53, type: 'single_target' },
     deploy_cost: 150, max_level: 50,
     prestige_passives: {
       1: { type: 'boss_slayer', bonus: 0.30, label: 'Olho de Falcão: +30% de dano contra minibosses e bosses' },
@@ -1251,7 +1251,7 @@ const CHARACTERS = {
       type: 'tide_zone', zone_r: 40, zone_duration: 3, slow_pct: 0.40,
       label: 'Zona de Maré: cada ataque cria uma zona no ponto de impacto (dura 3s, reduz velocidade em 40%)'
     },
-    base_stats: { damage: 155, range: 132, attack_speed: 0.81, type: 'single_target' },
+    base_stats: { damage: 100, range: 132, attack_speed: 0.81, type: 'single_target' },
     deploy_cost: 270, max_level: 50,
     prestige_passives: {
       1: { type: 'slow_aura', slow_pct: 0.20, label: 'Correnteza: aura passiva desacelera inimigos próximos em 20%' },
@@ -1280,7 +1280,7 @@ const CHARACTERS = {
       type: 'detective_mark', mark_duration: 5, mark_bonus: 0.22,
       label: 'Detetive de Elite: inimigos atingidos recebem Marca do Detetive por 5s — aliados que os atacarem causam +22% dano'
     },
-    base_stats: { damage: 218, range: 138, attack_speed: 0.71, type: 'cone' },
+    base_stats: { damage: 168, range: 138, attack_speed: 0.71, type: 'cone' },
     deploy_cost: 500, max_level: 50,
     prestige_passives: {
       1: { type: 'ally_damage_aura', bonus: 0.08, label: 'Vigilante: torres aliadas no alcance ganham +8% de dano' },
@@ -1332,7 +1332,7 @@ const CHARACTERS = {
       type: 'construct_barrier', barrier_cd: 15, barrier_dur: 8, barrier_dps: 180, slow_pct: 0.50, max_barriers: 1,
       label: 'Barreira de Construto: a cada 15s cria barreira no caminho (dura 8s, slow 50%, 180 DPS aos inimigos que a atravessam)'
     },
-    base_stats: { damage: 192, range: 145, attack_speed: 0.76, type: 'single_target' },
+    base_stats: { damage: 148, range: 145, attack_speed: 0.76, type: 'single_target' },
     deploy_cost: 520, max_level: 50,
     prestige_passives: {
       1: { type: 'gl_barrier_explosion', label: 'Construto Ofensivo: barreiras causam explosão de impacto ao aparecer (500 dano em AOE)' },
@@ -1424,7 +1424,7 @@ const CHARACTERS = {
       type: 'negative_speed', stacks_to_trigger: 5, paralysis_dur: 2, stun_immune_mult: 5,
       label: 'Velocidade Negativa: cada acerto acumula 1 stack no alvo. 5 stacks → paralisia 2s (ou 5× dano em inimigos stun_immune)'
     },
-    base_stats: { damage: 480, range: 148, attack_speed: 0.31, type: 'linha' },
+    base_stats: { damage: 336, range: 148, attack_speed: 0.31, type: 'linha' },
     deploy_cost: 800, max_level: 50,
     prestige_passives: {
       1: { type: 'status_on_hit', status: 'sangramento', dps: 100, duration: 2, label: 'Rastro de Ódio: cada ataque causa sangramento (100 DPS / 2s)' },
