@@ -64,7 +64,6 @@ const Save = (() => {
   }
 
   function _setData(d) {
-    console.log('[Save] _setData fases_completas:', JSON.stringify(d?.fases_completas));
     // Migrate stacked unit format if server returns old format
     if (d?.inventario?.unidades) {
       const migrated = [];
@@ -96,6 +95,34 @@ const Save = (() => {
     }
   }
 
+
+  // Aplica save do servidor mantendo union com progresso local.
+  // Evita que um syncSave com snapshot antigo apague completions feitas localmente.
+  function _mergeData(serverSave) {
+    if (!serverSave) return;
+    const local = _data || {};
+
+    // fases_completas: union profunda (servidor + local, nunca perde conclusão)
+    const localFases  = local.fases_completas  || {};
+    const serverFases = serverSave.fases_completas || {};
+    const merged = { ...serverFases };
+    for (const [sid, diffs] of Object.entries(localFases)) {
+      merged[sid] = { ...(merged[sid] || {}), ...diffs };
+    }
+    serverSave.fases_completas = merged;
+
+    // stats: max de cada campo
+    const localStats  = local.stats  || {};
+    const serverStats = serverSave.stats || {};
+    for (const [k, v] of Object.entries(localStats)) {
+      if (typeof v === 'number' && typeof serverStats[k] === 'number') {
+        serverStats[k] = Math.max(serverStats[k], v);
+      }
+    }
+    serverSave.stats = serverStats;
+
+    _setData(serverSave);
+  }
 
   function get() { return _data || load(); }
 
@@ -193,7 +220,6 @@ const Save = (() => {
     const d = get();
     if (!d.fases_completas[stageId]) d.fases_completas[stageId] = {};
     d.fases_completas[stageId][diff] = true;
-    console.log('[Save] markStageComplete:', stageId, diff, JSON.stringify(d.fases_completas));
     save();
   }
 
@@ -260,7 +286,7 @@ const Save = (() => {
   function isUnitLocked(uid) { return !!(getUnitByUid(uid)?.in_trade); }
 
   return {
-    load, save, get, reset, _setData,
+    load, save, get, reset, _setData, _mergeData,
     addUnit, addMaterial, removeUnit, removeUnitByUid,
     removeMaterial, getUnitData, getBestUnitData, getUnitByUid, getMaterialQty, getUnitQty,
     addGems, spendGems, addTickets, spendTickets, incStat, setStat,

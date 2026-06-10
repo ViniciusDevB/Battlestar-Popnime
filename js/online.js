@@ -248,7 +248,7 @@ const Online = (() => {
       if (error) return { ok: false, reason: error.message };
       if (data?.error) return { ok: false, reason: data.error };
       if (data?.save) {
-        Save._setData(data.save);
+        Save._mergeData(data.save);
         if (_profile.is_admin) {
           _grantAdminInventory();
         } else {

@@ -44,7 +44,7 @@ const Gacha = (() => {
       const result = await Online.gachaPull(count, currency);
       if (result?.ok) {
         // Aplica o save autoritativo do servidor localmente
-        Save._setData(result.save);
+        Save._mergeData(result.save);
         // Stats não rastreados pelo servidor — incrementar localmente e mesclar no próximo sync
         Save.incStat('pulls_realizados', count);
         result.results.forEach(r => {

@@ -1302,7 +1302,7 @@ const Game = (() => {
       const duration_s = Math.max(0, Math.round((performance.now() - _gameStartTime) / 1000));
       Online.completeStage(stageId, difficulty, duration_s, sessionBossKilled).then(result => {
         if (result?.ok && result.save) {
-          Save._setData(result.save);
+          Save._mergeData(result.save);
           if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
         } else {
           Online.syncSave().then(r => {

@@ -186,7 +186,7 @@ const Missions = (() => {
     if (typeof Online !== 'undefined' && Online.isLoggedIn() && missionId) {
       Online.claimReward(missionId, isDaily ? date : null).then(result => {
         if (result?.ok && result.save) {
-          Save._setData(result.save);
+          Save._mergeData(result.save);
           if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
         }
       }).catch(() => {});
