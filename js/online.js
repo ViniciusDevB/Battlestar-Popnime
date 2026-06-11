@@ -568,8 +568,11 @@ const Online = (() => {
   async function updateInventory() {
     if (!_ready || !_session || !_profile) return { ok: false };
     try {
+      const d = Save.get();
       const { data, error } = await _client.rpc('fn_update_inventory', {
-        p_inventory: Save.get().inventario,
+        p_inventory:     d.inventario,
+        p_relic_stash:   d.relicStash   || [],
+        p_nexus_structs: d.nexus?.structures || {},
       });
       if (error) { console.warn('[Online] updateInventory:', error.message); return { ok: false }; }
       return data?.error ? { ok: false } : { ok: true };
