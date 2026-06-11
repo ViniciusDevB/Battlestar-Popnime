@@ -177,7 +177,9 @@ html,body{
 /* Hero / Banner card */
 .hub-hero{
   flex:1;display:flex;align-items:center;justify-content:center;
-  padding:20px 24px;overflow:hidden;
+  padding:20px 24px;
+  overflow-y:auto;overflow-x:hidden;
+  min-height:0;
 }
 .hub-banner-card{
   width:100%;max-width:880px;
@@ -3473,4 +3475,108 @@ select:hover{border-color:var(--bd3);}
   text-align: center; padding: 6px 0;
 }
 .btn-disabled { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.25); cursor: not-allowed; }
+
+/* ══════════════════════════════
+   RESPONSIVE — HUB & GLOBAL
+══════════════════════════════ */
+
+/* ── Height: compact hub at 800px ── */
+@media (max-height: 800px) {
+  .hub-topbar { height: 46px; }
+  .hub-hero { padding: 8px 20px; }
+  .hub-banner-card { padding: 10px 16px; gap: 6px; }
+  .hub-actions { gap: 8px; padding: 0 20px 12px; }
+  .hab { padding: 15px 8px; gap: 4px; }
+  .hab-icon { font-size: 32px; margin-bottom: 0; }
+  .hab-label { font-size: 17px; letter-spacing: 1.5px; }
+  .hab-sub { font-size: 9px; letter-spacing: 0; }
+}
+
+/* ── Height: very compact hub at 700px ── */
+@media (max-height: 700px) {
+  .hub-topbar { height: 40px; }
+  .hub-hero { padding: 5px 16px; }
+  .hub-banner-card { padding: 7px 12px; gap: 4px; }
+  .hub-btn-gacha { padding: 7px 28px !important; font-size: 12px; }
+  .hub-actions { gap: 6px; padding: 0 16px 8px; }
+  .hab { padding: 10px 6px; gap: 2px; }
+  .hab-icon { font-size: 24px; }
+  .hab-label { font-size: 14px; letter-spacing: 1px; }
+  .hab-sub { display: none; }
+  #hub-banner-chars .banner-featured-card { min-width: 0; }
+  #hub-banner-chars .featured-avatar-circle { width: 44px; height: 44px; }
+  #hub-banner-chars .featured-char-name { font-size: 13px; }
+  #hub-banner-chars .featured-stat-grid { display: none; }
+  #hub-banner-chars .featured-passive-box { display: none; }
+}
+
+/* ── Height: hide banner at 580px — only show action buttons ── */
+@media (max-height: 580px) {
+  .hub-hero { display: none; }
+  .hub-actions { padding: 8px 16px 10px; gap: 5px; }
+  .hab { padding: 8px 6px; }
+  .hab-icon { font-size: 22px; }
+  .hab-label { font-size: 12px; }
+  .hab-sub { display: none; }
+}
+
+/* ── Width: 3-col grid at 600px ── */
+@media (max-width: 600px) {
+  .hub-actions {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 0 12px 14px;
+  }
+  .hub-banner-card { max-width: 100%; }
+  .hub-topbar { padding: 0 14px; }
+  .hub-topbar-right { gap: 6px; }
+  .currency { padding: 4px 10px; font-size: 12px; }
+}
+
+/* ── Width: 2-col grid at 380px + hide topbar extras ── */
+@media (max-width: 380px) {
+  .hub-actions { grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 0 8px 10px; }
+  .hub-logo-text { display: none; }
+  .hub-currencies { gap: 4px; }
+  .currency { padding: 3px 8px; font-size: 11px; }
+  .hab-sub { display: none; }
+  .hub-hero { display: none; }
+}
+
+/* ── Topbar: wrap currencies on narrow viewports ── */
+@media (max-width: 520px) {
+  .hub-topbar { height: auto; min-height: 44px; flex-wrap: wrap; padding: 6px 12px; gap: 6px; }
+  .hub-topbar-right { flex-wrap: wrap; gap: 5px; }
+  .hub-currencies { gap: 4px; }
+  #lang-selector { padding: 3px; font-size: 11px; }
+  #online-status-bar { font-size: 11px; }
+}
+
+/* ── Global: allow screens to scroll on very small heights ── */
+@media (max-height: 500px) {
+  .screen { overflow-y: auto; }
+}
+
+/* ── Gacha screen: narrow width ── */
+@media (max-width: 700px) {
+  .gacha-info { width: 220px; }
+}
+@media (max-width: 560px) {
+  .gacha-body { flex-direction: column; }
+  .gacha-banner-art { flex: none; min-height: 0; overflow-y: auto; }
+  .gacha-info {
+    width: 100%;
+    min-height: 0;
+    max-height: 42vh;
+    border-left: none;
+    border-top: 1px solid rgba(57,255,20,0.12);
+  }
+}
+
+/* ── Prebattle / World select: header padding on narrow screens ── */
+@media (max-width: 480px) {
+  .screen-header { padding: 10px 14px; }
+  .screen-header h2 { font-size: 17px; }
+  .world-card { width: 220px; padding: 22px 16px; }
+}
 
