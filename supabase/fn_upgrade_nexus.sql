@@ -44,16 +44,16 @@ BEGIN
 
   -- ── Definições de custo em gemas (3× original; espelha NEXUS_STRUCTURES) ─
   v_struct := CASE p_struct_id
-    WHEN 'hospital'   THEN '{"maxLevel":5,"baseCost":900,"costPerLevel":600}'::JSONB
-    WHEN 'vault'      THEN '{"maxLevel":5,"baseCost":900,"costPerLevel":600}'::JSONB
-    WHEN 'academia'   THEN '{"maxLevel":3,"baseCost":1200,"costPerLevel":900}'::JSONB
-    WHEN 'watchtower' THEN '{"maxLevel":3,"baseCost":1500,"costPerLevel":1200}'::JSONB
-    WHEN 'forge'      THEN '{"maxLevel":3,"baseCost":1800,"costPerLevel":1500}'::JSONB
-    WHEN 'barracks'   THEN '{"maxLevel":3,"baseCost":1050,"costPerLevel":900}'::JSONB
-    WHEN 'lab'        THEN '{"maxLevel":3,"baseCost":1350,"costPerLevel":1050}'::JSONB
-    WHEN 'bank'       THEN '{"maxLevel":3,"baseCost":1200,"costPerLevel":900}'::JSONB
-    WHEN 'temple'     THEN '{"maxLevel":4,"baseCost":1650,"costPerLevel":1200}'::JSONB
-    WHEN 'relay'      THEN '{"maxLevel":3,"baseCost":1500,"costPerLevel":1200}'::JSONB
+    WHEN 'hospital'   THEN '{"maxLevel":5,"baseCost":1800,"costPerLevel":1200}'::JSONB
+    WHEN 'vault'      THEN '{"maxLevel":5,"baseCost":1800,"costPerLevel":1200}'::JSONB
+    WHEN 'academia'   THEN '{"maxLevel":3,"baseCost":2400,"costPerLevel":1800}'::JSONB
+    WHEN 'watchtower' THEN '{"maxLevel":3,"baseCost":3000,"costPerLevel":2400}'::JSONB
+    WHEN 'forge'      THEN '{"maxLevel":3,"baseCost":3600,"costPerLevel":3000}'::JSONB
+    WHEN 'barracks'   THEN '{"maxLevel":3,"baseCost":2100,"costPerLevel":1800}'::JSONB
+    WHEN 'lab'        THEN '{"maxLevel":3,"baseCost":2700,"costPerLevel":2100}'::JSONB
+    WHEN 'bank'       THEN '{"maxLevel":3,"baseCost":2400,"costPerLevel":1800}'::JSONB
+    WHEN 'temple'     THEN '{"maxLevel":4,"baseCost":3300,"costPerLevel":2400}'::JSONB
+    WHEN 'relay'      THEN '{"maxLevel":3,"baseCost":3000,"costPerLevel":2400}'::JSONB
     ELSE NULL
   END;
 
