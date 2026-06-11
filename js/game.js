@@ -12,6 +12,11 @@ const Game = (() => {
   // Game state
   let lives, gold, wave, totalWaves;
   let enemies, towers, projectiles, effects, tsunamis, zombies;
+
+  // Object pools — reuse heap objects instead of allocating on every shot/effect.
+  // Eliminates GC micro-pauses in wave 50+ do modo infinito.
+  const _projPool = [];
+  const _effPool  = [];
   let _aliveEnemies = [];
   let waveActive, spawnQueue, betweenWaves, betweenTimer, waveElapsed;
   let _lastPlacedTower = null;
@@ -500,6 +505,9 @@ const Game = (() => {
     effects = [];
     tsunamis = [];
     zombies  = [];
+    // Pre-aquecer pools para as primeiras waves não sofrerem alocações
+    while (_projPool.length < 24) _projPool.push({});
+    while (_effPool.length  < 64) _effPool.push({});
     waveActive = false;
     spawnQueue = [];
 
@@ -1099,15 +1107,18 @@ const Game = (() => {
 
   function spawnProjectile(tower, target, damage, type) {
     const dx = target.x - tower.x, dy = target.y - tower.y;
-    projectiles.push({
-      x: tower.x, y: tower.y,
-      target, damage, tower,
-      speed: 300,
-      color: RARITY_COLORS[tower.rarity],
-      charId: tower.charId,
-      angle: Math.atan2(dy, dx),
-      dead: false
-    });
+    const p  = _projPool.length ? _projPool.pop() : {};
+    p.x      = tower.x;
+    p.y      = tower.y;
+    p.target = target;
+    p.damage = damage;
+    p.tower  = tower;
+    p.speed  = 300;
+    p.color  = RARITY_COLORS[tower.rarity];
+    p.charId = tower.charId;
+    p.angle  = Math.atan2(dy, dx);
+    p.dead   = false;
+    projectiles.push(p);
   }
 
   function dealDamage(tower, enemy, damage) {
@@ -1246,14 +1257,15 @@ const Game = (() => {
     let w = 0;
     for (let i = 0; i < projectiles.length; i++) {
       const p = projectiles[i];
-      if (p.dead) continue;
-      if (p.target.dead || p.target.reached_end) continue;
+      if (p.dead || p.target.dead || p.target.reached_end) {
+        p.target = null; p.tower = null; _projPool.push(p); continue;
+      }
       const dx = p.target.x - p.x, dy = p.target.y - p.y;
       const d = Math.sqrt(dx*dx + dy*dy);
       if (d < 10) {
         if (effectiveCanDamage(p.tower, p.target)) dealDamage(p.tower, p.target, p.damage);
         if (p.tower.statusEffect) applyStatus(p.target, p.tower.statusEffect.type, { duration: p.tower.statusEffect.duration });
-        continue;
+        p.target = null; p.tower = null; _projPool.push(p); continue;
       }
       p.angle = Math.atan2(dy, dx);
       const spd = p.speed * dt;
@@ -1277,6 +1289,7 @@ const Game = (() => {
       if (e.type === 'shockwave')    e.r = Math.max(0, e.maxR * (1 - Math.max(0, e.timer) / (e.maxTimer || 1.0)));
       if (e.type === 'hollow_burst') e.r = Math.max(0, e.maxR * (1 - Math.max(0, e.timer) / (e.maxTimer || 0.50)));
       if (e.timer > 0) effects[w++] = e;
+      else _effPool.push(e);
     }
     effects.length = w;
   }
@@ -1588,7 +1601,22 @@ const Game = (() => {
     }
   }
 
-  function addEffect(ef) { effects.push(ef); }
+  function addEffect(ef) {
+    const e   = _effPool.length ? _effPool.pop() : {};
+    e.type    = ef.type;
+    e.x       = ef.x;
+    e.y       = ef.y;
+    e.tx      = ef.tx;
+    e.ty      = ef.ty;
+    e.maxR    = ef.maxR;
+    e.r       = ef.r    !== undefined ? ef.r    : 0;
+    e.color   = ef.color;
+    e.timer   = ef.timer;
+    e.maxTimer= ef.maxTimer !== undefined ? ef.maxTimer : ef.timer;
+    e.charId  = ef.charId;
+    e.text    = ef.text;
+    effects.push(e);
+  }
 
   function getTowers() {
     return towers;
