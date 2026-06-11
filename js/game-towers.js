@@ -82,7 +82,10 @@ function deployTower(x, y, charId) {
   const char = getCharById(charId);
   const unitData = Save.getBestUnitData(charId);
   if (!char || !unitData) return;
-  if (_towersCtx.gold < char.deploy_cost) { UI.toast(I18N.t('err_gold')); return; }
+  const _barracksLevel = Save.getNexusLevel('barracks');
+  const _costMult = _barracksLevel > 0 ? Math.max(0.28, 1 - _barracksLevel * 0.08) : 1;
+  const effectiveCost = Math.max(1, Math.ceil(char.deploy_cost * _costMult));
+  if (_towersCtx.gold < effectiveCost) { UI.toast(I18N.t('err_gold')); return; }
   const maxCopies = char.rarity >= 6 ? 1 : 3;
   const towers = _towersCtx.towers;
   const copies = towers.filter(t => t.charId === charId && !t.isClone).length;
@@ -90,7 +93,7 @@ function deployTower(x, y, charId) {
     UI.toast(I18N.t('tower_max_copies', { name: char.name }), 2000); return;
   }
 
-  _towersCtx.gold -= char.deploy_cost;
+  _towersCtx.gold -= effectiveCost;
   _towersCtx.sessionTowersPlaced++;
   const stats = getCurrentStats(char, unitData.nivel);
 
@@ -100,7 +103,9 @@ function deployTower(x, y, charId) {
     charData: char, level: unitData.nivel,
     upgradeLevel: 0, disabled: _towersCtx.shinraTenseiActive,
     attackTimer: 0, statusEffect: null, currentType: stats.type,
-    prestige: unitData.prestige || 0
+    prestige: unitData.prestige || 0,
+    equippedRelic: unitData.equippedRelic || null,
+    paidDeployCost: effectiveCost
   };
   towers.push(newTower);
   _towersCtx._lastPlacedTower = newTower;
@@ -120,7 +125,7 @@ function undoLastTower() {
   const idx = towers.indexOf(_towersCtx._lastPlacedTower);
   if (idx < 0) { _towersCtx._lastPlacedTower = null; return; }
   const t = towers.splice(idx, 1)[0];
-  _towersCtx.gold += getCharById(t.charId)?.deploy_cost || 0;
+  _towersCtx.gold += t.paidDeployCost ?? (getCharById(t.charId)?.deploy_cost || 0);
   _towersCtx._lastPlacedTower = null;
   if (_towersCtx.selectedTowerIdx === idx) { _towersCtx.selectedTowerIdx = -1; closeUpgradePanel(); }
   renderTeamPanel();
@@ -163,7 +168,7 @@ function sellTower() {
 
   const _passives = char?.passive ? (Array.isArray(char.passive) ? char.passive : [char.passive]) : [];
   const hasEconomy = _passives.some(p => p.type === 'edo_tensei_economy');
-  let totalInvested = char?.deploy_cost || 0;
+  let totalInvested = tower.paidDeployCost ?? (char?.deploy_cost || 0);
   for (let i = 0; i < tower.upgradeLevel; i++) {
     if (char?.upgrades?.[i]) totalInvested += char.upgrades[i].cost;
   }

@@ -111,7 +111,7 @@ const Inventory = (() => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
     const filters = document.getElementById('inv-filters');
     const teamBar = document.getElementById('inv-team-bar');
-    if (filters) filters.style.display = tab === 'evolution' ? 'none' : '';
+    if (filters) filters.style.display = (tab === 'evolution' || tab === 'forge') ? 'none' : '';
     if (teamBar) {
       teamBar.style.display = tab === 'units' ? 'flex' : 'none';
       if (tab === 'units') renderTeamBar();
@@ -172,16 +172,25 @@ const Inventory = (() => {
   function renderGrid() {
     const grid = document.getElementById('inventory-grid');
     const evoContent = document.getElementById('evolution-content');
+    const forgeContent = document.getElementById('forge-content');
     if (!grid) return;
 
     if (currentTab === 'evolution') {
       grid.style.display = 'none';
       if (evoContent) { evoContent.style.display = 'flex'; renderEvolutionTab(); }
+      if (forgeContent) forgeContent.style.display = 'none';
+      return;
+    }
+    if (currentTab === 'forge') {
+      grid.style.display = 'none';
+      if (evoContent) evoContent.style.display = 'none';
+      if (forgeContent) { forgeContent.style.display = 'flex'; renderForgeTab(); }
       return;
     }
 
     grid.style.display = '';
     if (evoContent) evoContent.style.display = 'none';
+    if (forgeContent) forgeContent.style.display = 'none';
     grid.innerHTML = '';
 
     if (currentTab === 'units') {
@@ -310,7 +319,7 @@ const Inventory = (() => {
     const cost = char.upgrade_cost || 3;
     if (Save.getMaterialQty(matId) < cost) { UI.toast(I18N.t('err_no_materials')); return; }
 
-    Save.spendMaterial(matId, cost);
+    Save.removeMaterial(matId, cost);
     Save.addMaterial(char.upgrades_to, 1);
     Missions.check();
     if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
@@ -330,7 +339,7 @@ const Inventory = (() => {
     const canMake = Math.floor(qty / cost);
     if (canMake < 1) { UI.toast(I18N.t('err_no_materials')); return; }
 
-    Save.spendMaterial(matId, canMake * cost);
+    Save.removeMaterial(matId, canMake * cost);
     Save.addMaterial(char.upgrades_to, canMake);
     Missions.check();
     if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
@@ -448,6 +457,29 @@ const Inventory = (() => {
     const inTeam = Save.getTeam().includes(char.id);
     const equipBtn = `<button class="btn btn-primary" onclick="Inventory.toggleTeam('${char.id}')">${inTeam ? I18N.t('ui_remove_team') : I18N.t('ui_equip_team')}</button>`;
 
+    const relicSave = unitData.equippedRelic || null;
+    const _relicR = relicSave && typeof getRelicById !== 'undefined' ? getRelicById(relicSave.id) : null;
+    const _stashCount = Save.getRelicStash().length;
+    const relicHtml = _relicR
+      ? `<div class="relic-equipped-section">
+           <div class="relic-equipped-label">Relíquia Equipada</div>
+           <div class="relic-equipped-card${relicSave.isCorrupted ? ' corrupted' : ''}">
+             <span class="re-icon">${_relicR.icon}</span>
+             <div class="re-info">
+               <div class="re-name">${_relicR.name}${relicSave.isCorrupted ? ' ☠' : ''}</div>
+               <div class="re-desc">${relicSave.isCorrupted ? _relicR.corrupted_desc : _relicR.desc}</div>
+             </div>
+           </div>
+           <button class="btn btn-secondary" style="width:100%;margin-top:8px;font-size:11px;" onclick="Inventory.unequipRelicFromUnit('${uid}')">Desequipar</button>
+         </div>`
+      : `<div class="relic-equipped-section">
+           <div class="relic-equipped-label">Relíquia</div>
+           ${_stashCount > 0
+             ? `<button class="btn btn-secondary" style="width:100%;font-size:11px;" onclick="Inventory.openRelicEquip('${uid}')">Equipar Relíquia (${_stashCount} na reserva)</button>`
+             : `<div class="relic-none-msg">Nenhuma relíquia na reserva. Crie uma na Forja.</div>`
+           }
+         </div>`;
+
     if (char.is_farm_unit) {
       const p = char.passive;
       const levelGold = p.base + (unitData.nivel - 1) * (p.perLevel || 0);
@@ -459,6 +491,7 @@ const Inventory = (() => {
           <div class="stat-row"><span>${I18N.t('ui_max_upgrade_bonus')}</span><span>+${maxUpgGold} 💰</span></div>
           <div class="stat-row"><span>${I18N.t('ui_deploy_cost')}</span><span>${char.deploy_cost} 💰</span></div>
         </div>
+        ${relicHtml}
         <div class="detail-actions">
           ${equipBtn}
           <button class="btn btn-feed" onclick="Inventory.openFeed('${uid}')">🍖 ${I18N.t('ui_feed')}</button>
@@ -496,6 +529,7 @@ const Inventory = (() => {
           <div class="stat-row"><span>${I18N.t('ui_deploy_cost')}</span><span>${char.deploy_cost} 💰</span></div>
         </div>
         ${prestigeHtml}
+        ${relicHtml}
         <div class="detail-actions">
           ${equipBtn}
           <button class="btn btn-feed" onclick="Inventory.openFeed('${uid}')">🍖 ${I18N.t('ui_feed')}</button>
@@ -604,6 +638,179 @@ const Inventory = (() => {
     showTab('units');
     if (newUnit) openDetail(newUnit.uid);
     UI.toast(`🌟 ${char.name} ${I18N.t('msg_obtained')}!`);
+  }
+
+  // ── FORGE SYSTEM ─────────────────────────────────────────────────────────────
+
+  function renderForgeTab() {
+    const fc = document.getElementById('forge-content');
+    if (!fc) return;
+    fc.innerHTML = '';
+
+    const forgeLevel = Save.getNexusLevel('forge');
+    if (forgeLevel === 0) {
+      fc.innerHTML = `<div class="forge-locked-msg">
+        <div style="font-size:2.5em;margin-bottom:12px">⚒</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:8px">Forja de Relíquias</div>
+        <div style="font-size:12px;color:rgba(238,240,255,0.6);line-height:1.6">Construa a <strong>Forja de Relíquias</strong> no Nexus (Nível 1) para desbloquear o sistema de crafting de relíquias.</div>
+        <button class="btn btn-secondary" style="margin-top:16px;font-size:12px;" onclick="UI.showNexus()">🏰 Ir ao Nexus</button>
+      </div>`;
+      return;
+    }
+
+    const costMult = forgeLevel >= 2 ? 0.80 : 1.0;
+    const rareBonus = forgeLevel >= 3 ? 0.05 : 0.0;
+
+    const stash = Save.getRelicStash();
+    if (stash.length > 0) {
+      const stashSec = document.createElement('div');
+      stashSec.className = 'forge-stash-section';
+      stashSec.innerHTML = `<div class="forge-section-title">Reserva de Relíquias (${stash.length})</div>`;
+      const stashGrid = document.createElement('div');
+      stashGrid.className = 'forge-stash-grid';
+      stash.forEach(rs => {
+        const r = typeof getRelicById !== 'undefined' ? getRelicById(rs.id) : null;
+        if (!r) return;
+        const card = document.createElement('div');
+        card.className = `forge-stash-card${rs.isCorrupted ? ' corrupted' : ''}`;
+        card.innerHTML = `<span class="forge-stash-icon">${r.icon}</span><span class="forge-stash-name">${r.name}${rs.isCorrupted ? ' ☠' : ''}</span>`;
+        stashGrid.appendChild(card);
+      });
+      stashSec.appendChild(stashGrid);
+      fc.appendChild(stashSec);
+    }
+
+    const craftSec = document.createElement('div');
+    craftSec.className = 'forge-craft-section';
+    craftSec.innerHTML = `<div class="forge-section-title">Craftar Relíquias${forgeLevel >= 2 ? ' <span style="color:#39FF14;font-size:11px">(-20% materiais)</span>' : ''}</div>`;
+    const craftGrid = document.createElement('div');
+    craftGrid.className = 'forge-craft-grid';
+
+    if (typeof RELICS !== 'undefined' && typeof RELIC_CRAFTS !== 'undefined') {
+      Object.values(RELICS).forEach(relic => {
+        const recipe = RELIC_CRAFTS[relic.id];
+        if (!recipe) return;
+
+        const adjRecipe = recipe.map(r => ({ ...r, qty: Math.ceil(r.qty * costMult) }));
+        const canCraft = adjRecipe.every(r => Save.getMaterialQty(r.id) >= r.qty);
+        const corruptChance = relic.corruptChance || 0.015;
+        const effectiveCC = Math.max(0.005, corruptChance - rareBonus);
+
+        const recipeHtml = adjRecipe.map(r => {
+          const mc = typeof getCharById !== 'undefined' ? getCharById(r.id) : null;
+          const have = Save.getMaterialQty(r.id);
+          const ok = have >= r.qty;
+          return `<div class="forge-ingredient${ok ? '' : ' forge-ingredient--missing'}">
+            <span class="forge-mat-icon" style="background:${typeof RARITY_COLORS !== 'undefined' ? RARITY_COLORS[mc?.rarity || 0] : '#666'}">${typeof charIconInner !== 'undefined' ? charIconInner(mc) : (mc?.initials || '?')}</span>
+            <span>${mc?.name || r.id}</span>
+            <span class="${ok ? 'forge-have-ok' : 'forge-have-bad'}">${have}/${r.qty}</span>
+          </div>`;
+        }).join('');
+
+        const card = document.createElement('div');
+        card.className = `forge-relic-card${canCraft ? ' forge-relic-card--ready' : ''}`;
+        card.innerHTML = `
+          <div class="forge-relic-header">
+            <span class="forge-relic-icon">${relic.icon}</span>
+            <div>
+              <div class="forge-relic-name">${relic.name}</div>
+              <div class="forge-relic-world">${relic.world} · ${'★'.repeat(relic.rarity)}</div>
+            </div>
+          </div>
+          <div class="forge-relic-desc">${relic.desc}</div>
+          <div class="forge-corrupt-hint">☠ Chance de corrupção: ${(effectiveCC * 100).toFixed(1)}%</div>
+          <div class="forge-ingredients">${recipeHtml}</div>
+          <button class="btn${canCraft ? ' btn-primary' : ' btn-disabled'}" style="width:100%;font-size:12px;padding:8px;margin-top:8px;"
+            ${canCraft ? '' : 'disabled'}
+            onclick="Inventory.craftRelic('${relic.id}')">⚒ Craftar</button>`;
+        craftGrid.appendChild(card);
+      });
+    }
+
+    craftSec.appendChild(craftGrid);
+    fc.appendChild(craftSec);
+  }
+
+  function craftRelic(relicId) {
+    const forgeLevel = Save.getNexusLevel('forge');
+    if (forgeLevel === 0) { UI.toast('Construa a Forja no Nexus primeiro!'); return; }
+    if (typeof RELICS === 'undefined' || typeof RELIC_CRAFTS === 'undefined') return;
+
+    const relic = RELICS[relicId];
+    const recipe = RELIC_CRAFTS[relicId];
+    if (!relic || !recipe) return;
+
+    const costMult = forgeLevel >= 2 ? 0.80 : 1.0;
+    const adjRecipe = recipe.map(r => ({ ...r, qty: Math.ceil(r.qty * costMult) }));
+
+    for (const r of adjRecipe) {
+      if (Save.getMaterialQty(r.id) < r.qty) {
+        const mc = typeof getCharById !== 'undefined' ? getCharById(r.id) : null;
+        UI.toast(`Ingredientes insuficientes: ${mc?.name || r.id}`);
+        return;
+      }
+    }
+    for (const r of adjRecipe) Save.removeMaterial(r.id, r.qty);
+
+    const rareBonus = forgeLevel >= 3 ? 0.05 : 0.0;
+    const corruptChance = relic.corruptChance || 0.015;
+    const effectiveCC = Math.max(0.005, corruptChance - rareBonus);
+    const isCorrupted = Math.random() < effectiveCC;
+
+    Save.addToRelicStash({ id: relicId, isCorrupted });
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
+
+    UI.toast(`⚒ ${relic.name} criada!${isCorrupted ? ' ☠ CORROMPIDA!' : ''}`, 3500);
+    renderForgeTab();
+  }
+
+  function openRelicEquip(uid) {
+    const modal = document.getElementById('forge-equip-modal');
+    const contentEl = document.getElementById('forge-equip-content');
+    if (!modal || !contentEl) return;
+
+    const stash = Save.getRelicStash();
+    if (stash.length === 0) { UI.toast('Nenhuma relíquia na reserva.'); return; }
+
+    contentEl.innerHTML = '<div style="margin-bottom:12px;font-size:12px;color:rgba(238,240,255,0.6)">Escolha uma relíquia para equipar:</div>';
+    const grid = document.createElement('div');
+    grid.className = 'forge-stash-grid forge-stash-grid--selectable';
+
+    stash.forEach((rs, idx) => {
+      const r = typeof getRelicById !== 'undefined' ? getRelicById(rs.id) : null;
+      if (!r) return;
+      const card = document.createElement('div');
+      card.className = `forge-stash-card forge-stash-card--pick${rs.isCorrupted ? ' corrupted' : ''}`;
+      card.innerHTML = `
+        <span class="forge-stash-icon">${r.icon}</span>
+        <div>
+          <div class="forge-stash-name">${r.name}${rs.isCorrupted ? ' ☠' : ''}</div>
+          <div class="forge-stash-desc">${rs.isCorrupted ? r.corrupted_desc : r.desc}</div>
+        </div>`;
+      card.addEventListener('click', () => {
+        Save.equipRelic(uid, idx);
+        if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
+        closeRelicEquip();
+        openDetail(uid);
+        UI.toast(`${r.icon} ${r.name} equipada!`);
+      });
+      grid.appendChild(card);
+    });
+
+    contentEl.appendChild(grid);
+    modal.style.display = 'flex';
+  }
+
+  function closeRelicEquip() {
+    const modal = document.getElementById('forge-equip-modal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function unequipRelicFromUnit(uid) {
+    Save.unequipRelic(uid);
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
+    openDetail(uid);
+    UI.toast('Relíquia desequipada e devolvida à reserva.');
   }
 
   // FEED SYSTEM
@@ -766,10 +973,11 @@ const Inventory = (() => {
     if (!targetUnitData) return;
     const targetChar = getCharById(targetUnitData.id);
 
-    const totalXP = feedSelected.reduce((sum, sel) => {
+    const _academiaBonus = 1 + Save.getNexusLevel('academia') * 0.15;
+    const totalXP = Math.round(feedSelected.reduce((sum, sel) => {
       const matId = sel.type === 'unit' ? (Save.getUnitByUid(sel.uid)?.id || null) : sel.id;
       return sum + (matId ? getFeedXP(matId, targetChar) : 0);
-    }, 0);
+    }, 0) * _academiaBonus);
 
     const prevLevel = targetUnitData.nivel;
 
@@ -805,6 +1013,7 @@ const Inventory = (() => {
     openFeed, closeFeed, confirmFeed, removeFeedSelected,
     openMaterialDetail, combineMaterial, combineMaxMaterial,
     renderGrid, toggleTeam, renderTeamBar,
-    doPrestigeUnit, renderFilterChips
+    doPrestigeUnit, renderFilterChips,
+    renderForgeTab, craftRelic, openRelicEquip, closeRelicEquip, unequipRelicFromUnit
   };
 })();

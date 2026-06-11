@@ -479,6 +479,9 @@ const Game = (() => {
     isInfiniteMode = !!(stage.isInfinite);
     lives = stage.base_hp || 20;
     gold = 300;
+    // Nexus bonuses applied to starting resources
+    lives += Save.getNexusLevel('hospital');
+    gold  += Save.getNexusLevel('vault') * 60;
     skipMultiplier = 0;
     skipGold = 100;
     _hudChipTimer = 0;
@@ -1417,6 +1420,26 @@ const Game = (() => {
         .reduce((v, u) => u.passive_override?.tyrant_dmgPerStack ?? v, 0.02) || 0.02;
       stats.damage *= 1 + tower._tyrantStacks * tyrantPct;
     }
+    // Relic stat effects (stored once when cache is built)
+    if (tower.equippedRelic) {
+      const _relicFx = getRelicEffects(tower.equippedRelic);
+      if (_relicFx) {
+        if (_relicFx.damage_mult)       stats.damage       *= _relicFx.damage_mult;
+        if (_relicFx.attack_speed_mult) stats.attack_speed *= _relicFx.attack_speed_mult;
+        if (_relicFx.range_mult)        stats.range        *= _relicFx.range_mult;
+        tower._relicFx = _relicFx;
+      } else {
+        tower._relicFx = null;
+      }
+    } else {
+      tower._relicFx = null;
+    }
+    // Nexus: Templo dos Campeões — +5% dano global por nível
+    const _templeLevel = Save.getNexusLevel('temple');
+    if (_templeLevel > 0) stats.damage *= 1 + _templeLevel * 0.05;
+    // Nexus: Torre de Vigilância — +6% alcance no nível 2, +12% no nível 3
+    const _watchtowerLevel = Save.getNexusLevel('watchtower');
+    if (_watchtowerLevel >= 2) stats.range *= 1 + (_watchtowerLevel - 1) * 0.06;
     tower._statsCache = stats;
     return stats;
   }

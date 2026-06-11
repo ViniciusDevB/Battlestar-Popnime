@@ -3290,3 +3290,153 @@ select:hover{border-color:var(--bd3);}
   cursor: pointer;
   height: 4px;
 }
+
+/* ══════════════════════════════
+   NEXUS — Base de Operações
+══════════════════════════════ */
+.nexus-content {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.nexus-gems-bar {
+  background: rgba(255,200,70,0.08); border: 1px solid rgba(255,200,70,0.25);
+  border-radius: 10px; padding: 10px 16px;
+  font-size: 13px; font-weight: 700; color: var(--gold);
+  text-align: center;
+}
+.nexus-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.nexus-card {
+  background: rgba(4,10,5,0.9); border: 1px solid rgba(57,255,20,0.18);
+  border-radius: 12px; padding: 14px; display: flex; gap: 12px;
+  transition: border-color 120ms;
+}
+.nexus-card:hover { border-color: rgba(57,255,20,0.4); }
+.nexus-card--maxed { border-color: rgba(255,200,70,0.45); background: rgba(255,200,70,0.04); }
+.nexus-card-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+.nexus-card-body { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.nexus-card-name { font-weight: 700; font-size: 13px; color: var(--t1); }
+.nexus-card-level { font-size: 11px; color: var(--t3); }
+.nexus-level-bar { display: flex; gap: 4px; margin: 2px 0; }
+.nexus-pip {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.12);
+}
+.nexus-pip--filled { background: var(--green); }
+.nexus-card-desc { font-size: 11px; color: rgba(238,240,255,0.55); line-height: 1.5; }
+.nexus-maxed-badge {
+  font-size: 11px; font-weight: 700; color: var(--gold);
+  background: rgba(255,200,70,0.1); border: 1px solid rgba(255,200,70,0.3);
+  border-radius: 6px; padding: 5px 8px; text-align: center; margin-top: 6px;
+}
+.hab--nexus { background: linear-gradient(160deg, rgba(88,28,135,0.55), rgba(4,10,5,0.85)); }
+
+/* ══════════════════════════════
+   FORGE — Forja de Relíquias
+══════════════════════════════ */
+.tab-btn--forge { color: rgba(245,158,11,0.6); }
+.tab-btn--forge.active { color: var(--orange); border-color: var(--orange); }
+
+.forge-content {
+  flex: 1; overflow-y: auto; padding: 14px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.forge-locked-msg {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 20px; text-align: center;
+  color: rgba(238,240,255,0.65); line-height: 1.6;
+}
+.forge-section-title {
+  font-size: 12px; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+.forge-stash-section, .forge-craft-section { display: flex; flex-direction: column; }
+.forge-stash-grid {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.forge-stash-grid--selectable { flex-direction: column; gap: 8px; }
+.forge-stash-card {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(4,10,5,0.85); border: 1px solid rgba(57,255,20,0.2);
+  border-radius: 8px; padding: 8px 12px; font-size: 12px;
+}
+.forge-stash-card.corrupted { border-color: rgba(239,68,68,0.45); color: #f87171; }
+.forge-stash-card--pick {
+  cursor: pointer; transition: background 120ms, border-color 120ms;
+  flex-direction: row; width: 100%;
+}
+.forge-stash-card--pick:hover { background: rgba(57,255,20,0.07); border-color: var(--green); }
+.forge-stash-icon { font-size: 18px; flex-shrink: 0; }
+.forge-stash-name { font-weight: 600; font-size: 12px; }
+.forge-stash-desc { font-size: 11px; color: rgba(238,240,255,0.55); line-height: 1.5; margin-top: 2px; }
+.forge-craft-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.forge-relic-card {
+  background: rgba(4,10,5,0.9); border: 1px solid rgba(57,255,20,0.15);
+  border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px;
+}
+.forge-relic-card--ready { border-color: rgba(255,200,70,0.4); }
+.forge-relic-header { display: flex; align-items: flex-start; gap: 10px; }
+.forge-relic-icon { font-size: 24px; flex-shrink: 0; }
+.forge-relic-name { font-weight: 700; font-size: 13px; }
+.forge-relic-world { font-size: 11px; color: var(--t3); }
+.forge-relic-desc { font-size: 11px; color: rgba(238,240,255,0.65); line-height: 1.5; }
+.forge-corrupt-hint { font-size: 10px; color: rgba(239,68,68,0.7); }
+.forge-ingredients { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.forge-ingredient {
+  display: flex; align-items: center; gap: 6px; font-size: 11px;
+  padding: 3px 0;
+}
+.forge-ingredient--missing { color: rgba(239,68,68,0.8); }
+.forge-mat-icon {
+  width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 9px;
+  overflow: hidden;
+}
+.forge-mat-icon img { width: 100%; height: 100%; object-fit: cover; }
+.forge-have-ok { margin-left: auto; color: #39FF14; font-weight: 600; }
+.forge-have-bad { margin-left: auto; color: #f87171; font-weight: 600; }
+.forge-equip-box { max-width: 480px; width: 90vw; }
+
+/* Relic badge in upgrade panel */
+.upg-relic-badge {
+  margin: 4px 0 2px; padding: 5px 10px;
+  background: rgba(255,200,70,0.08); border: 1px solid rgba(255,200,70,0.3);
+  border-radius: 6px; font-size: 11px; font-weight: 600; color: var(--gold);
+  display: flex; align-items: center; gap: 6px;
+}
+.upg-relic-corrupted {
+  background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.35);
+  color: #f87171;
+}
+
+/* Relic section in unit detail panel */
+.relic-equipped-section {
+  margin-top: 8px; padding: 10px;
+  background: rgba(255,200,70,0.04); border: 1px solid rgba(255,200,70,0.18);
+  border-radius: 8px;
+}
+.relic-equipped-label {
+  font-size: 10px; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+}
+.relic-equipped-card {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(4,10,5,0.7); border: 1px solid rgba(255,200,70,0.2);
+  border-radius: 6px; padding: 8px 10px;
+}
+.relic-equipped-card.corrupted { border-color: rgba(239,68,68,0.4); }
+.re-icon { font-size: 20px; flex-shrink: 0; }
+.re-name { font-size: 12px; font-weight: 700; }
+.re-desc { font-size: 10px; color: rgba(238,240,255,0.55); line-height: 1.5; margin-top: 2px; }
+.relic-none-msg {
+  font-size: 11px; color: rgba(238,240,255,0.45);
+  text-align: center; padding: 6px 0;
+}
+.btn-disabled { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.25); cursor: not-allowed; }
+

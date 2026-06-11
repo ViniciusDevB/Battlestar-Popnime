@@ -1196,5 +1196,23 @@ const LANG_EN = {
 
   "char_nemesis_prestige_1": "Primary Virus: each hit applies zombie infection (35 DPS/7s, slows 35%)",
   "char_nemesis_prestige_5": "Viral Charge: every 4th attack releases a venom charge (4.5× dmg)",
-  "char_nemesis_prestige_10": "Final Proliferation: every 6th attack spreads infection across the entire area"
+  "char_nemesis_prestige_10": "Final Proliferation: every 6th attack spreads infection across the entire area",
+  "hub_nexus": "BASE",
+  "hub_nexus_sub": "Nexus & Relics",
+  "tab_forge": "⚒ Forge",
+  "forge_locked_title": "Relic Forge",
+  "forge_locked_msg": "Build the Relic Forge in the Nexus to unlock crafting.",
+  "forge_stash_title": "Relic Reserve",
+  "forge_craft_title": "Craft Relics",
+  "forge_craft_btn": "⚒ Craft",
+  "forge_equip_title": "Equip Relic",
+  "forge_unequip_btn": "Unequip",
+  "forge_relic_equipped": "Equipped Relic",
+  "forge_relic_none": "No relics in reserve. Craft one in the Forge.",
+  "nexus_screen_title": "🏰 Operations Base",
+  "nexus_gems_label": "gems available",
+  "nexus_upgrade_btn": "Upgrade",
+  "nexus_maxed": "MAX ✦",
+  "nexus_err_gems": "Not enough gems!",
+  "nexus_err_maxed": "Structure is already at max level."
 };

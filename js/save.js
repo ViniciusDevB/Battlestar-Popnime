@@ -17,6 +17,8 @@ const Save = (() => {
       pity_contador: 0,
       fases_completas: {},
       time_salvo: [],
+      nexus: { structures: {} },
+      relicStash: [],
       stats: {
         dano_total_causado: 0,
         inimigos_derrotados: 0,
@@ -83,10 +85,13 @@ const Save = (() => {
       d.inventario.unidades = migrated;
     }
     _data = d;
-    if (!_data.inventario)         _data.inventario = { unidades: [], materiais: [] };
+    if (!_data.inventario)          _data.inventario = { unidades: [], materiais: [] };
     if (!_data.inventario.unidades) _data.inventario.unidades = [];
     if (!_data.inventario.materiais) _data.inventario.materiais = [];
-    if (!_data.stats)              _data.stats = defaultSave().stats;
+    if (!_data.nexus)               _data.nexus = { structures: {} };
+    if (!_data.nexus.structures)    _data.nexus.structures = {};
+    if (!_data.relicStash)          _data.relicStash = [];
+    if (!_data.stats)               _data.stats = defaultSave().stats;
     else _data.stats = Object.assign(defaultSave().stats, _data.stats);
     // Remove das pendentes qualquer missão que o servidor já marcou como completa.
     // fn_claim_reward/fn_sync_progress pode retornar save com missoes_conquistas_pendentes
@@ -143,6 +148,21 @@ const Save = (() => {
       serverSave.missoes_diarias.completas =
         [...new Set([...serverDaily, ...localDaily])];
     }
+
+    // nexus.structures: max de cada nível (nunca perde progresso local)
+    const localNexusStruct  = local.nexus?.structures  || {};
+    const serverNexusStruct = serverSave.nexus?.structures || {};
+    const mergedNexusStruct = { ...serverNexusStruct };
+    for (const [k, v] of Object.entries(localNexusStruct)) {
+      if (typeof v === 'number') mergedNexusStruct[k] = Math.max(mergedNexusStruct[k] || 0, v);
+    }
+    if (!serverSave.nexus) serverSave.nexus = {};
+    serverSave.nexus.structures = mergedNexusStruct;
+
+    // relicStash: mantém a lista com mais itens (pessimista mas seguro)
+    const localStash  = local.relicStash  || [];
+    const serverStash = serverSave.relicStash || [];
+    serverSave.relicStash = localStash.length >= serverStash.length ? localStash : serverStash;
 
     _setData(serverSave);
   }
@@ -290,6 +310,65 @@ const Save = (() => {
     return true;
   }
 
+  // ── Nexus helpers ──────────────────────────────────────────────────────────
+
+  function getNexusLevel(structId) {
+    return get().nexus?.structures?.[structId] || 0;
+  }
+
+  function upgradeNexusStructure(structId) {
+    const d = get();
+    const struct = typeof getNexusStructureDef !== 'undefined' ? getNexusStructureDef(structId) : null;
+    if (!struct) return 'invalid';
+    const currentLevel = d.nexus?.structures?.[structId] || 0;
+    if (currentLevel >= struct.maxLevel) return 'maxed';
+    const cost = typeof getNexusUpgradeCost !== 'undefined' ? getNexusUpgradeCost(structId, currentLevel) : 0;
+    if (d.gemas < cost) return 'gems';
+    d.gemas -= cost;
+    if (!d.nexus) d.nexus = { structures: {} };
+    if (!d.nexus.structures) d.nexus.structures = {};
+    d.nexus.structures[structId] = currentLevel + 1;
+    save();
+    return 'ok';
+  }
+
+  // ── Relic stash helpers ────────────────────────────────────────────────────
+
+  function getRelicStash() { return get().relicStash || []; }
+
+  function addToRelicStash(relicObj) {
+    const d = get();
+    if (!d.relicStash) d.relicStash = [];
+    d.relicStash.push({ id: relicObj.id, isCorrupted: !!relicObj.isCorrupted });
+    save();
+  }
+
+  function equipRelic(uid, stashIdx) {
+    const d = get();
+    if (!d.relicStash) d.relicStash = [];
+    const stashEntry = d.relicStash[stashIdx];
+    if (!stashEntry) return false;
+    const unit = d.inventario.unidades.find(u => u.uid === uid);
+    if (!unit) return false;
+    // Move old relic back to stash before equipping new one
+    if (unit.equippedRelic) d.relicStash.push(unit.equippedRelic);
+    unit.equippedRelic = { id: stashEntry.id, isCorrupted: stashEntry.isCorrupted };
+    d.relicStash.splice(stashIdx, 1);
+    save();
+    return true;
+  }
+
+  function unequipRelic(uid) {
+    const d = get();
+    const unit = d.inventario.unidades.find(u => u.uid === uid);
+    if (!unit || !unit.equippedRelic) return false;
+    if (!d.relicStash) d.relicStash = [];
+    d.relicStash.push(unit.equippedRelic);
+    delete unit.equippedRelic;
+    save();
+    return true;
+  }
+
   // ── Trade lock ─────────────────────────────────────────────────────────────
 
   function lockUnit(uid) {
@@ -316,5 +395,7 @@ const Save = (() => {
     markStageComplete, isStageComplete, getTeam, setTeam,
     getPrestige, canPrestige, doPrestige,
     lockUnit, unlockUnit, isUnitLocked,
+    getNexusLevel, upgradeNexusStructure,
+    getRelicStash, addToRelicStash, equipRelic, unequipRelic,
   };
 })();

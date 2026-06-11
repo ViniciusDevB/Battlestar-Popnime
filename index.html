@@ -218,8 +218,22 @@
       <span class="hab-label">TROCAS</span>
       <span class="hab-sub">Trocar Personagens</span>
     </button>
+    <button class="hab hab--nexus" onclick="UI.showNexus()">
+      <span class="hab-icon">🏰</span>
+      <span class="hab-label">BASE</span>
+      <span class="hab-sub">Nexus &amp; Relíquias</span>
+    </button>
   </div>
 
+</div>
+
+<!-- ══════════ NEXUS ══════════ -->
+<div id="screen-nexus" class="screen">
+  <div class="screen-header">
+    <button class="btn-back" onclick="UI.showHub()">← Voltar</button>
+    <h2>🏰 Base de Operações</h2>
+  </div>
+  <div id="nexus-content" class="nexus-content"></div>
 </div>
 
 <!-- ══════════ WORLD SELECT ══════════ -->
@@ -446,6 +460,7 @@
     <button class="tab-btn active" data-tab="units"     onclick="Inventory.showTab('units')" data-i18n="tab_units">Unidades</button>
     <button class="tab-btn"        data-tab="materials" onclick="Inventory.showTab('materials')" data-i18n="tab_materials">Materiais</button>
     <button class="tab-btn tab-btn--evo" data-tab="evolution" onclick="Inventory.showTab('evolution')" data-i18n="tab_evolution">🔮 Evolução</button>
+    <button class="tab-btn tab-btn--forge" data-tab="forge" onclick="Inventory.showTab('forge')">⚒ Forja</button>
   </div>
   <div class="inv-filters" id="inv-filters">
     <div class="inv-filter-chips" id="inv-filter-chips"></div>
@@ -457,6 +472,7 @@
   <div class="inv-content">
     <div id="inventory-grid" class="inv-grid"></div>
     <div id="evolution-content" class="evo-content" style="display:none"></div>
+    <div id="forge-content" class="forge-content" style="display:none"></div>
     <div id="unit-detail-panel" class="unit-detail-panel" style="display:none">
       <button class="panel-close" onclick="Inventory.closeDetail()">✕</button>
       <div id="unit-detail-content"></div>
@@ -520,6 +536,17 @@
 </div>
 
 
+<!-- ══════════ FORGE RELIC EQUIP MODAL ══════════ -->
+<div id="forge-equip-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)Inventory.closeRelicEquip()">
+  <div class="modal-box forge-equip-box">
+    <div class="modal-header">
+      <h3>⚒ Equipar Relíquia</h3>
+      <button class="modal-close" onclick="Inventory.closeRelicEquip()">✕</button>
+    </div>
+    <div id="forge-equip-content"></div>
+  </div>
+</div>
+
 <!-- ══════════ TRADES MODAL ══════════ -->
 <div id="trades-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)TradesUI.close()">
   <div class="modal-box tr-modal-box">
@@ -562,6 +589,7 @@
 <script src="js/i18n.js"></script>
 <!-- Data -->
 <script src="data/characters.js"></script>
+<script src="data/relics.js"></script>
 <script src="data/events_data.js"></script>
 <script src="js/banner.js"></script>
 <script src="data/enemies.js"></script>

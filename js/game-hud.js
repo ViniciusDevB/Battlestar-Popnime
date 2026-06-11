@@ -93,6 +93,14 @@ function openUpgradePanel(tower, slotIdx) {
     <div class="upg-stat-row"><span>${I18N.t('stat_type')}</span><span>${typeLabels[stats.type] || stats.type}</span></div>
     ${_dpsRow}
     ${prestigeRow}
+    ${(() => {
+      const relicSave = tower.equippedRelic;
+      if (!relicSave) return '';
+      const _r = typeof getRelicById !== 'undefined' ? getRelicById(relicSave.id) : null;
+      if (!_r) return '';
+      const _corruptMark = relicSave.isCorrupted ? ' ☠' : '';
+      return `<div class="upg-relic-badge${relicSave.isCorrupted ? ' upg-relic-corrupted' : ''}">${_r.icon} ${_r.name}${_corruptMark}</div>`;
+    })()}
     ${isMaximized ? `<div class="upg-stat-row" style="color:#fbbf24;font-weight:700;text-align:center">${I18N.t('hud_maximized')}</div>` : ''}`;
   optsEl.appendChild(statsEl);
 
@@ -133,7 +141,7 @@ function openUpgradePanel(tower, slotIdx) {
 
   const passivesArr = passives;
   const hasEconomy = passivesArr.some(p => p.type === 'edo_tensei_economy');
-  let totalInvested = char?.deploy_cost || 0;
+  let totalInvested = tower.paidDeployCost ?? (char?.deploy_cost || 0);
   for (let i = 0; i < tower.upgradeLevel; i++) {
     if (char?.upgrades?.[i]) totalInvested += char.upgrades[i].cost;
   }

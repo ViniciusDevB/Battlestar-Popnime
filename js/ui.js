@@ -334,6 +334,74 @@ const UI = (() => {
     document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.dataset.diff === diff));
   }
 
+  function showNexus() {
+    showScreen('nexus');
+    renderNexusScreen();
+  }
+
+  function renderNexusScreen() {
+    const content = document.getElementById('nexus-content');
+    if (!content || typeof NEXUS_STRUCTURES === 'undefined') return;
+    content.innerHTML = '';
+
+    const d = Save.get();
+    const gemsBar = document.createElement('div');
+    gemsBar.className = 'nexus-gems-bar';
+    gemsBar.innerHTML = `<span>💎 <b>${d.gemas}</b> gemas disponíveis</span>`;
+    content.appendChild(gemsBar);
+
+    const grid = document.createElement('div');
+    grid.className = 'nexus-grid';
+
+    NEXUS_STRUCTURES.forEach(struct => {
+      const currentLevel = Save.getNexusLevel(struct.id);
+      const isMaxed = currentLevel >= struct.maxLevel;
+      const upgradeCost = isMaxed ? null : getNexusUpgradeCost(struct.id, currentLevel);
+      const canAfford = !isMaxed && upgradeCost <= d.gemas;
+
+      const pipsHtml = Array.from({ length: struct.maxLevel }, (_, i) =>
+        `<div class="nexus-pip${i < currentLevel ? ' nexus-pip--filled' : ''}"></div>`
+      ).join('');
+
+      const card = document.createElement('div');
+      card.className = `nexus-card${isMaxed ? ' nexus-card--maxed' : ''}`;
+      card.innerHTML = `
+        <div class="nexus-card-icon">${struct.icon}</div>
+        <div class="nexus-card-body">
+          <div class="nexus-card-name">${struct.name}</div>
+          <div class="nexus-card-level">Nível ${currentLevel} / ${struct.maxLevel}</div>
+          <div class="nexus-level-bar">${pipsHtml}</div>
+          <div class="nexus-card-desc">${struct.desc}</div>
+          ${isMaxed
+            ? `<div class="nexus-maxed-badge">MÁXIMO ✦</div>`
+            : `<button class="btn${canAfford ? ' btn-primary' : ' btn-disabled'}" style="width:100%;font-size:12px;padding:8px;margin-top:8px;"
+                ${canAfford ? '' : 'disabled'}
+                onclick="UI.upgradeNexusStructure('${struct.id}')">
+                Melhorar — ${upgradeCost} 💎
+              </button>`
+          }
+        </div>`;
+      grid.appendChild(card);
+    });
+
+    content.appendChild(grid);
+  }
+
+  function upgradeNexusStructure(structId) {
+    const result = Save.upgradeNexusStructure(structId);
+    if (result === 'ok') {
+      const struct = typeof NEXUS_STRUCTURES !== 'undefined' ? NEXUS_STRUCTURES.find(s => s.id === structId) : null;
+      toast(`✅ ${struct?.name || structId} melhorada!`);
+      if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
+      updateCurrencyDisplay();
+      renderNexusScreen();
+    } else if (result === 'maxed') {
+      toast('Construção já está no nível máximo.');
+    } else if (result === 'gems') {
+      toast('Gemas insuficientes!');
+    }
+  }
+
   function showGacha() {
     showScreen('gacha');
     Gacha.updateGachaUI();
@@ -650,6 +718,7 @@ const UI = (() => {
       showStageSelect(id || selectedWorld);
     },
     showPreBattle, showGacha, showInventory, showGame, showPostBattle, showEvents,
+    showNexus, upgradeNexusStructure,
     setDifficulty, updateCurrencyDisplay, updateBannerDisplay, updateBannerTimer,
     confirmReset, closeUpgradePanel, toast,
     getSelectedTeam, getSelectedStage, getSelectedDifficulty,
