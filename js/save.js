@@ -103,13 +103,15 @@ const Save = (() => {
   }
 
 
-  // Aplica save do servidor mantendo union com progresso local.
-  // Evita que um syncSave com snapshot antigo apague completions feitas localmente.
+  // Aplica save do servidor mantendo union com progresso local (fases, stats, missões).
+  // Economia e inventário são server-autoritativos — aplicados diretamente sem merge.
+  // Nexus e relicStash são gerenciados por RPCs dedicados (fn_upgrade_nexus,
+  // fn_craft_relic) que retornam o save canônico; sem merge necessário aqui.
   function _mergeData(serverSave) {
     if (!serverSave) return;
     const local = _data || {};
 
-    // fases_completas: union profunda (servidor + local, nunca perde conclusão)
+    // fases_completas: union profunda (nunca perde conclusão local)
     const localFases  = local.fases_completas  || {};
     const serverFases = serverSave.fases_completas || {};
     const mergedFases = { ...serverFases };
@@ -128,45 +130,26 @@ const Save = (() => {
     }
     serverSave.stats = serverStats;
 
-    // missoes_completas: union (nunca perde missão já resgatada localmente)
+    // missoes_completas: union
     const localDone  = local.missoes_completas  || [];
     const serverDone = serverSave.missoes_completas || [];
     const mergedDone = [...new Set([...serverDone, ...localDone])];
     serverSave.missoes_completas = mergedDone;
 
-    // missoes_conquistas_pendentes: remove as já presentes em mergedDone
     if (serverSave.missoes_conquistas_pendentes?.length) {
       const doneSet = new Set(mergedDone);
       serverSave.missoes_conquistas_pendentes =
         serverSave.missoes_conquistas_pendentes.filter(id => !doneSet.has(id));
     }
 
-    // missoes_diarias.completas: union dentro da sessão diária
+    // missoes_diarias.completas: union
     const localDaily  = local.missoes_diarias?.completas  || [];
     const serverDaily = serverSave.missoes_diarias?.completas || [];
     if (localDaily.length && serverSave.missoes_diarias) {
-      serverSave.missoes_diarias.completas =
-        [...new Set([...serverDaily, ...localDaily])];
+      serverSave.missoes_diarias.completas = [...new Set([...serverDaily, ...localDaily])];
     }
 
-    // nexus.structures: max de cada nível (nunca perde progresso local)
-    const localNexusStruct  = local.nexus?.structures  || {};
-    const serverNexusStruct = serverSave.nexus?.structures || {};
-    const mergedNexusStruct = { ...serverNexusStruct };
-    for (const [k, v] of Object.entries(localNexusStruct)) {
-      if (typeof v === 'number') mergedNexusStruct[k] = Math.max(mergedNexusStruct[k] || 0, v);
-    }
-    if (!serverSave.nexus) serverSave.nexus = {};
-    serverSave.nexus.structures = mergedNexusStruct;
-
-    // relicStash: usa sempre o estado local — updateInventory() sincroniza o servidor
-    // imediatamente após cada operação de relíquia, então local é a fonte de verdade.
-    // Usar "lista mais longa" causava race condition: syncSave periódico pode chegar
-    // antes do updateInventory e restaurar relíquias já equipadas de volta ao stash.
-    const localStash  = local.relicStash  || [];
-    const serverStash = serverSave.relicStash || [];
-    serverSave.relicStash = localStash.length > 0 ? localStash : serverStash;
-
+    // Inventário, gemas, tickets, nexus, relicStash: server é autoritativo.
     _setData(serverSave);
   }
 
@@ -319,6 +302,7 @@ const Save = (() => {
     return get().nexus?.structures?.[structId] || 0;
   }
 
+  // Validação local somente — a mutação real vai para Online.upgradeNexus().
   function upgradeNexusStructure(structId) {
     const d = get();
     const struct = typeof getNexusStructureDef !== 'undefined' ? getNexusStructureDef(structId) : null;
@@ -327,11 +311,6 @@ const Save = (() => {
     if (currentLevel >= struct.maxLevel) return 'maxed';
     const cost = typeof getNexusUpgradeCost !== 'undefined' ? getNexusUpgradeCost(structId, currentLevel) : 0;
     if (d.gemas < cost) return 'gems';
-    d.gemas -= cost;
-    if (!d.nexus) d.nexus = { structures: {} };
-    if (!d.nexus.structures) d.nexus.structures = {};
-    d.nexus.structures[structId] = currentLevel + 1;
-    save();
     return 'ok';
   }
 

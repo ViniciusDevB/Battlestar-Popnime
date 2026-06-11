@@ -84,14 +84,8 @@ const Online = (() => {
         }
       }
     });
-    // Sync periódico a cada 20s — apenas progresso (stats, fases, missões).
-    // Inventário é sincronizado imediatamente via updateInventory() após cada
-    // operação que o modifica (feed, prestígio, combinação, evolução).
-    setInterval(() => {
-      if (_ready && _session && _profile) {
-        syncSave();
-      }
-    }, 20_000);
+    // Opção A: sem sync periódico. Cada mutação vai direto ao banco via RPC
+    // e aplica o estado retornado. O syncSave() só roda no login/F5.
 
     _ready = true;
     return true;
@@ -563,8 +557,8 @@ const Online = (() => {
   }
 
   // ── Inventory Sync ───────────────────────────────────────────────────────
-  // Salva o inventário atual no servidor sem tocar em gemas/tickets.
-  // Chamado após feed, prestígio, combinação e evolução.
+  // Envia o inventário atual ao servidor e aplica o estado canônico retornado.
+  // O servidor é a fonte de verdade: o que ele devolver substitui o estado local.
   async function updateInventory() {
     if (!_ready || !_session || !_profile) return { ok: false };
     try {
@@ -575,10 +569,59 @@ const Online = (() => {
         p_nexus_structs: d.nexus?.structures || {},
       });
       if (error) { console.warn('[Online] updateInventory:', error.message); return { ok: false }; }
-      return data?.error ? { ok: false } : { ok: true };
+      if (data?.error) return { ok: false };
+      // Aplica o estado canônico do servidor (preserva economia/inventário correto)
+      if (data?.save) {
+        Save._setData(data.save);
+        if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
+      }
+      return { ok: true };
     } catch (e) {
       console.warn('[Online] updateInventory error:', e);
       return { ok: false };
+    }
+  }
+
+  // ── Nexus Upgrade (Opção A — server-authoritative) ────────────────────────
+  // Valida gemas e aplica o upgrade no servidor; aplica o save retornado.
+  async function upgradeNexus(structId) {
+    if (!_ready || !_session || !_profile) return { error: 'not_logged_in' };
+    try {
+      const { data, error } = await _client.rpc('fn_upgrade_nexus', {
+        p_struct_id: structId,
+      });
+      if (error) return { error: error.message };
+      if (data?.error) return { error: data.error };
+      if (data?.save) {
+        Save._setData(data.save);
+        if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
+      }
+      return { ok: true };
+    } catch (e) {
+      console.warn('[Online] upgradeNexus error:', e);
+      return { error: e.message };
+    }
+  }
+
+  // ── Relic Craft (Opção A — server-authoritative) ──────────────────────────
+  // Valida materiais, aplica o craft no servidor (RNG server-side), aplica save.
+  async function craftRelic(relicId, materials) {
+    if (!_ready || !_session || !_profile) return { error: 'not_logged_in' };
+    try {
+      const { data, error } = await _client.rpc('fn_craft_relic', {
+        p_relic_id:  relicId,
+        p_materials: materials,
+      });
+      if (error) return { error: error.message };
+      if (data?.error) return { error: data.error, material: data.material };
+      if (data?.save) {
+        Save._setData(data.save);
+        if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
+      }
+      return { ok: true, isCorrupted: !!data?.isCorrupted };
+    } catch (e) {
+      console.warn('[Online] craftRelic error:', e);
+      return { error: e.message };
     }
   }
 
@@ -764,7 +807,8 @@ const Online = (() => {
     init, isReady, isLoggedIn, getProfile, getSession, onReady,
     waitForProfile, refreshProfile,
     register, login, logout, resetAccount,
-    syncSave, updateInventory, pushSave, pushSaveBeacon, gachaPull, completeStage, claimReward,
+    syncSave, updateInventory, upgradeNexus, craftRelic,
+    pushSave, pushSaveBeacon, gachaPull, completeStage, claimReward,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,
     fetchActiveMission, fetchUpcomingMissions, getActiveMission, contributeToMission,

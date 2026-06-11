@@ -731,7 +731,11 @@ const Inventory = (() => {
     fc.appendChild(craftSec);
   }
 
-  function craftRelic(relicId) {
+  async function craftRelic(relicId) {
+    if (typeof Online === 'undefined' || !Online.isLoggedIn()) {
+      UI.toast('Necessário estar conectado para usar a Forja.');
+      return;
+    }
     const forgeLevel = Save.getNexusLevel('forge');
     if (forgeLevel === 0) { UI.toast('Construa a Forja no Nexus primeiro!'); return; }
     if (typeof RELICS === 'undefined' || typeof RELIC_CRAFTS === 'undefined') return;
@@ -740,9 +744,9 @@ const Inventory = (() => {
     const recipe = RELIC_CRAFTS[relicId];
     if (!relic || !recipe) return;
 
-    const costMult = forgeLevel >= 2 ? 0.80 : 1.0;
+    // Validação local para feedback imediato
+    const costMult  = forgeLevel >= 2 ? 0.80 : 1.0;
     const adjRecipe = recipe.map(r => ({ ...r, qty: Math.ceil(r.qty * costMult) }));
-
     for (const r of adjRecipe) {
       if (Save.getMaterialQty(r.id) < r.qty) {
         const mc = typeof getCharById !== 'undefined' ? getCharById(r.id) : null;
@@ -750,18 +754,20 @@ const Inventory = (() => {
         return;
       }
     }
-    for (const r of adjRecipe) Save.removeMaterial(r.id, r.qty);
 
-    const rareBonus = forgeLevel >= 3 ? 0.05 : 0.0;
-    const corruptChance = relic.corruptChance || 0.015;
-    const effectiveCC = Math.max(0.005, corruptChance - rareBonus);
-    const isCorrupted = Math.random() < effectiveCC;
-
-    Save.addToRelicStash({ id: relicId, isCorrupted });
-    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
-
-    UI.toast(`⚒ ${relic.name} criada!${isCorrupted ? ' ☠ CORROMPIDA!' : ''}`, 3500);
-    renderForgeTab();
+    // Server aplica o craft atomicamente e decide se fica corrompida
+    const result = await Online.craftRelic(relicId, adjRecipe);
+    if (result?.ok) {
+      UI.toast(`⚒ ${relic.name} criada!${result.isCorrupted ? ' ☠ CORROMPIDA!' : ''}`, 3500);
+      renderForgeTab();
+    } else if (result?.error === 'insufficient_materials') {
+      const mc = typeof getCharById !== 'undefined' ? getCharById(result.material) : null;
+      UI.toast(`Ingredientes insuficientes: ${mc?.name || result.material}`);
+    } else if (result?.error === 'forge_locked') {
+      UI.toast('Construa a Forja no Nexus primeiro!');
+    } else {
+      UI.toast('Erro ao craftar — tente novamente.');
+    }
   }
 
   function openRelicEquip(uid) {

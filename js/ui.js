@@ -387,18 +387,29 @@ const UI = (() => {
     content.appendChild(grid);
   }
 
-  function upgradeNexusStructure(structId) {
-    const result = Save.upgradeNexusStructure(structId);
-    if (result === 'ok') {
-      const struct = typeof NEXUS_STRUCTURES !== 'undefined' ? NEXUS_STRUCTURES.find(s => s.id === structId) : null;
+  async function upgradeNexusStructure(structId) {
+    if (typeof Online === 'undefined' || !Online.isLoggedIn()) {
+      toast('Necessário estar conectado para melhorar o Nexus.');
+      return;
+    }
+    // Validação local para feedback imediato sem round-trip
+    const localCheck = Save.upgradeNexusStructure(structId);
+    if (localCheck === 'maxed') { toast('Construção já está no nível máximo.'); return; }
+    if (localCheck === 'gems')  { toast('Gemas insuficientes!'); return; }
+    if (localCheck === 'invalid') return;
+
+    const struct = typeof NEXUS_STRUCTURES !== 'undefined' ? NEXUS_STRUCTURES.find(s => s.id === structId) : null;
+    const result = await Online.upgradeNexus(structId);
+    if (result?.ok) {
       toast(`✅ ${struct?.name || structId} melhorada!`);
-      if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
       updateCurrencyDisplay();
       renderNexusScreen();
-    } else if (result === 'maxed') {
+    } else if (result?.error === 'maxed') {
       toast('Construção já está no nível máximo.');
-    } else if (result === 'gems') {
+    } else if (result?.error === 'gems') {
       toast('Gemas insuficientes!');
+    } else {
+      toast('Erro ao melhorar — tente novamente.');
     }
   }
 
