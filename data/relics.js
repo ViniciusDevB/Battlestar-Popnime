@@ -84,40 +84,51 @@ const RELICS = {
 };
 
 const RELIC_CRAFTS = {
-  relic_kunai_minato:   [{ id: 'ninja_generico_3', qty: 8 },  { id: 'ninja_generico_2', qty: 12 }],
-  relic_colar_sannin:   [{ id: 'ninja_generico_3', qty: 5 },  { id: 'ninja_generico_1', qty: 15 }],
-  relic_chapeu_palha:   [{ id: 'pirata_generico_3', qty: 6 }, { id: 'pirata_generico_2', qty: 14 }],
-  relic_yoru:           [{ id: 'pirata_generico_3', qty: 8 }, { id: 'pirata_generico_1', qty: 12 }],
-  relic_tensa_zangetsu: [{ id: 'shinigami_generico_3', qty: 8 }, { id: 'shinigami_generico_2', qty: 12 }],
-  relic_hogyoku:        [{ id: 'shinigami_generico_3', qty: 5 }, { id: 'shinigami_generico_2', qty: 10 }, { id: 'shinigami_generico_1', qty: 5 }],
-  relic_escudo_capita:  [{ id: 'avenger_material_3', qty: 6 }, { id: 'avenger_material_1', qty: 14 }],
-  relic_mjolnir:        [{ id: 'avenger_material_3', qty: 8 }, { id: 'avenger_material_2', qty: 12 }],
-  relic_anel_lanterna:  [{ id: 'dc_material_3', qty: 6 }, { id: 'dc_material_2', qty: 14 }],
-  relic_laco_verdade:   [{ id: 'dc_material_3', qty: 5 }, { id: 'dc_material_2', qty: 10 }, { id: 'dc_material_1', qty: 5 }]
+  relic_kunai_minato:   [{ id: 'ninja_generico_3', qty: 16 }, { id: 'ninja_generico_2', qty: 24 }],
+  relic_colar_sannin:   [{ id: 'ninja_generico_3', qty: 10 }, { id: 'ninja_generico_1', qty: 30 }],
+  relic_chapeu_palha:   [{ id: 'pirata_generico_3', qty: 12 }, { id: 'pirata_generico_2', qty: 28 }],
+  relic_yoru:           [{ id: 'pirata_generico_3', qty: 16 }, { id: 'pirata_generico_1', qty: 24 }],
+  relic_tensa_zangetsu: [{ id: 'shinigami_generico_3', qty: 16 }, { id: 'shinigami_generico_2', qty: 24 }],
+  relic_hogyoku:        [{ id: 'shinigami_generico_3', qty: 10 }, { id: 'shinigami_generico_2', qty: 20 }, { id: 'shinigami_generico_1', qty: 10 }],
+  relic_escudo_capita:  [{ id: 'avenger_material_3', qty: 12 }, { id: 'avenger_material_1', qty: 28 }],
+  relic_mjolnir:        [{ id: 'avenger_material_3', qty: 16 }, { id: 'avenger_material_2', qty: 24 }],
+  relic_anel_lanterna:  [{ id: 'dc_material_3', qty: 12 }, { id: 'dc_material_2', qty: 28 }],
+  relic_laco_verdade:   [{ id: 'dc_material_3', qty: 10 }, { id: 'dc_material_2', qty: 20 }, { id: 'dc_material_1', qty: 10 }]
 };
 
 // NEXUS_STRUCTURES: ordered list of base constructions.
+// Custo em gemas 3× o original. Cada melhoria também consome materiais de mundos.
 const NEXUS_STRUCTURES = [
-  { id: 'hospital',   name: 'Hospital de Campo',       icon: '🏥', maxLevel: 5, baseCost: 300, costPerLevel: 200,
-    desc: '+1 vida inicial por nível.' },
-  { id: 'vault',      name: 'Cofre de Suprimentos',    icon: '💰', maxLevel: 5, baseCost: 300, costPerLevel: 200,
-    desc: '+60 de ouro inicial por nível.' },
-  { id: 'academia',   name: 'Academia de Heróis',      icon: '📚', maxLevel: 3, baseCost: 400, costPerLevel: 300,
-    desc: '+15% XP de feed por nível.' },
-  { id: 'watchtower', name: 'Torre de Vigilância',     icon: '🗼', maxLevel: 3, baseCost: 500, costPerLevel: 400,
-    desc: 'Nv1: preview da próxima onda. Nv2: +6% alcance global. Nv3: +12% alcance + marca Elites.' },
-  { id: 'forge',      name: 'Forja de Relíquias',      icon: '⚒',  maxLevel: 3, baseCost: 600, costPerLevel: 500,
-    desc: 'Nv1: desbloqueia a Forja. Nv2: -20% custo de materiais. Nv3: +5% chance de relíquia rara.' },
-  { id: 'barracks',   name: 'Quartel',                 icon: '🏛',  maxLevel: 3, baseCost: 350, costPerLevel: 300,
-    desc: '-8% de custo de deploy de todas as torres por nível.' },
-  { id: 'lab',        name: 'Laboratório de Campo',    icon: '🔬', maxLevel: 3, baseCost: 450, costPerLevel: 350,
-    desc: 'Chefes e Elites têm chance de dropar ingrediente de relíquia. Nv1: 10%. Nv2: 20%. Nv3: 35%.' },
-  { id: 'bank',       name: 'Banco de Guerra',         icon: '🏦', maxLevel: 3, baseCost: 400, costPerLevel: 300,
-    desc: 'Ouro não gasto entre ondas é parcialmente mantido. Nv1: 15%. Nv2: 25%. Nv3: 40% (máx 500).' },
-  { id: 'temple',     name: 'Templo dos Campeões',     icon: '⛩',  maxLevel: 4, baseCost: 550, costPerLevel: 400,
-    desc: '+5% de dano global de todas as torres por nível.' },
-  { id: 'relay',      name: 'Centro de Retransmissão', icon: '📡', maxLevel: 3, baseCost: 500, costPerLevel: 400,
-    desc: '-15% cooldown de habilidades ativas por nível.' }
+  { id: 'hospital',   name: 'Hospital de Campo',       icon: '🏥', maxLevel: 5, baseCost: 900,  costPerLevel: 600,
+    desc: '+1 vida inicial por nível.',
+    materials: [{ id: 'ninja_generico_1', qty: 4 }, { id: 'pirata_generico_1', qty: 4 }] },
+  { id: 'vault',      name: 'Cofre de Suprimentos',    icon: '💰', maxLevel: 5, baseCost: 900,  costPerLevel: 600,
+    desc: '+60 de ouro inicial por nível.',
+    materials: [{ id: 'avenger_material_1', qty: 5 }, { id: 'dc_material_1', qty: 5 }] },
+  { id: 'academia',   name: 'Academia de Heróis',      icon: '📚', maxLevel: 3, baseCost: 1200, costPerLevel: 900,
+    desc: '+15% XP de feed por nível.',
+    materials: [{ id: 'ninja_generico_2', qty: 5 }, { id: 'shinigami_generico_2', qty: 5 }] },
+  { id: 'watchtower', name: 'Torre de Vigilância',     icon: '🗼', maxLevel: 3, baseCost: 1500, costPerLevel: 1200,
+    desc: 'Nv1: preview da próxima onda. Nv2: +6% alcance global. Nv3: +12% alcance + marca Elites.',
+    materials: [{ id: 'dc_material_2', qty: 6 }, { id: 'ninja_generico_2', qty: 4 }] },
+  { id: 'forge',      name: 'Forja de Relíquias',      icon: '⚒',  maxLevel: 3, baseCost: 1800, costPerLevel: 1500,
+    desc: 'Nv1: desbloqueia a Forja. Nv2: -20% custo de materiais. Nv3: +5% chance de relíquia rara.',
+    materials: [{ id: 'shinigami_generico_3', qty: 5 }, { id: 'avenger_material_2', qty: 8 }] },
+  { id: 'barracks',   name: 'Quartel',                 icon: '🏛',  maxLevel: 3, baseCost: 1050, costPerLevel: 900,
+    desc: '-8% de custo de deploy de todas as torres por nível.',
+    materials: [{ id: 'ninja_generico_1', qty: 6 }, { id: 'pirata_generico_1', qty: 6 }] },
+  { id: 'lab',        name: 'Laboratório de Campo',    icon: '🔬', maxLevel: 3, baseCost: 1350, costPerLevel: 1050,
+    desc: 'Chefes e Elites têm chance de dropar ingrediente de relíquia. Nv1: 10%. Nv2: 20%. Nv3: 35%.',
+    materials: [{ id: 'shinigami_generico_2', qty: 5 }, { id: 'avenger_material_1', qty: 5 }] },
+  { id: 'bank',       name: 'Banco de Guerra',         icon: '🏦', maxLevel: 3, baseCost: 1200, costPerLevel: 900,
+    desc: 'Ouro não gasto entre ondas é parcialmente mantido. Nv1: 15%. Nv2: 25%. Nv3: 40% (máx 500).',
+    materials: [{ id: 'pirata_generico_2', qty: 5 }, { id: 'dc_material_1', qty: 5 }] },
+  { id: 'temple',     name: 'Templo dos Campeões',     icon: '⛩',  maxLevel: 4, baseCost: 1650, costPerLevel: 1200,
+    desc: '+5% de dano global de todas as torres por nível.',
+    materials: [{ id: 'avenger_material_3', qty: 4 }, { id: 'shinigami_generico_3', qty: 4 }] },
+  { id: 'relay',      name: 'Centro de Retransmissão', icon: '📡', maxLevel: 3, baseCost: 1500, costPerLevel: 1200,
+    desc: '-15% cooldown de habilidades ativas por nível.',
+    materials: [{ id: 'dc_material_2', qty: 5 }, { id: 'pirata_generico_2', qty: 5 }] }
 ];
 
 function getRelicById(id) { return RELICS[id] || null; }
@@ -135,4 +146,8 @@ function getNexusUpgradeCost(structId, currentLevel) {
   const s = getNexusStructureDef(structId);
   if (!s) return 0;
   return s.baseCost + currentLevel * s.costPerLevel;
+}
+
+function getNexusUpgradeMaterials(structId) {
+  return getNexusStructureDef(structId)?.materials || [];
 }

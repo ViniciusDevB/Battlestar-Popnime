@@ -355,15 +355,34 @@ const UI = (() => {
     const grid = document.createElement('div');
     grid.className = 'nexus-grid';
 
+    // Emoji por família de material — lookup linear sobre o ID
+    function _matIcon(id) {
+      if (id.startsWith('ninja_generico'))      return '🍃';
+      if (id.startsWith('pirata_generico'))     return '⚓';
+      if (id.startsWith('shinigami_generico'))  return '⚔';
+      if (id.startsWith('avenger_material'))    return '🛡';
+      if (id.startsWith('dc_material'))         return '⚡';
+      return '📦';
+    }
+
     NEXUS_STRUCTURES.forEach(struct => {
       const currentLevel = Save.getNexusLevel(struct.id);
       const isMaxed = currentLevel >= struct.maxLevel;
       const upgradeCost = isMaxed ? null : getNexusUpgradeCost(struct.id, currentLevel);
-      const canAfford = !isMaxed && upgradeCost <= d.gemas;
+      const canAffordGems = !isMaxed && upgradeCost <= d.gemas;
+      const mats = typeof getNexusUpgradeMaterials !== 'undefined' ? getNexusUpgradeMaterials(struct.id) : [];
+      const canAffordMats = mats.every(m => Save.getMaterialQty(m.id) >= m.qty);
+      const canUpgrade = canAffordGems && canAffordMats;
 
       const pipsHtml = Array.from({ length: struct.maxLevel }, (_, i) =>
         `<div class="nexus-pip${i < currentLevel ? ' nexus-pip--filled' : ''}"></div>`
       ).join('');
+
+      const matsHtml = mats.map(m => {
+        const have = Save.getMaterialQty(m.id);
+        const ok   = have >= m.qty;
+        return `<span style="font-size:11px;color:${ok ? '#4caf50' : '#ef4444'}">${_matIcon(m.id)} ${have}/${m.qty}</span>`;
+      }).join('&ensp;');
 
       const card = document.createElement('div');
       card.className = `nexus-card${isMaxed ? ' nexus-card--maxed' : ''}`;
@@ -376,11 +395,14 @@ const UI = (() => {
           <div class="nexus-card-desc">${struct.desc}</div>
           ${isMaxed
             ? `<div class="nexus-maxed-badge">MÁXIMO ✦</div>`
-            : `<button class="btn${canAfford ? ' btn-primary' : ' btn-disabled'}" style="width:100%;font-size:12px;padding:8px;margin-top:8px;"
-                ${canAfford ? '' : 'disabled'}
-                onclick="UI.upgradeNexusStructure('${struct.id}')">
-                Melhorar — ${upgradeCost} 💎
-              </button>`
+            : `<div style="margin-top:8px">
+                ${mats.length ? `<div style="margin-bottom:4px;display:flex;gap:8px;flex-wrap:wrap;">${matsHtml}</div>` : ''}
+                <button class="btn${canUpgrade ? ' btn-primary' : ' btn-disabled'}" style="width:100%;font-size:12px;padding:8px;"
+                  ${canUpgrade ? '' : 'disabled'}
+                  onclick="UI.upgradeNexusStructure('${struct.id}')">
+                  Melhorar — ${upgradeCost.toLocaleString('pt-BR')} 💎
+                </button>
+              </div>`
           }
         </div>`;
       grid.appendChild(card);
@@ -396,9 +418,10 @@ const UI = (() => {
     }
     // Validação local para feedback imediato sem round-trip
     const localCheck = Save.upgradeNexusStructure(structId);
-    if (localCheck === 'maxed') { toast('Construção já está no nível máximo.'); return; }
-    if (localCheck === 'gems')  { toast('Gemas insuficientes!'); return; }
-    if (localCheck === 'invalid') return;
+    if (localCheck === 'maxed')     { toast('Construção já está no nível máximo.'); return; }
+    if (localCheck === 'gems')      { toast('Gemas insuficientes!'); return; }
+    if (localCheck === 'materials') { toast('Materiais insuficientes para esta melhoria!'); return; }
+    if (localCheck === 'invalid')   return;
 
     const struct = typeof NEXUS_STRUCTURES !== 'undefined' ? NEXUS_STRUCTURES.find(s => s.id === structId) : null;
     const result = await Online.upgradeNexus(structId);

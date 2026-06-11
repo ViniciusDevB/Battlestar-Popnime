@@ -316,6 +316,10 @@ const Save = (() => {
     if (currentLevel >= struct.maxLevel) return 'maxed';
     const cost = typeof getNexusUpgradeCost !== 'undefined' ? getNexusUpgradeCost(structId, currentLevel) : 0;
     if (d.gemas < cost) return 'gems';
+    const mats = typeof getNexusUpgradeMaterials !== 'undefined' ? getNexusUpgradeMaterials(structId) : [];
+    for (const req of mats) {
+      if (getMaterialQty(req.id) < req.qty) return 'materials';
+    }
     return 'ok';
   }
 
