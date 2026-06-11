@@ -3,6 +3,8 @@
 //             ENEMY_DEFS (enemies.js), INFINITE_TIERS/getInfiniteTierIdx (game-infinite.js),
 //             charIconInner/getCharById/getCurrentStats (characters.js), Save, UI (globals).
 
+let _lastHudGold = -1; // detecta mudança de ouro para re-render do painel
+
 const PTYPE_PREVIEW_COLORS = {
   normal: '#6b7280', speed: '#3b82f6', fortified: '#f59e0b',
   regenerator: '#10b981', bomber: '#ef4444', powerful1: '#a78bfa',
@@ -75,9 +77,13 @@ function openUpgradePanel(tower, slotIdx) {
   const totalUpgradesCount = char?.upgrades?.length || 0;
   const isMaximized = tower.upgradeLevel >= totalUpgradesCount && totalUpgradesCount > 0;
 
-  const _dpsVal = tower.realtimeDPS || 0;
-  const _dpsRow = waveActive && _dpsVal > 0
-    ? `<div class="upg-stat-row"><span>📊 DPS</span><span style="color:#fbbf24;font-weight:700">${_dpsVal >= 1000 ? (_dpsVal/1000).toFixed(1)+'k' : Math.round(_dpsVal)}</span></div>`
+  // DPS: usa realtime se disponível, senão calcula do base (damage × attack_speed)
+  const _dpsVal = tower.realtimeDPS > 0
+    ? tower.realtimeDPS
+    : stats.damage * stats.attack_speed;
+  const _dpsLabel = tower.realtimeDPS > 0 ? '📊 DPS' : '📊 DPS est.';
+  const _dpsRow = _dpsVal > 0
+    ? `<div class="upg-stat-row"><span>${_dpsLabel}</span><span style="color:#fbbf24;font-weight:700">${_dpsVal >= 1000 ? (_dpsVal/1000).toFixed(1)+'k' : Math.round(_dpsVal)}</span></div>`
     : '';
 
   statsEl.innerHTML = `
@@ -113,14 +119,14 @@ function openUpgradePanel(tower, slotIdx) {
     const isNext = i === tower.upgradeLevel;
     const canAfford = gold >= upg.cost;
     const div = document.createElement('div');
-    div.className = `upg-item${purchased ? ' upg-done' : isNext ? ' upg-next' : ' upg-locked'}`;
+    div.className = `upg-item${purchased ? ' upg-done' : isNext ? ' upg-next' : ' upg-locked'}${isNext && !canAfford ? ' cant-afford' : ''}`;
     div.innerHTML = `
       <div class="upg-name">${upg.name} ${purchased ? '✔' : ''}</div>
       <div class="upg-desc">${upg.desc}</div>
       <div class="upg-cost">${purchased ? I18N.t('hud_purchased') : `${upg.cost} 💰 ${isNext ? '<span style="font-size:9px;color:#aaa;margin-left:5px;">(U)</span>' : ''}`}</div>`;
-    if (isNext && canAfford) {
-      div.addEventListener('click', () => _hudCtx.buyUpgrade(slotIdx, i));
-      div.style.cursor = 'pointer';
+    if (isNext) {
+      div.style.cursor = canAfford ? 'pointer' : 'not-allowed';
+      if (canAfford) div.addEventListener('click', () => _hudCtx.buyUpgrade(slotIdx, i));
     }
     optsEl.appendChild(div);
   });
@@ -282,18 +288,10 @@ function updateHUD() {
     nextChip.style.display = 'none';
   }
 
-  const panel = el('team-panel');
-  if (panel) {
-    Array.from(panel.children).forEach(u => {
-      const charId = u.dataset.charId;
-      if (charId) {
-        const char = getCharById(charId);
-        if (char) {
-          if (gold >= char.deploy_cost) u.classList.remove('cant-afford');
-          else u.classList.add('cant-afford');
-        }
-      }
-    });
+  // Re-render do painel ao mudar ouro — garante que unidades ficam disponíveis imediatamente
+  if (gold !== _lastHudGold) {
+    _lastHudGold = gold;
+    renderTeamPanel();
   }
 
   UI.updateCurrencyDisplay();
@@ -328,7 +326,7 @@ function renderTeamPanel() {
       <div class="tp-name">${char.name}${copyLabel}</div>
       <div class="tp-cost">${atLimit ? I18N.t('hud_max_units') : `${cost}💰 Lv${unitData?.nivel||1}`}</div>`;
     div.addEventListener('click', () => {
-      if (gold < cost) { UI.toast(I18N.t('err_gold')); return; }
+      if (_hudCtx.gold < cost) { UI.toast(I18N.t('err_gold')); return; } // lê ouro atual, não closure
       _hudCtx.deployingCharId = _hudCtx.deployingCharId === charId ? null : charId;
       renderTeamPanel();
       _hudCtx.selectedTowerIdx = -1;

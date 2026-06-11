@@ -32,16 +32,26 @@ function spawnClone(origin) {
   UI.toast(I18N.t('tower_clone_spawned', { s: cloneDuration }), 2000);
 }
 
+let _deployLock = false;
+
 function handleClick(e) {
   const rect = _towersCtx.canvas.getBoundingClientRect();
-  const cx = (e.clientX - rect.left - _towersCtx.renderOffX) / _towersCtx.renderScale;
-  const cy = (e.clientY - rect.top  - _towersCtx.renderOffY) / _towersCtx.renderScale;
+  // Recalcula transformação inline para evitar coords stale após resize
+  const cw = rect.width, ch = rect.height;
+  const scale = Math.min(cw / CANVAS_W, ch / CANVAS_H);
+  const offX = Math.floor((cw - CANVAS_W * scale) / 2);
+  const offY = Math.floor((ch - CANVAS_H * scale) / 2);
+  const cx = (e.clientX - rect.left - offX) / scale;
+  const cy = (e.clientY - rect.top  - offY) / scale;
 
   if (_towersCtx.deployingCharId) {
+    if (_deployLock) return; // bloqueia double-deploy
     if (isValidPlacement(cx, cy)) {
+      _deployLock = true;
       deployTower(cx, cy, _towersCtx.deployingCharId);
       _towersCtx.deployingCharId = null;
       renderTeamPanel();
+      requestAnimationFrame(() => { _deployLock = false; });
     } else {
       UI.toast(I18N.t('tower_invalid_spot'));
     }

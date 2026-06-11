@@ -36,7 +36,7 @@ const Game = (() => {
 
   let screenShakeAmount = 0;
   let vizardOverlayAlpha = 0;
-  let _hudChipFrame = 0;
+  let _hudChipTimer = 0;
 
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // PASSIVE_SYSTEM â€” tabela central de todas as passivas de personagens.
@@ -475,7 +475,7 @@ const Game = (() => {
     gold = 300;
     skipMultiplier = 0;
     skipGold = 100;
-    _hudChipFrame = 0;
+    _hudChipTimer = 0;
     wave = 0;
     totalWaves = isInfiniteMode ? Infinity : stage.waves.length;
     activeWavesCount = 1;
@@ -535,7 +535,7 @@ const Game = (() => {
   function loop(ts) {
     if (!running) return;
     if (lastTime === 0) lastTime = ts;
-    const rawDt = Math.min((ts - lastTime) / 1000, 0.1);
+    const rawDt = Math.min((ts - lastTime) / 1000, 0.05); // cap 50ms — evita saltos ao voltar de aba
     lastTime = ts;
     const dt = paused ? 0 : rawDt * gameSpeed;
 
@@ -570,7 +570,8 @@ const Game = (() => {
       if (!e.dead && !e.reached_end) _aliveEnemies.push(e);
     }
 
-    if (++_hudChipFrame >= 6) { _hudChipFrame = 0; if (typeof updateHUDChips === 'function') updateHUDChips(); }
+    _hudChipTimer += dt;
+    if (_hudChipTimer >= 0.1) { _hudChipTimer = 0; if (typeof updateHUDChips === 'function') updateHUDChips(); }
 
     updateTowersLoop(dt);
     updateProjectiles(dt);
