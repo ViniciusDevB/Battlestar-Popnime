@@ -75,6 +75,10 @@ O progresso é sincronizado na nuvem — sua conta funciona nas duas versões.
 
 ### 🔄 Update 3.1: Base de Operações e Relíquias *(Lançado)*
 
+<p align="center">
+  <img src="assets/update4marvelvsdc.jpg" alt="Update 3.1 — Base de Operações e Relíquias" width="100%">
+</p>
+
 - **Base de Operações (Nexus)** — 10 estruturas melhoráveis com Gemas que persistem entre partidas. Hospital, Cofre, Academia, Torre de Vigilância, Forja de Relíquias, Quartel, Laboratório, Banco de Guerra, Templo dos Campeões e Centro de Retransmissão.
 - **Sistema de Relíquias** — artefatos de 4★ e 5★ (um por mundo) com efeitos únicos e variante Corrompida de alto risco/retorno. Equipáveis em qualquer unidade do inventário; forjados com materiais dropados em fases.
 - **Rebalanceamento de Prestígio** — unidades de dano: +10%/+2% dano por tier; unidades de farm: +2% ouro por wave por tier. Substituiu o bônus genérico anterior.

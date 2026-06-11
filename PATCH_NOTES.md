@@ -6,6 +6,10 @@ Bem-vindos ao portal de atualizações de **Battlestar Popnime**. Aqui você enc
 
 ## 🔄 Update 3.1: Base de Operações e Relíquias *(Lançado — 11 de Junho de 2026)*
 
+<p align="center">
+  <img src="assets/update4marvelvsdc.jpg" alt="Update 3.1 — Base de Operações e Relíquias" width="100%">
+</p>
+
 *"A meta-progressão chega ao Battlestar Popnime. Construa e melhore sua Base de Operações entre partidas, equipe Relíquias poderosas (e perigosas) nas suas unidades, e aproveite um sistema de gacha agora 100% server-side e rebalanceamento de prestígio mais estratificado."*
 
 ---
