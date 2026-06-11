@@ -4,6 +4,95 @@ Bem-vindos ao portal de atualizações de **Battlestar Popnime**. Aqui você enc
 
 ---
 
+## 🔄 Update 3.1: Base de Operações e Relíquias *(Lançado — 11 de Junho de 2026)*
+
+*"A meta-progressão chega ao Battlestar Popnime. Construa e melhore sua Base de Operações entre partidas, equipe Relíquias poderosas (e perigosas) nas suas unidades, e aproveite um sistema de gacha agora 100% server-side e rebalanceamento de prestígio mais estratificado."*
+
+---
+
+### ↳ Base de Operações (Nexus) — 11 de Junho de 2026
+
+*"10 estruturas persistentes que moldam sua experiência de jogo a cada partida. Invista Gemas para fortalecer sua operação globalmente."*
+
+#### 🏗️ Estruturas Disponíveis
+
+| Estrutura | Efeito | Níveis |
+|---|---|---|
+| 🏥 Hospital de Campo | +1 vida inicial por nível | 5 |
+| 💰 Cofre de Suprimentos | +60 de ouro inicial por nível | 5 |
+| 📚 Academia de Heróis | +15% XP de Feed por nível | 3 |
+| 🗼 Torre de Vigilância | Nv1: preview de onda · Nv2: +6% alcance · Nv3: +12% alcance + marca Elites | 3 |
+| ⚒ Forja de Relíquias | Desbloqueia a Forja. Nv2: -20% custo · Nv3: +5% chance rara | 3 |
+| 🏛 Quartel | -8% de custo de deploy de todas as torres por nível | 3 |
+| 🔬 Laboratório de Campo | Chefes/Elites têm chance de dropar ingredientes de relíquia (10%/20%/35%) | 3 |
+| 🏦 Banco de Guerra | Ouro não gasto entre ondas é mantido parcialmente (15%/25%/40%, máx 500) | 3 |
+| ⛩ Templo dos Campeões | +5% de dano global de todas as torres por nível | 4 |
+| 📡 Centro de Retransmissão | -15% cooldown de habilidades ativas por nível | 3 |
+
+---
+
+### ↳ Sistema de Relíquias — 11 de Junho de 2026
+
+*"Artefatos lendários de cada mundo, forjados com materiais raros. Cada relíquia tem uma versão Normal e uma Corrompida — poder maior, mas com um custo."*
+
+#### ⚗️ Mecânica
+
+* Relíquias são **forjadas** na Forja de Relíquias (requer Nexus Nv1) usando materiais dropados em fases por Chefes e Elites.
+* Ao forjar, há uma **chance de corrupção** por relíquia (a Hōgyoku tem 15%). A versão Corrompida tem efeitos distintos — geralmente mais poder com desvantagem.
+* Cada unidade pode equipar **1 relíquia**. Desequipar devolve a relíquia ao estoque (Relic Stash).
+* Relíquias são **persistentes** — ficam no save e podem ser transferidas entre unidades.
+
+#### 💎 Relíquias por Mundo
+
+* **Naruto:** Kunai do 4º Hokage (vel. ataque +20%, golpe bônus), Colar da Sannin (escudo absorvente)
+* **One Piece:** Chapéu de Palha (aura +15% dano), Yoru — A Noite (dano +25%, pen. de resistência)
+* **Bleach:** Tensa Zangetsu (dano +25%, ignora escudos), Hōgyoku (dano +10% · Corrompida: +60% / -20% alcance)
+* **Marvel:** Escudo do Capitão (redução AOE, ricochete), Mjolnir (dano relâmpago +30%, stun)
+* **DC:** Manopla do Infinito (dano +15%, buffs rotativos), Anel da Lanterna (aura de recarga), Laço da Verdade (-20% resistência inimiga)
+
+---
+
+### ↳ Rebalanceamento de Prestígio — 11 de Junho de 2026
+
+*"O bônus de prestígio agora diferencia o papel da unidade: dano vira dano, farm vira economia."*
+
+#### ⚔️ Novas Taxas por Tier
+
+**Unidades de Dano** (ex: Ichigo, Naruto, Goku…)
+* Tier 1–5: `+10% dano` por nível de prestígio.
+* Tier 6–10: `+2% dano` adicional por nível (bônus reduzido no late para evitar superação).
+
+**Unidades de Farm / Suporte** (ex: L, Nami, Orihime…)
+* `+2% de ouro extra por wave` por nível de prestígio (máx P10 = +20% ouro/wave).
+
+---
+
+### ↳ Gacha Server-Side e Segurança — 11 de Junho de 2026
+
+*"O sistema de gacha agora roda integralmente no servidor. Nenhum dado econômico vem do cliente — sorteio, pity e dedução são atômicos e invioláveis."*
+
+#### 🔒 Mudanças de Segurança
+
+* **Gacha 100% Server-Side:** `fn_gacha_pull` (RPC no Supabase) realiza o sorteio, verifica saldo, deduz moeda, atualiza pity e inventário — tudo em uma transação atômica com `FOR UPDATE`. Injeção de gemas via Postman ou console é impossível.
+* **Darkseid no Backend:** O Easter Egg Darkseid 7★ (1 em 2.000.000) agora é processado dentro da RPC. A vitória é persistida atomicamente junto ao pull — sem possibilidade de duplicação.
+* **Anti-Exploit de Trocas:** Unidades em oferta ativa recebem flag `in_trade: true`. Enquanto flagadas, não podem ser usadas em Feed, Evolução, Prestígio ou como material de evolução. Tentativas exibem mensagem de erro clara.
+* **`Object.freeze` no Save:** O objeto `Save` exportado é congelado — funções internas não podem ser substituídas via DevTools.
+* **INSERT/UPDATE bloqueados no RLS:** Políticas da tabela `saves` revogam INSERT e UPDATE de clientes autenticados — apenas RPCs `SECURITY DEFINER` podem escrever no save.
+
+---
+
+### ↳ Correções de Bugs — 11 de Junho de 2026
+
+#### 🛠️ Correções
+
+* **Missões: perda de gemas em falha de rede** — anteriormente, clicar em "Resgatar" concedia as gemas localmente e marcava a missão como concluída antes da confirmação do servidor. Se a requisição falhasse, as gemas ficavam mas a missão voltava ao estado pendente, permitindo duplo claim. Agora: as gemas são concedidas otimisticamente, mas a missão só é marcada como concluída após confirmação do servidor. Em caso de falha, as gemas são revertidas e a missão volta a "pendente".
+* **`cancelTrade` não limpava `in_trade`** — a função chamava `_pushSave` que estava bloqueada pelo RLS. Corrigido para usar `updateInventory()` que passa pela RPC segura.
+* **Passivas de Área com CPU Excessivo** — `slow_aura` e `santen_kesshun` iteravam todos os inimigos/torres a cada frame (60×/s). Ambas agora têm throttle interno (0.2s e 0.5s respectivamente) eliminando desperdício em mapas com muitas torres.
+* **Tsunami (Modo Infinito):** Loop de geração de ondas não quebrava corretamente ao matar o chefe antes da onda terminar. Corrigido com `break` explícito.
+* **Pool Tier 0 no Infinito:** Tier 0 incluía acidentalmente unidades do tier anterior. Corrigido.
+
+---
+
 ## 🔄 Update 3: Crise nas Infinitas Terras *(Em Desenvolvimento)*
 
 *"O maior update de Battlestar Popnime até hoje. Além do novo mundo DC e dos 9 novos personagens em desenvolvimento, o Update 3 traz o lançamento desktop, a camada online completa, rebalanceamento global e suporte a inglês — consolidando a base do jogo para o futuro."*

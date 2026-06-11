@@ -444,8 +444,8 @@ const Online = (() => {
 
     uids.forEach(uid => Save.unlockUnit(uid));
 
-    // Push updated save to remote so future syncSave calls don't restore in_trade:true
-    try { await _pushSave(Save.get()); } catch {}
+    // Persiste inventário com in_trade removido via fn_update_inventory (SECURITY DEFINER)
+    try { await updateInventory(); } catch {}
 
     return { ok: true };
   }
@@ -759,40 +759,21 @@ const Online = (() => {
     if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
   }
 
-  // ── Push full save to server (online-only model) ──────────────────────────
-  // Direct upsert to saves table — bypasses fn_sync_progress so inventory/gems
-  // are written as-is. Used for new-account seeding and periodic/beforeunload push.
-  async function _pushSave(saveData) {
-    if (!_ready || !_session || !_profile) return;
-    try {
-      const clean = { ...saveData };
-      delete clean._ownerId;
-      const { error } = await _client
-        .from('saves')
-        .upsert(
-          { player_id: _profile.id, data: clean, updated_at: new Date().toISOString() },
-          { onConflict: 'player_id' }
-        );
-      if (error) console.warn('[Online] _pushSave:', error.message);
-    } catch (e) {
-      console.warn('[Online] _pushSave error:', e);
-    }
-  }
-
+  // ── Beacon de sync no fechamento da aba ──────────────────────────────────
+  // Usa fn_sync_progress via fetch keepalive para persistir progresso (stats,
+  // fases, team) ao fechar a aba. Campos econômicos são descartados pelo RPC,
+  // portanto manipulação de Save.get() via DevTools não compromete a economia.
   function _pushSaveBeacon(saveData) {
-    if (!_ready || !_session || !_profile) return;
+    if (!_ready || !_session) return;
     try {
-      const clean = { ...saveData };
-      delete clean._ownerId;
-      const url = `${SUPABASE_URL}/rest/v1/saves?on_conflict=player_id`;
-      const body = JSON.stringify({ player_id: _profile.id, data: clean, updated_at: new Date().toISOString() });
+      const url = `${SUPABASE_URL}/rest/v1/rpc/fn_sync_progress`;
+      const body = JSON.stringify({ p_progress: saveData });
       fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${_session.access_token}`,
           'apikey': SUPABASE_ANON_KEY,
-          'Prefer': 'resolution=merge-duplicates'
         },
         body: body,
         keepalive: true
@@ -803,7 +784,6 @@ const Online = (() => {
   }
 
   // Exposed wrapper — called by main.js on beforeunload
-  async function pushSave() { return _pushSave(Save.get()); }
   function pushSaveBeacon() { return _pushSaveBeacon(Save.get()); }
 
   // Grants starter items to brand-new accounts (no units, no pulls).
@@ -823,7 +803,8 @@ const Online = (() => {
     Save.addMaterial('ninja_generico_2', 2);
     if (d.gemas < 500) d.gemas = 500;
 
-    await _pushSave(Save.get());
+    // fn_update_inventory persiste os itens iniciais via RPC (SECURITY DEFINER)
+    await updateInventory();
     if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
   }
 
@@ -834,7 +815,7 @@ const Online = (() => {
     waitForProfile, refreshProfile,
     register, login, logout, resetAccount,
     syncSave, queueSync, updateInventory, upgradeNexus, craftRelic, infiniteComplete,
-    pushSave, pushSaveBeacon, gachaPull, completeStage, claimReward,
+    pushSaveBeacon, gachaPull, completeStage, claimReward,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,
     fetchActiveMission, fetchUpcomingMissions, getActiveMission, contributeToMission,

@@ -704,6 +704,7 @@ const Game = (() => {
           const dmg = Math.min(e.hp, tsu.hp);
           tsu.hp -= dmg;
           dealDamage({ charData: {}, rarity: 5 }, e, dmg);
+          if (tsu.hp <= 0) break;
         }
       }
       // Add bubble effect trail
@@ -1312,6 +1313,9 @@ const Game = (() => {
       }
       _contributeMissionStats(false);
       Missions.check();
+      if (!isInfiniteMode && typeof Online !== 'undefined' && Online.isLoggedIn()) {
+        Online.queueSync(); // persiste stats/missões da sessão mesmo em derrota
+      }
       if (typeof AudioManager !== 'undefined') AudioManager.stopBgm();
       UI.showPostBattle({
         victory: false,

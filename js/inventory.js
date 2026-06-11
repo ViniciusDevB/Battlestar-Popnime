@@ -541,6 +541,7 @@ const Inventory = (() => {
     if (!Save.canPrestige(uid)) { UI.toast(I18N.t('err_prestige_level')); return; }
     const u = Save.getUnitByUid(uid);
     if (!u) return;
+    if (Save.isUnitLocked(uid)) { UI.toast(I18N.t('err_unit_in_trade')); return; }
     const char = getCharById(u.id);
     const currentPrestige = u.prestige || 0;
     if (!confirm(I18N.t('msg_confirm_prestige', { name: char?.name, lvl: currentPrestige+1 }))) return;
@@ -619,6 +620,15 @@ const Inventory = (() => {
     if (!evolutionTarget) return;
     const char = getCharById(evolutionTarget);
     if (!char || !char.evolution || !checkEvolutionAvailable(evolutionTarget)) return;
+
+    // Block if not enough non-locked copies exist for any playable requirement
+    for (const req of char.evolution.requires) {
+      const rc = getCharById(req.id);
+      if (rc?.playable) {
+        const avail = Save.get().inventario.unidades.filter(u => u.id === req.id && !u.in_trade).length;
+        if (avail < req.quantity) { UI.toast(I18N.t('err_unit_in_trade')); return; }
+      }
+    }
 
     for (const req of char.evolution.requires) {
       const rc = getCharById(req.id);
@@ -825,6 +835,7 @@ const Inventory = (() => {
     feedSelected = [];
     const unitData = Save.getUnitByUid(uid);
     if (!unitData) return;
+    if (Save.isUnitLocked(uid)) { UI.toast(I18N.t('err_unit_in_trade')); return; }
     const char = getCharById(unitData.id);
     if (!char) return;
 
@@ -876,6 +887,7 @@ const Inventory = (() => {
     const d = Save.get();
     d.inventario.unidades.forEach(unit => {
       if (unit.uid === targetUid) return;
+      if (unit.in_trade) return;
       if (feedSelected.some(s => s.type === 'unit' && s.uid === unit.uid)) return;
       const char = getCharById(unit.id);
       if (!char || !char.playable) return;

@@ -49,8 +49,7 @@ function generateInfiniteWave(waveNum) {
   ];
   const tierIdx = Math.min(getInfiniteTierIdx(waveNum), 7);
   const cur  = POOLS[tierIdx];
-  const prev = tierIdx > 0 ? POOLS[tierIdx - 1] : cur;
-  const pool = [...cur, ...prev.slice(0, 2)];
+  const pool = tierIdx > 0 ? [...cur, ...POOLS[tierIdx - 1].slice(0, 2)] : [...cur];
 
   const count = Math.floor(10 + waveNum * 0.85);
   const gap   = Math.max(0.35, 1.6 - tierIdx * 0.18 - (waveNum % 10) * 0.015);

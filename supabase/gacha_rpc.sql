@@ -162,6 +162,28 @@ BEGIN
   v_units_arr := COALESCE(v_save->'inventario'->'unidades',  '[]');
   v_mats_arr  := COALESCE(v_save->'inventario'->'materiais', '[]');
 
+  -- ── Darkseid 7★ Easter Egg (gratuito; não deduz moeda, não conta pity) ──
+  -- Chance de 1 em 2.000.000 por pull. O player precisa ter saldo mínimo para
+  -- um pull (verificado acima), mas o sorteio não consome nada.
+  IF random() < 0.0000005 THEN
+    v_uid := substr(replace(gen_random_uuid()::text, '-', ''), 1, 13);
+    v_units_arr := v_units_arr || jsonb_build_array(
+      jsonb_build_object('uid', v_uid, 'id', 'darkseid_7star', 'nivel', 1, 'xp_atual', 0)
+    );
+    v_save := jsonb_set(v_save, '{inventario,unidades}', v_units_arr);
+    v_save := jsonb_set(v_save, '{_lastSyncAt}', to_jsonb(NOW()::TEXT));
+    v_save := v_save - '_integrityViolations';
+    UPDATE public.saves SET data = v_save, updated_at = NOW() WHERE player_id = v_player_id;
+    RETURN jsonb_build_object(
+      'ok',          true,
+      'results',     jsonb_build_array(jsonb_build_object('id', 'darkseid_7star', 'rarity', 7, 'uid', v_uid)),
+      'new_pity',    v_pity,
+      'new_gems',    v_gems,
+      'new_tickets', v_tickets,
+      'save',        v_save
+    );
+  END IF;
+
   -- ── Sorteio ──────────────────────────────────────────────────────────────
   FOR i IN 1..p_qty LOOP
     v_pity := v_pity + 1;

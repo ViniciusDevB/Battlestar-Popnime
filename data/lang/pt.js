@@ -97,8 +97,10 @@ const LANG_PT = {
   "msg_confirm_prestige": "Transmutar {name}?\nIsso irá:\n• Resetar para Lv1\n• Conceder Prestígio {lvl}\n• +20% dano permanente\n\nEssa ação não pode ser desfeita.",
   "msg_transmuted": "transmutado",
   "msg_active": "ativo",
-  "status_in_trade": "Em troca"
-,
+  "status_in_trade": "Em troca",
+  "err_unit_in_trade": "Unidade está em uma troca ativa!",
+  "err_claim_failed": "Falha ao resgatar recompensa. Tente novamente.",
+
   "mission_dmg_1k_label": "Cause 1.000 de dano total",
   "mission_dmg_10k_label": "Cause 10.000 de dano total",
   "mission_dmg_50k_label": "Cause 50.000 de dano total",

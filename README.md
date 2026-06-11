@@ -73,6 +73,17 @@ O progresso é sincronizado na nuvem — sua conta funciona nas duas versões.
 > ⚖️ **Procurando pelos detalhes de balanceamento?**
 > Veja o nosso documento de [Patch Notes (Buffs e Nerfs)](./PATCH_NOTES.md) para acompanhar todas as mudanças específicas em personagens e mundos!
 
+### 🔄 Update 3.1: Base de Operações e Relíquias *(Lançado)*
+
+- **Base de Operações (Nexus)** — 10 estruturas melhoráveis com Gemas que persistem entre partidas. Hospital, Cofre, Academia, Torre de Vigilância, Forja de Relíquias, Quartel, Laboratório, Banco de Guerra, Templo dos Campeões e Centro de Retransmissão.
+- **Sistema de Relíquias** — artefatos de 4★ e 5★ (um por mundo) com efeitos únicos e variante Corrompida de alto risco/retorno. Equipáveis em qualquer unidade do inventário; forjados com materiais dropados em fases.
+- **Rebalanceamento de Prestígio** — unidades de dano: +10%/+2% dano por tier; unidades de farm: +2% ouro por wave por tier. Substituiu o bônus genérico anterior.
+- **Segurança — Gacha Server-Side** — todo o sorteio, pity e dedução de moeda agora ocorre exclusivamente no servidor via RPC atômica. Nenhum dado econômico vem do cliente.
+- **Segurança — Anti-Exploit de Trocas** — unidades em oferta ativa ficam bloqueadas: não podem ser usadas em Feed, Evolução ou Prestígio enquanto a troca estiver pendente.
+- **Correções de Bugs** — recompensas de missões não causam mais perda de gemas em falhas de rede; passivas de área (`slow_aura`, `santen_kesshun`) throttled para eliminar custo de CPU excessivo por frame.
+
+---
+
 ### 🔄 Update 3: Crise nas Infinitas Terras *(Em Desenvolvimento)*
 
 <p align="center">

@@ -154,7 +154,8 @@ const Missions = (() => {
     const m = getMissionById(missionId);
     if (!m) return null;
     d.missoes_conquistas_pendentes.splice(idx, 1);
-    if (!d.missoes_completas.includes(missionId)) d.missoes_completas.push(missionId);
+    // Não adiciona a missoes_completas aqui: _grantRewards faz isso só após confirmação do servidor.
+    // Evita que syncSave propague uma missão como concluída sem as gemas terem sido gravadas.
     _grantRewards(m.reward, missionId, false, null);
     Save.save();
     _updateBadge();
@@ -170,7 +171,7 @@ const Missions = (() => {
     const m = getMissionById(missionId);
     if (!m) return null;
     d.missoes_diarias.pendentes.splice(idx, 1);
-    if (!d.missoes_diarias.completas.includes(missionId)) d.missoes_diarias.completas.push(missionId);
+    // Mesma proteção: missoes_diarias.completas só atualizado após confirmação do servidor.
     _grantRewards(m.reward, missionId, true, d.missoes_diarias.data);
     Save.save();
     _updateBadge();
@@ -179,6 +180,40 @@ const Missions = (() => {
 
   // ── Rewards ───────────────────────────────────────────────────────────────────
 
+  function _markDoneLocally(missionId, isDaily) {
+    const d = Save.get();
+    if (isDaily) {
+      if (!d.missoes_diarias) return;
+      if (!d.missoes_diarias.completas) d.missoes_diarias.completas = [];
+      if (!d.missoes_diarias.completas.includes(missionId)) d.missoes_diarias.completas.push(missionId);
+    } else {
+      if (!d.missoes_completas.includes(missionId)) d.missoes_completas.push(missionId);
+    }
+    Save.save();
+  }
+
+  function _revertClaim(reward, missionId, isDaily) {
+    const d = Save.get();
+    if (reward.gems)    Save.spendGems(reward.gems);
+    if (reward.tickets) Save.spendTickets(reward.tickets);
+    if (isDaily) {
+      if (d.missoes_diarias?.pendentes && !d.missoes_diarias.pendentes.includes(missionId)) {
+        d.missoes_diarias.pendentes.push(missionId);
+      }
+    } else {
+      if (!d.missoes_conquistas_pendentes) d.missoes_conquistas_pendentes = [];
+      if (!d.missoes_conquistas_pendentes.includes(missionId)) {
+        d.missoes_conquistas_pendentes.push(missionId);
+      }
+    }
+    Save.save();
+    _updateBadge();
+    if (typeof UI !== 'undefined') {
+      UI.toast(I18N.t('err_claim_failed'), 3500);
+      UI.updateCurrencyDisplay();
+    }
+  }
+
   function _grantRewards(reward, missionId, isDaily, date) {
     if (!reward) return;
     if (reward.gems)    Save.addGems(reward.gems);
@@ -186,10 +221,20 @@ const Missions = (() => {
     if (typeof Online !== 'undefined' && Online.isLoggedIn() && missionId) {
       Online.claimReward(missionId, isDaily ? date : null).then(result => {
         if (result?.ok && result.save) {
+          // Servidor confirmou: _mergeData aplica missoes_completas do servidor localmente
           Save._mergeData(result.save);
           if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
+        } else if (result?.error === 'already_claimed') {
+          // Servidor já tinha essa missão (claim anterior não aplicado localmente)
+          _markDoneLocally(missionId, isDaily);
+        } else {
+          // Falha: reverte gemas/tickets e devolve missão ao estado pendente
+          _revertClaim(reward, missionId, isDaily);
         }
-      }).catch(() => {});
+      }).catch(() => _revertClaim(reward, missionId, isDaily));
+    } else {
+      // Modo offline: marca localmente pois não há servidor para confirmar
+      _markDoneLocally(missionId, isDaily);
     }
   }
 

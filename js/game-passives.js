@@ -151,16 +151,19 @@ const PASSIVE_ENTRIES = {
     }
   },
 
-  // Template: aura de área que aplica debuff passivamente a cada frame.
+  // Template: aura de área que aplica debuff passivamente (throttled a 0.2s).
   slow_aura: {
     update(tower, p, dt) {
       if (tower.disabled) return;
+      tower._slowTimer = (tower._slowTimer || 0) + dt;
+      if (tower._slowTimer < 0.2) return;
+      tower._slowTimer = 0;
       const stats   = _passiveCtx.getTowerStats(tower);
       const slowPct = _passiveCtx.getPassiveValue(tower, 'slow_pct', p.slow_pct);
       _passiveCtx.enemies.forEach(e => {
         if (e.dead || e.reached_end) return;
         if (_passiveCtx.distSq(tower.x, tower.y, e.x, e.y) <= stats.range * stats.range)
-          applyStatus(e, 'freeze', { slow_pct: slowPct, duration: 0.2 });
+          applyStatus(e, 'freeze', { slow_pct: slowPct, duration: 0.35 });
       });
     }
   },
@@ -426,11 +429,14 @@ const PASSIVE_ENTRIES = {
     }
   },
 
-  // Orihime — aura que mantém stunCooldown alto em torres vizinhas (imunidade passiva)
+  // Orihime — aura que mantém stunCooldown alto em torres vizinhas (throttled a 0.5s)
   santen_kesshun: {
     isAura: false,
     update(tower, p, dt) {
       if (tower.disabled) return;
+      tower._sknTimer = (tower._sknTimer || 0) + dt;
+      if (tower._sknTimer < 0.5) return;
+      tower._sknTimer = 0;
       const radius = p.radius || 145;
       _passiveCtx.towers.forEach(t => {
         if (t === tower) return;

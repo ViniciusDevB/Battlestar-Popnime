@@ -10,9 +10,6 @@ const Gacha = (() => {
 
     // Clamp defensivo: pity adulterado não garante 5★ infinitos nem quebra a lógica
     d.pity_contador = Math.max(0, Math.min(149, d.pity_contador || 0)) + 1;
-    if (typeof Integrity !== 'undefined' && d.pity_contador > 151) {
-      Integrity.recordViolation('pity_overflow', { pity: d.pity_contador });
-    }
 
     let rarity;
     if (d.pity_contador >= 150) {
@@ -39,6 +36,9 @@ const Gacha = (() => {
 
   async function pull(count, currency) {
     // Server-side path: sorteio, dedução de moeda e gravação no banco são atômicos.
+    // O Darkseid 7★ Easter Egg está embutido no fn_gacha_pull — se sortear,
+    // o servidor retorna { ok, results: [{ id: 'darkseid_7star', rarity: 7 }] }
+    // sem deduzir custo. O fluxo abaixo trata automaticamente.
     // Impede que o cliente forge gemas ou injete unidades.
     if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
       const result = await Online.gachaPull(count, currency);
@@ -71,7 +71,8 @@ const Gacha = (() => {
       return;
     }
 
-    // Darkseid 7★ — roll secreto antes de qualquer lógica normal (não conta pity)
+    // Fallback client-side — só ativo se não estiver logado (modo demo/offline)
+    // Darkseid Easter Egg para jogadores offline (online: tratado em fn_gacha_pull)
     if (Math.random() < 0.0000005) {
       const darkChar = getCharById('darkseid_7star');
       if (darkChar) {
@@ -81,7 +82,6 @@ const Gacha = (() => {
       }
     }
 
-    // Fallback client-side — só ativo se não estiver logado (modo demo/offline)
     const d = Save.get();
     const cost = currency === 'gems' ? (count === 1 ? 100 : 950) : count;
     const useTickets = currency === 'tickets';

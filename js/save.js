@@ -185,14 +185,14 @@ const Save = (() => {
 
   function removeUnit(id, qty = 1) {
     const d = get();
-    let removed = 0;
-    d.inventario.unidades = d.inventario.unidades.filter(u => {
-      if (u.id === id && removed < qty) { removed++; return false; }
-      return true;
-    });
+    // Prefer non-locked units to avoid silently consuming trade-locked ones
+    const toRemove = new Set(
+      d.inventario.unidades.filter(u => u.id === id && !u.in_trade).slice(0, qty).map(u => u.uid)
+    );
+    d.inventario.unidades = d.inventario.unidades.filter(u => !toRemove.has(u.uid));
     cleanTeam();
     save();
-    return removed;
+    return toRemove.size;
   }
 
   function removeUnitByUid(uid) {
@@ -374,7 +374,7 @@ const Save = (() => {
 
   function isUnitLocked(uid) { return !!(getUnitByUid(uid)?.in_trade); }
 
-  return {
+  return Object.freeze({
     load, save, get, reset, _setData, _mergeData,
     addUnit, addMaterial, removeUnit, removeUnitByUid,
     removeMaterial, getUnitData, getBestUnitData, getUnitByUid, getMaterialQty, getUnitQty,
@@ -384,5 +384,5 @@ const Save = (() => {
     lockUnit, unlockUnit, isUnitLocked,
     getNexusLevel, upgradeNexusStructure,
     getRelicStash, addToRelicStash, equipRelic, unequipRelic,
-  };
+  });
 })();

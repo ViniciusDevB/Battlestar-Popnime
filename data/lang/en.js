@@ -504,6 +504,8 @@ const LANG_EN = {
   "msg_transmuted": "transmuted",
   "msg_active": "active",
   "status_in_trade": "In trade",
+  "err_unit_in_trade": "Unit is in an active trade!",
+  "err_claim_failed": "Failed to claim reward. Please try again.",
 
   "mission_dmg_1k_label": "Deal 1,000 total damage",
   "mission_dmg_10k_label": "Deal 10,000 total damage",
