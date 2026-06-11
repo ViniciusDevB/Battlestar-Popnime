@@ -117,6 +117,12 @@ const Game = (() => {
       let d = dmg;
       towers.forEach(t => {
         if (t === attackingTower || t.disabled) return;
+        // Relíquia aura_damage_bonus (ex: Chapéu de Palha) — torre próxima bônus de dano
+        const _taura = t._relicFx;
+        if (_taura?.aura_range && _taura?.aura_damage_bonus) {
+          if (distSq(t.x, t.y, attackingTower.x, attackingTower.y) <= _taura.aura_range * _taura.aura_range)
+            d *= (1 + _taura.aura_damage_bonus);
+        }
         this._getPassives(t).forEach(p => {
           const h = this[p.type];
           if (h?.isAura && h.auraEffect) d = h.auraEffect(t, p, attackingTower, d, enemy);
@@ -1018,6 +1024,76 @@ const Game = (() => {
 
     // Efeito visual do tipo de ataque
     handler.effect(tower, stats, hitEnemies);
+
+    // Efeitos de relíquia por ataque / por onda
+    const _rfxT = tower._relicFx;
+    if (_rfxT && inRange.length > 0) {
+      // teleport_every: a cada N ataques, causa golpe bônus com dano multiplicado
+      if (_rfxT.teleport_every) {
+        tower._relicAtkCount = (tower._relicAtkCount || 0) + 1;
+        if (tower._relicAtkCount >= _rfxT.teleport_every) {
+          tower._relicAtkCount = 0;
+          const _bt = pickTarget(inRange);
+          if (_bt && effectiveCanDamage(tower, _bt)) {
+            dealDamage(tower, _bt, stats.damage * ((_rfxT.teleport_dmg_mult || 2.0) - 1));
+            addEffect({ type:'ring', x:_bt.x, y:_bt.y, maxR:32, color:'#fbbf24', timer:0.3, maxTimer:0.3, r:0 });
+          }
+        }
+      }
+      // ricochet_every: a cada N ataques, ataca 1 inimigo extra
+      if (_rfxT.ricochet_every) {
+        tower._relicRicochet = (tower._relicRicochet || 0) + 1;
+        if (tower._relicRicochet >= _rfxT.ricochet_every) {
+          tower._relicRicochet = 0;
+          const _primary = pickTarget(inRange);
+          const _extras = inRange.filter(e => e !== _primary);
+          if (_extras.length > 0) {
+            const _rt = pickTarget(_extras);
+            if (_rt && effectiveCanDamage(tower, _rt)) {
+              dealDamage(tower, _rt, stats.damage);
+              addEffect({ type:'ring', x:_rt.x, y:_rt.y, maxR:22, color:'#60a5fa', timer:0.25, maxTimer:0.25, r:0 });
+            }
+          }
+        }
+      }
+      // lightning_chance: chance por ataque de invocar raio AoE com stun
+      if (_rfxT.lightning_chance && Math.random() < _rfxT.lightning_chance) {
+        const _lTarget = pickTarget(inRange);
+        if (_lTarget) {
+          const _lr = _rfxT.lightning_range || 80;
+          const _ls = _rfxT.lightning_stun  || 1.2;
+          const _lrSq = _lr * _lr;
+          _aliveEnemies.forEach(e => {
+            if (!e.dead && !e.reached_end && distSq(e.x, e.y, _lTarget.x, _lTarget.y) <= _lrSq)
+              applyStatus(e, 'paralisia', { duration: _ls });
+          });
+          addEffect({ type:'ring', x:_lTarget.x, y:_lTarget.y, maxR:_lr, color:'#fbbf24', timer:0.45, maxTimer:0.45, r:0 });
+        }
+      }
+      // wave_slow_zone: uma vez por onda — desacelera inimigos no alcance da torre
+      if (_rfxT.wave_slow_zone && tower._relicSlowWave !== wave) {
+        tower._relicSlowWave = wave;
+        const _sw = _rfxT.slow_pct      || 0.5;
+        const _sd = _rfxT.slow_duration || 4.0;
+        _aliveEnemies.forEach(e => {
+          if (!e.dead && !e.reached_end && distSq(e.x, e.y, tower.x, tower.y) <= stats.range * stats.range)
+            applyStatus(e, 'freeze', { slow_pct: _sw, duration: _sd });
+        });
+        addEffect({ type:'ring', x:tower.x, y:tower.y, maxR:stats.range, color:'#22c55e', timer:0.7, maxTimer:0.7, r:0 });
+      }
+      // wave_root: uma vez por onda — prende o inimigo mais avançado (+dano recebido)
+      if (_rfxT.wave_root && tower._relicRootWave !== wave) {
+        tower._relicRootWave = wave;
+        const _alive = _aliveEnemies.filter(e => !e.dead && !e.reached_end);
+        if (_alive.length > 0) {
+          const _te = _alive.reduce((b, e) => e.dist > b.dist ? e : b, _alive[0]);
+          const _amp = _rfxT.root_dmg_amp || 0.20;
+          _te._damageMult = (_te._damageMult !== undefined ? _te._damageMult : 1) * (1 + _amp);
+          applyStatus(_te, 'paralisia', { duration: _rfxT.root_duration || 3.0 });
+          addEffect({ type:'ring', x:_te.x, y:_te.y, maxR:38, color:'#f59e0b', timer:0.55, maxTimer:0.55, r:0 });
+        }
+      }
+    }
   }
 
   function spawnProjectile(tower, target, damage, type) {
@@ -1053,15 +1129,30 @@ const Game = (() => {
     if (enemy.status?.cross_mark?.active) dmg *= (1 + enemy.status.cross_mark.bonus);
     if (enemy.status?.gyuki_ink?.active)  dmg *= (1 + enemy.status.gyuki_ink.bonus);
 
+    // Relic efeitos de penetração (lidos uma vez por hit)
+    const _rfx         = tower?._relicFx;
+    const _armorPen    = _rfx?.armor_pen    || 0;
+    const _shieldIgnore= !!_rfx?.shield_ignore;
+    const _shieldPen   = _rfx?.shield_pen   || 0;
+
     // Armadura do inimigo — ignorada por ataques omega
     const isOmega = tower?.charData?.base_stats?.type === 'omega';
-    if (!isOmega && enemy._damageMult && isFinite(enemy._damageMult)) dmg = Math.round(dmg * enemy._damageMult);
+    if (!isOmega && enemy._damageMult && isFinite(enemy._damageMult)) {
+      // armor_pen: reduz a resistência efetiva do inimigo proporcionalmente
+      let armorMult = enemy._damageMult;
+      if (_armorPen > 0 && armorMult < 1) {
+        armorMult = 1 - (1 - _armorPen) * (1 - armorMult);
+      }
+      dmg = Math.round(dmg * armorMult);
+    }
 
     // PTYPE onDamageTaken: sand_shield (burst), futuros behaviors de intercepção
     if (dispatchPtypeDamageTaken(enemy, dmg)) return;
 
-    if (!isOmega && (enemy.shieldHp || 0) > 0) {
-      const absorbed = Math.min(enemy.shieldHp, dmg);
+    if (!isOmega && !_shieldIgnore && (enemy.shieldHp || 0) > 0) {
+      // shield_pen: reduz a quantidade absorvida pelo escudo
+      const penMult = 1 - _shieldPen;
+      const absorbed = Math.min(enemy.shieldHp, dmg * penMult);
       enemy.shieldHp -= absorbed;
       dmg -= absorbed;
       if (enemy.shieldHp <= 0) {

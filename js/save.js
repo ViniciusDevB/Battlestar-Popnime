@@ -159,10 +159,13 @@ const Save = (() => {
     if (!serverSave.nexus) serverSave.nexus = {};
     serverSave.nexus.structures = mergedNexusStruct;
 
-    // relicStash: mantém a lista com mais itens (pessimista mas seguro)
+    // relicStash: usa sempre o estado local — updateInventory() sincroniza o servidor
+    // imediatamente após cada operação de relíquia, então local é a fonte de verdade.
+    // Usar "lista mais longa" causava race condition: syncSave periódico pode chegar
+    // antes do updateInventory e restaurar relíquias já equipadas de volta ao stash.
     const localStash  = local.relicStash  || [];
     const serverStash = serverSave.relicStash || [];
-    serverSave.relicStash = localStash.length >= serverStash.length ? localStash : serverStash;
+    serverSave.relicStash = localStash.length > 0 ? localStash : serverStash;
 
     _setData(serverSave);
   }

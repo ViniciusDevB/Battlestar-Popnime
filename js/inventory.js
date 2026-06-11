@@ -326,7 +326,7 @@ const Inventory = (() => {
 
     const nextChar = getCharById(char.upgrades_to);
     UI.toast(`✅ ${nextChar.name} ${I18N.t('msg_obtained')}!`);
-    UI.openEvolution();
+    Inventory.showTab('evolution');
     renderGrid();
     openMaterialDetail(matId);
   }
@@ -346,7 +346,7 @@ const Inventory = (() => {
 
     const nextChar = getCharById(char.upgrades_to);
     UI.toast(`✅ ${canMake}x ${nextChar.name} ${I18N.t('msg_obtained')}!`);
-    UI.openEvolution();
+    Inventory.showTab('evolution');
     renderGrid();
     openMaterialDetail(matId);
   }
