@@ -30,30 +30,30 @@ const MISSIONS_LIST = [
   { id:'stage_10',  label:'Complete 10 fases',                type:'stat_threshold', stat:'fases_completas',            target:10,          reward:{ gems:100 } },
 
   // ── Mundo Naruto ────────────────────────────────────────────────────────────
-  { id:'stage_all',     label:'Complete todas as fases do Mundo Naruto',   type:'stat_threshold', stat:'fases_naruto_completas', target:6, reward:{ tickets:5 } },
+  { id:'stage_all',     label:'Complete todas as fases do Mundo Naruto',   type:'stat_threshold', stat:'fases_naruto_completas', target:6, reward:{ tickets:5, crystals:150 } },
 
   // ── Grand Line (One Piece) ──────────────────────────────────────────────────
-  { id:'stage_op',      label:'Complete todas as fases da Grand Line',      type:'stat_threshold', stat:'fases_op_completas',    target:6, reward:{ tickets:5 } },
+  { id:'stage_op',      label:'Complete todas as fases da Grand Line',      type:'stat_threshold', stat:'fases_op_completas',    target:6, reward:{ tickets:5, crystals:150 } },
 
   // ── Soul Society (Bleach) ───────────────────────────────────────────────────
-  { id:'stage_bleach',  label:'Complete todas as fases da Soul Society',    type:'stat_threshold', stat:'fases_bleach_completas', target:6, reward:{ tickets:5 } },
+  { id:'stage_bleach',  label:'Complete todas as fases da Soul Society',    type:'stat_threshold', stat:'fases_bleach_completas', target:6, reward:{ tickets:5, crystals:150 } },
 
   // ── Nova York (Marvel) ──────────────────────────────────────────────────────
-  { id:'stage_marvel',  label:'Complete todas as fases de Nova York',       type:'stat_threshold', stat:'fases_marvel_completas', target:6,  reward:{ tickets:5 } },
+  { id:'stage_marvel',  label:'Complete todas as fases de Nova York',       type:'stat_threshold', stat:'fases_marvel_completas', target:6,  reward:{ tickets:5, crystals:150 } },
 
   // ── Metrópolis (DC) ─────────────────────────────────────────────────────────
-  { id:'stage_dc',      label:'Complete todas as fases de Metrópolis',      type:'stat_threshold', stat:'fases_dc_completas',     target:6,  reward:{ tickets:5 } },
+  { id:'stage_dc',      label:'Complete todas as fases de Metrópolis',      type:'stat_threshold', stat:'fases_dc_completas',     target:6,  reward:{ tickets:5, crystals:150 } },
 
   // ── Conquistador de Mundos (todos os 5 mundos) ──────────────────────────────
-  { id:'stage_all_worlds', label:'Complete todos os mundos (30 fases)',     type:'stat_threshold', stat:'fases_completas',        target:30, reward:{ tickets:10 } },
+  { id:'stage_all_worlds', label:'Complete todos os mundos (30 fases)',     type:'stat_threshold', stat:'fases_completas',        target:30, reward:{ tickets:10, crystals:500 } },
 
   // ── Modo Infinito ───────────────────────────────────────────────────────────
-  { id:'inf_wave5',    label:'Alcance a onda 5 no Modo Infinito',   type:'stat_threshold', stat:'melhor_onda_infinita',   target:5,   reward:{ gems:40  } },
-  { id:'inf_wave10',   label:'Alcance a onda 10 no Modo Infinito',  type:'stat_threshold', stat:'melhor_onda_infinita',   target:10,  reward:{ gems:80  } },
-  { id:'inf_wave25',   label:'Alcance a onda 25 no Modo Infinito',  type:'stat_threshold', stat:'melhor_onda_infinita',   target:25,  reward:{ gems:150 } },
-  { id:'inf_wave50',   label:'Alcance a onda 50 no Modo Infinito',  type:'stat_threshold', stat:'melhor_onda_infinita',   target:50,  reward:{ gems:300 } },
-  { id:'inf_total50',  label:'Sobreviva a 50 ondas no Modo Infinito (total)', type:'stat_threshold', stat:'ondas_infinito', target:50,  reward:{ gems:50  } },
-  { id:'inf_total200', label:'Sobreviva a 200 ondas no Modo Infinito (total)',type:'stat_threshold', stat:'ondas_infinito', target:200, reward:{ gems:150 } },
+  { id:'inf_wave5',    label:'Alcance a onda 5 no Modo Infinito',   type:'stat_threshold', stat:'melhor_onda_infinita',   target:5,   reward:{ gems:40,  crystals:50  } },
+  { id:'inf_wave10',   label:'Alcance a onda 10 no Modo Infinito',  type:'stat_threshold', stat:'melhor_onda_infinita',   target:10,  reward:{ gems:80,  crystals:100 } },
+  { id:'inf_wave25',   label:'Alcance a onda 25 no Modo Infinito',  type:'stat_threshold', stat:'melhor_onda_infinita',   target:25,  reward:{ gems:150, crystals:200 } },
+  { id:'inf_wave50',   label:'Alcance a onda 50 no Modo Infinito',  type:'stat_threshold', stat:'melhor_onda_infinita',   target:50,  reward:{ gems:300, crystals:400 } },
+  { id:'inf_total50',  label:'Sobreviva a 50 ondas no Modo Infinito (total)', type:'stat_threshold', stat:'ondas_infinito', target:50,  reward:{ gems:50,  crystals:80  } },
+  { id:'inf_total200', label:'Sobreviva a 200 ondas no Modo Infinito (total)',type:'stat_threshold', stat:'ondas_infinito', target:200, reward:{ gems:150, crystals:200 } },
 
   // ── Minibosses ──────────────────────────────────────────────────────────────
   { id:'miniboss',    label:'Derrote 1 miniboss',             type:'stat_threshold', stat:'minibosses_derrotados',      target:1,           reward:{ tickets:2 } },

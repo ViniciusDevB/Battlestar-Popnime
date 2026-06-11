@@ -111,7 +111,7 @@ const Inventory = (() => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
     const filters = document.getElementById('inv-filters');
     const teamBar = document.getElementById('inv-team-bar');
-    if (filters) filters.style.display = (tab === 'evolution' || tab === 'forge') ? 'none' : '';
+    if (filters) filters.style.display = tab === 'evolution' ? 'none' : '';
     if (teamBar) {
       teamBar.style.display = tab === 'units' ? 'flex' : 'none';
       if (tab === 'units') renderTeamBar();
@@ -174,25 +174,16 @@ const Inventory = (() => {
   function renderGrid() {
     const grid = document.getElementById('inventory-grid');
     const evoContent = document.getElementById('evolution-content');
-    const forgeContent = document.getElementById('forge-content');
     if (!grid) return;
 
     if (currentTab === 'evolution') {
       grid.style.display = 'none';
       if (evoContent) { evoContent.style.display = 'flex'; renderEvolutionTab(); }
-      if (forgeContent) forgeContent.style.display = 'none';
-      return;
-    }
-    if (currentTab === 'forge') {
-      grid.style.display = 'none';
-      if (evoContent) evoContent.style.display = 'none';
-      if (forgeContent) { forgeContent.style.display = 'flex'; renderForgeTab(); }
       return;
     }
 
     grid.style.display = '';
     if (evoContent) evoContent.style.display = 'none';
-    if (forgeContent) forgeContent.style.display = 'none';
     grid.innerHTML = '';
 
     if (currentTab === 'units') {
@@ -743,11 +734,11 @@ const Inventory = (() => {
 
   async function craftRelic(relicId) {
     if (typeof Online === 'undefined' || !Online.isLoggedIn()) {
-      UI.toast('Necessário estar conectado para usar a Forja.');
+      UI.toast(I18N.t('toast_forge_need_online'));
       return;
     }
     const forgeLevel = Save.getNexusLevel('forge');
-    if (forgeLevel === 0) { UI.toast('Construa a Forja no Nexus primeiro!'); return; }
+    if (forgeLevel === 0) { UI.toast(I18N.t('toast_forge_required_pull')); return; }
     if (typeof RELICS === 'undefined' || typeof RELIC_CRAFTS === 'undefined') return;
 
     const relic = RELICS[relicId];
@@ -760,7 +751,7 @@ const Inventory = (() => {
     for (const r of adjRecipe) {
       if (Save.getMaterialQty(r.id) < r.qty) {
         const mc = typeof getCharById !== 'undefined' ? getCharById(r.id) : null;
-        UI.toast(`Ingredientes insuficientes: ${mc?.name || r.id}`);
+        UI.toast(I18N.t('toast_insufficient_ingredient', { name: mc?.name || r.id }));
         return;
       }
     }
@@ -768,15 +759,16 @@ const Inventory = (() => {
     // Server aplica o craft atomicamente e decide se fica corrompida
     const result = await Online.craftRelic(relicId, adjRecipe);
     if (result?.ok) {
-      UI.toast(`⚒ ${relic.name} criada!${result.isCorrupted ? ' ☠ CORROMPIDA!' : ''}`, 3500);
+      const key = result.isCorrupted ? 'toast_relic_corrupted' : 'toast_relic_crafted';
+      UI.toast(I18N.t(key, { name: relic.name }), 3500);
       renderForgeTab();
     } else if (result?.error === 'insufficient_materials') {
       const mc = typeof getCharById !== 'undefined' ? getCharById(result.material) : null;
-      UI.toast(`Ingredientes insuficientes: ${mc?.name || result.material}`);
+      UI.toast(I18N.t('toast_insufficient_ingredient', { name: mc?.name || result.material }));
     } else if (result?.error === 'forge_locked') {
-      UI.toast('Construa a Forja no Nexus primeiro!');
+      UI.toast(I18N.t('toast_forge_required_pull'));
     } else {
-      UI.toast('Erro ao craftar — tente novamente.');
+      UI.toast(I18N.t('toast_craft_err'));
     }
   }
 
@@ -786,7 +778,7 @@ const Inventory = (() => {
     if (!modal || !contentEl) return;
 
     const stash = Save.getRelicStash();
-    if (stash.length === 0) { UI.toast('Nenhuma relíquia na reserva.'); return; }
+    if (stash.length === 0) { UI.toast(I18N.t('toast_relic_no_stash')); return; }
 
     contentEl.innerHTML = '<div style="margin-bottom:12px;font-size:12px;color:rgba(238,240,255,0.6)">Escolha uma relíquia para equipar:</div>';
     const grid = document.createElement('div');
@@ -826,7 +818,7 @@ const Inventory = (() => {
     Save.unequipRelic(uid);
     if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
     openDetail(uid);
-    UI.toast('Relíquia desequipada e devolvida à reserva.');
+    UI.toast(I18N.t('toast_relic_unequipped'));
   }
 
   // FEED SYSTEM
@@ -1032,6 +1024,19 @@ const Inventory = (() => {
     openMaterialDetail, combineMaterial, combineMaxMaterial,
     renderGrid, toggleTeam, renderTeamBar,
     doPrestigeUnit, renderFilterChips,
-    renderForgeTab, craftRelic, openRelicEquip, closeRelicEquip, unequipRelicFromUnit
+    renderForgeTab, craftRelic, openRelicEquip, closeRelicEquip, unequipRelicFromUnit,
+    openForgePanel, closeForgePanel
   };
+
+  function openForgePanel() {
+    const modal = document.getElementById('forge-modal');
+    if (!modal) return;
+    renderForgeTab();
+    modal.style.display = 'flex';
+  }
+
+  function closeForgePanel() {
+    const modal = document.getElementById('forge-modal');
+    if (modal) modal.style.display = 'none';
+  }
 })();

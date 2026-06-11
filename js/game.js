@@ -1341,13 +1341,15 @@ const Game = (() => {
     if (isInfiniteMode) return; // modo infinito não tem vitória, apenas derrota
 
     // Victory rewards
-    const gemMap = { normal:50, dificil:100, lendario:200 };
-    let gems = gemMap[difficulty] || 50;
+    const gemMap     = { normal:50,  dificil:100, lendario:200 };
+    const crystalMap = { normal:10,  dificil:20,  lendario:40  };
+    let gems     = gemMap[difficulty]     || 50;
+    let cristais = crystalMap[difficulty] || 10;
     const stageId = stage.id;
     const firstTime = !Save.isStageComplete(stageId, difficulty);
-    if (firstTime) gems += 50;
+    if (firstTime) { gems += 50; cristais += 15; }
     const isBossFase = stage?.isBoss || false;
-    if (isBossFase && sessionBossKilled) gems += 30;
+    if (isBossFase && sessionBossKilled) { gems += 30; cristais += 10; }
 
     // Material drop
     const dropsAcheived = [];
@@ -1408,6 +1410,7 @@ const Game = (() => {
     // Atualiza localmente para feedback imediato (otimista)
     // Drops já foram adicionados pelo loop acima; aqui só gems e conclusão de fase
     Save.addGems(gems);
+    Save.addCristais(cristais);
     Save.markStageComplete(stageId, difficulty);
     Save.setStat('fases_completas', Object.keys(Save.get().fases_completas).length);
 

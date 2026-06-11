@@ -1,13 +1,13 @@
 {
   "name": "battlestar-popnime",
   "productName": "Battlestar Popnime",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Battlestar Popnime - Desktop App",
   "main": "main.js",
   "scripts": {
-    "start":      "electron .",
-    "dist:win":   "node scripts/copy-game.js && electron-builder --win   --publish=always",
-    "dist:mac":   "node scripts/copy-game.js && electron-builder --mac   --publish=always",
+    "start": "electron .",
+    "dist:win": "node scripts/copy-game.js && electron-builder --win   --publish=always",
+    "dist:mac": "node scripts/copy-game.js && electron-builder --mac   --publish=always",
     "dist:linux": "node scripts/copy-game.js && electron-builder --linux --publish=always",
     "dist:local": "node scripts/copy-game.js && electron-builder --win   --publish=never"
   },
@@ -26,7 +26,14 @@
     ],
     "asar": true,
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "build/ico.ico"
     },
     "mac": {
@@ -56,6 +63,7 @@
     "electron-builder": "^24.0.0"
   },
   "dependencies": {
+    "electron-log": "^5.4.4",
     "electron-updater": "^6.0.0"
   }
 }

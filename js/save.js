@@ -14,10 +14,13 @@ const Save = (() => {
       },
       gemas: 500,
       tickets: 0,
+      cristais: 0,
       pity_contador: 0,
+      pity_estrutura: 0,
+      pity_reliquia: 0,
       fases_completas: {},
       time_salvo: [],
-      nexus: { structures: {} },
+      nexus: { structures: {}, blueprints: {} },
       relicStash: [],
       stats: {
         dano_total_causado: 0,
@@ -94,8 +97,12 @@ const Save = (() => {
     if (!_data.inventario)          _data.inventario = { unidades: [], materiais: [] };
     if (!_data.inventario.unidades) _data.inventario.unidades = [];
     if (!_data.inventario.materiais) _data.inventario.materiais = [];
-    if (!_data.nexus)               _data.nexus = { structures: {} };
+    if (_data.cristais === undefined)  _data.cristais = 0;
+    if (_data.pity_estrutura === undefined) _data.pity_estrutura = 0;
+    if (_data.pity_reliquia  === undefined) _data.pity_reliquia  = 0;
+    if (!_data.nexus)               _data.nexus = { structures: {}, blueprints: {} };
     if (!_data.nexus.structures)    _data.nexus.structures = {};
+    if (!_data.nexus.blueprints)    _data.nexus.blueprints = {};
     if (!_data.relicStash)          _data.relicStash = [];
     if (!_data.stats)               _data.stats = defaultSave().stats;
     else _data.stats = Object.assign(defaultSave().stats, _data.stats);
@@ -154,6 +161,8 @@ const Save = (() => {
       serverSave.missoes_diarias.completas = [...new Set([...serverDaily, ...localDaily])];
     }
 
+    // cristais: server é autoritativo (como gemas)
+    // Blueprints e pity dos banners: server é autoritativo via RPCs dedicados
     // Inventário, gemas, tickets, nexus, relicStash: server é autoritativo.
     _setData(serverSave);
   }
@@ -236,10 +245,13 @@ const Save = (() => {
   function getMaterialQty(id) { const m = get().inventario.materiais.find(m => m.id === id); return m ? m.quantidade : 0; }
   function getUnitQty(id)     { return get().inventario.unidades.filter(u => u.id === id).length; }
 
-  function addGems(n)      { get().gemas += n; save(); }
-  function spendGems(n)    { const d = get(); if (d.gemas < n) return false; d.gemas -= n; save(); return true; }
-  function addTickets(n)   { get().tickets += n; save(); }
-  function spendTickets(n) { const d = get(); if (d.tickets < n) return false; d.tickets -= n; save(); return true; }
+  function addGems(n)        { get().gemas += n; save(); }
+  function spendGems(n)      { const d = get(); if (d.gemas < n) return false; d.gemas -= n; save(); return true; }
+  function addTickets(n)     { get().tickets += n; save(); }
+  function spendTickets(n)   { const d = get(); if (d.tickets < n) return false; d.tickets -= n; save(); return true; }
+  function getCristais()     { return get().cristais || 0; }
+  function addCristais(n)    { const d = get(); d.cristais = (d.cristais || 0) + n; save(); }
+  function spendCristais(n)  { const d = get(); if ((d.cristais || 0) < n) return false; d.cristais -= n; save(); return true; }
 
   function incStat(stat, val = 1) {
     const d = get();
@@ -303,6 +315,15 @@ const Save = (() => {
 
   // ── Nexus helpers ──────────────────────────────────────────────────────────
 
+  function hasBlueprint(structId)   { return !!(get().nexus?.blueprints?.[structId]); }
+  function unlockBlueprint(structId) {
+    const d = get();
+    if (!d.nexus) d.nexus = { structures: {}, blueprints: {} };
+    if (!d.nexus.blueprints) d.nexus.blueprints = {};
+    d.nexus.blueprints[structId] = true;
+    save();
+  }
+
   function getNexusLevel(structId) {
     return get().nexus?.structures?.[structId] || 0;
   }
@@ -314,6 +335,7 @@ const Save = (() => {
     if (!struct) return 'invalid';
     const currentLevel = d.nexus?.structures?.[structId] || 0;
     if (currentLevel >= struct.maxLevel) return 'maxed';
+    if (currentLevel === 0 && !hasBlueprint(structId)) return 'blueprint_required';
     const cost = typeof getNexusUpgradeCost !== 'undefined' ? getNexusUpgradeCost(structId, currentLevel) : 0;
     if (d.gemas < cost) return 'gems';
     const mats = typeof getNexusUpgradeMaterials !== 'undefined' ? getNexusUpgradeMaterials(structId) : [];
@@ -382,10 +404,13 @@ const Save = (() => {
     load, save, get, reset, _setData, _mergeData,
     addUnit, addMaterial, removeUnit, removeUnitByUid,
     removeMaterial, getUnitData, getBestUnitData, getUnitByUid, getMaterialQty, getUnitQty,
-    addGems, spendGems, addTickets, spendTickets, incStat, setStat,
+    addGems, spendGems, addTickets, spendTickets,
+    getCristais, addCristais, spendCristais,
+    incStat, setStat,
     markStageComplete, isStageComplete, getTeam, setTeam,
     getPrestige, canPrestige, doPrestige,
     lockUnit, unlockUnit, isUnitLocked,
+    hasBlueprint, unlockBlueprint,
     getNexusLevel, upgradeNexusStructure,
     getRelicStash, addToRelicStash, equipRelic, unequipRelic,
   });

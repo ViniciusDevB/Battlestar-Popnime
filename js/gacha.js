@@ -1,4 +1,155 @@
 const Gacha = (() => {
+  let _activeBanner = 'characters';
+
+  function setBanner(name) {
+    if (name === 'relics' && Save.getNexusLevel('forge') < 1) {
+      UI.toast(I18N.t('toast_forge_required_relic_banner'));
+      return;
+    }
+    _activeBanner = name;
+    document.querySelectorAll('.banner-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.banner === name);
+    });
+    updateGachaUI();
+  }
+
+  async function crystalPull(count) {
+    if (_activeBanner === 'structures') await structurePull(count);
+    else if (_activeBanner === 'relics') await relicPull(count);
+  }
+
+  async function structurePull(count) {
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
+      const result = await Online.structureBannerPull(count);
+      if (result?.ok) {
+        Save._mergeData(result.save);
+        updateGachaUI();
+        UI.updateCurrencyDisplay();
+        showCrystalResult(result.results, 'structure');
+        return;
+      }
+      const ERRORS = { insufficient_crystals: I18N.t('toast_crystals_insufficient'), unauthorized: I18N.t('err_server_auth'), invalid_qty: I18N.t('err_server_qty') };
+      UI.toast(ERRORS[result?.error] || I18N.t('err_server_gacha'), 3000);
+      return;
+    }
+    // Fallback offline
+    const cost = count === 1 ? CRYSTAL_PULL_COST_1 : CRYSTAL_PULL_COST_10;
+    if (!Save.spendCristais(cost)) { UI.toast(I18N.t('toast_crystals_insufficient')); return; }
+    const d = Save.get();
+    const results = [];
+    for (let i = 0; i < count; i++) {
+      d.pity_estrutura = (d.pity_estrutura || 0) + 1;
+      let rarity;
+      const r = Math.random();
+      if (d.pity_estrutura >= 80) { rarity = 5; d.pity_estrutura = 0; }
+      else if (r < STRUCTURE_BANNER_RATES.s5) { rarity = 5; d.pity_estrutura = 0; }
+      else if (r < STRUCTURE_BANNER_RATES.s5 + STRUCTURE_BANNER_RATES.s4) rarity = 4;
+      else rarity = 3;
+      const pool = rarity === 5 ? STRUCTURE_BANNER_POOL.star5 : rarity === 4 ? STRUCTURE_BANNER_POOL.star4 : STRUCTURE_BANNER_POOL.star3;
+      const id = pool[Math.floor(Math.random() * pool.length)];
+      if (Save.hasBlueprint(id)) {
+        const gems = STRUCTURE_DUPLICATE_GEMS[id] || 0;
+        Save.addGems(gems);
+        results.push({ id, rarity, duplicate: true, gems });
+      } else {
+        Save.unlockBlueprint(id);
+        results.push({ id, rarity, duplicate: false });
+      }
+    }
+    Save.save();
+    updateGachaUI();
+    UI.updateCurrencyDisplay();
+    showCrystalResult(results, 'structure');
+  }
+
+  async function relicPull(count) {
+    if (Save.getNexusLevel('forge') < 1) { UI.toast(I18N.t('toast_forge_required_pull')); return; }
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
+      const result = await Online.relicBannerPull(count);
+      if (result?.ok) {
+        Save._mergeData(result.save);
+        updateGachaUI();
+        UI.updateCurrencyDisplay();
+        showCrystalResult(result.results, 'relic');
+        return;
+      }
+      const ERRORS = { insufficient_crystals: I18N.t('toast_crystals_insufficient'), forge_required: I18N.t('toast_forge_required_pull'), unauthorized: I18N.t('err_server_auth'), invalid_qty: I18N.t('err_server_qty') };
+      UI.toast(ERRORS[result?.error] || I18N.t('err_server_gacha'), 3000);
+      return;
+    }
+    // Fallback offline
+    const cost = count === 1 ? CRYSTAL_PULL_COST_1 : CRYSTAL_PULL_COST_10;
+    if (!Save.spendCristais(cost)) { UI.toast(I18N.t('toast_crystals_insufficient')); return; }
+    const d = Save.get();
+    if (!d.relicStash) d.relicStash = [];
+    const results = [];
+    for (let i = 0; i < count; i++) {
+      d.pity_reliquia = (d.pity_reliquia || 0) + 1;
+      let rarity;
+      const r = Math.random();
+      if (d.pity_reliquia >= 80) { rarity = 5; d.pity_reliquia = 0; }
+      else if (r < RELIC_BANNER_RATES.s5) { rarity = 5; d.pity_reliquia = 0; }
+      else rarity = 4;
+      const pool = rarity === 5 ? RELIC_BANNER_POOL.star5 : RELIC_BANNER_POOL.star4;
+      const id = pool[Math.floor(Math.random() * pool.length)];
+      d.relicStash.push({ id, isCorrupted: false });
+      const stack = d.relicStash.filter(x => x.id === id).length;
+      results.push({ id, rarity, stack });
+    }
+    Save.save();
+    updateGachaUI();
+    UI.updateCurrencyDisplay();
+    showCrystalResult(results, 'relic');
+  }
+
+  function showCrystalResult(results, type) {
+    const modal = document.getElementById('gacha-result-modal');
+    const grid  = document.getElementById('gacha-results-grid');
+    grid.innerHTML = '';
+    let maxRarity = 0;
+    results.forEach((r, i) => {
+      if (r.rarity > maxRarity) maxRarity = r.rarity;
+      const card = document.createElement('div');
+      card.className = `gacha-card rarity-${r.rarity}`;
+      card.style.animationDelay = `${i * 0.08}s`;
+      const glow = r.rarity >= 5 ? ' glow-gold' : ' glow-orange';
+      if (type === 'structure') {
+        const struct = typeof NEXUS_STRUCTURES !== 'undefined' ? NEXUS_STRUCTURES.find(s => s.id === r.id) : null;
+        const icon = struct?.icon || '🏛️';
+        const name = struct?.name || r.id;
+        const extra = r.duplicate
+          ? `<div class="gacha-card-dup">+${r.gems} 💎</div>`
+          : `<div class="gacha-card-new">NOVO!</div>`;
+        card.innerHTML = `<div class="gacha-card-inner${glow}"><div class="gacha-card-icon" style="background:${RARITY_COLORS[r.rarity]};font-size:2rem">${icon}</div><div class="gacha-card-stars">${RARITY_LABELS[r.rarity]}</div><div class="gacha-card-name">${name}</div>${extra}</div>`;
+      } else {
+        const relic = typeof getRelicById !== 'undefined' ? getRelicById(r.id) : null;
+        const icon  = relic?.icon || '💠';
+        const name  = relic?.name || r.id;
+        card.innerHTML = `<div class="gacha-card-inner${glow}"><div class="gacha-card-icon" style="background:${RARITY_COLORS[r.rarity]};font-size:2rem">${icon}</div><div class="gacha-card-stars">${RARITY_LABELS[r.rarity]}</div><div class="gacha-card-name">${name}</div></div>`;
+      }
+      grid.appendChild(card);
+    });
+    const animOverlay = document.getElementById('gacha-animation-overlay');
+    if (animOverlay) {
+      const animClass = maxRarity >= 5 ? 'anim-gold' : 'anim-orange';
+      animOverlay.style.display = 'none';
+      void animOverlay.offsetWidth;
+      animOverlay.className = `gacha-anim-container ${animClass} active`;
+      animOverlay.style.display = 'flex';
+      if (typeof AudioManager !== 'undefined') AudioManager.playGachaPull();
+      setTimeout(() => {
+        animOverlay.classList.add('flash-active');
+        if (typeof AudioManager !== 'undefined') AudioManager.playGachaReveal(maxRarity);
+        setTimeout(() => {
+          modal.style.display = 'flex';
+          setTimeout(() => { animOverlay.style.display = 'none'; animOverlay.className = 'gacha-anim-container'; }, 1000);
+        }, 150);
+      }, 1400);
+    } else {
+      modal.style.display = 'flex';
+    }
+  }
+
   function rollOne(useTickets) {
     const d = Save.get();
     let pool, rates;
@@ -188,23 +339,51 @@ const Gacha = (() => {
 
   function updateGachaUI() {
     const d = Save.get();
-    const pity = d.pity_contador || 0;
-    const pc = document.getElementById('pity-counter');
     const gg = document.getElementById('gacha-gems');
     const gt = document.getElementById('gacha-tickets');
-    if (pc) pc.textContent = pity;
+    const gc = document.getElementById('gacha-crystals');
     if (gg) gg.textContent = d.gemas;
     if (gt) gt.textContent = d.tickets;
+    if (gc) gc.textContent = Save.getCristais();
+
+    // Visibilidade: moedas e seções de pull
+    const crystalWrap  = document.getElementById('gacha-crystals-wrap');
+    const charSections = document.getElementById('gacha-char-sections');
+    const xtalSections = document.getElementById('gacha-crystal-sections');
+    const isChar = _activeBanner === 'characters';
+    if (crystalWrap)  crystalWrap.style.display  = isChar ? 'none' : 'inline-flex';
+    if (charSections) charSections.style.display  = isChar ? '' : 'none';
+    if (xtalSections) xtalSections.style.display  = isChar ? 'none' : '';
+
+    // Taxas
+    const ratesEl = document.querySelector('.gacha-rates');
+    if (ratesEl) {
+      if (_activeBanner === 'structures')
+        ratesEl.innerHTML = '<span class="rate star3-col">3⭐ 59%</span><span class="rate star4-col">4⭐ 40%</span><span class="rate star5-col">5⭐ 1%</span>';
+      else if (_activeBanner === 'relics')
+        ratesEl.innerHTML = '<span class="rate star4-col">4⭐ 99%</span><span class="rate star5-col">5⭐ 1%</span>';
+      else
+        ratesEl.innerHTML = '<span class="rate star3-col">3⭐ 65%</span><span class="rate star4-col">4⭐ 34%</span><span class="rate star5-col">5⭐ 1%</span>';
+    }
+
+    // Pity — valores e barra
+    let pity, maxPity;
+    if (_activeBanner === 'structures') { pity = d.pity_estrutura || 0; maxPity = 80; }
+    else if (_activeBanner === 'relics') { pity = d.pity_reliquia || 0; maxPity = 80; }
+    else { pity = d.pity_contador || 0; maxPity = 150; }
+
+    const pc      = document.getElementById('pity-counter');
+    const pityMax = document.getElementById('pity-max');
+    if (pc) pc.textContent = pity;
+    if (pityMax) pityMax.textContent = maxPity;
 
     const fill = document.getElementById('gacha-pity-fill');
     if (fill) {
-      const pct = Math.min(100, (pity / 150) * 100);
-      fill.style.width = `${pct}%`;
-      // Coloração por faixa: azul → amarelo → vermelho
-      if (pity >= 131) {
+      fill.style.width = `${Math.min(100, (pity / maxPity) * 100)}%`;
+      if (pity >= maxPity * 0.87) {
         fill.style.background = '#ef4444';
         fill.classList.add('pity-near-guarantee');
-      } else if (pity >= 100) {
+      } else if (pity >= maxPity * 0.67) {
         fill.style.background = '#f59e0b';
         fill.classList.remove('pity-near-guarantee');
       } else {
@@ -215,11 +394,44 @@ const Gacha = (() => {
 
     const hint = document.querySelector('.gacha-pity-hint');
     if (hint) {
-      const remaining = 150 - pity;
-      hint.textContent = I18N.t('gacha_pity_hint')
-        .replace('{current}', pity)
-        .replace('{remaining}', remaining)
-        .replace('{s}', remaining !== 1 ? 's' : '');
+      const remaining = maxPity - pity;
+      hint.textContent = I18N.t('gacha_pity_hint', { current: pity, maxPity, remaining, s: remaining !== 1 ? 's' : '' });
+    }
+
+    // Sincroniza classe active das abas de banner
+    document.querySelectorAll('.banner-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.banner === _activeBanner);
+    });
+
+    // Trava visual na aba de Relíquias se Forja não construída
+    const relicTab = document.getElementById('banner-tab-relics');
+    if (relicTab) {
+      const locked = Save.getNexusLevel('forge') < 1;
+      relicTab.classList.toggle('banner-tab--locked', locked);
+      relicTab.title = locked ? I18N.t('forge_tab_locked_hint') : '';
+    }
+
+    // Marcadores de pity dinâmicos (posições mudam entre 150 e 80 pulls)
+    const markers = document.querySelectorAll('.gacha-pity-marker');
+    if (markers.length >= 2) {
+      if (maxPity === 80) {
+        markers[0].style.left = '25%';   // 20 pulls
+        markers[1].style.left = '50%';   // 40 pulls
+      } else {
+        markers[0].style.left = '33.33%'; // 50 pulls
+        markers[1].style.left = '66.66%'; // 100 pulls
+      }
+    }
+
+    // Nota de pool
+    const poolNote = document.querySelector('.gacha-pool-note');
+    if (poolNote) {
+      if (_activeBanner === 'structures')
+        poolNote.textContent = I18N.t('gacha_pool_structures');
+      else if (_activeBanner === 'relics')
+        poolNote.textContent = I18N.t('gacha_pool_relics');
+      else
+        poolNote.textContent = I18N.t('gacha_pool_note');
     }
   }
 
@@ -335,5 +547,5 @@ const Gacha = (() => {
     }, 350);
   }
 
-  return { pull, closeResult, updateGachaUI };
+  return { pull, closeResult, updateGachaUI, setBanner, crystalPull };
 })();

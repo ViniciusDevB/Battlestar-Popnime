@@ -1,7 +1,16 @@
-const { app, BrowserWindow, shell, dialog, ipcMain } = require('electron');
+const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
 const path = require('path');
 const fs = require('fs');
+
+// ── Logger ────────────────────────────────────────────────────────────────────
+// Logs gravados em %APPDATA%\battlestar-popnime\logs\main.log
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
 
 const isDev = !app.isPackaged;
 const gameDir = isDev
@@ -10,8 +19,48 @@ const gameDir = isDev
 
 let mainWindow;
 
+// Helper: envia IPC apenas se a janela ainda existe
+function send(channel, ...args) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send(channel, ...args);
+  }
+}
+
+// ── Listeners do updater registrados uma única vez ────────────────────────────
+autoUpdater.on('update-available', (info) => {
+  log.info('[Updater] Update disponível:', info.version);
+  send('update-available', info);
+});
+
+autoUpdater.on('download-progress', (progress) => {
+  send('download-progress', progress);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  log.info('[Updater] Update baixado:', info.version);
+  send('update-downloaded');
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  log.info('[Updater] Já na versão mais recente:', info.version);
+});
+
+autoUpdater.on('error', (err) => {
+  log.error('[Updater] Erro:', err.message);
+});
+
+// ── IPC: usuário clicou em "Reiniciar agora" ──────────────────────────────────
+ipcMain.once('install-update', () => autoUpdater.quitAndInstall());
+
+// ── Check com tratamento de erro e retry periódico ────────────────────────────
+function runUpdateCheck() {
+  if (isDev) return;
+  autoUpdater.checkForUpdates().catch(err => log.error('[Updater] checkForUpdates falhou:', err.message));
+}
+
+// ── App ───────────────────────────────────────────────────────────────────────
 function injectSecrets() {
-  if (!isDev) return; // Em produção as credenciais já estão no bundle
+  if (!isDev) return;
   const secretsPath = path.join(__dirname, 'secrets.json');
   if (!fs.existsSync(secretsPath)) return;
   try {
@@ -23,7 +72,7 @@ function injectSecrets() {
       'utf8'
     );
   } catch (e) {
-    console.error('[Secrets] Falha ao injetar credenciais:', e.message);
+    log.error('[Secrets] Falha ao injetar credenciais:', e.message);
   }
 }
 
@@ -56,7 +105,13 @@ function createWindow() {
 app.whenReady().then(() => {
   injectSecrets();
   createWindow();
-  checkForUpdates();
+
+  // Aguarda a janela carregar antes do primeiro check para garantir que os
+  // listeners IPC do renderer já estejam registrados
+  mainWindow.webContents.once('did-finish-load', () => {
+    runUpdateCheck();
+    setInterval(runUpdateCheck, 30 * 60 * 1000); // re-verifica a cada 30 min
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -66,25 +121,3 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
-
-function checkForUpdates() {
-  if (isDev) return;
-
-  autoUpdater.checkForUpdates();
-
-  autoUpdater.on('update-available', (info) => {
-    mainWindow.webContents.send('update-available', info);
-  });
-
-  autoUpdater.on('download-progress', (progress) => {
-    mainWindow.webContents.send('download-progress', progress);
-  });
-
-  autoUpdater.on('update-downloaded', () => {
-    mainWindow.webContents.send('update-downloaded');
-  });
-
-  ipcMain.on('install-update', () => {
-    autoUpdater.quitAndInstall();
-  });
-}

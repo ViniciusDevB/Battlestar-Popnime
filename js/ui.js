@@ -366,13 +366,14 @@ const UI = (() => {
     }
 
     NEXUS_STRUCTURES.forEach(struct => {
-      const currentLevel = Save.getNexusLevel(struct.id);
-      const isMaxed = currentLevel >= struct.maxLevel;
-      const upgradeCost = isMaxed ? null : getNexusUpgradeCost(struct.id, currentLevel);
+      const currentLevel  = Save.getNexusLevel(struct.id);
+      const hasBlueprint  = Save.hasBlueprint(struct.id);
+      const isMaxed       = currentLevel >= struct.maxLevel;
+      const upgradeCost   = isMaxed ? null : getNexusUpgradeCost(struct.id, currentLevel);
       const canAffordGems = !isMaxed && upgradeCost <= d.gemas;
-      const mats = typeof getNexusUpgradeMaterials !== 'undefined' ? getNexusUpgradeMaterials(struct.id) : [];
+      const mats          = typeof getNexusUpgradeMaterials !== 'undefined' ? getNexusUpgradeMaterials(struct.id) : [];
       const canAffordMats = mats.every(m => Save.getMaterialQty(m.id) >= m.qty);
-      const canUpgrade = canAffordGems && canAffordMats;
+      const canUpgrade    = canAffordGems && canAffordMats;
 
       const pipsHtml = Array.from({ length: struct.maxLevel }, (_, i) =>
         `<div class="nexus-pip${i < currentLevel ? ' nexus-pip--filled' : ''}"></div>`
@@ -384,59 +385,86 @@ const UI = (() => {
         return `<span style="font-size:11px;color:${ok ? '#4caf50' : '#ef4444'}">${_matIcon(m.id)} ${have}/${m.qty}</span>`;
       }).join('&ensp;');
 
+      // Botão de ação depende de blueprint
+      let actionHtml;
+      if (isMaxed) {
+        actionHtml = `<div class="nexus-maxed-badge">${I18N.t('nexus_maxed')}</div>`;
+      } else if (!hasBlueprint) {
+        actionHtml = `<div style="margin-top:8px">
+          <button class="btn btn-disabled" disabled style="width:100%;font-size:11px;padding:8px;opacity:0.7;">
+            ${I18N.t('nexus_btn_get_blueprint')}
+          </button>
+        </div>`;
+      } else {
+        const btnLabel = currentLevel === 0 ? I18N.t('nexus_btn_build') : I18N.t('nexus_upgrade_btn');
+        actionHtml = `<div style="margin-top:8px">
+          ${mats.length ? `<div style="margin-bottom:4px;display:flex;gap:8px;flex-wrap:wrap;">${matsHtml}</div>` : ''}
+          <button class="btn${canUpgrade ? ' btn-primary' : ' btn-disabled'}" style="width:100%;font-size:12px;padding:8px;"
+            ${canUpgrade ? '' : 'disabled'}
+            onclick="UI.upgradeNexusStructure('${struct.id}')">
+            ${btnLabel} — ${upgradeCost.toLocaleString('pt-BR')} 💎
+          </button>
+        </div>`;
+      }
+
       const card = document.createElement('div');
-      card.className = `nexus-card${isMaxed ? ' nexus-card--maxed' : ''}`;
+      card.className = `nexus-card${isMaxed ? ' nexus-card--maxed' : ''}${!hasBlueprint ? ' nexus-card--locked' : ''}`;
       card.innerHTML = `
-        <div class="nexus-card-icon">${struct.icon}</div>
+        <div class="nexus-card-icon">${hasBlueprint ? struct.icon : '🔒'}</div>
         <div class="nexus-card-body">
           <div class="nexus-card-name">${struct.name}</div>
           <div class="nexus-card-level">Nível ${currentLevel} / ${struct.maxLevel}</div>
           <div class="nexus-level-bar">${pipsHtml}</div>
           <div class="nexus-card-desc">${struct.desc}</div>
-          ${isMaxed
-            ? `<div class="nexus-maxed-badge">MÁXIMO ✦</div>`
-            : `<div style="margin-top:8px">
-                ${mats.length ? `<div style="margin-bottom:4px;display:flex;gap:8px;flex-wrap:wrap;">${matsHtml}</div>` : ''}
-                <button class="btn${canUpgrade ? ' btn-primary' : ' btn-disabled'}" style="width:100%;font-size:12px;padding:8px;"
-                  ${canUpgrade ? '' : 'disabled'}
-                  onclick="UI.upgradeNexusStructure('${struct.id}')">
-                  Melhorar — ${upgradeCost.toLocaleString('pt-BR')} 💎
-                </button>
-              </div>`
-          }
+          ${actionHtml}
         </div>`;
       grid.appendChild(card);
     });
 
     content.appendChild(grid);
+
+    // Botão "Abrir Forja" — visível apenas se forge estiver construída
+    if (Save.getNexusLevel('forge') > 0) {
+      const forgeBtn = document.createElement('button');
+      forgeBtn.className = 'btn btn-primary nexus-forge-btn';
+      forgeBtn.style.cssText = 'margin-top:14px;width:100%;max-width:420px;align-self:center;font-size:15px;padding:12px;';
+      forgeBtn.innerHTML = '⚒ Abrir Forja de Relíquias';
+      forgeBtn.onclick = () => {
+        if (typeof Inventory !== 'undefined') Inventory.openForgePanel();
+      };
+      content.appendChild(forgeBtn);
+    }
   }
 
   async function upgradeNexusStructure(structId) {
     if (typeof Online === 'undefined' || !Online.isLoggedIn()) {
-      toast('Necessário estar conectado para melhorar o Nexus.');
+      toast(I18N.t('toast_nexus_need_online'));
       return;
     }
     // Validação local para feedback imediato sem round-trip
     const localCheck = Save.upgradeNexusStructure(structId);
-    if (localCheck === 'maxed')     { toast('Construção já está no nível máximo.'); return; }
-    if (localCheck === 'gems')      { toast('Gemas insuficientes!'); return; }
-    if (localCheck === 'materials') { toast('Materiais insuficientes para esta melhoria!'); return; }
-    if (localCheck === 'invalid')   return;
+    if (localCheck === 'maxed')              { toast(I18N.t('nexus_err_maxed')); return; }
+    if (localCheck === 'gems')               { toast(I18N.t('nexus_err_gems')); return; }
+    if (localCheck === 'materials')          { toast(I18N.t('toast_nexus_materials')); return; }
+    if (localCheck === 'blueprint_required') { toast(I18N.t('toast_blueprint_required')); return; }
+    if (localCheck === 'invalid')            return;
 
     const struct = typeof NEXUS_STRUCTURES !== 'undefined' ? NEXUS_STRUCTURES.find(s => s.id === structId) : null;
     const result = await Online.upgradeNexus(structId);
     if (result?.ok) {
-      toast(`✅ ${struct?.name || structId} melhorada!`);
+      toast(I18N.t('toast_nexus_upgraded', { name: struct?.name || structId }));
       updateCurrencyDisplay();
       renderNexusScreen();
     } else if (result?.error === 'maxed') {
-      toast('Construção já está no nível máximo.');
+      toast(I18N.t('nexus_err_maxed'));
     } else if (result?.error === 'gems') {
-      toast('Gemas insuficientes!');
+      toast(I18N.t('nexus_err_gems'));
     } else if (result?.error === 'materials') {
-      toast('Materiais insuficientes para esta melhoria!');
+      toast(I18N.t('toast_nexus_materials'));
+    } else if (result?.error === 'blueprint_required') {
+      toast(I18N.t('toast_blueprint_required'));
     } else {
-      toast('Erro ao melhorar — tente novamente.');
+      toast(I18N.t('toast_nexus_upgrade_err'));
     }
   }
 
@@ -725,10 +753,12 @@ const UI = (() => {
 
   function updateCurrencyDisplay() {
     const d = Save.get();
-    const gems = document.getElementById('hub-gems');
-    const tickets = document.getElementById('hub-tickets');
-    if (gems) gems.textContent = d.gemas;
-    if (tickets) tickets.textContent = d.tickets;
+    const gems     = document.getElementById('hub-gems');
+    const tickets  = document.getElementById('hub-tickets');
+    const crystals = document.getElementById('hub-crystals');
+    if (gems)     gems.textContent     = d.gemas;
+    if (tickets)  tickets.textContent  = d.tickets;
+    if (crystals) crystals.textContent = d.cristais || 0;
   }
 
   function toast(msg, duration = 3000) {

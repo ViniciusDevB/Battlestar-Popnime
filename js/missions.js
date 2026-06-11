@@ -154,8 +154,10 @@ const Missions = (() => {
     const m = getMissionById(missionId);
     if (!m) return null;
     d.missoes_conquistas_pendentes.splice(idx, 1);
-    // Não adiciona a missoes_completas aqui: _grantRewards faz isso só após confirmação do servidor.
-    // Evita que syncSave propague uma missão como concluída sem as gemas terem sido gravadas.
+    // Marca como concluída imediatamente para fechar a janela de re-trigger:
+    // sem isso, _fillFixed() pode re-adicionar a missão a ativas antes da confirmação
+    // do servidor, e o próximo check() a colocaria em pendentes novamente.
+    _markDoneLocally(missionId, false);
     _grantRewards(m.reward, missionId, false, null);
     Save.save();
     _updateBadge();
@@ -171,7 +173,7 @@ const Missions = (() => {
     const m = getMissionById(missionId);
     if (!m) return null;
     d.missoes_diarias.pendentes.splice(idx, 1);
-    // Mesma proteção: missoes_diarias.completas só atualizado após confirmação do servidor.
+    _markDoneLocally(missionId, true);
     _grantRewards(m.reward, missionId, true, d.missoes_diarias.data);
     Save.save();
     _updateBadge();
@@ -194,17 +196,20 @@ const Missions = (() => {
 
   function _revertClaim(reward, missionId, isDaily) {
     const d = Save.get();
-    if (reward.gems)    Save.spendGems(reward.gems);
-    if (reward.tickets) Save.spendTickets(reward.tickets);
+    if (reward.gems)     Save.spendGems(reward.gems);
+    if (reward.tickets)  Save.spendTickets(reward.tickets);
+    if (reward.crystals) Save.spendCristais(reward.crystals);
+    // Desfaz o mark local feito no claim — o servidor rejeitou
     if (isDaily) {
-      if (d.missoes_diarias?.pendentes && !d.missoes_diarias.pendentes.includes(missionId)) {
-        d.missoes_diarias.pendentes.push(missionId);
+      if (d.missoes_diarias) {
+        d.missoes_diarias.completas = (d.missoes_diarias.completas || []).filter(id => id !== missionId);
+        if (!d.missoes_diarias.pendentes) d.missoes_diarias.pendentes = [];
+        if (!d.missoes_diarias.pendentes.includes(missionId)) d.missoes_diarias.pendentes.push(missionId);
       }
     } else {
+      d.missoes_completas = (d.missoes_completas || []).filter(id => id !== missionId);
       if (!d.missoes_conquistas_pendentes) d.missoes_conquistas_pendentes = [];
-      if (!d.missoes_conquistas_pendentes.includes(missionId)) {
-        d.missoes_conquistas_pendentes.push(missionId);
-      }
+      if (!d.missoes_conquistas_pendentes.includes(missionId)) d.missoes_conquistas_pendentes.push(missionId);
     }
     Save.save();
     _updateBadge();
@@ -216,19 +221,20 @@ const Missions = (() => {
 
   function _grantRewards(reward, missionId, isDaily, date) {
     if (!reward) return;
-    if (reward.gems)    Save.addGems(reward.gems);
-    if (reward.tickets) Save.addTickets(reward.tickets);
+    if (reward.gems)     Save.addGems(reward.gems);
+    if (reward.tickets)  Save.addTickets(reward.tickets);
+    if (reward.crystals) Save.addCristais(reward.crystals);
     if (typeof Online !== 'undefined' && Online.isLoggedIn() && missionId) {
       Online.claimReward(missionId, isDaily ? date : null).then(result => {
         if (result?.ok && result.save) {
-          // Servidor confirmou: _mergeData aplica missoes_completas do servidor localmente
+          // Servidor confirmou: merge garante consistência com o estado canônico
           Save._mergeData(result.save);
           if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
         } else if (result?.error === 'already_claimed') {
-          // Servidor já tinha essa missão (claim anterior não aplicado localmente)
-          _markDoneLocally(missionId, isDaily);
+          // Servidor já tinha a missão — mark local já foi feito no claim, apenas sync UI
+          if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
         } else {
-          // Falha: reverte gemas/tickets e devolve missão ao estado pendente
+          // Falha real: reverte gemas, tickets e o mark local
           _revertClaim(reward, missionId, isDaily);
         }
       }).catch(() => _revertClaim(reward, missionId, isDaily));
@@ -240,8 +246,9 @@ const Missions = (() => {
 
   function rewardLabel(reward) {
     const p = [];
-    if (reward.gems)    p.push(`+${reward.gems} 💎`);
-    if (reward.tickets) p.push(`+${reward.tickets} 🎫`);
+    if (reward.gems)     p.push(`+${reward.gems} 💎`);
+    if (reward.tickets)  p.push(`+${reward.tickets} 🎫`);
+    if (reward.crystals) p.push(`+${reward.crystals} 🔷`);
     return p.join(' ');
   }
 

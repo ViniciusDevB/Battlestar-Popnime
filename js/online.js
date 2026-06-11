@@ -709,6 +709,32 @@ const Online = (() => {
     }
   }
 
+  // ── Crystal Banner RPCs ───────────────────────────────────────────────────
+
+  async function structureBannerPull(qty) {
+    if (!_ready || !_session) return { error: 'not_logged_in' };
+    try {
+      const { data, error } = await _client.rpc('fn_structure_banner_pull', { p_qty: qty });
+      if (error) return { error: error.message };
+      if (data?.error) return { error: data.error };
+      return data;
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
+  async function relicBannerPull(qty) {
+    if (!_ready || !_session) return { error: 'not_logged_in' };
+    try {
+      const { data, error } = await _client.rpc('fn_relic_banner_pull', { p_qty: qty });
+      if (error) return { error: error.message };
+      if (data?.error) return { error: data.error };
+      return data;
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
   // ── Admin helpers ──────────────────────────────────────────────────────────
 
   function _grantAdminInventory() {
@@ -815,7 +841,7 @@ const Online = (() => {
     waitForProfile, refreshProfile,
     register, login, logout, resetAccount,
     syncSave, queueSync, updateInventory, upgradeNexus, craftRelic, infiniteComplete,
-    pushSaveBeacon, gachaPull, completeStage, claimReward,
+    pushSaveBeacon, gachaPull, structureBannerPull, relicBannerPull, completeStage, claimReward,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,
     fetchActiveMission, fetchUpcomingMissions, getActiveMission, contributeToMission,

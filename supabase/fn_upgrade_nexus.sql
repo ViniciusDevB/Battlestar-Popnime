@@ -86,6 +86,11 @@ BEGIN
     RETURN jsonb_build_object('error', 'maxed');
   END IF;
 
+  -- Blueprint obrigatório para construção inicial (nível 0 → 1)
+  IF v_level = 0 AND NOT COALESCE((v_save->'nexus'->'blueprints'->>p_struct_id)::BOOLEAN, false) THEN
+    RETURN jsonb_build_object('error', 'blueprint_required');
+  END IF;
+
   v_cost := v_base_cost + v_level * v_cost_per_lvl;
   v_gems := COALESCE((v_save->>'gemas')::BIGINT, 0);
 
