@@ -425,12 +425,16 @@ const Game = (() => {
     renderOffY = Math.floor((ch - CANVAS_H * renderScale) / 2);
   }
 
+  let _initDone = false;
   function init() {
     canvas = document.getElementById('game-canvas');
     ctx = canvas.getContext('2d');
-    canvas.addEventListener('click', handleClick);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    new ResizeObserver(resizeCanvas).observe(canvas.parentElement);
+    if (!_initDone) {
+      _initDone = true;
+      canvas.addEventListener('click', handleClick);
+      canvas.addEventListener('mousemove', handleMouseMove);
+      new ResizeObserver(resizeCanvas).observe(canvas.parentElement);
+    }
     resizeCanvas();
   }
 
@@ -741,9 +745,12 @@ const Game = (() => {
           remaining -= absorbed;
           if (e.shieldHp <= 0) {
             e.shieldHp = 0;
-            const ringCol = (e.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
-            addEffect({ type:'ring', x:e.x, y:e.y, maxR:60, color:ringCol, timer:0.55, maxTimer:0.55, r:0 });
-            UI.toast(I18N.t('evt_shield_broken', { name: e.name }), 2500);
+            if (!e._shieldBroken) {
+              e._shieldBroken = true;
+              const ringCol = (e.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
+              addEffect({ type:'ring', x:e.x, y:e.y, maxR:60, color:ringCol, timer:0.55, maxTimer:0.55, r:0 });
+              UI.toast(I18N.t('evt_shield_broken', { name: e.name }), 2500);
+            }
           }
         }
         e.hp -= remaining;
@@ -806,7 +813,7 @@ const Game = (() => {
           if (tsunadeTower && !tsunadeTower._lastStandUsed) {
             const lsPassive = PASSIVE_SYSTEM._getPassives(tsunadeTower).find(p => p.type === 'last_stand');
             tsunadeTower._lastStandUsed = true;
-            lives += lsPassive.restore_lives || 3;
+            lives = Math.min(lives + (lsPassive.restore_lives || 3), stage?.base_hp || lives + (lsPassive.restore_lives || 3));
             updateHUD();
             addEffect({ type:'shockwave', x:tsunadeTower.x, y:tsunadeTower.y, maxR:900, color:'#f9a8d4', timer:1.5, maxTimer:1.5, r:0 });
             UI.toast(I18N.t('passive_tsunade_last_stand', { lives: lsPassive.restore_lives || 3 }), 4000);
@@ -1043,7 +1050,7 @@ const Game = (() => {
 
     // Armadura do inimigo — ignorada por ataques omega
     const isOmega = tower?.charData?.base_stats?.type === 'omega';
-    if (!isOmega && enemy._damageMult) dmg = Math.round(dmg * enemy._damageMult);
+    if (!isOmega && enemy._damageMult && isFinite(enemy._damageMult)) dmg = Math.round(dmg * enemy._damageMult);
 
     // PTYPE onDamageTaken: sand_shield (burst), futuros behaviors de intercepção
     if (dispatchPtypeDamageTaken(enemy, dmg)) return;
@@ -1054,9 +1061,12 @@ const Game = (() => {
       dmg -= absorbed;
       if (enemy.shieldHp <= 0) {
         enemy.shieldHp = 0;
-        const ringCol = (enemy.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
-        addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:60, color:ringCol, timer:0.55, maxTimer:0.55, r:0 });
-        UI.toast(I18N.t('evt_shield_broken', { name: enemy.name }), 2500);
+        if (!enemy._shieldBroken) {
+          enemy._shieldBroken = true;
+          const ringCol = (enemy.ptypes || []).includes('fortified') ? '#f59e0b' : '#60a5fa';
+          addEffect({ type:'ring', x:enemy.x, y:enemy.y, maxR:60, color:ringCol, timer:0.55, maxTimer:0.55, r:0 });
+          UI.toast(I18N.t('evt_shield_broken', { name: enemy.name }), 2500);
+        }
       }
       if (dmg <= 0) { enemy.hitFlash = 0.1; return; }
     }
@@ -1301,7 +1311,9 @@ const Game = (() => {
     // o estado local com os valores autoritativos (gemas e drops reais do servidor)
     if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
       const duration_s = Math.max(0, Math.round((performance.now() - _gameStartTime) / 1000));
+      const _endGameId = _gameStartTime;
       Online.completeStage(stageId, difficulty, duration_s, sessionBossKilled).then(result => {
+        if (_endGameId !== _gameStartTime) return; // nova partida iniciada, ignora callback antigo
         if (result?.ok && result.save) {
           Save._mergeData(result.save);
           if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();

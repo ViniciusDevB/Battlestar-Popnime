@@ -292,7 +292,7 @@ const PASSIVE_ENTRIES = {
   // Template: dano multiplicado contra inimigos com status específico ativo.
   bonus_vs_burned: {
     onHit(tower, p, enemy, dmg) {
-      if (enemy.status.burn?.active) return dmg * p.mult;
+      if (enemy.status?.burn?.active) return dmg * p.mult;
       return dmg;
     }
   },

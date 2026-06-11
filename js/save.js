@@ -69,7 +69,9 @@ const Save = (() => {
       const migrated = [];
       d.inventario.unidades.forEach(u => {
         if (u.quantidade !== undefined) {
-          const qty = Math.min(u.quantidade || 1, 500);
+          const rawQty = u.quantidade || 1;
+          if (rawQty > 500) console.warn(`[Save] migration: ${u.id} qty=${rawQty} excede 500, truncando`);
+          const qty = Math.min(rawQty, 500);
           for (let i = 0; i < qty; i++) {
             migrated.push({ uid: generateUid(), id: u.id, nivel: u.nivel || 1, xp_atual: i === 0 ? (u.xp_atual || 0) : 0 });
           }
@@ -263,7 +265,7 @@ const Save = (() => {
   function getPrestige(charId) {
     const units = get().inventario.unidades.filter(u => u.id === charId);
     if (units.length === 0) return 0;
-    return Math.max(...units.map(u => u.prestige || 0));
+    return Math.max(0, ...units.map(u => u.prestige || 0));
   }
 
   function canPrestige(uid) {

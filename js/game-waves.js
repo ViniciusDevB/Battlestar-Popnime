@@ -39,15 +39,7 @@ function triggerMeteorAndShinra() {
   });
 
   let maxStun = 1;
-  towers.forEach(t => {
-    if ((t.stunCooldown || 0) <= 0) {
-      const stun = 1 + Math.random() * 4;
-      t.miniStunTimer = Math.max((t.miniStunTimer || 0), stun);
-      t.stunCooldown = stun + 5;
-      t.disabled = true;
-      if (stun > maxStun) maxStun = stun;
-    }
-  });
+  towers.forEach(t => { if ((t.miniStunTimer || 0) > maxStun) maxStun = t.miniStunTimer; });
 
   _wavesCtx.shinraTenseiActive = true;
   _wavesCtx.shinraTenseiTimer = maxStun;
@@ -112,7 +104,8 @@ function skipWave() {
     }
     return;
   }
-  if (!_wavesCtx.waveActive || _wavesCtx.wave >= _wavesCtx.totalWaves) return;
+  if (!_wavesCtx.waveActive) { UI.toast(I18N.t('wave_skip_unavailable') || 'Nenhuma wave ativa'); return; }
+  if (_wavesCtx.wave >= _wavesCtx.totalWaves) { UI.toast(I18N.t('wave_skip_last') || 'Última wave ativa'); return; }
   if (_wavesCtx.activeWavesCount >= 3) {
     UI.toast(I18N.t('wave_skip_limit'));
     return;
@@ -128,6 +121,7 @@ function skipWave() {
   _wavesCtx.activeWavesCount++;
 
   const newEnemies = _wavesCtx.stage.waves[_wavesCtx.wave - 1];
+  if (!newEnemies || newEnemies.length === 0) { updateHUD(); return; }
   const currentElapsed = _wavesCtx.waveElapsed;
   const adjusted = newEnemies.map(e => ({ ...e, delay: e.delay + currentElapsed }));
   _wavesCtx.spawnQueue.push(...adjusted);

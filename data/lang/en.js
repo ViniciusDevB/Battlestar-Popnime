@@ -803,6 +803,8 @@ const LANG_EN = {
   "wave_lightning": "⚡ Stray Lightning! {dmg} area damage!",
   "wave_new_tier": "⚡ NEW TIER: {tier}",
   "wave_skip_limit": "⚠️ Max 2 extra waves limit reached!",
+  "wave_skip_last": "⚠️ Already on the last wave!",
+  "wave_skip_unavailable": "⚠️ No active wave to skip",
   "wave_skip_done": "⏩ Wave {wave} called! +{bonus}💰",
   "wave_shinra_tensei": "⚡ SHINRA TENSEI! Towers randomly stunned!",
   "wave_complete": "Wave {wave} complete! +{bonus} 💰",
