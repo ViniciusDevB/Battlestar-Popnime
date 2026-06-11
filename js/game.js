@@ -1385,7 +1385,8 @@ const Game = (() => {
       : tower.charData;
     const stats = getCurrentStats(charData, tower.level);
     for (let i = 0; i < tower.upgradeLevel; i++) {
-      const upg = tower.charData.upgrades[i];
+      const upg = tower.charData.upgrades?.[i];
+      if (!upg) continue;
       if (upg.damage_mult)  stats.damage *= upg.damage_mult;
       if (upg.damage_bonus) stats.damage += upg.damage_bonus;
       if (upg.range_mult) {

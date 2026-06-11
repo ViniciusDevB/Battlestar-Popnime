@@ -1724,6 +1724,33 @@ function drawEffects() {
         ctx.lineTo(ef.x + Math.cos(a) * (9 + 52 * prog), ef.y + Math.sin(a) * (9 + 52 * prog));
         ctx.strokeStyle = `rgba(220,38,38,${alpha * 0.60})`; ctx.lineWidth = 1.6; ctx.stroke();
       }
+    } else if (ef.type === 'meteor_strike') {
+      // Pain meteorite impact: expanding fiery ring + debris spokes
+      const prog = 1 - alpha;
+      const maxR = ef.maxR || 90;
+      ctx.globalCompositeOperation = 'lighter';
+      // Outer fire ring
+      ctx.beginPath(); ctx.arc(ef.x, ef.y, maxR * prog, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(245,101,101,${alpha * 0.85})`; ctx.lineWidth = 5;
+      ctx.shadowBlur = 28; ctx.shadowColor = '#f56565'; ctx.stroke();
+      // Inner hot core
+      ctx.beginPath(); ctx.arc(ef.x, ef.y, maxR * 0.45 * prog + 5, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255,180,60,${alpha * 0.7})`; ctx.lineWidth = 3;
+      ctx.shadowBlur = 18; ctx.shadowColor = '#fbbf24'; ctx.stroke();
+      // Ground flash at impact
+      ctx.beginPath(); ctx.arc(ef.x, ef.y, 18 * alpha, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,220,100,${alpha * 0.9})`; ctx.shadowBlur = 22; ctx.shadowColor = '#fde68a'; ctx.fill();
+      // Debris spokes
+      ctx.globalCompositeOperation = 'source-over';
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2;
+        const len = maxR * 0.6 * prog;
+        ctx.beginPath();
+        ctx.moveTo(ef.x + Math.cos(a) * 10, ef.y + Math.sin(a) * 10);
+        ctx.lineTo(ef.x + Math.cos(a) * len, ef.y + Math.sin(a) * len);
+        ctx.strokeStyle = `rgba(239,68,68,${alpha * 0.55})`; ctx.lineWidth = 1.5;
+        ctx.shadowBlur = 6; ctx.shadowColor = '#f56565'; ctx.stroke();
+      }
     }
     ctx.restore();
   });
