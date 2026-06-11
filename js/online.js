@@ -261,6 +261,15 @@ const Online = (() => {
     }
   }
 
+  // Sync debounçado para mudanças não-críticas (time, stats locais).
+  // Evita chamadas em rafaga quando o jogador monta o time rapidamente.
+  let _syncTimer = null;
+  function queueSync() {
+    if (!_ready || !_session) return;
+    clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(() => { _syncTimer = null; syncSave(); }, 3000);
+  }
+
   // ── Score / Leaderboard (Phase 3 — stubs funcionais) ─────────────────────
 
   let _lastScorePost = 0;
@@ -564,9 +573,8 @@ const Online = (() => {
     try {
       const d = Save.get();
       const { data, error } = await _client.rpc('fn_update_inventory', {
-        p_inventory:     d.inventario,
-        p_relic_stash:   d.relicStash   || [],
-        p_nexus_structs: d.nexus?.structures || {},
+        p_inventory:   d.inventario,
+        p_relic_stash: d.relicStash || [],
       });
       if (error) { console.warn('[Online] updateInventory:', error.message); return { ok: false }; }
       if (data?.error) return { ok: false };
@@ -807,7 +815,7 @@ const Online = (() => {
     init, isReady, isLoggedIn, getProfile, getSession, onReady,
     waitForProfile, refreshProfile,
     register, login, logout, resetAccount,
-    syncSave, updateInventory, upgradeNexus, craftRelic,
+    syncSave, queueSync, updateInventory, upgradeNexus, craftRelic,
     pushSave, pushSaveBeacon, gachaPull, completeStage, claimReward,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,

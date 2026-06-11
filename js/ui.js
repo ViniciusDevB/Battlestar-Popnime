@@ -272,11 +272,12 @@ const UI = (() => {
           <div class="ts-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
           <div class="ts-name">${char.name}</div>
           <div class="ts-lv">Lv${unitData?.nivel || 1}</div>`;
-        slot.addEventListener('click', () => { 
-          teamSlots[i] = null; 
+        slot.addEventListener('click', () => {
+          teamSlots[i] = null;
           Save.setTeam(teamSlots);
-          renderTeamSlots(); 
-          renderAvailableUnits(); 
+          if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.queueSync();
+          renderTeamSlots();
+          renderAvailableUnits();
         });
       } else {
         slot.innerHTML = '<div class="ts-empty">+</div>';
@@ -318,6 +319,7 @@ const UI = (() => {
           if (emptySlot >= 0) {
             teamSlots[emptySlot] = u.id;
             Save.setTeam(teamSlots);
+            if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.queueSync();
             renderTeamSlots();
             renderAvailableUnits();
           } else {

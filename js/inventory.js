@@ -138,6 +138,7 @@ const Inventory = (() => {
         slot.addEventListener('click', () => {
           team[i] = null;
           Save.setTeam(team);
+          if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.queueSync();
           renderTeamBar();
           if (selectedUnit) openDetail(selectedUnit);
         });
@@ -163,6 +164,7 @@ const Inventory = (() => {
       }
     }
     Save.setTeam(team);
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.queueSync();
     renderTeamBar();
     if (selectedUnit) openDetail(selectedUnit);
   }
@@ -326,9 +328,8 @@ const Inventory = (() => {
 
     const nextChar = getCharById(char.upgrades_to);
     UI.toast(`✅ ${nextChar.name} ${I18N.t('msg_obtained')}!`);
-    Inventory.showTab('evolution');
     renderGrid();
-    openMaterialDetail(matId);
+    openMaterialDetail(char.upgrades_to);
   }
 
   function combineMaxMaterial(matId) {
@@ -346,9 +347,8 @@ const Inventory = (() => {
 
     const nextChar = getCharById(char.upgrades_to);
     UI.toast(`✅ ${canMake}x ${nextChar.name} ${I18N.t('msg_obtained')}!`);
-    Inventory.showTab('evolution');
     renderGrid();
-    openMaterialDetail(matId);
+    openMaterialDetail(char.upgrades_to);
   }
 
   function renderEvolutionTab() {

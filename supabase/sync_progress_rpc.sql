@@ -203,20 +203,25 @@ BEGIN
     RETURN jsonb_build_object('ok', true, 'save', v_save);
   END IF;
 
-  -- ── Save existente: extrai economia do servidor (nunca vem do cliente) ────
+  -- ── Save existente: extrai campos autoritativos do servidor (nunca vêm do cliente) ────
+  -- Inclui nexus e relicStash desde Option A (gerenciados por fn_upgrade_nexus e fn_update_inventory).
   v_economy := jsonb_build_object(
     'gemas',         COALESCE(v_save->'gemas',         '0'::jsonb),
     'tickets',       COALESCE(v_save->'tickets',       '0'::jsonb),
     'pity_contador', COALESCE(v_save->'pity_contador', '0'::jsonb),
-    'inventario',    COALESCE(v_save->'inventario',    '{"unidades":[],"materiais":[]}'::jsonb)
+    'inventario',    COALESCE(v_save->'inventario',    '{"unidades":[],"materiais":[]}'::jsonb),
+    'nexus',         COALESCE(v_save->'nexus',         '{"structures":{}}'::jsonb),
+    'relicStash',    COALESCE(v_save->'relicStash',    '[]'::jsonb)
   );
 
-  -- Remove campos econômicos do payload do cliente (mesmo que injetados)
+  -- Remove campos autoritativos do payload do cliente (mesmo que injetados)
   v_stripped := p_progress
     - 'gemas'
     - 'tickets'
     - 'pity_contador'
     - 'inventario'
+    - 'nexus'
+    - 'relicStash'
     - '_integrityViolations';
 
   -- ── Mescla stats: máximo de cada campo ────────────────────────────────────
