@@ -4,6 +4,7 @@ const UI = (() => {
   let selectedStage = null;
   let selectedDifficulty = 'normal';
   let teamSlots = [null, null, null, null, null, null];
+  let _pbRarityFilter = 0; // 0 = todos, 3-7 = raridade específica
   let toastTimer = null;
 
   function showScreen(id) {
@@ -186,6 +187,7 @@ const UI = (() => {
   function showPreBattle(stageId) {
     selectedStage = stageId;
     selectedDifficulty = 'normal';
+    _pbRarityFilter = 0;
     teamSlots = [...Save.getTeam()];
     showScreen('prebattle');
     const stage = getStage(stageId);
@@ -193,7 +195,27 @@ const UI = (() => {
     document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.dataset.diff === 'normal'));
     renderPrebattleRewards(stage);
     renderTeamSlots();
+    renderPbFilterBar();
     renderAvailableUnits();
+  }
+
+  function renderPbFilterBar() {
+    const bar = document.getElementById('pb-unit-filters');
+    if (!bar) return;
+    bar.innerHTML = '';
+    const rarities = [0, 7, 6, 5, 4, 3];
+    const labels   = ['Todos', '7★', '6★', '5★', '4★', '3★'];
+    rarities.forEach((r, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'pb-chip' + (_pbRarityFilter === r ? ' active' : '');
+      btn.textContent = labels[i];
+      btn.addEventListener('click', () => {
+        _pbRarityFilter = r;
+        renderPbFilterBar();
+        renderAvailableUnits();
+      });
+      bar.appendChild(btn);
+    });
   }
 
   function renderPrebattleRewards(stage) {
@@ -236,6 +258,10 @@ const UI = (() => {
     const container = document.getElementById('team-slots');
     if (!container) return;
     container.innerHTML = '';
+    // Badge de time salvo
+    const hasSaved = teamSlots.some(Boolean);
+    const badge = document.getElementById('pb-saved-badge');
+    if (badge) badge.style.display = hasSaved ? 'inline-flex' : 'none';
     teamSlots.forEach((charId, i) => {
       const slot = document.createElement('div');
       slot.className = 'team-slot' + (charId ? ' filled' : '');
@@ -264,20 +290,29 @@ const UI = (() => {
     if (!container) return;
     container.innerHTML = '';
     const d = Save.get();
-    const inTeam = teamSlots.filter(Boolean);
-    const inTeamSet = new Set(inTeam);
+    const inTeamSet = new Set(teamSlots.filter(Boolean));
 
-    d.inventario.unidades.forEach(u => {
-      const char = getCharById(u.id);
-      if (!char || !char.playable) return;
-      const inTeam = inTeamSet.has(u.id);
+    // Coleta, filtra e ordena
+    const units = d.inventario.unidades
+      .map(u => ({ u, char: getCharById(u.id) }))
+      .filter(({ char }) => char && char.playable)
+      .filter(({ char }) => _pbRarityFilter === 0 || char.rarity === _pbRarityFilter)
+      .sort((a, b) => b.char.rarity - a.char.rarity || b.u.nivel - a.u.nivel);
+
+    if (d.inventario.unidades.length === 0) {
+      container.innerHTML = `<div class="empty-state">${I18N.t('ui_no_units')}</div>`;
+      return;
+    }
+
+    units.forEach(({ u, char }) => {
+      const isInTeam = inTeamSet.has(u.id);
       const card = document.createElement('div');
-      card.className = `avail-unit${inTeam ? ' in-team' : ''}`;
+      card.className = `avail-unit${isInTeam ? ' in-team' : ''}`;
       card.innerHTML = `
         <div class="au-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
         <div class="au-name">${char.name}</div>
         <div class="au-lv">${RARITY_LABELS[char.rarity]} Lv${u.nivel}</div>`;
-      if (!inTeam) {
+      if (!isInTeam) {
         card.addEventListener('click', () => {
           const emptySlot = teamSlots.findIndex(s => !s);
           if (emptySlot >= 0) {
@@ -292,9 +327,6 @@ const UI = (() => {
       }
       container.appendChild(card);
     });
-    if (d.inventario.unidades.length === 0) {
-      container.innerHTML = `<div class="empty-state">${I18N.t('ui_no_units')}</div>`;
-    }
   }
 
   function setDifficulty(diff) {

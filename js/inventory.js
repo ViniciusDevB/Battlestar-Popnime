@@ -7,21 +7,28 @@ const Inventory = (() => {
 
   // ── Filtros múltiplos ──────────────────────────────────────────────────────
   const FILTER_CHIPS = [
-    { id: 'all',      label: 'Todos',      type: 'all' },
-    { id: 'naruto',   label: 'Naruto',     type: 'series' },
-    { id: 'onepiece', label: 'One Piece',  type: 'series' },
-    { id: 'bleach',   label: 'Bleach',     type: 'series' },
-    { id: 'marvel',   label: 'Marvel',     type: 'series' },
-    { id: 'evento',   label: 'Evento',     type: 'series' },
-    { id: 'r5',       label: '⭐⭐⭐⭐⭐',   type: 'rarity', val: 5 },
-    { id: 'r4',       label: '⭐⭐⭐⭐',    type: 'rarity', val: 4 },
-    { id: 'r3',       label: '⭐⭐⭐',     type: 'rarity', val: 3 },
+    { id: 'all',      label: 'Todos',     type: 'all' },
+    // Série
+    { id: 'naruto',   label: 'Naruto',    type: 'series' },
+    { id: 'onepiece', label: 'One Piece', type: 'series' },
+    { id: 'bleach',   label: 'Bleach',    type: 'series' },
+    { id: 'marvel',   label: 'Marvel',    type: 'series' },
+    { id: 'dc',       label: 'DC',        type: 'series' },
+    { id: 'evento',   label: 'Evento',    type: 'series' },
+    // Raridade
+    { id: 'r7', label: '7★', type: 'rarity', val: 7 },
+    { id: 'r6', label: '6★', type: 'rarity', val: 6 },
+    { id: 'r5', label: '5★', type: 'rarity', val: 5 },
+    { id: 'r4', label: '4★', type: 'rarity', val: 4 },
+    { id: 'r3', label: '3★', type: 'rarity', val: 3 },
   ];
 
   let _savedFilters = (() => {
     try { return JSON.parse(localStorage.getItem('astd_inv_filters') || '["all"]'); } catch { return ['all']; }
   })();
   let activeFilters = new Set(_savedFilters);
+  let _searchTerm = '';
+  let _sortMode = localStorage.getItem('astd_inv_sort') || 'rarity';
 
   function _saveFilters() {
     try { localStorage.setItem('astd_inv_filters', JSON.stringify([...activeFilters])); } catch {}
@@ -30,13 +37,40 @@ const Inventory = (() => {
   function renderFilterChips() {
     const container = document.getElementById('inv-filter-chips');
     if (!container) return;
+
+    // Linha de busca + ordenação
+    const topRow = document.createElement('div');
+    topRow.className = 'inv-filter-toprow';
+    topRow.innerHTML = `
+      <input id="inv-search" class="inv-search" type="text" placeholder="🔍 Buscar personagem..." value="${_searchTerm}">
+      <select id="inv-sort" class="inv-sort-sel">
+        <option value="rarity" ${_sortMode==='rarity'?'selected':''}>Raridade ↓</option>
+        <option value="level"  ${_sortMode==='level' ?'selected':''}>Nível ↓</option>
+        <option value="name"   ${_sortMode==='name'  ?'selected':''}>Nome A-Z</option>
+      </select>`;
     container.innerHTML = '';
+    container.appendChild(topRow);
+
+    // Linha de chips
+    const chipsRow = document.createElement('div');
+    chipsRow.className = 'inv-chips-row';
     FILTER_CHIPS.forEach(chip => {
       const el = document.createElement('button');
       el.className = 'inv-chip' + (activeFilters.has(chip.id) ? ' active' : '');
       el.textContent = chip.label;
       el.addEventListener('click', () => toggleFilter(chip.id));
-      container.appendChild(el);
+      chipsRow.appendChild(el);
+    });
+    container.appendChild(chipsRow);
+
+    document.getElementById('inv-search').addEventListener('input', e => {
+      _searchTerm = e.target.value.trim().toLowerCase();
+      renderGrid();
+    });
+    document.getElementById('inv-sort').addEventListener('change', e => {
+      _sortMode = e.target.value;
+      try { localStorage.setItem('astd_inv_sort', _sortMode); } catch {}
+      renderGrid();
     });
   }
 
@@ -58,6 +92,9 @@ const Inventory = (() => {
   }
 
   function _matchesFilters(char) {
+    // Busca por nome
+    if (_searchTerm && !char.name.toLowerCase().includes(_searchTerm)) return false;
+    // Chips de filtro
     if (activeFilters.has('all')) return true;
     for (const id of activeFilters) {
       const chip = FILTER_CHIPS.find(c => c.id === id);
@@ -162,12 +199,16 @@ const Inventory = (() => {
       });
 
       unitsToRender.sort((a, b) => {
+        if (_sortMode === 'level') {
+          const lvDiff = (b.unit?.nivel || 0) - (a.unit?.nivel || 0);
+          if (lvDiff !== 0) return lvDiff;
+          return b.char.rarity - a.char.rarity;
+        }
+        if (_sortMode === 'name') return a.char.name.localeCompare(b.char.name);
+        // default: rarity
         if (b.char.rarity !== a.char.rarity) return b.char.rarity - a.char.rarity;
-        if (a.char.id !== b.char.id) return a.char.id.localeCompare(b.char.id);
         if (a.unit && b.unit) return b.unit.nivel - a.unit.nivel;
-        if (a.unit && !b.unit) return -1;
-        if (!a.unit && b.unit) return 1;
-        return 0;
+        return a.char.name.localeCompare(b.char.name);
       });
 
       unitsToRender.forEach(item => {

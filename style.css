@@ -846,10 +846,25 @@ html,body{
 .tab-btn--evo.active{color:var(--purple);border-color:var(--purple);}
 
 .inv-filters{
-  display:flex;gap:9px;padding:9px 18px;
+  display:flex;flex-direction:column;gap:7px;padding:9px 18px;
   background:rgba(0,0,0,0.12);border-bottom:1px solid var(--bd);flex-shrink:0;
 }
-.inv-filter-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.inv-filter-toprow{display:flex;gap:8px;align-items:center;}
+.inv-search{
+  flex:1;padding:5px 12px;border-radius:999px;
+  background:rgba(3,8,4,0.8);border:1px solid rgba(57,255,20,0.18);
+  color:var(--t1);font-size:12px;outline:none;
+  transition:border-color 120ms;
+}
+.inv-search:focus{border-color:rgba(255,200,70,0.5);}
+.inv-search::placeholder{color:rgba(238,240,255,0.3);}
+.inv-sort-sel{
+  padding:5px 10px;border-radius:999px;
+  background:rgba(3,8,4,0.8);border:1px solid rgba(57,255,20,0.18);
+  color:rgba(238,240,255,0.7);font-size:12px;cursor:pointer;
+}
+.inv-chips-row{display:flex;flex-wrap:wrap;gap:5px;}
+.inv-filter-chips{display:flex;flex-direction:column;gap:7px;}
 .inv-chip{
   display:inline-flex;align-items:center;padding:4px 12px;
   border-radius:999px;
@@ -871,6 +886,27 @@ html,body{
   border-color:var(--gold);
   color:var(--gold);
   font-weight:700;
+}
+/* Filtro de raridade na pré-batalha */
+.pb-unit-filters{
+  display:flex;gap:5px;flex-wrap:wrap;padding:6px 14px;
+  border-bottom:1px solid rgba(57,255,20,0.08);flex-shrink:0;
+}
+.pb-chip{
+  display:inline-flex;align-items:center;padding:3px 10px;
+  border-radius:999px;
+  background:rgba(3,8,4,0.7);border:1px solid rgba(57,255,20,0.12);
+  color:rgba(238,240,255,0.5);font-size:11px;font-weight:500;
+  cursor:pointer;transition:background 110ms,border-color 110ms,color 110ms;white-space:nowrap;
+}
+.pb-chip:hover{background:rgba(255,200,70,0.08);border-color:rgba(255,200,70,0.28);color:rgba(255,200,70,0.8);}
+.pb-chip.active{background:rgba(255,200,70,0.14);border-color:var(--gold);color:var(--gold);font-weight:700;}
+.pb-saved-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 9px;border-radius:999px;
+  background:rgba(57,255,20,0.12);border:1px solid rgba(57,255,20,0.3);
+  color:rgba(57,255,20,0.9);font-size:10px;font-weight:600;
+  margin-left:8px;vertical-align:middle;
 }
 select{
   background:var(--gs2);color:var(--t1);border:1px solid var(--bd2);
