@@ -433,6 +433,8 @@ const UI = (() => {
       toast('Construção já está no nível máximo.');
     } else if (result?.error === 'gems') {
       toast('Gemas insuficientes!');
+    } else if (result?.error === 'materials') {
+      toast('Materiais insuficientes para esta melhoria!');
     } else {
       toast('Erro ao melhorar — tente novamente.');
     }
