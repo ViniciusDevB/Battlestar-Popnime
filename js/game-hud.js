@@ -135,7 +135,7 @@ function openUpgradePanel(tower, slotIdx) {
   const hasEconomy = passivesArr.some(p => p.type === 'edo_tensei_economy');
   let totalInvested = char?.deploy_cost || 0;
   for (let i = 0; i < tower.upgradeLevel; i++) {
-    if (char?.upgrades[i]) totalInvested += char.upgrades[i].cost;
+    if (char?.upgrades?.[i]) totalInvested += char.upgrades[i].cost;
   }
   const sellVal = hasEconomy ? totalInvested : Math.floor(totalInvested * 0.5);
   const sellBtn = panel.querySelector('.btn-sell');

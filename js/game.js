@@ -396,7 +396,8 @@ const Game = (() => {
   function getPassiveValue(tower, key, defaultVal) {
     let val = defaultVal;
     for (let i = 0; i < tower.upgradeLevel; i++) {
-      const u = tower.charData.upgrades[i];
+      const u = tower.charData.upgrades?.[i];
+      if (!u) continue;
       if (u.passive_override && u.passive_override[key] !== undefined) val = u.passive_override[key];
     }
     return val;
@@ -406,7 +407,8 @@ const Game = (() => {
   function getActiveValue(tower, key, defaultVal) {
     let val = defaultVal;
     for (let i = 0; i < tower.upgradeLevel; i++) {
-      const u = tower.charData.upgrades[i];
+      const u = tower.charData.upgrades?.[i];
+      if (!u) continue;
       if (u.active_override && u.active_override[key] !== undefined) val = u.active_override[key];
     }
     return val;

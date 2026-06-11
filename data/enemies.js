@@ -1694,8 +1694,8 @@ function createEnemy(typeId, distanceOffset = 0) {
   const d = ENEMY_DEFS[typeId];
   if (!d) return null;
 
-  // Normaliza ptype para array — suporta string ou array
-  const ptypes = Array.isArray(d.ptype) ? d.ptype : [d.ptype];
+  // Normaliza ptype para array — suporta string ou array; copia para não mutar ENEMY_DEFS
+  const ptypes = Array.isArray(d.ptype) ? [...d.ptype] : [d.ptype];
 
   const enemy = {
     uid: ++_enemyCounter,

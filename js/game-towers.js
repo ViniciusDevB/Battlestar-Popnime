@@ -141,7 +141,7 @@ function buyUpgrade(towerIdx, upgradeIdx) {
   const tower = _towersCtx.towers[towerIdx];
   if (!tower) return;
   const char = getCharById(tower.charId);
-  const upg = char?.upgrades[upgradeIdx];
+  const upg = char?.upgrades?.[upgradeIdx];
   if (!upg || tower.upgradeLevel !== upgradeIdx) return;
   if (_towersCtx.gold < upg.cost) { UI.toast(I18N.t('err_gold')); return; }
 
@@ -165,7 +165,7 @@ function sellTower() {
   const hasEconomy = _passives.some(p => p.type === 'edo_tensei_economy');
   let totalInvested = char?.deploy_cost || 0;
   for (let i = 0; i < tower.upgradeLevel; i++) {
-    if (char?.upgrades[i]) totalInvested += char.upgrades[i].cost;
+    if (char?.upgrades?.[i]) totalInvested += char.upgrades[i].cost;
   }
   const val = hasEconomy ? totalInvested : Math.floor(totalInvested * 0.5);
 

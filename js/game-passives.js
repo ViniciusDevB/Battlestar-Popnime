@@ -61,7 +61,7 @@ const PASSIVE_ENTRIES = {
         tower._zombieTimer = 0;
         let zombieHp = _passiveCtx.getPassiveValue(tower, 'zombie_hp', p.zombie_hp || 4000);
         for (let i = 0; i < tower.upgradeLevel; i++) {
-          const upg = tower.charData.upgrades[i];
+          const upg = tower.charData.upgrades?.[i];
           if (upg?.zombie_hp_mult) zombieHp = Math.round(zombieHp * upg.zombie_hp_mult);
         }
         const speed = p.zombie_speed || 52;
@@ -339,7 +339,7 @@ const PASSIVE_ENTRIES = {
     onWaveEnd(tower, p) {
       if (tower.isClone) return;
       let wg = p.base + (tower.level - 1) * (p.perLevel || 0);
-      for (let i = 0; i < tower.upgradeLevel; i++) wg += tower.charData.upgrades[i]?.gold_bonus || 0;
+      for (let i = 0; i < tower.upgradeLevel; i++) wg += tower.charData?.upgrades?.[i]?.gold_bonus || 0;
       const prestigeMult = 1 + (tower.prestige || 0) * 0.02;
       wg = Math.round(wg * prestigeMult);
       // Lois P5: +30% per farm unit in field
@@ -355,7 +355,7 @@ const PASSIVE_ENTRIES = {
     onAnyKill(tower, p, deadEnemy) {
       if (tower.isClone) return;
       let killGold = 0;
-      for (let i = 0; i < tower.upgradeLevel; i++) killGold = tower.charData.upgrades[i]?.kill_gold || killGold;
+      for (let i = 0; i < tower.upgradeLevel; i++) killGold = tower.charData?.upgrades?.[i]?.kill_gold || killGold;
       // Lois P1: +8 gold per kill
       const passives = _passiveCtx.PASSIVE_SYSTEM._getPassives(tower);
       if (passives.some(x => x.type === 'lois_kill_gold')) killGold += 8;
@@ -377,7 +377,7 @@ const PASSIVE_ENTRIES = {
         const tp = t.charData?.passive;
         if (!tp || tp.type !== 'wave_gold') return;
         let wg = tp.base + (t.level - 1) * (tp.perLevel || 0);
-        for (let i = 0; i < t.upgradeLevel; i++) wg += t.charData.upgrades[i]?.gold_bonus || 0;
+        for (let i = 0; i < t.upgradeLevel; i++) wg += t.charData?.upgrades?.[i]?.gold_bonus || 0;
         const tMult = 1 + (t.prestige || 0) * 0.02;
         bonus += Math.round(wg * tMult * (p.bonus_pct || 0.20));
       });
