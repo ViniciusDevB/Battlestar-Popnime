@@ -510,88 +510,6 @@ function _bgDC(ctx, t) {
   });
 }
 
-function _bgEvento(ctx, t) {
-  // Raccoon City — noite contaminada, cidade abandonada
-  const sky=ctx.createLinearGradient(0,0,0,CANVAS_H);
-  sky.addColorStop(0,'#060305'); sky.addColorStop(0.45,'#0e0608'); sky.addColorStop(0.75,'#150809'); sky.addColorStop(1,'#1a0a0a');
-  ctx.fillStyle=sky; ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
-
-  // Lua encoberta por névoa tóxica
-  const mx=160,my=70;
-  const mg=ctx.createRadialGradient(mx,my,0,mx,my,90);
-  mg.addColorStop(0,'rgba(180,210,155,0.12)'); mg.addColorStop(1,'rgba(180,210,155,0)');
-  ctx.fillStyle=mg; ctx.fillRect(mx-90,my-90,180,180);
-  ctx.fillStyle='rgba(170,200,145,0.55)'; ctx.beginPath(); ctx.arc(mx,my,22,0,Math.PI*2); ctx.fill();
-  // névoa na frente da lua
-  ctx.fillStyle='rgba(12,8,6,0.45)'; ctx.beginPath(); ctx.ellipse(mx+5,my,35,14,0.3,0,Math.PI*2); ctx.fill();
-
-  // Silhueta de prédios de Raccoon City (abandonados, alguns em chamas)
-  [
-    {x:0,w:88,h:265,fire:false},{x:80,w:55,h:340,fire:true},{x:128,w:100,h:295,fire:false},
-    {x:222,w:68,h:410,fire:false},{x:284,w:80,h:260,fire:true},{x:358,w:95,h:380,fire:false},
-    {x:447,w:72,h:300,fire:false},{x:513,w:110,h:455,fire:true},{x:618,w:60,h:270,fire:false},
-    {x:672,w:88,h:365,fire:false},{x:754,w:78,h:430,fire:true},{x:826,w:98,h:285,fire:false},
-    {x:918,w:66,h:320,fire:false},{x:978,w:46,h:248,fire:true}
-  ].forEach(b=>{
-    const baseY=CANVAS_H-b.h;
-    ctx.fillStyle='rgba(8,4,4,0.97)'; ctx.fillRect(b.x,baseY,b.w,b.h);
-    // Janelas — algumas iluminadas de vermelho/laranja (fogo interno), maioria apagada
-    for(let r=0;r<5;r++) for(let c=0;c<2;c++){
-      if(b.w<60&&c>0) continue;
-      const wx=b.x+7+c*30,wy=baseY+12+r*48;
-      if(wy>CANVAS_H-12) continue;
-      const seed=Math.sin(b.x*0.18+r*6.5+c*11.3);
-      if(seed>0.3){
-        const flicker=0.12+Math.sin(t*3.8+b.x+r)*0.1;
-        ctx.fillStyle=`rgba(200,65,10,${flicker})`; ctx.fillRect(wx,wy,10,12);
-      } else if(seed>0.05&&seed<0.15){
-        ctx.fillStyle='rgba(160,190,130,0.08)'; ctx.fillRect(wx,wy,10,12); // luz de emergência verde
-      }
-    }
-    // Chamas no topo de alguns prédios
-    if(b.fire){
-      const fh=28+Math.sin(t*3.2+b.x)*12;
-      const ff=ctx.createLinearGradient(b.x+b.w*0.5,baseY-fh,b.x+b.w*0.5,baseY);
-      ff.addColorStop(0,'rgba(255,100,0,0)'); ff.addColorStop(0.5,'rgba(255,60,0,0.25)'); ff.addColorStop(1,'rgba(255,30,0,0.45)');
-      ctx.fillStyle=ff; ctx.fillRect(b.x-4,baseY-fh,b.w+8,fh);
-    }
-  });
-
-  // Névoa rasteira tóxica (verde-acinzentada, animada)
-  [0,1,2].forEach(layer=>{
-    const fy=CANVAS_H-60-layer*35, fa=0.06+layer*0.04;
-    const fog=ctx.createLinearGradient(0,fy-30,0,fy+40);
-    fog.addColorStop(0,'rgba(80,120,60,0)');
-    fog.addColorStop(0.5,`rgba(80,120,60,${fa+Math.sin(t*0.4+layer)*0.02})`);
-    fog.addColorStop(1,'rgba(80,120,60,0)');
-    ctx.fillStyle=fog; ctx.fillRect(0,fy-30,CANVAS_W,70);
-  });
-
-  // Símbolo Umbrella Corporation (marca d'água)
-  ctx.save(); ctx.globalAlpha=0.035+Math.sin(t*0.3)*0.008;
-  ctx.font='bold 260px serif'; ctx.fillStyle='#cc0000';
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('☣',CANVAS_W*0.5,CANVAS_H*0.5); ctx.restore();
-
-  // Luzes de rua piscando
-  [120,280,490,680,840].forEach((lx,i)=>{
-    const on=Math.sin(t*4.5+i*2.1)>-0.2;
-    if(on){
-      const lg=ctx.createRadialGradient(lx,CANVAS_H-180,0,lx,CANVAS_H-180,80);
-      lg.addColorStop(0,'rgba(220,200,120,0.18)'); lg.addColorStop(1,'rgba(220,200,120,0)');
-      ctx.fillStyle=lg; ctx.fillRect(lx-80,CANVAS_H-260,160,160);
-      ctx.fillStyle='rgba(240,220,140,0.9)'; ctx.beginPath(); ctx.arc(lx,CANVAS_H-180,3,0,Math.PI*2); ctx.fill();
-    }
-  });
-
-  // Gotículas de chuva ácida (diagonal, finas)
-  [0.08,0.19,0.31,0.43,0.55,0.67,0.79,0.91,0.04,0.15,0.27,0.38,0.50,0.62,0.74,0.86,0.97].forEach((s,i)=>{
-    const rx=(s*1100+t*60)%1100-50, ry=(s*700+t*140)%700;
-    ctx.strokeStyle='rgba(140,180,100,0.12)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(rx,ry); ctx.lineTo(rx+5,ry+14); ctx.stroke();
-  });
-}
-
 function _bgDefault(ctx, t) {
   const g=ctx.createRadialGradient(CANVAS_W/2,CANVAS_H/2,0,CANVAS_W/2,CANVAS_H/2,CANVAS_W);
   g.addColorStop(0,'#1a2010'); g.addColorStop(1,'#080e08');
@@ -606,7 +524,6 @@ function drawBackground() {
     case 'bleach':   _bgBleach(ctx,t);   break;
     case 'marvel':   _bgMarvel(ctx,t);   break;
     case 'dc':       _bgDC(ctx,t);       break;
-    case 'evento':   _bgEvento(ctx,t);   break;
     default:         _bgDefault(ctx,t);  break;
   }
 }
@@ -619,8 +536,7 @@ function drawPath() {
     onepiece: {o:'rgba(18,75,148,0.22)', m:'rgba(9,48,98,0.72)',  c:'#184888',  s:'#1e5c9e',  e:'rgba(95,198,255,0.18)'},
     bleach:   {o:'rgba(75,58,138,0.22)', m:'rgba(28,18,68,0.72)', c:'#281858',  s:'#38236e',  e:'rgba(158,128,252,0.2)' },
     marvel:   {o:'rgba(28,28,48,0.22)',  m:'rgba(8,10,22,0.72)',  c:'#121622',  s:'#1a1f2e',  e:'rgba(195,215,255,0.14)'},
-    dc:       {o:'rgba(78,8,4,0.22)',    m:'rgba(38,4,4,0.78)',   c:'#280303',  s:'#340404',  e:'rgba(255,55,0,0.14)'   },
-    evento:   {o:'rgba(30,12,8,0.22)',   m:'rgba(15,5,5,0.78)',   c:'#1a0a08',  s:'#241010',  e:'rgba(140,180,80,0.12)' }
+    dc:       {o:'rgba(78,8,4,0.22)',    m:'rgba(38,4,4,0.78)',   c:'#280303',  s:'#340404',  e:'rgba(255,55,0,0.14)'   }
   };
   const s=S[world]||{o:'rgba(175,138,58,0.14)',m:'rgba(0,0,0,0.62)',c:'#3c2520',s:'#4c3228',e:'rgba(255,195,65,0.12)'};
 
@@ -635,7 +551,6 @@ function drawPath() {
     ctx.lineWidth=2;
     if(world==='naruto'){ ctx.strokeStyle='rgba(75,38,8,0.32)'; ctx.setLineDash([4,9]); }
     else if(world==='marvel'||world==='dc'){ ctx.strokeStyle=world==='dc'?'rgba(255,55,0,0.13)':'rgba(255,255,195,0.14)'; ctx.setLineDash([14,20]); }
-    else if(world==='evento'){ ctx.strokeStyle='rgba(140,180,80,0.14)'; ctx.setLineDash([3,12]); }
     else{ ctx.strokeStyle=s.e; ctx.setLineDash([10,16]); }
     ctx.beginPath(); ctx.moveTo(pArr[0].x,pArr[0].y); pArr.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.stroke();
     ctx.setLineDash([]);
