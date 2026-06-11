@@ -5,10 +5,11 @@
   "description": "Battlestar Popnime - Desktop App",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "dist:win": "node scripts/copy-game.js && electron-builder --win",
-    "dist:mac": "node scripts/copy-game.js && electron-builder --mac",
-    "dist:linux": "node scripts/copy-game.js && electron-builder --linux"
+    "start":      "electron .",
+    "dist:win":   "node scripts/copy-game.js && electron-builder --win   --publish=always",
+    "dist:mac":   "node scripts/copy-game.js && electron-builder --mac   --publish=always",
+    "dist:linux": "node scripts/copy-game.js && electron-builder --linux --publish=always",
+    "dist:local": "node scripts/copy-game.js && electron-builder --win   --publish=never"
   },
   "build": {
     "appId": "com.battlestarpopnime.game",
@@ -26,7 +27,7 @@
     "asar": true,
     "win": {
       "target": [{ "target": "nsis", "arch": ["x64"] }],
-      "icon": "build/icon.png"
+      "icon": "build/ico.ico"
     },
     "mac": {
       "target": "dmg",

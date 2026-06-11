@@ -1,0 +1,82 @@
+name: Build & Release Desktop App
+
+# Dispara ao criar uma tag vX.Y.Z  OU  manualmente pela aba Actions.
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag da versão (ex: v1.2.0)'
+        required: true
+
+permissions:
+  contents: write   # necessário para criar releases e fazer upload de assets
+
+jobs:
+  # ── Windows installer (NSIS .exe + latest.yml para autoupdate) ────────────
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Instalar dependências
+        working-directory: desktop
+        run: npm ci
+
+      # Ajusta a versão no package.json para bater com a tag (v1.2.0 → 1.2.0)
+      - name: Sincronizar versão com a tag
+        working-directory: desktop
+        shell: bash
+        run: |
+          TAG="${{ github.ref_name || inputs.tag }}"
+          VERSION="${TAG#v}"
+          npm pkg set version="$VERSION"
+          echo "Versão do build: $VERSION"
+
+      # Escreve secrets.json com as credenciais do Supabase.
+      # O script copy-game.js injeta esse arquivo dentro do bundle.
+      - name: Injetar credenciais Supabase
+        working-directory: desktop
+        env:
+          SUPABASE_URL:      ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          node -e "
+            const fs = require('fs');
+            fs.writeFileSync('secrets.json', JSON.stringify({
+              SUPABASE_URL:      process.env.SUPABASE_URL      || '',
+              SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || ''
+            }));
+            console.log('[CI] secrets.json criado.');
+          "
+
+      # Copia os arquivos do jogo → desktop/game/  e  constrói + publica o instalador.
+      # GH_TOKEN é o token automático do Actions — basta ter permissions: contents: write.
+      - name: Build e publicar instalador Windows
+        working-directory: desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run dist:win
+
+      # Sobe o instalador e o latest.yml como artefatos do workflow também,
+      # caso o upload direto para a release falhe.
+      - name: Upload artefatos
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.yml
+            desktop/dist/*.blockmap
+          if-no-files-found: warn
