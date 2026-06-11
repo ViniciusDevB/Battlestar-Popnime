@@ -77,8 +77,6 @@ function generateInfiniteWave(waveNum) {
 
 // Chamado a cada 5 waves: dá gemas + rola Star Experience
 function giveInfiniteReward(waveNum) {
-  const best = Save.get().stats.melhor_onda_infinita || 0;
-  if (waveNum > best) Save.setStat('melhor_onda_infinita', waveNum);
 
   // Gemas baseadas no tier
   const tierIdx = getInfiniteTierIdx(waveNum);

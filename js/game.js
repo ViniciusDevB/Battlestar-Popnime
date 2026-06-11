@@ -1296,6 +1296,19 @@ const Game = (() => {
         if (wave > best) Save.setStat('melhor_onda_infinita', wave);
         Save.incStat('ondas_infinito', wave);
         _submitScore('infinite');
+        // Commita gemas e drops da sessão no servidor.
+        // fn_infinite_complete valida as recompensas e aplica atomicamente.
+        if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
+          Online.infiniteComplete(wave, _infiniteSession.gems, { ..._infiniteSession.drops })
+            .then(result => {
+              if (result?.ok && result.save) {
+                Save._mergeData(result.save);
+                if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
+              } else {
+                Online.syncSave().catch(() => {});
+              }
+            }).catch(() => {});
+        }
       }
       _contributeMissionStats(false);
       Missions.check();

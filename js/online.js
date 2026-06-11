@@ -578,9 +578,10 @@ const Online = (() => {
       });
       if (error) { console.warn('[Online] updateInventory:', error.message); return { ok: false }; }
       if (data?.error) return { ok: false };
-      // Aplica o estado canônico do servidor (preserva economia/inventário correto)
+      // _mergeData preserva stats locais (max) e fases/missões via union,
+      // enquanto aplica os campos econômicos/inventário autoritativos do servidor.
       if (data?.save) {
-        Save._setData(data.save);
+        Save._mergeData(data.save);
         if (typeof UI !== 'undefined') UI.updateCurrencyDisplay();
       }
       return { ok: true };
@@ -634,6 +635,23 @@ const Online = (() => {
   }
 
   // ── Stage / Mission RPCs ──────────────────────────────────────────────────
+
+  // Commita uma sessão de Modo Infinito no servidor. Valida e persiste gemas + drops.
+  async function infiniteComplete(waves, gems, drops) {
+    if (!_ready || !_session) return { error: 'not_logged_in' };
+    try {
+      const { data, error } = await _client.rpc('fn_infinite_complete', {
+        p_waves: Math.max(1, waves),
+        p_gems:  Math.max(0, gems),
+        p_drops: drops || {},
+      });
+      if (error) return { error: error.message };
+      if (data?.error) return { error: data.error };
+      return data;
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
 
   // Notifica o servidor que uma fase foi concluída. O servidor valida o tempo,
   // concede as gemas e rola os drops. Retorna { ok, gems_granted, drops, save }.
@@ -815,7 +833,7 @@ const Online = (() => {
     init, isReady, isLoggedIn, getProfile, getSession, onReady,
     waitForProfile, refreshProfile,
     register, login, logout, resetAccount,
-    syncSave, queueSync, updateInventory, upgradeNexus, craftRelic,
+    syncSave, queueSync, updateInventory, upgradeNexus, craftRelic, infiniteComplete,
     pushSave, pushSaveBeacon, gachaPull, completeStage, claimReward,
     postScore, fetchLeaderboard, fetchMyRank,
     fetchOpenTrades, createTrade, acceptTrade, cancelTrade,

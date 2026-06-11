@@ -84,6 +84,12 @@ const Save = (() => {
       });
       d.inventario.unidades = migrated;
     }
+    // Preserva time_salvo local quando já está inicializado (length 6).
+    // RPCs de inventário/nexus/relíquias retornam o save completo, mas o time
+    // é gerenciado exclusivamente pelo cliente e sincronizado via queueSync.
+    // Na primeira carga (defaultSave: length 0) o servidor define o time.
+    const localTeam = _data?.time_salvo;
+    const keepLocalTeam = Array.isArray(localTeam) && localTeam.length === 6;
     _data = d;
     if (!_data.inventario)          _data.inventario = { unidades: [], materiais: [] };
     if (!_data.inventario.unidades) _data.inventario.unidades = [];
@@ -93,9 +99,8 @@ const Save = (() => {
     if (!_data.relicStash)          _data.relicStash = [];
     if (!_data.stats)               _data.stats = defaultSave().stats;
     else _data.stats = Object.assign(defaultSave().stats, _data.stats);
+    if (keepLocalTeam)              _data.time_salvo = localTeam;
     // Remove das pendentes qualquer missão que o servidor já marcou como completa.
-    // fn_claim_reward/fn_sync_progress pode retornar save com missoes_conquistas_pendentes
-    // desatualizada; isso evita que missões já resgatadas apareçam como claimáveis novamente.
     if (_data.missoes_conquistas_pendentes?.length && _data.missoes_completas?.length) {
       const done = new Set(_data.missoes_completas);
       _data.missoes_conquistas_pendentes = _data.missoes_conquistas_pendentes.filter(id => !done.has(id));
