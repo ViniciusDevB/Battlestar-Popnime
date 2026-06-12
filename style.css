@@ -650,7 +650,7 @@ html,body{
   display:flex;align-items:center;gap:8px;min-height:52px;position:relative;
 }
 .tp-unit:hover{background:var(--gs2);}
-.tp-unit.deploying{border-color:rgba(57,255,20,0.55)!important;background:rgba(57,255,20,0.06);box-shadow:0 0 12px rgba(57,255,20,0.12);}
+.tp-unit.deploying{border-top-color:rgba(57,255,20,0.55)!important;border-right-color:rgba(57,255,20,0.55)!important;border-bottom-color:rgba(57,255,20,0.55)!important;background:rgba(57,255,20,0.06);box-shadow:0 0 12px rgba(57,255,20,0.12);}
 .tp-unit.cant-afford{opacity:.45;}
 .tp-unit.at-limit{opacity:.6;}
 .tp-icon{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:12px;flex-shrink:0;position:relative;}

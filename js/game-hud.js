@@ -334,9 +334,9 @@ function renderTeamPanel() {
     const totalUpgrades  = char.upgrades?.length || 0;
     const upgradeLevel   = deployedTower?.upgradeLevel || 0;
     const hasAbility     = !!char.active_ability;
-    const abilityTimer   = deployedTower?.abilityTimer ?? null;
-    const abilityReady   = hasAbility && deployedTower && abilityTimer <= 0;
-    const abilityCharging= hasAbility && deployedTower && abilityTimer > 0;
+    const rawTimer       = deployedTower ? (deployedTower.abilityTimer || 0) : null;
+    const abilityReady   = hasAbility && rawTimer !== null && rawTimer <= 0;
+    const abilityCharging= hasAbility && rawTimer !== null && rawTimer > 0;
 
     let cls = 'tp-unit';
     if (deployingCharId === charId) cls += ' deploying';
@@ -357,7 +357,7 @@ function renderTeamPanel() {
     if (abilityReady)
       abilHtml = `<span class="tp-ability ready">⚡ ${I18N.t('hud_ability_ready')}</span>`;
     else if (abilityCharging)
-      abilHtml = `<span class="tp-ability charging">${Math.ceil(abilityTimer)}s</span>`;
+      abilHtml = `<span class="tp-ability charging">${Math.ceil(rawTimer)}s</span>`;
 
     const row3Html = (pipsHtml || abilHtml)
       ? `<div class="tp-row3">${pipsHtml}${abilHtml}</div>` : '';
