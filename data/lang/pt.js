@@ -822,6 +822,7 @@ const LANG_PT = {
   "toast_nexus_upgrade_err": "Erro ao melhorar — tente novamente.",
   "toast_forge_need_online": "Necessário estar conectado para usar a Forja.",
   "toast_craft_err": "Erro ao craftar — tente novamente.",
+  "toast_recipe_required": "Você precisa da receita antes de craftar esta relíquia!",
   "toast_insufficient_ingredient": "Ingredientes insuficientes: {name}",
   "toast_relic_no_stash": "Nenhuma relíquia na reserva.",
   "toast_relic_unequipped": "Relíquia desequipada e devolvida à reserva.",

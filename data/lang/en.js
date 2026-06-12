@@ -1231,6 +1231,7 @@ const LANG_EN = {
   "toast_nexus_upgrade_err": "Upgrade failed — please try again.",
   "toast_forge_need_online": "You must be online to use the Forge.",
   "toast_craft_err": "Craft failed — please try again.",
+  "toast_recipe_required": "You need the recipe before crafting this relic!",
   "toast_insufficient_ingredient": "Insufficient ingredients: {name}",
   "toast_relic_no_stash": "No relics in stash.",
   "toast_relic_unequipped": "Relic unequipped and returned to stash.",

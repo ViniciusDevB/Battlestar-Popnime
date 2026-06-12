@@ -248,7 +248,14 @@ const Online = (() => {
       if (data?.save) {
         Save._mergeData(data.save);
         if (_profile.is_admin) {
-          _grantAdminInventory();
+          // Grant only on fresh/reset accounts (no units). Subsequent loads work as normal save.
+          if (!Save.get().inventario?.unidades?.length) {
+            _grantAdminInventory();
+            await updateInventory();
+            // Persist nexus.blueprints + relicRecipes via fn_sync_progress merge
+            // (fn_update_inventory só envia inventario/relicStash, nunca nexus)
+            await _client.rpc('fn_sync_progress', { p_progress: Save.get() });
+          }
         } else {
           // Seed starter items for brand-new accounts (server returns empty save)
           await _seedNewAccount();
@@ -400,6 +407,8 @@ const Online = (() => {
     if (error) return { error: error.message };
 
     offeredUnitUids.forEach(uid => Save.lockUnit(uid));
+    // Persiste in_trade no servidor para sobreviver a reloads
+    try { await updateInventory(); } catch {}
     return { ok: true, tradeId: data?.id };
   }
 
@@ -775,6 +784,18 @@ const Online = (() => {
 
     d.gemas   = 999999;
     d.tickets = 9999;
+    d.cristais = 999999;
+
+    // Desbloqueia todos os blueprints e receitas de relíquias para testes
+    if (!d.nexus) d.nexus = { structures: {}, blueprints: {}, relicRecipes: {} };
+    if (!d.nexus.blueprints)    d.nexus.blueprints    = {};
+    if (!d.nexus.relicRecipes)  d.nexus.relicRecipes  = {};
+    if (typeof NEXUS_STRUCTURES !== 'undefined') {
+      NEXUS_STRUCTURES.forEach(s => { d.nexus.blueprints[s.id] = true; });
+    }
+    if (typeof RELICS !== 'undefined') {
+      Object.keys(RELICS).forEach(id => { d.nexus.relicRecipes[id] = true; });
+    }
 
     // Set pulls_realizados high so integrity plausibility check never flags
     // unidades_excedentes (which would trigger the "save modified" toast on next load)

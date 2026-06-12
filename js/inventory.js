@@ -306,7 +306,7 @@ const Inventory = (() => {
       ${combineHtml}`;
   }
 
-  function combineMaterial(matId) {
+  async function combineMaterial(matId) {
     const char = getCharById(matId);
     if (!char || !char.upgrades_to) return;
     const cost = char.upgrade_cost || 3;
@@ -315,7 +315,7 @@ const Inventory = (() => {
     Save.removeMaterial(matId, cost);
     Save.addMaterial(char.upgrades_to, 1);
     Missions.check();
-    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) await Online.updateInventory();
 
     const nextChar = getCharById(char.upgrades_to);
     UI.toast(`✅ ${nextChar.name} ${I18N.t('msg_obtained')}!`);
@@ -323,7 +323,7 @@ const Inventory = (() => {
     openMaterialDetail(char.upgrades_to);
   }
 
-  function combineMaxMaterial(matId) {
+  async function combineMaxMaterial(matId) {
     const char = getCharById(matId);
     if (!char || !char.upgrades_to) return;
     const cost = char.upgrade_cost || 3;
@@ -334,7 +334,7 @@ const Inventory = (() => {
     Save.removeMaterial(matId, canMake * cost);
     Save.addMaterial(char.upgrades_to, canMake);
     Missions.check();
-    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) await Online.updateInventory();
 
     const nextChar = getCharById(char.upgrades_to);
     UI.toast(`✅ ${canMake}x ${nextChar.name} ${I18N.t('msg_obtained')}!`);
@@ -528,7 +528,7 @@ const Inventory = (() => {
     }
   }
 
-  function doPrestigeUnit(uid) {
+  async function doPrestigeUnit(uid) {
     if (!Save.canPrestige(uid)) { UI.toast(I18N.t('err_prestige_level')); return; }
     const u = Save.getUnitByUid(uid);
     if (!u) return;
@@ -537,7 +537,7 @@ const Inventory = (() => {
     const currentPrestige = u.prestige || 0;
     if (!confirm(I18N.t('msg_confirm_prestige', { name: char?.name, lvl: currentPrestige+1 }))) return;
     Save.doPrestige(uid);
-    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) await Online.updateInventory();
     UI.toast(`✦ ${char?.name} ${I18N.t('msg_transmuted')}! ${I18N.t('ui_prestige')} ${currentPrestige+1} ${I18N.t('msg_active')}.`, 3500);
     renderGrid();
     openDetail(uid);
@@ -607,7 +607,7 @@ const Inventory = (() => {
     document.getElementById('evolution-modal').style.display = 'none';
   }
 
-  function confirmEvolution() {
+  async function confirmEvolution() {
     if (!evolutionTarget) return;
     const char = getCharById(evolutionTarget);
     if (!char || !char.evolution || !checkEvolutionAvailable(evolutionTarget)) return;
@@ -631,7 +631,7 @@ const Inventory = (() => {
     Save.incStat('evolucoes_realizadas');
     if (char.rarity >= 5) Save.incStat('unidades_5estrelas_obtidas');
     Missions.check();
-    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) await Online.updateInventory();
     closeEvolution();
 
     const d = Save.get();
@@ -746,6 +746,7 @@ const Inventory = (() => {
     }
     const forgeLevel = Save.getNexusLevel('forge');
     if (forgeLevel === 0) { UI.toast(I18N.t('toast_forge_required_pull')); return; }
+    if (!Save.hasRelicRecipe(relicId)) { UI.toast(I18N.t('toast_recipe_required')); return; }
     if (typeof RELICS === 'undefined' || typeof RELIC_CRAFTS === 'undefined') return;
 
     const relic = RELICS[relicId];
@@ -774,6 +775,8 @@ const Inventory = (() => {
       UI.toast(I18N.t('toast_insufficient_ingredient', { name: mc?.name || result.material }));
     } else if (result?.error === 'forge_locked') {
       UI.toast(I18N.t('toast_forge_required_pull'));
+    } else if (result?.error === 'recipe_not_found') {
+      UI.toast(I18N.t('toast_recipe_required'));
     } else {
       UI.toast(I18N.t('toast_craft_err'));
     }
@@ -802,9 +805,9 @@ const Inventory = (() => {
           <div class="forge-stash-name">${r.name}${rs.isCorrupted ? ' ☠' : ''}</div>
           <div class="forge-stash-desc">${rs.isCorrupted ? r.corrupted_desc : r.desc}</div>
         </div>`;
-      card.addEventListener('click', () => {
+      card.addEventListener('click', async () => {
         Save.equipRelic(uid, idx);
-        if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
+        if (typeof Online !== 'undefined' && Online.isLoggedIn()) await Online.updateInventory();
         closeRelicEquip();
         openDetail(uid);
         UI.toast(`${r.icon} ${r.name} equipada!`);
@@ -821,9 +824,9 @@ const Inventory = (() => {
     if (modal) modal.style.display = 'none';
   }
 
-  function unequipRelicFromUnit(uid) {
+  async function unequipRelicFromUnit(uid) {
     Save.unequipRelic(uid);
-    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) await Online.updateInventory();
     openDetail(uid);
     UI.toast(I18N.t('toast_relic_unequipped'));
   }
@@ -984,7 +987,7 @@ const Inventory = (() => {
     el.textContent = total.toLocaleString();
   }
 
-  function confirmFeed() {
+  async function confirmFeed() {
     if (!feedTarget || feedSelected.length === 0) return;
     const targetUnitData = Save.getUnitByUid(feedTarget);
     if (!targetUnitData) return;
@@ -1007,7 +1010,7 @@ const Inventory = (() => {
     Save.save();
     Save.incStat('feeds_realizados');
     Missions.check();
-    if (typeof Online !== 'undefined' && Online.isLoggedIn()) Online.updateInventory();
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) await Online.updateInventory();
 
     const leveled = targetUnitData.nivel > prevLevel;
     const targetUid = feedTarget;

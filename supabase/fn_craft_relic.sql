@@ -50,6 +50,11 @@ BEGIN
     RETURN jsonb_build_object('error', 'forge_locked');
   END IF;
 
+  -- Verifica que o jogador desbloqueou a receita da relíquia via gacha
+  IF NOT COALESCE((v_save->'nexus'->'relicRecipes'->>p_relic_id)::BOOLEAN, false) THEN
+    RETURN jsonb_build_object('error', 'recipe_not_found');
+  END IF;
+
   v_materiais := COALESCE(v_save->'inventario'->'materiais', '[]'::JSONB);
 
   -- Valida que o jogador tem todos os materiais necessários
