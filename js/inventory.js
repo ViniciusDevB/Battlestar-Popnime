@@ -537,8 +537,15 @@ const Inventory = (() => {
     const currentPrestige = u.prestige || 0;
     if (!confirm(I18N.t('msg_confirm_prestige', { name: char?.name, lvl: currentPrestige+1 }))) return;
     Save.doPrestige(uid);
-    if (typeof Online !== 'undefined' && Online.isLoggedIn()) await Online.updateInventory();
-    UI.toast(`✦ ${char?.name} ${I18N.t('msg_transmuted')}! ${I18N.t('ui_prestige')} ${currentPrestige+1} ${I18N.t('msg_active')}.`, 3500);
+    let _prestigeSaved = true;
+    if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
+      const _r = await Online.updateInventory();
+      _prestigeSaved = _r?.ok ?? false;
+    }
+    UI.toast(_prestigeSaved
+      ? `✦ ${char?.name} ${I18N.t('msg_transmuted')}! ${I18N.t('ui_prestige')} ${currentPrestige+1} ${I18N.t('msg_active')}.`
+      : `✦ ${char?.name} prestígio aplicado, mas falhou ao salvar no servidor — não recarregue a página.`,
+      _prestigeSaved ? 3500 : 7000);
     renderGrid();
     openDetail(uid);
   }
@@ -807,10 +814,17 @@ const Inventory = (() => {
         </div>`;
       card.addEventListener('click', async () => {
         Save.equipRelic(uid, idx);
-        if (typeof Online !== 'undefined' && Online.isLoggedIn()) await Online.updateInventory();
+        let _relicSaved = true;
+        if (typeof Online !== 'undefined' && Online.isLoggedIn()) {
+          const _r = await Online.updateInventory();
+          _relicSaved = _r?.ok ?? false;
+        }
         closeRelicEquip();
         openDetail(uid);
-        UI.toast(`${r.icon} ${r.name} equipada!`);
+        UI.toast(_relicSaved
+          ? `${r.icon} ${r.name} equipada!`
+          : `${r.icon} ${r.name} equipada localmente, mas falhou ao salvar no servidor — não recarregue a página.`,
+          _relicSaved ? 2500 : 7000);
       });
       grid.appendChild(card);
     });

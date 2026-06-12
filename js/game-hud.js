@@ -195,7 +195,7 @@ function renderWavePreview() {
   html += '</div>';
 
   el.innerHTML = html;
-  el.style.display = betweenWaves ? 'flex' : 'none';
+  el.style.display = (betweenWaves && betweenTimer >= 0) ? 'flex' : 'none';
 }
 
 function updateHUDChips() {
