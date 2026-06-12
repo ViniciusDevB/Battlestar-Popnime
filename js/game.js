@@ -1434,7 +1434,7 @@ const Game = (() => {
     _contributeMissionStats(true);
     Missions.check();
     if (typeof AudioManager !== 'undefined') AudioManager.stopBgm();
-    UI.showPostBattle({ victory: true, gems, materials: dropsAcheived, bonusGems: firstTime ? Math.max(50, bonusGems) : 0 });
+    UI.showPostBattle({ victory: true, gems, cristais, materials: dropsAcheived, bonusGems: firstTime ? Math.max(50, bonusGems) : 0 });
 
     // Confirma recompensas no servidor (background) — o save retornado sobrescreve
     // o estado local com os valores autoritativos (gemas e drops reais do servidor)

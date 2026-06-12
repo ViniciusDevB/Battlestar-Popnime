@@ -177,7 +177,7 @@ const UI = (() => {
         <div class="stage-num">${i + 1}</div>
         <div class="stage-name">${stage.name}</div>
         <div class="stage-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
-        <div class="stage-rewards"><span>50-200 💎</span><span>Material</span></div>
+        <div class="stage-rewards"><span>50-200 💎</span><span>10-40 🔷</span><span>Material</span></div>
         ${!prevDone ? '<div class="stage-lock">🔒</div>' : ''}`;
       if (prevDone) card.addEventListener('click', () => showPreBattle(stage.id));
       grid.appendChild(card);
@@ -546,6 +546,12 @@ const UI = (() => {
         const li = document.createElement('div');
         li.className = 'reward-item';
         li.innerHTML = `<span>${I18N.t('result_gems')}</span><span>+${result.gems}</span>`;
+        rewards.appendChild(li);
+      }
+      if (result.cristais) {
+        const li = document.createElement('div');
+        li.className = 'reward-item';
+        li.innerHTML = `<span>${I18N.t('result_crystals')}</span><span style="color:#60a5fa;font-weight:700">+${result.cristais}</span>`;
         rewards.appendChild(li);
       }
       if (result.materials && result.materials.length > 0) {

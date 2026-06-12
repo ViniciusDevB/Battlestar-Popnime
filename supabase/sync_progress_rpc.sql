@@ -309,23 +309,25 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  v_player_id   UUID;
-  v_save        JSONB;
-  v_cfg         RECORD;
-  v_gems        BIGINT;
-  v_tickets     INT;
-  v_units_arr   JSONB;
-  v_mats_arr    JSONB;
-  v_results     JSONB  := '[]';
-  v_first_time  BOOLEAN;
-  v_gem_reward  INT;
-  v_pity_key    TEXT;
-  v_pity        INT;
-  v_uid         TEXT;
-  v_rand        FLOAT8;
-  v_found       BOOLEAN;
-  r             RECORD;
-  j             INT;
+  v_player_id      UUID;
+  v_save           JSONB;
+  v_cfg            RECORD;
+  v_gems           BIGINT;
+  v_cristais       BIGINT;
+  v_tickets        INT;
+  v_units_arr      JSONB;
+  v_mats_arr       JSONB;
+  v_results        JSONB  := '[]';
+  v_first_time     BOOLEAN;
+  v_gem_reward     INT;
+  v_crystal_reward INT;
+  v_pity_key       TEXT;
+  v_pity           INT;
+  v_uid            TEXT;
+  v_rand           FLOAT8;
+  v_found          BOOLEAN;
+  r                RECORD;
+  j                INT;
 BEGIN
   v_player_id := public.get_my_player_id();
   IF v_player_id IS NULL THEN RETURN jsonb_build_object('error','unauthorized'); END IF;
@@ -347,6 +349,7 @@ BEGIN
   IF v_save IS NULL THEN RETURN jsonb_build_object('error','save_not_found'); END IF;
 
   v_gems       := COALESCE((v_save->>'gemas')::BIGINT, 0);
+  v_cristais   := COALESCE((v_save->>'cristais')::BIGINT, 0);
   v_tickets    := COALESCE((v_save->>'tickets')::INT, 0);
   v_units_arr  := COALESCE(v_save->'inventario'->'unidades',  '[]');
   v_mats_arr   := COALESCE(v_save->'inventario'->'materiais', '[]');
@@ -362,6 +365,11 @@ BEGIN
   IF v_first_time  THEN v_gem_reward := v_gem_reward + 50; END IF;
   IF v_cfg.is_boss AND p_boss_killed THEN v_gem_reward := v_gem_reward + 30; END IF;
   IF v_cfg.is_boss AND v_first_time  THEN v_gem_reward := v_gem_reward + 100; END IF;
+
+  -- Calcula recompensa de cristais
+  v_crystal_reward := CASE p_difficulty WHEN 'normal' THEN 10 WHEN 'dificil' THEN 20 ELSE 40 END;
+  IF v_first_time         THEN v_crystal_reward := v_crystal_reward + 15; END IF;
+  IF v_cfg.is_boss AND p_boss_killed THEN v_crystal_reward := v_crystal_reward + 10; END IF;
 
   -- ── Rola drops ────────────────────────────────────────────────────────────
   v_pity_key := 'pity_' || p_stage_id;
@@ -433,7 +441,8 @@ BEGIN
   END LOOP;
 
   -- ── Atualiza o save ────────────────────────────────────────────────────────
-  v_save := jsonb_set(v_save, '{gemas}', to_jsonb(v_gems + v_gem_reward));
+  v_save := jsonb_set(v_save, '{gemas}',    to_jsonb(v_gems    + v_gem_reward));
+  v_save := jsonb_set(v_save, '{cristais}', to_jsonb(v_cristais + v_crystal_reward));
   v_save := jsonb_set(v_save, '{inventario,unidades}',  v_units_arr);
   v_save := jsonb_set(v_save, '{inventario,materiais}', v_mats_arr);
 
@@ -454,11 +463,12 @@ BEGIN
   UPDATE public.saves SET data = v_save, updated_at = NOW() WHERE player_id = v_player_id;
 
   RETURN jsonb_build_object(
-    'ok',          true,
-    'gems_granted', v_gem_reward,
-    'drops',        v_results,
-    'first_time',   v_first_time,
-    'save',         v_save
+    'ok',              true,
+    'gems_granted',    v_gem_reward,
+    'crystals_granted', v_crystal_reward,
+    'drops',           v_results,
+    'first_time',      v_first_time,
+    'save',            v_save
   );
 END;
 $$;

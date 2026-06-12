@@ -118,3 +118,6 @@ BEGIN
   RETURN jsonb_build_object('ok', true, 'results', v_results, 'save', v_save);
 END;
 $$;
+
+REVOKE ALL ON FUNCTION public.fn_relic_banner_pull(INT) FROM PUBLIC;
+GRANT  EXECUTE ON FUNCTION public.fn_relic_banner_pull(INT) TO authenticated;

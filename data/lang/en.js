@@ -734,6 +734,7 @@ const LANG_EN = {
   "result_inf_record": "Record: Wave {best}",
   "result_gems_earned": "💎 Gems earned",
   "result_gems": "💎 Gems",
+  "result_crystals": "🔷 Crystals",
   "result_bonus_first": "💎 First Clear Bonus",
   "result_no_rewards": "No rewards collected",
 

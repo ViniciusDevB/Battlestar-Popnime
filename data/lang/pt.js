@@ -325,6 +325,7 @@ const LANG_PT = {
   "result_inf_record": "Recorde: Wave {best}",
   "result_gems_earned": "💎 Gemas ganhas",
   "result_gems": "💎 Gemas",
+  "result_crystals": "🔷 Cristais",
   "result_bonus_first": "💎 Bônus Primeira Vez",
   "result_no_rewards": "Nenhuma recompensa coletada",
 
