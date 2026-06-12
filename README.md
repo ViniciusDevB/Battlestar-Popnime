@@ -1,170 +1,147 @@
-# 🌟 Battlestar Popnime
+# Battlestar Popnime
 
 <p align="center">
   <img src="assets/cover.jpg" alt="Battlestar Popnime Cover" width="100%">
 </p>
 
-**Battlestar Popnime** é um web-game no estilo **Tower Defense** que reúne personagens icônicos de diversos universos de anime e quadrinhos (Naruto, Bleach, One Piece, Marvel, entre outros). O jogo conta com um sistema completo de progressão, incluindo **Gacha**, missões, inventário, evolução, prestígio e recursos online.
+**Battlestar Popnime** é um web-game no estilo **Tower Defense** que reúne personagens icônicos de animes e quadrinhos (Naruto, Bleach, One Piece, Marvel, DC e outros). O jogo conta com um sistema completo de progressão — Gacha, Inventário, Prestígio, Relíquias, Base de Operações e recursos online com save sincronizado na nuvem.
 
 ---
 
-## 🚀 Como Jogar
+## Como Jogar
 
-> ⚠️ **Login obrigatório.** Battlestar Popnime é um jogo online — é necessário criar uma conta e estar conectado à internet para jogar. Não há modo offline.
+> **Login obrigatório.** Battlestar Popnime é um jogo exclusivamente online. Não há modo offline.
 
-### 🖥️ Instalador Desktop (Windows)
+### Instalador Desktop (Windows)
 
-Baixe e instale o jogo diretamente na sua máquina:
+**[Baixar — Battlestar Popnime para Windows](https://github.com/ViniciusDevB/Battlestar-Popnime/releases/latest)**
 
-**[⬇️ Download — Battlestar Popnime para Windows](https://github.com/ViniciusDevB/Battlestar-Popnime/releases/latest)**
-
-- Abre como qualquer jogo — sem navegador, sem abas
-- Recebe atualizações automáticas ao abrir o jogo
+- Instala como qualquer programa; cria atalho na área de trabalho
+- Atualizações automáticas silenciosas ao abrir o jogo
 - Requer internet e login para jogar
 
-### 🌐 Versão Web (Navegador)
+### Versão Web (Navegador)
 
-Acesse diretamente pelo navegador, sem instalação:
+**[viniciusdevb.github.io/Battlestar-Popnime](https://viniciusdevb.github.io/Battlestar-Popnime/)**
 
-**🔗 [viniciusdevb.github.io/Battlestar-Popnime](https://viniciusdevb.github.io/Battlestar-Popnime/)**
-
-O progresso é sincronizado na nuvem — sua conta funciona nas duas versões.
+Sem instalação. O progresso é sincronizado — sua conta funciona nas duas versões.
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
-**Gameplay:**
-- **Tower Defense Dinâmico** — posicione unidades estrategicamente. Cada personagem tem tipo de ataque único (Single, Linha, Cone, AOE, Pierce, Scatter), passivas e upgrades exclusivos.
-- **Mundos e Fases** — 4 mundos temáticos (Naruto, One Piece, Bleach, Marvel) com progressão linear de HP ajustada. 6 fases cada, 10 waves por fase. Três dificuldades por fase (Normal, Difícil, Lendário).
-- **♾ Modo Infinito** — waves sem fim com dificuldade escalável (8 tiers). Farm de Star Experience e Gemas. Limite de 3 cópias por unidade por partida.
-- **Sagas de Eventos** — capítulos narrativos estendidos (10 a 15 waves) para maior farm de ouro, com modificadores únicos e personagens exclusivos.
+### Gameplay
+- **Tower Defense Dinâmico** — posicione unidades estrategicamente. Cada personagem tem tipo de ataque único (Single, Linha, Cone, AOE, Pierce, Scatter), passivas exclusivas e upgrades ramificados.
+- **4 Mundos + DC** — Naruto, One Piece, Bleach, Marvel e DC. 6 fases por mundo, 10 waves por fase, três dificuldades (Normal, Difícil, Lendário).
+- **Modo Infinito** — waves sem fim com 8 tiers de dificuldade. Farm de Star Experience e Gemas. Limite de 3 cópias por unidade.
+- **Eventos** — capítulos narrativos estendidos (10–15 waves) com modificadores únicos e personagens exclusivos.
 
-**Progressão:**
-- **Gacha ⚡** — invoque personagens (3⭐ a 5⭐) com pity garantido no 150º pull. Banners rotativos a cada 30 minutos com pool diferente.
-- **Feed & Evolução 🔮** — suba de nível unidades via Feed e evolua-as para formas superiores com materiais dropados em fases.
-- **Prestígio ✦** — ao atingir Lv50, transmute uma unidade para Prestígio (máx P10). Cada nível concede +20% de dano e +6% de alcance, além de passivas exclusivas.
-- **Star Experience ✨** — materiais exclusivos do Modo Infinito (Nv1–5) com XP massivo, usáveis no Feed de qualquer personagem.
+### Progressão
+- **Gacha** — invoque personagens (3★ a 5★) com pity garantido no 150º pull. Banners rotativos. Darkseid 7★ secreto (1 em 2.000.000). Sorteio 100% server-side — inviolável.
+- **Feed & Evolução** — suba de nível via Feed e evolua para formas superiores com materiais dropados em fases.
+- **Prestígio** — ao atingir Lv50, transmute a unidade (máx P10). Unidades de dano ganham +10%/tier de dano; unidades de farm ganham +2%/tier de ouro por wave.
+- **Relíquias** — artefatos de 4★ e 5★ forjados na Forja de Relíquias. Cada mundo tem relíquias únicas com versão Normal e Corrompida. Receitas desbloqueadas via gacha.
+- **Base de Operações (Nexus)** — 10 estruturas melhoráveis com Gemas que persistem entre partidas (Hospital, Cofre, Academia, Quartel, Forja, Laboratório, Banco de Guerra, Torre de Vigilância, Templo e Centro de Retransmissão).
 
-**Missões 📋**
-- **Diárias** — 10 missões sorteadas por dia (resets automático à meia-noite), recompensas em Gemas e Tickets.
-- **Conquistas** — 55 missões permanentes cobrindo todos os mundos, kills, dano, gacha, coleção de personagens, modo infinito e progressão.
-- **Comunidade** — missão online coletiva com meta global, barra de progresso em tempo real e recompensa de personagem 5⭐ aleatório para quem contribuiu.
+### Online
+- **Contas e Perfil** — registro com username. Contas novas iniciam com 500 💎 e 3 personagens 3★ do banner ativo.
+- **Leaderboard** — ranking global de Modo Infinito e fases. Posição pessoal destacada.
+- **Trocas** — ofertas assíncronas de até 3 unidades, expiração automática em 7 dias.
+- **Missões de Comunidade** — meta coletiva global com barra de progresso em tempo real. Recompensa de personagem 5★ para todos os contribuintes.
+- **Save Sync** — progresso salvo automaticamente na nuvem a cada partida.
 
-**Online:**
-- **Contas e Perfil** — registro/login com username e senha. Barra de status online no HUD. Contas novas iniciam com 500 💎 e os 3 personagens 3⭐ do banner ativo.
-- **Leaderboard e Rankings** — envio de scores (infinito e fases), ranking global paginado com destaque do próprio rank.
-- **Trocas** — ofertas assíncronas de personagens entre jogadores com até 3 unidades, pedido opcional e expiração automática (7 dias).
-- **Save Sync** — save automático na nuvem garantindo a segurança do seu progresso.
-
-**Qualidade de Vida:**
-- Auto-Place com 3 slots por fase (salva e recarrega posicionamento).
-- Undo da última torre colocada (tecla `Z`).
-- Filtro múltiplo no inventário (mundo, raridade).
-- Preview de wave com ícones de tipos e alerta de miniboss/boss.
-- Comparação de atributos no painel de upgrade.
-- Barra de pity colorida.
-- Atalhos de teclado para principais ações do jogo.
+### Qualidade de Vida
+- Deck Panel redesenhado — layout horizontal com raridade, prestígio, pips de upgrade e indicador de habilidade
+- Auto-Place com 3 slots por fase
+- Undo da última torre (tecla `Z`)
+- Filtro múltiplo no inventário
+- Preview de wave com alerta de miniboss/boss
+- Comparação de atributos no painel de upgrade
+- Barra de pity colorida
+- HUD totalmente responsivo (adapta-se a qualquer resolução)
 
 ---
 
-## 📈 Histórico de Updates
+## Histórico de Updates
 
-> ⚖️ **Procurando pelos detalhes de balanceamento?**
-> Veja o nosso documento de [Patch Notes (Buffs e Nerfs)](./PATCH_NOTES.md) para acompanhar todas as mudanças específicas em personagens e mundos!
-
-### 🔄 Update 3.1: Base de Operações e Relíquias *(Lançado)*
-
-<p align="center">
-  <img src="assets/update4marvelvsdc.jpg" alt="Update 3.1 — Base de Operações e Relíquias" width="100%">
-</p>
-
-- **Base de Operações (Nexus)** — 10 estruturas melhoráveis com Gemas que persistem entre partidas. Hospital, Cofre, Academia, Torre de Vigilância, Forja de Relíquias, Quartel, Laboratório, Banco de Guerra, Templo dos Campeões e Centro de Retransmissão.
-- **Sistema de Relíquias** — artefatos de 4★ e 5★ (um por mundo) com efeitos únicos e variante Corrompida de alto risco/retorno. Equipáveis em qualquer unidade do inventário; forjados com materiais dropados em fases.
-- **Rebalanceamento de Prestígio** — unidades de dano: +10%/+2% dano por tier; unidades de farm: +2% ouro por wave por tier. Substituiu o bônus genérico anterior.
-- **Segurança — Gacha Server-Side** — todo o sorteio, pity e dedução de moeda agora ocorre exclusivamente no servidor via RPC atômica. Nenhum dado econômico vem do cliente.
-- **Segurança — Anti-Exploit de Trocas** — unidades em oferta ativa ficam bloqueadas: não podem ser usadas em Feed, Evolução ou Prestígio enquanto a troca estiver pendente.
-- **Correções de Bugs** — recompensas de missões não causam mais perda de gemas em falhas de rede; passivas de área (`slow_aura`, `santen_kesshun`) throttled para eliminar custo de CPU excessivo por frame.
+> Veja o [Patch Notes completo](./PATCH_NOTES.md) para todas as mudanças detalhadas de balanceamento, sistemas e correções.
 
 ---
 
-### 🔄 Update 3: Crise nas Infinitas Terras *(Em Desenvolvimento)*
+### 🆕 Update 3.2.1 — Interface e Correções *(Lançado — 12 Jun 2026)*
+
+- **Deck Panel Redesenhado** — cards horizontais com borda colorida por raridade, badge de prestígio, pips de upgrade da torre deployada, indicador de habilidade ativa (⚡ PRONTO / cooldown em segundos) e custo com desconto do Quartel aplicado em tempo real.
+- **10 Bugs Críticos Corrigidos** — prestígio do admin perdido no reload, grant repetido a cada carregamento, nexus/gemas do admin não persistidos, cristais injetáveis em conta nova, blueprint revogável via `false`, `in_trade` não persistia no servidor, `bonusGems` zerado em partidas repetidas, craft sem receita permitido.
+- **Receitas de Relíquias via Gacha** — relíquias agora exigem que a receita seja desbloqueada pelo banner antes de poder ser forjada. Validação client e server-side.
+- **HUD Totalmente Responsivo** — todos os elementos do HUD de combate adaptam-se a qualquer resolução de tela.
+
+---
+
+### ✅ Update 3.1 — Base de Operações e Relíquias *(Lançado — 11 Jun 2026)*
+
+- **Base de Operações (Nexus)** — 10 estruturas melhoráveis com Gemas que persistem entre partidas, cada uma com efeito distinto sobre gameplay.
+- **Sistema de Relíquias** — artefatos equipáveis de 4★ e 5★ (um por mundo) com versão Normal e Corrompida. Forjados com materiais de Chefes e Elites.
+- **Rebalanceamento de Prestígio** — dano: +10%/tier (P1–P5) e +2%/tier (P6–P10). Farm: +2% ouro/wave por tier.
+- **Gacha 100% Server-Side** — `fn_gacha_pull` RPC atômica: sorteio, pity e dedução de moeda no servidor. Nenhum dado econômico vem do cliente.
+- **Anti-Exploit de Trocas** — unidades em oferta ativa recebem flag `in_trade` — bloqueadas para Feed, Evolução e Prestígio até cancelamento.
+
+---
+
+### ✅ Update 3 — Crise nas Infinitas Terras *(Lançado — Jun 2026)*
 
 <p align="center">
   <img src="assets/update3crisenasinfinitasterras.jpg" alt="Update 3 — Crise nas Infinitas Terras" width="100%">
 </p>
 
-- **Mundo 5 — Metrópolis Sitiada**: 6 novas fases sob a invasão de Apokolips, com Darkseid como Boss final de 2 fases.
-- **Mecânica Viva**: eventos ambientais em tempo real alteram o campo durante as waves — destroços de arranha-céus caem e blackouts afetam o alcance das torres.
-- **Caminhos que se Cruzam**: primeiro mundo com duas rotas independentes que se intersectam, criando zonas de cobertura dupla.
-- **9 novos personagens** do universo DC: Flash, Batgirl, Aquaman, Batman, Lois Lane, Lanterna Verde, Superman, Shazam e Flash Reverso.
-
-#### ↳ Lançamento Desktop
-- **Instalador Windows**: o jogo agora pode ser instalado como um executável nativo — sem navegador, com atalho na área de trabalho.
-- **Atualizações Automáticas**: novas versões são baixadas em segundo plano e aplicadas com um clique ao reiniciar.
-
-#### ↳ Internacionalização Completa
-- **Suporte completo a Inglês**: todo o texto visível do jogo traduzido ao selecionar EN — HUD, menus, toasts, online, leaderboard, trocas e missões.
-- **~140 novas chaves de tradução** e suporte a tooltips via `data-i18n-title`.
-
-#### ↳ Rebalanceamento Global
-- **Nova Economia**: ouro por kill padronizado (50), ouro inicial 300, skip progressivo.
-- **Rework de L (Death Note)**: transformado na principal unidade de farm econômico.
-- **Nova Passiva — Nami**: "Tempestade Acumulada" a cada 8 ataques.
-- **Buff Naruto Sage**: dano base 120 → 150.
-- **Nerf Hawkeye**: cooldown aumentado para evitar superação de unidades 5⭐.
-
-#### ↳ A Era do Online
-- **Contas e Perfil**: registro/login por username, pacote de boas-vindas com 500 💎.
-- **Leaderboard e Rankings**: ranking global com posição pessoal destacada.
-- **Sistema de Trocas**: ofertas assíncronas de até 3 unidades, expiração em 7 dias.
-- **Missões de Comunidade**: meta coletiva global com recompensa de personagem 5⭐.
-- **Save Sync**: progresso salvo automaticamente na nuvem.
-
-#### ↳ Segurança e Deploy
-- **Deploy Público** via GitHub Pages.
-- **Anti-Cheat e Banimento Automático**: múltiplas camadas de proteção para integridade do leaderboard.
-- **Sistema de Admin**: identificação visual exclusiva para contas de desenvolvedores.
-
-#### ↳ Gacha e Áudio
-- **Animação Épica no Gacha**: portal mágico, warp speed, meteoro e onda de choque.
-- **Áudio Contínuo**: música do menu sem reinício entre transições de tela.
+- **Mundo 5 — DC Universe** — 6 novas fases sob a invasão de Apokolips com Darkseid como Boss. 9 personagens DC: Flash, Batgirl, Aquaman, Batman, Lois Lane, Lanterna Verde, Superman, Shazam e Flash Reverso.
+- **Versão Desktop (Windows)** — instalador nativo com atualizações automáticas em segundo plano.
+- **Sistema Online Completo** — contas, leaderboard global, trocas assíncronas, missões de comunidade e save sync na nuvem.
+- **Internacionalização** — suporte completo a Inglês com ~140 novas chaves de tradução em todas as telas do jogo.
+- **Darkseid 7★** — unidade secreta com chance de 1 em 2.000.000 no gacha, reveal épico e mecânicas únicas.
 
 ---
 
-### ✅ Update 2: Invasão Secreta *(Lançado)*
+### ✅ Update 2 — Invasão Secreta *(Lançado)*
 
 <p align="center">
-  <img src="assets/update2invas%C3%B5essecretas.jpg" alt="Update 2 — Invasão Secreta" width="100%">
+  <img src="assets/update2invasõessecretas.jpg" alt="Update 2 — Invasão Secreta" width="100%">
 </p>
 
-- **Mundo 4 — Nova York**: 6 novas fases com Thanos como Boss final.
-- **8 novos personagens**: Homem-Aranha, Viúva Negra, Gavião Arqueiro, Pantera Negra, Thor, Hulk, Iron Man e World Breaker Hulk.
-- **Evento — Operação: Ressurreição**: 4 capítulos narrativos com modificadores e inimigos temáticos.
+- **Mundo 4 — Nova York** — 6 novas fases com Thanos como Boss final de 2 fases.
+- **8 novos personagens** — Homem-Aranha, Viúva Negra, Gavião Arqueiro, Pantera Negra, Thor, Hulk, Iron Man e World Breaker Hulk.
+- **Evento — Operação: Ressurreição** — 4 capítulos narrativos com modificadores e inimigos temáticos.
 
-### ✅ Update 1: Soul Society *(Lançado)*
-- **Mundo 3 — Bleach**: 6 novas fases com Aizen como Boss final.
+---
+
+### ✅ Update 1 — Soul Society *(Lançado)*
+
+- **Mundo 3 — Bleach** — 6 novas fases com Aizen & Hōgyoku como Boss final.
 - **10 novos personagens** do universo Bleach.
-- **Sistema de Prestígio ✦** e **♾ Modo Infinito**.
+- **Prestígio ✦** — sistema de transmutação P1–P10 com passivas exclusivas por tier.
+- **Modo Infinito** — waves sem fim com 8 tiers e farm de Star Experience.
+
+---
 
 ### ✅ Updates Anteriores
-- **0.6:** Evento — A Anomalia de Konoha.
-- **0.5:** Grand Line (Mundo 2).
-- **0:** Fundação Ninja (Lançamento base).
+
+- **0.6** — Evento: A Anomalia de Konoha.
+- **0.5** — Mundo 2: Grand Line (One Piece).
+- **0** — Lançamento: Mundo Ninja (Naruto), mecânica base e gacha.
 
 ---
 
-## ⏳ Por Vir
+## Em Breve
 
-### ☣️ Evento: Protocolo Nemesis — Última Resistência
+### Evento: Protocolo Nemesis — Última Resistência
 
-Um modo de jogo temporário inspirado em **Resident Evil clássico**. Defenda Raccoon City contra ondas de infectados enquanto o **Nemesis caça ativamente suas torres**, com bomba-relógio e meta-progressão permanente desbloqueando a unidade 5⭐ exclusiva **Nemesis**.
+Modo temporário inspirado em Resident Evil. Defenda Raccoon City contra infectados enquanto o **Nemesis** caça ativamente suas torres. Bomba-relógio, meta-progressão permanente e a unidade exclusiva 5★ **Nemesis** como recompensa final.
 
-### 🔜 Update 4: Marvel vs DC *(Planejado)*
-Evento especial centrado no confronto entre os universos Marvel e DC.
+### Update 4 — Marvel vs DC *(Planejado)*
+
+Confronto entre os universos Marvel e DC. Novo mundo, novos personagens e mecânicas de crossover.
 
 ---
 
-## 👨‍💻 Créditos
+## Créditos
 
 Projeto criado e mantido por [ViniciusDevB](https://github.com/ViniciusDevB).

@@ -1,24 +1,93 @@
-# 📝 Patch Notes Oficiais (Histórico de Atualizações)
+# Patch Notes Oficiais — Battlestar Popnime
 
-Bem-vindos ao portal de atualizações de **Battlestar Popnime**. Aqui você encontrará todas as informações detalhadas sobre mudanças de balanceamento, ajustes sistêmicos, correções de bugs e novos conteúdos. Nosso objetivo é manter total transparência com a comunidade sobre os números e os motivos por trás de cada mudança.
-
----
-
-## 🔄 Update 3.1: Base de Operações e Relíquias *(Lançado — 11 de Junho de 2026)*
-
-<p align="center">
-  <img src="assets/update4marvelvsdc.jpg" alt="Update 3.1 — Base de Operações e Relíquias" width="100%">
-</p>
-
-*"A meta-progressão chega ao Battlestar Popnime. Construa e melhore sua Base de Operações entre partidas, equipe Relíquias poderosas (e perigosas) nas suas unidades, e aproveite um sistema de gacha agora 100% server-side e rebalanceamento de prestígio mais estratificado."*
+Histórico completo de atualizações, balanceamento, correções e novos sistemas.
+Veja o [README](./README.md) para o resumo de cada update.
 
 ---
 
-### ↳ Base de Operações (Nexus) — 11 de Junho de 2026
+## Update 3.2.1 — Interface e Correções
+**Lançado em 12 de Junho de 2026**
 
-*"10 estruturas persistentes que moldam sua experiência de jogo a cada partida. Invista Gemas para fortalecer sua operação globalmente."*
+_"Um patch de polimento focado em três frentes: o Deck Panel ganha redesign completo com informações ricas de combate, 10 bugs críticos de save e segurança são eliminados, e o sistema de Relíquias evolui com receitas obtidas via gacha."_
 
-#### 🏗️ Estruturas Disponíveis
+---
+
+### ↳ Deck Panel Redesenhado
+
+_"O painel de seleção de unidades durante as partidas foi completamente refeito para transmitir mais informação com menos ruído visual."_
+
+#### Novo Layout
+
+- **Cards horizontais** — ícone (42px) à esquerda, bloco de info à direita em até 3 linhas. Melhor aproveitamento dos 188px de largura do painel.
+- **Borda colorida por raridade** — borda esquerda de 3px com a cor da raridade de cada unidade para identificação visual imediata.
+- **Badge de prestígio** — overlay `✦N` dourado no canto do ícone quando `prestige > 0`.
+
+#### Mais Informação por Card
+
+- **Pips de upgrade** — quadrados dourados/cinzas indicando o nível de upgrade da torre deployada. Visíveis apenas quando a unidade está em campo.
+- **Indicador de habilidade** — badge `⚡ PRONTO` em azul quando a habilidade ativa está disponível; timer `Ns` enquanto recarrega. Usa o mesmo padrão de `|| 0` do resto do codebase.
+- **Custo real com desconto** — o custo exibido agora aplica o desconto do Nexus Quartel automaticamente (antes mostrava custo bruto sem desconto).
+- **Pill de cópias** — badge `X/Y` colorido: amarelo dentro do limite, vermelho no limite máximo.
+
+#### Estados Visuais Distintos
+
+- **Deploying** — borda superior/direita/inferior verde + glow suave. Borda de raridade mantida na esquerda.
+- **Cant-afford** — 45% de opacidade (ouro insuficiente, ainda dentro do limite de cópias).
+- **At-limit** — 60% de opacidade + `🚫 Máximo` no lugar do custo. Click mostra toast em vez de tentar deployar.
+
+---
+
+### ↳ Correções de Save e Segurança
+
+_"10 bugs críticos identificados em auditoria profunda do sistema de save, admin e economia — todos corrigidos."_
+
+#### Bugs Corrigidos
+
+- **Prestígio perdido no reload (admin)** — `updateInventory()` era chamado sem `await` em 7 funções de inventário (Prestígio, Feed, Evolução, Combinar, Forjar, Equipar e Desequipar Relíquia). A requisição ao servidor era descartada pelo GC antes de completar. Corrigido com `async/await` em todas as funções.
+- **Admin grant repetido a cada reload** — `_grantAdminInventory` rodava em todo carregamento da conta admin, apagando as modificações do desenvolvedor. Agora roda apenas quando `inventario.unidades.length === 0` (conta fresca ou recém-resetada).
+- **Nexus admin não persistido no grant** — após o grant inicial, `nexus.blueprints` e `nexus.relicRecipes` não eram enviados ao servidor. Corrigido com chamada direta a `fn_sync_progress` após o grant.
+- **Gemas admin não chegando ao servidor** — o grant local de 999.999 gemas era sobrescrito na leitura do servidor no sync seguinte. Corrigido no SQL: `fn_sync_progress` detecta `is_admin` server-side e aplica a economia completa no primeiro acesso.
+- **Cristais injetáveis em conta nova** — uma conta nova podia enviar cristais inflados e o servidor aceitava. Corrigido: `cristais` são forçados a `0` para contas não-admin no primeiro acesso.
+- **Blueprint revogado via `false`** — o operador `||` do PostgreSQL permitia que um cliente enviasse `{ "forge": false }` e sobrescrevesse um blueprint já desbloqueado. Corrigido com subquery que filtra apenas valores `true` vindos do cliente.
+- **`in_trade` não persistia após criar troca** — a flag era marcada apenas em memória local. Se o jogador recarregasse antes do próximo sync, as unidades apareciam desbloqueadas. Corrigido com `await updateInventory()` imediato após `lockUnit()`.
+- **`bonusGems` zerado em partidas repetidas** — ao completar uma fase já completada, a tela de resultado mostrava 0 gemas de bônus mesmo havendo bônus por dificuldade/evento. Corrigido.
+- **Craft de relíquia sem receita** — era possível forjar relíquias sem ter desbloqueado a receita. Adicionada validação client-side e server-side (`fn_craft_relic` retorna `recipe_not_found`).
+- **Borda deploying sobrescrevia raridade** — `border-color !important` no estado deploying apagava a borda esquerda de raridade. Corrigido usando `border-top/right/bottom-color` individualmente.
+
+---
+
+### ↳ Receitas de Relíquias via Gacha
+
+_"Relíquias agora exigem que a receita seja desbloqueada antes de poder ser forjada — mais intenção, menos farm cego."_
+
+- Ao puxar no banner de Relíquias, é possível obter a **Receita** de uma relíquia específica.
+- Apenas relíquias com receita desbloqueada aparecem como disponíveis na Forja.
+- Validação server-side em `fn_craft_relic` — sem bypass via console.
+- Ao tentar construir uma estrutura Nexus já possuída, o jogador recebe **Cristais** como compensação.
+
+---
+
+### ↳ HUD Totalmente Responsivo
+
+_"O HUD de combate agora funciona corretamente em qualquer resolução de tela — de 1024×768 a 4K."_
+
+- Todos os elementos do HUD (barra de status, painel lateral, painel de upgrade, wave preview) se adaptam proporcionalmente à resolução atual.
+- Fontes, ícones e painéis usam unidades relativas em vez de valores fixos de pixel.
+
+---
+
+## Update 3.1 — Base de Operações e Relíquias
+**Lançado em 11 de Junho de 2026**
+
+_"A meta-progressão chega ao Battlestar Popnime. Construa e melhore sua Base de Operações entre partidas, equipe Relíquias poderosas nas suas unidades e aproveite um sistema de gacha agora 100% server-side."_
+
+---
+
+### ↳ Base de Operações (Nexus)
+
+_"10 estruturas persistentes que moldam sua experiência de jogo a cada partida."_
+
+#### Estruturas Disponíveis
 
 | Estrutura | Efeito | Níveis |
 |---|---|---|
@@ -35,274 +104,253 @@ Bem-vindos ao portal de atualizações de **Battlestar Popnime**. Aqui você enc
 
 ---
 
-### ↳ Sistema de Relíquias — 11 de Junho de 2026
+### ↳ Sistema de Relíquias
 
-*"Artefatos lendários de cada mundo, forjados com materiais raros. Cada relíquia tem uma versão Normal e uma Corrompida — poder maior, mas com um custo."*
+_"Artefatos lendários de cada mundo, forjados com materiais raros. Cada relíquia tem versão Normal e Corrompida."_
 
-#### ⚗️ Mecânica
+#### Mecânica
 
-* Relíquias são **forjadas** na Forja de Relíquias (requer Nexus Nv1) usando materiais dropados em fases por Chefes e Elites.
-* Ao forjar, há uma **chance de corrupção** por relíquia (a Hōgyoku tem 15%). A versão Corrompida tem efeitos distintos — geralmente mais poder com desvantagem.
-* Cada unidade pode equipar **1 relíquia**. Desequipar devolve a relíquia ao estoque (Relic Stash).
-* Relíquias são **persistentes** — ficam no save e podem ser transferidas entre unidades.
+- Relíquias são forjadas na Forja de Relíquias (requer Nexus Nv1) com materiais de Chefes e Elites.
+- Ao forjar, há chance de corrupção por relíquia (Hōgyoku: 15%). Corrompida = mais poder com desvantagem.
+- Cada unidade equipa 1 relíquia. Desequipar devolve ao Relic Stash.
+- Relíquias são persistentes — ficam no save e podem ser transferidas entre unidades.
 
-#### 💎 Relíquias por Mundo
+#### Relíquias por Mundo
 
-* **Naruto:** Kunai do 4º Hokage (vel. ataque +20%, golpe bônus), Colar da Sannin (escudo absorvente)
-* **One Piece:** Chapéu de Palha (aura +15% dano), Yoru — A Noite (dano +25%, pen. de resistência)
-* **Bleach:** Tensa Zangetsu (dano +25%, ignora escudos), Hōgyoku (dano +10% · Corrompida: +60% / -20% alcance)
-* **Marvel:** Escudo do Capitão (redução AOE, ricochete), Mjolnir (dano relâmpago +30%, stun)
-* **DC:** Manopla do Infinito (dano +15%, buffs rotativos), Anel da Lanterna (aura de recarga), Laço da Verdade (-20% resistência inimiga)
-
----
-
-### ↳ Rebalanceamento de Prestígio — 11 de Junho de 2026
-
-*"O bônus de prestígio agora diferencia o papel da unidade: dano vira dano, farm vira economia."*
-
-#### ⚔️ Novas Taxas por Tier
-
-**Unidades de Dano** (ex: Ichigo, Naruto, Goku…)
-* Tier 1–5: `+10% dano` por nível de prestígio.
-* Tier 6–10: `+2% dano` adicional por nível (bônus reduzido no late para evitar superação).
-
-**Unidades de Farm / Suporte** (ex: L, Nami, Orihime…)
-* `+2% de ouro extra por wave` por nível de prestígio (máx P10 = +20% ouro/wave).
+- **Naruto:** Kunai do 4º Hokage (vel. ataque +20%), Colar da Sannin (escudo absorvente)
+- **One Piece:** Chapéu de Palha (aura +15% dano), Yoru — A Noite (dano +25%)
+- **Bleach:** Tensa Zangetsu (dano +25%, ignora escudos), Hōgyoku (dano +10% / Corrompida: +60% / -20% alcance)
+- **Marvel:** Escudo do Capitão (redução AOE, ricochete), Mjolnir (dano relâmpago +30%, stun)
+- **DC:** Manopla do Infinito (dano +15%, buffs rotativos), Anel da Lanterna (aura de recarga), Laço da Verdade (-20% resistência inimiga)
 
 ---
 
-### ↳ Gacha Server-Side e Segurança — 11 de Junho de 2026
+### ↳ Rebalanceamento de Prestígio
 
-*"O sistema de gacha agora roda integralmente no servidor. Nenhum dado econômico vem do cliente — sorteio, pity e dedução são atômicos e invioláveis."*
+_"O bônus de prestígio agora diferencia o papel da unidade: dano vira dano, farm vira economia."_
 
-#### 🔒 Mudanças de Segurança
+#### Novas Taxas
 
-* **Gacha 100% Server-Side:** `fn_gacha_pull` (RPC no Supabase) realiza o sorteio, verifica saldo, deduz moeda, atualiza pity e inventário — tudo em uma transação atômica com `FOR UPDATE`. Injeção de gemas via Postman ou console é impossível.
-* **Darkseid no Backend:** O Easter Egg Darkseid 7★ (1 em 2.000.000) agora é processado dentro da RPC. A vitória é persistida atomicamente junto ao pull — sem possibilidade de duplicação.
-* **Anti-Exploit de Trocas:** Unidades em oferta ativa recebem flag `in_trade: true`. Enquanto flagadas, não podem ser usadas em Feed, Evolução, Prestígio ou como material de evolução. Tentativas exibem mensagem de erro clara.
-* **`Object.freeze` no Save:** O objeto `Save` exportado é congelado — funções internas não podem ser substituídas via DevTools.
-* **INSERT/UPDATE bloqueados no RLS:** Políticas da tabela `saves` revogam INSERT e UPDATE de clientes autenticados — apenas RPCs `SECURITY DEFINER` podem escrever no save.
+**Unidades de Dano** (Ichigo, Naruto, Goku…)
+- Tier 1–5: `+10% dano` por nível de prestígio
+- Tier 6–10: `+2% dano` adicional por nível
 
----
-
-### ↳ Correções de Bugs — 11 de Junho de 2026
-
-#### 🛠️ Correções
-
-* **Missões: perda de gemas em falha de rede** — anteriormente, clicar em "Resgatar" concedia as gemas localmente e marcava a missão como concluída antes da confirmação do servidor. Se a requisição falhasse, as gemas ficavam mas a missão voltava ao estado pendente, permitindo duplo claim. Agora: as gemas são concedidas otimisticamente, mas a missão só é marcada como concluída após confirmação do servidor. Em caso de falha, as gemas são revertidas e a missão volta a "pendente".
-* **`cancelTrade` não limpava `in_trade`** — a função chamava `_pushSave` que estava bloqueada pelo RLS. Corrigido para usar `updateInventory()` que passa pela RPC segura.
-* **Passivas de Área com CPU Excessivo** — `slow_aura` e `santen_kesshun` iteravam todos os inimigos/torres a cada frame (60×/s). Ambas agora têm throttle interno (0.2s e 0.5s respectivamente) eliminando desperdício em mapas com muitas torres.
-* **Tsunami (Modo Infinito):** Loop de geração de ondas não quebrava corretamente ao matar o chefe antes da onda terminar. Corrigido com `break` explícito.
-* **Pool Tier 0 no Infinito:** Tier 0 incluía acidentalmente unidades do tier anterior. Corrigido.
+**Unidades de Farm / Suporte** (L, Nami, Orihime…)
+- `+2% de ouro extra por wave` por nível de prestígio (máx P10 = +20% ouro/wave)
 
 ---
 
-## 🔄 Update 3: Crise nas Infinitas Terras *(Em Desenvolvimento)*
+### ↳ Gacha Server-Side e Segurança
 
-*"O maior update de Battlestar Popnime até hoje. Além do novo mundo DC e dos 9 novos personagens em desenvolvimento, o Update 3 traz o lançamento desktop, a camada online completa, rebalanceamento global e suporte a inglês — consolidando a base do jogo para o futuro."*
+_"O sistema de gacha agora roda integralmente no servidor. Nenhum dado econômico vem do cliente."_
 
----
-
-### ↳ Lançamento Desktop — 10 de Junho de 2026
-
-*"Battlestar Popnime agora tem uma versão instalável para Windows. A mesma experiência do jogo web, agora como aplicativo nativo — sem abrir o navegador, com atualizações automáticas."*
-
-> ⚠️ **O jogo não possui modo offline.** Login e conexão com a internet são sempre obrigatórios para jogar, em qualquer versão.
-
-#### 🖥️ Instalador Windows
-
-* Baixe e instale como qualquer programa. Atalho criado automaticamente na área de trabalho e no menu iniciar.
-* Ao abrir o jogo, ele verifica silenciosamente se há nova versão disponível. Caso haja, baixa em segundo plano e exibe notificação para reiniciar — sem precisar baixar um novo instalador manualmente.
-* Os arquivos do jogo são empacotados e protegidos no instalador.
-* Conta, leaderboard, trocas, missões de comunidade e save sync funcionam normalmente.
+- **Gacha 100% Server-Side:** `fn_gacha_pull` realiza sorteio, verifica saldo, deduz moeda, atualiza pity e inventário em transação atômica com `FOR UPDATE`. Injeção de gemas via Postman ou console é impossível.
+- **Darkseid no Backend:** Easter Egg Darkseid 7★ processado dentro da RPC — persistido atomicamente com o pull.
+- **Anti-Exploit de Trocas:** Unidades em oferta ativa recebem flag `in_trade: true` — bloqueadas para Feed, Evolução e Prestígio até cancelamento.
+- **`Object.freeze` no Save:** O objeto `Save` exportado é congelado — funções internas não podem ser substituídas via DevTools.
+- **INSERT/UPDATE bloqueados no RLS:** Apenas RPCs `SECURITY DEFINER` podem escrever no save.
 
 ---
 
-### ↳ Internacionalização Completa — 09 de Junho de 2026
+### ↳ Correções de Bugs
 
-*"Finalizamos a cobertura total do sistema de tradução. Todo o texto visível ao jogador agora responde corretamente ao idioma selecionado — seja na tela de login, no meio de uma wave ou nas telas de trocas."*
-
-#### 🌐 Suporte a Inglês (EN)
-
-Todas as seguintes áreas agora estão completamente traduzidas ao selecionar o idioma inglês:
-
-* **HUD de Jogo:** Stats de torres (Dano, Alcance, Velocidade, Tipo), painel de upgrade, botões de vender/maximizar, badge de habilidade pronta, tooltips dos controles de partida (Skip, Pause, Speed), toasts de combate (ouro insuficiente, seleção de slot, upgrade ativado, Last Stand da Tsunade).
-* **Seleção de Fase:** Botões de voltar, dificuldades, iniciar batalha, fases bloqueadas/concluídas, contador de fases por mundo.
-* **Pré-Batalha:** Hint de remover unidade do time, seção de recompensas possíveis, seção de unidades disponíveis.
-* **Pós-Batalha:** Título de recompensas, botões de Tentar Novamente, Mapa e Hub.
-* **Gacha:** Título do portal, seções "Com Gemas" e "Com Tickets", resultado da invocação, hint de pity.
-* **Inventário:** Título da tela, aba de Evolução, modal de Feed (título, labels de XP e materiais), modal de Evolução (título e botão Evoluir).
-* **Interface Online:** Formulários de login e registro, perfil do jogador, tela de servidor offline, erros de autenticação.
-* **Leaderboard:** Abas de categorias, mensagem de board vazio, linha de rank pessoal, convite para convidados, títulos de rank.
-* **Trocas:** Mensagens de board vazio, status de ofertas, fluxo completo de criação e aceite.
-* **Modo Infinito:** Nomes de tiers (Fácil → Além do Limite), toast de recompensa de wave.
-* **Missões:** Toast de missão concluída e mensagem de todas as missões feitas.
-
-#### 🔧 Melhorias Técnicas
-
-* Suporte ao atributo `data-i18n-title` para tooltips traduzidos automaticamente.
-* **~140 novas chaves de tradução** adicionadas nos arquivos de idioma EN e PT.
-* Todas as variáveis dinâmicas nos templates de tradução corrigidas (nomes de personagens, valores de ouro, contagens de wave).
+- **Missões: perda de gemas em falha de rede** — gemas eram concedidas localmente antes da confirmação do servidor. Em falha, as gemas ficavam mas a missão voltava a pendente (duplo claim). Corrigido: missão só marcada como concluída após confirmação. Em falha, gemas são revertidas.
+- **`cancelTrade` não limpava `in_trade`** — chamava `_pushSave` bloqueado pelo RLS. Corrigido para usar `updateInventory()` via RPC segura.
+- **Passivas de Área com CPU excessivo** — `slow_aura` e `santen_kesshun` iteravam todos os inimigos a cada frame. Adicionado throttle interno (0.2s e 0.5s).
+- **Pool Tier 0 no Infinito** — incluía acidentalmente unidades do tier anterior. Corrigido.
 
 ---
 
-### ↳ Segurança, Deploy Público e Missões Em Breve — 09 de Junho de 2026
+## Update 3 — Crise nas Infinitas Terras
+**Lançado em Junho de 2026**
 
-*"Neste patch de manutenção, focamos em preparar o terreno para os próximos eventos, tornar o jogo acessível ao público e reforçar a integridade competitiva."*
-
-#### 🛠️ Correções de Bugs
-
-* **Missões Diárias:** Corrigido problema crítico no rastreamento de partidas. Jogadores veteranos com a conquista de "Completar Mundo X" não estavam progredindo em missões diárias ao jogar o mesmo mundo novamente.
-* **Barra de Prestígio:** A barra de XP de Prestígio agora exibe o valor percentual correto após reiniciar a partida.
-
-#### ✨ Novidades e Melhorias
-
-* **Deploy Público:** O jogo está oficialmente disponível via GitHub Pages para qualquer jogador, sem instalação.
-* **Missões "Em Breve":** Nova seção na aba de Comunidade exibindo um carousel dinâmico com as próximas missões globais e eventos sazonais.
-* **Segurança e Anti-Cheat:** Reforçadas as camadas de validação para garantir que o Leaderboard seja justo. Jogadores com condições de rede adversas não são penalizados.
-* **Identidade Visual de Desenvolvedores:** Contas oficiais de desenvolvimento com identificação visual exclusiva no perfil e no leaderboard.
+_"O maior update de Battlestar Popnime até hoje. Novo mundo DC, 9 personagens, versão desktop, sistema online completo, rebalanceamento global e suporte a inglês."_
 
 ---
 
-### ↳ Melhorias no Gacha e Áudio — 09 de Junho de 2026
+### ↳ Mundo 5 — DC Universe
 
-*"Nesta atualização focamos em polir a experiência visual do Gacha e melhorar o comportamento da trilha sonora para uma navegação mais fluida e imersiva."*
-
-#### ✨ Melhorias Visuais
-
-* **Animação do Gacha Reformulada:** A sequência agora exibe estrelas em warp speed, um portal mágico animado se abrindo, um meteoro caindo e uma onda de choque com intensidade proporcional à raridade obtida (3⭐, 4⭐ ou 5⭐).
-
-#### 🛠️ Correções e QoL
-
-* **Áudio do Menu:** Ao navegar entre o Hub, a Seleção de Mundo e o Inventário, a música agora mantém continuidade e volume sem reiniciar do zero.
+- **6 novas fases** sob a invasão de Apokolips, com Darkseid como Boss final de 2 fases.
+- **9 novos personagens:** Flash, Batgirl, Aquaman, Batman, Lois Lane, Lanterna Verde, Superman, Shazam e Flash Reverso.
+- **Mecânica Viva:** eventos ambientais em tempo real alteram o campo durante as waves.
+- **Darkseid 7★ Secreto:** chance de 1 em 2.000.000 no gacha, com reveal épico e passivas únicas.
 
 ---
 
-### ↳ Rebalanceamento Global — 09 de Junho de 2026
+### ↳ Lançamento Desktop
 
-*"A versão 2.9 é um dos nossos maiores esforços de balanceamento até hoje. Ajustamos a economia para ser mais previsível e recompensadora, e reworkamos personagens que estavam fora da curva de poder."*
-
-#### 💰 Economia e Sistemas de Jogo
-
-* **Padronização de Ouro Inicial:** Ouro base no início de TODAS as partidas ajustado: `200` ⇒ `300`.
-* **Recompensa de Abates:** Ouro por eliminação padronizado: `Variável (35–65)` ⇒ `50 Fixo`. Inimigos Elite e Minibosses concedem bônus multiplicador fixo de `×3` (150 ouro).
-* **Bônus de Skip Progressivo:** Inicia em `+10 de ouro` na Wave 1 e cresce `+5 por wave pulada`, até teto de `+60` no late game.
-
-#### ⚔️ Personagens: Buffs, Nerfs e Reworks
-
-##### ⬆️ Buffs
-
-* **Naruto Sage (5⭐):** Dano Base `120` ⇒ `150` (+25%) | Dano Máximo `4.500` ⇒ `5.250` | Alcance `20` ⇒ `22`.
-* **Nami (4⭐):** Nova Passiva "Tempestade Acumulada" — a cada 8 ataques básicos, atinge todos os inimigos visíveis na tela, reduzindo velocidade em `40%` por `2.5s`.
-* **Orihime e Tsunade:** Escalonamento de Cura (Prestígio) `+0.5%` ⇒ `+1.2%`.
-
-##### ⬇️ Nerfs
-
-* **Hawkeye (4⭐):** Cooldown Base `1.2s` ⇒ `1.5s` | Cooldown Máximo `0.4s` ⇒ `0.65s`.
-* **Pain (5⭐):** Dano da Explosão reduzido em `10%` em todos os níveis | Raio de Impacto `15` ⇒ `18`.
-
-##### 🔄 Reworks
-
-* **L (Death Note) (4⭐):** Dano Bruto reduzido em `60%`. Nova Passiva Base "Dedução" — a cada abate no alcance de visão de L, gera `+5 de Ouro Extra`. Passiva P5 "Aura Investigativa" — torres aliadas num raio de `15` têm custo de upgrades reduzido em `10%`.
-
-##### ⚙️ Ajustes Menores de QoL
-
-* **Sanji, Byakuya e Sasuke:** Custo do Upgrade 1 e Upgrade 2 reduzido em `15%`.
-* **Ichigo Bankai:** Tempo de cast do Getsuga Tensho encurtado em `0.2s`.
+- **Instalador Windows:** o jogo pode ser instalado como aplicativo nativo — sem navegador, com atalho na área de trabalho.
+- **Atualizações Automáticas:** novas versões baixadas em segundo plano e aplicadas com um clique ao reiniciar.
 
 ---
 
-### ↳ A Era do Online — 09 de Junho de 2026
+### ↳ Internacionalização Completa
 
-*"A atualização que conectou todos os jogadores. Com a Era do Online, Battlestar Popnime passou de um jogo local para uma experiência online completa."*
+_"Todo o texto visível do jogo traduzido ao selecionar EN — HUD, menus, toasts, online, leaderboard, trocas e missões."_
 
-#### 👤 Contas de Jogador
-
-* Jogadores recém-registrados iniciam com **Pacote de Boas-Vindas** contendo `500 Gemas` e as **três unidades 3⭐** do banner ativo no cadastro.
-* Sistema de autenticação por username e senha, sem necessidade de e-mail real.
-
-#### 🏆 Leaderboard e Rankings
-
-* Ranking global exibindo os melhores jogadores no Modo Infinito (por wave e por dano) e nas fases normais.
-* Cada jogador pode visualizar sua própria posição e porcentagem no ranking.
-
-#### 🔄 Sistema de Trocas
-
-* Jogadores podem publicar ofertas públicas de até `3 unidades` por oferta.
-* Ofertas expiram automaticamente após `7 dias` caso não sejam aceitas, devolvendo as unidades ao ofertante.
-* É possível especificar unidades desejadas em troca ou aceitar qualquer oferta.
-
-#### 📋 Missões Unificadas
-
-* **Missões Diárias:** `10 missões` sorteadas por dia com reset automático à meia-noite (UTC).
-* **Conquistas:** `55` conquistas permanentes cobrindo todos os mundos, kills, dano, gacha, coleção, Modo Infinito e prestígio.
-* **Missão de Comunidade:** Meta coletiva online com barra de progresso global em tempo real. Recompensa de personagem 5⭐ aleatório para todos os contribuintes ao completar.
-
-#### ☁️ Save Sync
-
-* O progresso é salvo automaticamente na nuvem a cada partida concluída.
+- **~140 novas chaves de tradução** nos arquivos EN e PT.
+- Suporte ao atributo `data-i18n-title` para tooltips traduzidos automaticamente.
+- Cobertura completa: HUD de Jogo, Seleção de Fase, Pré/Pós-Batalha, Gacha, Inventário, Online, Leaderboard, Trocas, Modo Infinito e Missões.
 
 ---
 
-## 🟢 Update 2: Invasão Secreta (Evento Marvel)
+### ↳ Sistema Online Completo
 
-<p align="center">
-  <img src="assets/update2invas%C3%B5essecretas.jpg" alt="Update 2 — Invasão Secreta" width="100%">
-</p>
+#### Contas de Jogador
 
-*"A maior atualização de conteúdo até então. O universo Marvel chega ao Battlestar Popnime com um novo mundo temático, novos personagens, um evento narrativo inédito e a fundação do sistema online que moldaria o futuro do jogo."*
+- Registro por username e senha. Pacote de boas-vindas: `500 Gemas` + 3 unidades 3★ do banner ativo.
 
-### 🗺️ Novos Desafios: Mundo 4 — Nova York
+#### Leaderboard e Rankings
 
-* **Status dos Inimigos:** O HP base e a Velocidade de Movimento das unidades inimigas receberam um multiplicador de `1.3x` comparado aos inimigos do Mundo 3.
-* **Nova Mecânica — Armadura de Vanguarda:** Alguns inimigos Elite agora possuem redução inata contra dano físico em `15%`. Priorize tipos de ataque elemental ou mágico para máxima eficiência.
+- Ranking global de Modo Infinito (wave e dano) e fases normais.
+- Posição pessoal e porcentagem no ranking exibidas para o jogador.
 
-### 👿 Boss Final: Thanos, O Titã Louco
+#### Sistema de Trocas
 
-* **Status Base:** `100.000 HP` (Normal) | `350.000 HP` (Lendário)
-* **Fase 1 — Armadura Impenetrável:**
-  * **Dreno de Vida:** A cada checkpoint crítico avançado no mapa, Thanos drena `2 HP` diretamente da base do jogador.
-  * **Habilidade — The Snap:** A cada `20 segundos`, Thanos estala os dedos aplicando Stun Absoluto em todas as torres por `4.0 segundos` completos em um raio massivo de `25`.
-* **Fase 2 — Manopla Ativada (ao atingir 50% HP):**
-  * Thanos torna-se imune a todos os efeitos de Crowd Control (Slow, Freeze).
-  * **Roleta do Infinito:** A cada `10 segundos`, uma das joias do infinito concede um buff aleatório:
-    * *Joia do Espaço:* Teletransporte instantâneo avançando `5 metros` no caminho.
-    * *Joia do Tempo:* Velocidade de movimento aumentada em `+40%` por `3 segundos`.
-    * *Joia da Realidade:* Reflete passivamente `15%` de todo dano recebido em explosão de área ao redor dele.
+- Ofertas públicas de até `3 unidades` por oferta.
+- Expiração automática em `7 dias`. Possível especificar unidades desejadas em troca.
 
-### 🦸 Novos Personagens (8)
+#### Missões Unificadas
+
+- **Diárias:** 10 missões sorteadas com reset à meia-noite (UTC).
+- **Conquistas:** 55 permanentes cobrindo mundos, kills, dano, gacha, coleção, Infinito e prestígio.
+- **Comunidade:** meta coletiva global com barra de progresso em tempo real. Recompensa de 5★ para todos os contribuintes.
+
+#### Save Sync
+
+- Progresso salvo automaticamente na nuvem a cada partida concluída.
+
+---
+
+### ↳ Rebalanceamento Global
+
+#### Economia
+
+- **Ouro Inicial:** `200` → `300` em todas as partidas.
+- **Ouro por Kill:** variável (35–65) → `50 fixo`. Elites e Minibosses concedem bônus `×3` (150 ouro).
+- **Skip Progressivo:** `+10 ouro` na Wave 1, crescendo `+5 por wave pulada`, teto de `+60` no late game.
+
+#### Buffs
+
+- **Naruto Sage (5★):** Dano Base `120` → `150` (+25%) | Alcance `20` → `22`.
+- **Nami:** Nova Passiva "Tempestade Acumulada" — a cada 8 ataques, atinge todos os inimigos na tela com slow de 40% por 2.5s.
+- **Orihime e Tsunade:** Escalonamento de Cura (Prestígio) `+0.5%` → `+1.2%`.
+
+#### Nerfs
+
+- **Hawkeye (4★):** Cooldown Base `1.2s` → `1.5s` | Cooldown Máximo `0.4s` → `0.65s`.
+- **Pain (5★):** Dano da Explosão -10% em todos os níveis | Raio de Impacto `15` → `18`.
+
+#### Reworks
+
+- **L (Death Note) (4★):** Dano bruto -60%. Nova Passiva "Dedução" — +5 ouro extra por abate no alcance de L. Passiva P5 "Aura Investigativa" — custo de upgrades -10% para torres aliadas num raio de 15.
+
+#### Ajustes de QoL
+
+- **Sanji, Byakuya e Sasuke:** Custo do Upgrade 1 e 2 reduzido em 15%.
+- **Ichigo Bankai:** Tempo de cast do Getsuga Tensho encurtado em 0.2s.
+
+---
+
+### ↳ Segurança e Anti-Cheat
+
+- **Deploy Público** via GitHub Pages.
+- **Anti-Cheat e Banimento Automático** — múltiplas camadas de proteção para integridade do leaderboard.
+- **Sistema de Admin** — identificação visual exclusiva para contas de desenvolvedores.
+
+---
+
+### ↳ Gacha e Áudio
+
+- **Animação Épica no Gacha:** portal mágico, warp speed, meteoro e onda de choque com intensidade proporcional à raridade.
+- **Áudio Contínuo:** música do menu sem reinício entre transições de tela.
+
+---
+
+## Update 2 — Invasão Secreta
+**Lançado**
+
+_"A maior atualização de conteúdo até então. O universo Marvel chega ao Battlestar Popnime com um novo mundo, 8 personagens, evento narrativo e a fundação do sistema online."_
+
+---
+
+### ↳ Mundo 4 — Nova York
+
+- HP base e Velocidade dos inimigos com multiplicador `×1.3` comparado ao Mundo 3.
+- **Nova Mecânica — Armadura de Vanguarda:** alguns Elites têm redução de 15% contra dano físico.
+
+### ↳ Boss Final — Thanos, O Titã Louco
+
+**Status:** `100.000 HP` (Normal) | `350.000 HP` (Lendário)
+
+**Fase 1 — Armadura Impenetrável:**
+- **Dreno de Vida:** a cada checkpoint, drena `2 HP` da base do jogador.
+- **The Snap:** a cada `20s`, Stun Absoluto em todas as torres por `4.0s` num raio de 25.
+
+**Fase 2 — Manopla Ativada** (50% HP):
+- Imune a Slow e Freeze.
+- **Roleta do Infinito** a cada `10s`: Teletransporte (`+5m` no caminho), Aceleração (+40% vel. por 3s) ou Reflexo (reflete 15% do dano recebido em AOE).
+
+### ↳ Novos Personagens (8)
 
 Homem-Aranha · Viúva Negra · Gavião Arqueiro · Pantera Negra · Thor · Hulk · Iron Man Mark 50 · World Breaker Hulk
 
-### 🎭 Evento — Operação: Ressurreição
+### ↳ Evento — Operação: Ressurreição
 
-Quatro capítulos narrativos com modificadores de gameplay únicos e inimigos temáticos exclusivos deste evento.
+4 capítulos narrativos com modificadores de gameplay únicos e inimigos temáticos exclusivos.
 
 ---
 
-## 🟢 Update 1: Soul Society (Evento Bleach)
+## Update 1 — Soul Society
+**Lançado**
 
-### 👿 Boss Final: Aizen & Hogyoku
+_"O Mundo Bleach chega ao Battlestar Popnime junto com dois dos sistemas mais impactantes da progressão: Prestígio e Modo Infinito."_
 
-* **Status Base:** `60.000 HP` (Normal) | `180.000 HP` (Lendário)
-* **Fase 1 — Ilusão Perfeita:**
-  * Inicia a luta protegido por um Over-Shield com durabilidade de `20.000 HP`.
-  * **Kyoka Suigetsu (Passiva):** Toda vez que Aizen sofre um ataque Crítico, possui `30%` de chance de esquivar completamente (Miss) por `3 segundos`.
-* **Fase 2 — Transcendência:**
-  * O Escudo é quebrado. Aizen entra no estado de fúria final.
-  * **Aura de Reatsu:** Drena `1 HP` da base do jogador por segundo passivamente enquanto estiver no campo.
-  * **Regeneração Hogyoku:** Cura `2%` da própria vida máxima a cada `5 segundos`. DPS alto e posicionamento preciso são essenciais para superar a regeneração.
+---
 
-### ⭐ Sistema de Prestígio (P1 a P10)
+### ↳ Mundo 3 — Soul Society
 
-* **Requisito:** Atingir o nível máximo da unidade (Lv50).
-* **Escalonamento por Tier:** Cada evolução de Prestígio aumenta permanentemente os atributos base:
-  * `+20%` Dano Bruto.
-  * `+6%` Alcance Base.
-  * Desbloqueio de Passiva Única nos Tiers P1, P5 e P10 — verifique o inventário para os efeitos específicos de cada personagem.
+- 6 novas fases com Aizen & Hōgyoku como Boss final de 2 fases.
+- 10 novos personagens do universo Bleach.
 
-### ♾️ Modo Infinito
+### ↳ Boss Final — Aizen & Hōgyoku
 
-* Waves sem fim com escalonamento progressivo dividido em 8 tiers de dificuldade.
-* Recompensas de Gemas e Star Experience a cada 5 waves concluídas.
-* Star Experience (Nv1–5): materiais exclusivos do Modo Infinito com XP massivo, usáveis no Feed de qualquer personagem.
+**Status:** `60.000 HP` (Normal) | `180.000 HP` (Lendário)
+
+**Fase 1 — Ilusão Perfeita:**
+- Over-Shield com `20.000 HP`.
+- **Kyoka Suigetsu (Passiva):** 30% de chance de esquivar ataques Críticos por 3s.
+
+**Fase 2 — Transcendência:**
+- **Aura de Reatsu:** drena `1 HP` da base por segundo passivamente.
+- **Regeneração Hōgyoku:** cura `2%` da vida máxima a cada `5s`.
+
+### ↳ Sistema de Prestígio (P1 a P10)
+
+- **Requisito:** Lv50 (nível máximo da unidade).
+- `+20%` Dano Bruto e `+6%` Alcance Base por tier de prestígio.
+- Passivas exclusivas desbloqueadas nos tiers P1, P5 e P10.
+
+### ↳ Modo Infinito
+
+- Waves sem fim com 8 tiers de dificuldade progressiva.
+- Recompensas de Gemas e Star Experience a cada 5 waves.
+- **Star Experience (Nv1–5):** materiais exclusivos com XP massivo para qualquer personagem.
+
+---
+
+## Updates Anteriores
+
+### 0.6 — Evento: A Anomalia de Konoha
+
+Primeiro evento do jogo. Modo narrativo com modificadores únicos e farm de personagens exclusivos.
+
+### 0.5 — Grand Line (One Piece)
+
+Mundo 2 completo com 6 fases, inimigos e personagens de One Piece.
+
+### 0 — Lançamento Base
+
+- Mundo 1 (Naruto) com 6 fases e inimigos do universo ninja.
+- Sistema de Gacha com pity, sistema de Feed e missões.
+- Fundação da arquitetura modular do jogo.
