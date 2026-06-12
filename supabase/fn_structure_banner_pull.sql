@@ -2,7 +2,7 @@
 -- ASTD — fn_structure_banner_pull
 -- Banner de Estruturas (moeda: cristais).
 -- Lógica: debita cristais, resolve raridade + pity (80 pulls = garantia 5★),
--- unlock do blueprint ou converte duplicata em gemas (1/3 do baseCost).
+-- unlock do blueprint ou converte duplicata em cristais (50/100/200 por raridade).
 -- Retorna { ok, results[], save } ou { error }.
 -- =============================================================================
 
@@ -13,30 +13,30 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  v_player_id  UUID;
-  v_save       JSONB;
-  v_cristais   BIGINT;
-  v_cost       INT;
-  v_pity       INT;
-  v_blueprints JSONB;
-  v_gemas      BIGINT;
-  v_results    JSONB := '[]'::JSONB;
-  v_item       TEXT;
-  v_rarity     INT;
-  v_rnd        FLOAT;
-  v_dup_gems   INT;
-  i            INT;
+  v_player_id     UUID;
+  v_save          JSONB;
+  v_cristais      BIGINT;
+  v_cost          INT;
+  v_pity          INT;
+  v_blueprints    JSONB;
+  v_results       JSONB := '[]'::JSONB;
+  v_item          TEXT;
+  v_rarity        INT;
+  v_rnd           FLOAT;
+  v_dup_xtal      INT;
+  v_total_dup     BIGINT := 0;
+  i               INT;
 
   -- Pool de estruturas por raridade
   v_star3 TEXT[] := ARRAY['hospital','vault','barracks'];
   v_star4 TEXT[] := ARRAY['academia','bank','lab'];
   v_star5 TEXT[] := ARRAY['forge','watchtower','temple','relay'];
 
-  -- Gemas por duplicata (baseCost / 3)
+  -- Cristais por duplicata (50 / 100 / 200 por raridade)
   v_dup_map JSONB := '{
-    "hospital":600,"vault":600,"barracks":700,
-    "academia":800,"bank":800,"lab":900,
-    "forge":1200,"watchtower":1000,"temple":1100,"relay":1000
+    "hospital":50,"vault":50,"barracks":50,
+    "academia":100,"bank":100,"lab":100,
+    "forge":200,"watchtower":200,"temple":200,"relay":200
   }'::JSONB;
 BEGIN
   IF p_qty NOT IN (1, 10) THEN
@@ -54,7 +54,7 @@ BEGIN
   END IF;
 
   -- Custo: 150 × 1 / 1350 × 10
-  v_cost := CASE p_qty WHEN 1 THEN 150 ELSE 1350 END;
+  v_cost     := CASE p_qty WHEN 1 THEN 150 ELSE 1350 END;
   v_cristais := COALESCE((v_save->>'cristais')::BIGINT, 0);
   IF v_cristais < v_cost THEN
     RETURN jsonb_build_object('error', 'insufficient_crystals');
@@ -62,10 +62,6 @@ BEGIN
 
   v_pity       := COALESCE((v_save->>'pity_estrutura')::INT, 0);
   v_blueprints := COALESCE(v_save->'nexus'->'blueprints', '{}'::JSONB);
-  v_gemas      := COALESCE((v_save->>'gemas')::BIGINT, 0);
-
-  -- Débito de cristais
-  v_save := jsonb_set(v_save, '{cristais}', to_jsonb(v_cristais - v_cost));
 
   FOR i IN 1..p_qty LOOP
     v_pity := v_pity + 1;
@@ -73,8 +69,7 @@ BEGIN
 
     -- Resolve raridade (pity 80 garante 5★)
     IF v_pity >= 80 THEN
-      v_rarity := 5;
-      v_pity   := 0;
+      v_rarity := 5; v_pity := 0;
     ELSIF v_rnd < 0.01 THEN
       v_rarity := 5; v_pity := 0;
     ELSIF v_rnd < 0.41 THEN
@@ -92,12 +87,12 @@ BEGIN
       v_item := v_star3[1 + floor(random() * array_length(v_star3,1))::INT];
     END IF;
 
-    -- Blueprint já existe → converte em gemas
+    -- Blueprint já existe → converte em cristais
     IF (v_blueprints->>v_item) IS NOT NULL AND (v_blueprints->>v_item)::BOOLEAN THEN
-      v_dup_gems := COALESCE((v_dup_map->>v_item)::INT, 0);
-      v_gemas    := v_gemas + v_dup_gems;
-      v_results  := v_results || jsonb_build_object(
-        'id', v_item, 'rarity', v_rarity, 'duplicate', true, 'gems', v_dup_gems
+      v_dup_xtal  := COALESCE((v_dup_map->>v_item)::INT, 0);
+      v_total_dup := v_total_dup + v_dup_xtal;
+      v_results   := v_results || jsonb_build_object(
+        'id', v_item, 'rarity', v_rarity, 'duplicate', true, 'crystals', v_dup_xtal
       );
     ELSE
       -- Desbloqueia blueprint
@@ -108,9 +103,9 @@ BEGIN
     END IF;
   END LOOP;
 
-  -- Persiste alterações no save
-  v_save := jsonb_set(v_save, '{pity_estrutura}', to_jsonb(v_pity));
-  v_save := jsonb_set(v_save, '{gemas}',           to_jsonb(v_gemas));
+  -- Persiste: debita custo e adiciona bônus de duplicatas
+  v_save := jsonb_set(v_save, '{cristais}',       to_jsonb(v_cristais - v_cost + v_total_dup));
+  v_save := jsonb_set(v_save, '{pity_estrutura}',  to_jsonb(v_pity));
   v_save := jsonb_set(v_save, '{nexus,blueprints}', v_blueprints);
 
   UPDATE public.saves SET data = v_save, updated_at = NOW()

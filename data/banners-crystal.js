@@ -13,19 +13,18 @@ const STRUCTURE_BANNER_POOL = {
 // Taxas do banner de estruturas
 const STRUCTURE_BANNER_RATES = { s3: 0.59, s4: 0.40, s5: 0.01 };
 
-// Conversão de duplicata → gemas = floor(baseCost / 3).
-// Valores espelham NEXUS_STRUCTURES.baseCost em relics.js.
-const STRUCTURE_DUPLICATE_GEMS = {
-  hospital:   600,   // 1800 / 3
-  vault:      600,   // 1800 / 3
-  barracks:   700,   // 2100 / 3
-  academia:   800,   // 2400 / 3
-  bank:       800,   // 2400 / 3
-  lab:        900,   // 2700 / 3
-  forge:     1200,   // 3600 / 3
-  watchtower:1000,   // 3000 / 3
-  temple:    1100,   // 3300 / 3
-  relay:     1000,   // 3000 / 3
+// Conversão de duplicata → cristais (50 / 100 / 200 por raridade).
+const STRUCTURE_DUPLICATE_CRYSTALS = {
+  hospital:    50,  // 3★
+  vault:       50,  // 3★
+  barracks:    50,  // 3★
+  academia:   100,  // 4★
+  bank:       100,  // 4★
+  lab:        100,  // 4★
+  forge:      200,  // 5★
+  watchtower: 200,  // 5★
+  temple:     200,  // 5★
+  relay:      200,  // 5★
 };
 
 // ── Banner de Relíquias ────────────────────────────────────────────────────────

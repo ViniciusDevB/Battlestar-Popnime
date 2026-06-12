@@ -20,7 +20,7 @@ const Save = (() => {
       pity_reliquia: 0,
       fases_completas: {},
       time_salvo: [],
-      nexus: { structures: {}, blueprints: {} },
+      nexus: { structures: {}, blueprints: {}, relicRecipes: {} },
       relicStash: [],
       stats: {
         dano_total_causado: 0,
@@ -100,9 +100,10 @@ const Save = (() => {
     if (_data.cristais === undefined)  _data.cristais = 0;
     if (_data.pity_estrutura === undefined) _data.pity_estrutura = 0;
     if (_data.pity_reliquia  === undefined) _data.pity_reliquia  = 0;
-    if (!_data.nexus)               _data.nexus = { structures: {}, blueprints: {} };
+    if (!_data.nexus)               _data.nexus = { structures: {}, blueprints: {}, relicRecipes: {} };
     if (!_data.nexus.structures)    _data.nexus.structures = {};
     if (!_data.nexus.blueprints)    _data.nexus.blueprints = {};
+    if (!_data.nexus.relicRecipes)  _data.nexus.relicRecipes = {};
     if (!_data.relicStash)          _data.relicStash = [];
     if (!_data.stats)               _data.stats = defaultSave().stats;
     else _data.stats = Object.assign(defaultSave().stats, _data.stats);
@@ -318,9 +319,18 @@ const Save = (() => {
   function hasBlueprint(structId)   { return !!(get().nexus?.blueprints?.[structId]); }
   function unlockBlueprint(structId) {
     const d = get();
-    if (!d.nexus) d.nexus = { structures: {}, blueprints: {} };
+    if (!d.nexus) d.nexus = { structures: {}, blueprints: {}, relicRecipes: {} };
     if (!d.nexus.blueprints) d.nexus.blueprints = {};
     d.nexus.blueprints[structId] = true;
+    save();
+  }
+
+  function hasRelicRecipe(relicId)   { return !!(get().nexus?.relicRecipes?.[relicId]); }
+  function unlockRelicRecipe(relicId) {
+    const d = get();
+    if (!d.nexus) d.nexus = { structures: {}, blueprints: {}, relicRecipes: {} };
+    if (!d.nexus.relicRecipes) d.nexus.relicRecipes = {};
+    d.nexus.relicRecipes[relicId] = true;
     save();
   }
 
@@ -411,6 +421,7 @@ const Save = (() => {
     getPrestige, canPrestige, doPrestige,
     lockUnit, unlockUnit, isUnitLocked,
     hasBlueprint, unlockBlueprint,
+    hasRelicRecipe, unlockRelicRecipe,
     getNexusLevel, upgradeNexusStructure,
     getRelicStash, addToRelicStash, equipRelic, unequipRelic,
   });

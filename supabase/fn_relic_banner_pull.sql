@@ -2,8 +2,9 @@
 -- ASTD — fn_relic_banner_pull
 -- Banner de Relíquias (moeda: cristais).
 -- Pré-requisito: nexus.structures.forge > 0.
--- relicStash = array JSONB de objetos { "id": string, "isCorrupted": bool }
--- (mesmo formato do client: Save.getRelicStash() retorna array de objetos).
+-- Mecânica:
+--   - 1ª vez que sorteia uma relíquia → desbloqueia a receita (nexus.relicRecipes)
+--   - Já tem a receita → entrega a relíquia no relicStash
 -- Retorna { ok, results[], save } ou { error }.
 -- =============================================================================
 
@@ -14,19 +15,21 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  v_player_id  UUID;
-  v_save       JSONB;
-  v_cristais   BIGINT;
-  v_cost       INT;
-  v_pity       INT;
-  v_stash      JSONB;
-  v_forge_lvl  INT;
-  v_results    JSONB := '[]'::JSONB;
-  v_item       TEXT;
-  v_rarity     INT;
-  v_rnd        FLOAT;
-  v_stack      INT;
-  i            INT;
+  v_player_id   UUID;
+  v_save        JSONB;
+  v_cristais    BIGINT;
+  v_cost        INT;
+  v_pity        INT;
+  v_stash       JSONB;
+  v_recipes     JSONB;
+  v_forge_lvl   INT;
+  v_results     JSONB := '[]'::JSONB;
+  v_item        TEXT;
+  v_rarity      INT;
+  v_rnd         FLOAT;
+  v_stack       INT;
+  v_has_recipe  BOOLEAN;
+  i             INT;
 
   -- Pool por raridade (IDs espelham RELICS em relics.js)
   v_star4 TEXT[] := ARRAY[
@@ -64,15 +67,10 @@ BEGIN
     RETURN jsonb_build_object('error', 'insufficient_crystals');
   END IF;
 
-  v_pity  := COALESCE((v_save->>'pity_reliquia')::INT, 0);
-  -- relicStash = array JSONB de { "id": string, "isCorrupted": false }
-  v_stash := COALESCE(v_save->'relicStash', '[]'::JSONB);
-  IF jsonb_typeof(v_stash) <> 'array' THEN
-    v_stash := '[]'::JSONB;
-  END IF;
-
-  -- Débito de cristais
-  v_save := jsonb_set(v_save, '{cristais}', to_jsonb(v_cristais - v_cost));
+  v_pity    := COALESCE((v_save->>'pity_reliquia')::INT, 0);
+  v_stash   := COALESCE(v_save->'relicStash', '[]'::JSONB);
+  v_recipes := COALESCE(v_save->'nexus'->'relicRecipes', '{}'::JSONB);
+  IF jsonb_typeof(v_stash) <> 'array' THEN v_stash := '[]'::JSONB; END IF;
 
   FOR i IN 1..p_qty LOOP
     v_pity := v_pity + 1;
@@ -80,8 +78,7 @@ BEGIN
 
     -- Resolve raridade (pity 80 garante 5★)
     IF v_pity >= 80 THEN
-      v_rarity := 5;
-      v_pity   := 0;
+      v_rarity := 5; v_pity := 0;
     ELSIF v_rnd < 0.01 THEN
       v_rarity := 5; v_pity := 0;
     ELSE
@@ -95,22 +92,32 @@ BEGIN
       v_item := v_star4[1 + floor(random() * array_length(v_star4,1))::INT];
     END IF;
 
-    -- Conta quantas cópias já existem no stash (para mostrar ao cliente)
-    SELECT COUNT(*) INTO v_stack
-    FROM jsonb_array_elements(v_stash) AS elem
-    WHERE elem->>'id' = v_item;
+    v_has_recipe := (v_recipes->>v_item) IS NOT NULL AND (v_recipes->>v_item)::BOOLEAN;
 
-    -- Empilha no relicStash (array de objetos, duplicatas permitidas)
-    v_stash := v_stash || jsonb_build_object('id', v_item, 'isCorrupted', false);
+    IF NOT v_has_recipe THEN
+      -- 1ª vez → desbloqueia receita
+      v_recipes := jsonb_set(v_recipes, ARRAY[v_item], 'true'::JSONB);
+      v_results := v_results || jsonb_build_object(
+        'id', v_item, 'rarity', v_rarity, 'type', 'recipe'
+      );
+    ELSE
+      -- Já tem receita → entrega a relíquia no stash
+      SELECT COUNT(*) INTO v_stack
+      FROM jsonb_array_elements(v_stash) AS elem
+      WHERE elem->>'id' = v_item;
 
-    v_results := v_results || jsonb_build_object(
-      'id', v_item, 'rarity', v_rarity, 'stack', v_stack + 1
-    );
+      v_stash   := v_stash || jsonb_build_object('id', v_item, 'isCorrupted', false);
+      v_results := v_results || jsonb_build_object(
+        'id', v_item, 'rarity', v_rarity, 'type', 'relic', 'stack', v_stack + 1
+      );
+    END IF;
   END LOOP;
 
   -- Persiste alterações
-  v_save := jsonb_set(v_save, '{pity_reliquia}', to_jsonb(v_pity));
-  v_save := jsonb_set(v_save, '{relicStash}',    v_stash);
+  v_save := jsonb_set(v_save, '{cristais}',            to_jsonb(v_cristais - v_cost));
+  v_save := jsonb_set(v_save, '{pity_reliquia}',        to_jsonb(v_pity));
+  v_save := jsonb_set(v_save, '{relicStash}',           v_stash);
+  v_save := jsonb_set(v_save, '{nexus,relicRecipes}',   v_recipes, true);
 
   UPDATE public.saves SET data = v_save, updated_at = NOW()
   WHERE player_id = v_player_id;

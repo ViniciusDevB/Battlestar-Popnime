@@ -688,7 +688,14 @@ const Inventory = (() => {
     craftGrid.className = 'forge-craft-grid';
 
     if (typeof RELICS !== 'undefined' && typeof RELIC_CRAFTS !== 'undefined') {
-      Object.values(RELICS).forEach(relic => {
+      const unlockedRelics = Object.values(RELICS).filter(relic => Save.hasRelicRecipe(relic.id));
+      if (unlockedRelics.length === 0) {
+        const hint = document.createElement('div');
+        hint.style.cssText = 'color:rgba(238,240,255,0.5);font-size:12px;padding:12px 0;text-align:center;';
+        hint.textContent = '📜 Nenhuma receita desbloqueada. Faça pulls no banner de Relíquias para desbloquear.';
+        craftGrid.appendChild(hint);
+      }
+      unlockedRelics.forEach(relic => {
         const recipe = RELIC_CRAFTS[relic.id];
         if (!recipe) return;
 

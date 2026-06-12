@@ -48,9 +48,9 @@ const Gacha = (() => {
       const pool = rarity === 5 ? STRUCTURE_BANNER_POOL.star5 : rarity === 4 ? STRUCTURE_BANNER_POOL.star4 : STRUCTURE_BANNER_POOL.star3;
       const id = pool[Math.floor(Math.random() * pool.length)];
       if (Save.hasBlueprint(id)) {
-        const gems = STRUCTURE_DUPLICATE_GEMS[id] || 0;
-        Save.addGems(gems);
-        results.push({ id, rarity, duplicate: true, gems });
+        const crystals = STRUCTURE_DUPLICATE_CRYSTALS[id] || 0;
+        Save.addCristais(crystals);
+        results.push({ id, rarity, duplicate: true, crystals });
       } else {
         Save.unlockBlueprint(id);
         results.push({ id, rarity, duplicate: false });
@@ -82,6 +82,8 @@ const Gacha = (() => {
     if (!Save.spendCristais(cost)) { UI.toast(I18N.t('toast_crystals_insufficient')); return; }
     const d = Save.get();
     if (!d.relicStash) d.relicStash = [];
+    if (!d.nexus) d.nexus = { structures: {}, blueprints: {}, relicRecipes: {} };
+    if (!d.nexus.relicRecipes) d.nexus.relicRecipes = {};
     const results = [];
     for (let i = 0; i < count; i++) {
       d.pity_reliquia = (d.pity_reliquia || 0) + 1;
@@ -92,9 +94,16 @@ const Gacha = (() => {
       else rarity = 4;
       const pool = rarity === 5 ? RELIC_BANNER_POOL.star5 : RELIC_BANNER_POOL.star4;
       const id = pool[Math.floor(Math.random() * pool.length)];
-      d.relicStash.push({ id, isCorrupted: false });
-      const stack = d.relicStash.filter(x => x.id === id).length;
-      results.push({ id, rarity, stack });
+      if (!d.nexus.relicRecipes[id]) {
+        // 1ª vez → desbloqueia a receita
+        d.nexus.relicRecipes[id] = true;
+        results.push({ id, rarity, type: 'recipe' });
+      } else {
+        // Receita já tem → entrega a relíquia
+        d.relicStash.push({ id, isCorrupted: false });
+        const stack = d.relicStash.filter(x => x.id === id).length;
+        results.push({ id, rarity, type: 'relic', stack });
+      }
     }
     Save.save();
     updateGachaUI();
@@ -118,14 +127,17 @@ const Gacha = (() => {
         const icon = struct?.icon || '🏛️';
         const name = struct?.name || r.id;
         const extra = r.duplicate
-          ? `<div class="gacha-card-dup">+${r.gems} 💎</div>`
+          ? `<div class="gacha-card-dup">+${r.crystals} 🔷</div>`
           : `<div class="gacha-card-new">NOVO!</div>`;
         card.innerHTML = `<div class="gacha-card-inner${glow}"><div class="gacha-card-icon" style="background:${RARITY_COLORS[r.rarity]};font-size:2rem">${icon}</div><div class="gacha-card-stars">${RARITY_LABELS[r.rarity]}</div><div class="gacha-card-name">${name}</div>${extra}</div>`;
       } else {
         const relic = typeof getRelicById !== 'undefined' ? getRelicById(r.id) : null;
         const icon  = relic?.icon || '💠';
         const name  = relic?.name || r.id;
-        card.innerHTML = `<div class="gacha-card-inner${glow}"><div class="gacha-card-icon" style="background:${RARITY_COLORS[r.rarity]};font-size:2rem">${icon}</div><div class="gacha-card-stars">${RARITY_LABELS[r.rarity]}</div><div class="gacha-card-name">${name}</div></div>`;
+        const badge = r.type === 'recipe'
+          ? `<div class="gacha-card-new" style="background:#7c3aed">📜 RECEITA!</div>`
+          : `<div class="gacha-card-new" style="background:#0d9488">✨ RELÍQUIA!</div>`;
+        card.innerHTML = `<div class="gacha-card-inner${glow}"><div class="gacha-card-icon" style="background:${RARITY_COLORS[r.rarity]};font-size:2rem">${icon}</div><div class="gacha-card-stars">${RARITY_LABELS[r.rarity]}</div><div class="gacha-card-name">${name}</div>${badge}</div>`;
       }
       grid.appendChild(card);
     });
