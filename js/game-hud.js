@@ -312,34 +312,94 @@ function renderTeamPanel() {
   const panel = document.getElementById('team-panel');
   if (!panel) return;
   panel.innerHTML = '';
-  const team = _hudCtx.team;
-  const towers = _hudCtx.towers;
-  const gold = _hudCtx.gold;
-  const deployingCharId = _hudCtx.deployingCharId;
+  const { team, towers, gold, deployingCharId } = _hudCtx;
+
+  const barracksLvl = (typeof Save !== 'undefined' && Save.getNexusLevel) ? Save.getNexusLevel('barracks') : 0;
+  const costMult    = barracksLvl > 0 ? Math.max(0.28, 1 - barracksLvl * 0.08) : 1;
 
   team.forEach(charId => {
-    const char = getCharById(charId);
+    const char     = getCharById(charId);
     const unitData = Save.getBestUnitData(charId);
     if (!char) return;
-    const cost = char.deploy_cost;
-    const copies = towers.filter(t => t.charId === charId && !t.isClone).length;
-    const maxCopies = char.max_in_field || (char.rarity >= 6 ? 1 : 3);
-    const atLimit = copies >= maxCopies;
+
+    const effectiveCost = Math.max(1, Math.ceil(char.deploy_cost * costMult));
+    const copies        = towers.filter(t => t.charId === charId && !t.isClone).length;
+    const maxCopies     = char.max_in_field || (char.rarity >= 6 ? 1 : 3);
+    const atLimit       = copies >= maxCopies;
+    const canAfford     = gold >= effectiveCost;
+    const prestige      = unitData?.prestige || 0;
+    const rarityColor   = RARITY_COLORS[char.rarity] || '#6b7280';
+
+    const deployedTower  = towers.find(t => t.charId === charId && !t.isClone) || null;
+    const totalUpgrades  = char.upgrades?.length || 0;
+    const upgradeLevel   = deployedTower?.upgradeLevel || 0;
+    const hasAbility     = !!char.active_ability;
+    const abilityTimer   = deployedTower?.abilityTimer ?? null;
+    const abilityReady   = hasAbility && deployedTower && abilityTimer <= 0;
+    const abilityCharging= hasAbility && deployedTower && abilityTimer > 0;
+
+    let cls = 'tp-unit';
+    if (deployingCharId === charId) cls += ' deploying';
+    if (atLimit)         cls += ' at-limit';
+    else if (!canAfford) cls += ' cant-afford';
+
+    // Upgrade pips (only shown when the unit is deployed)
+    let pipsHtml = '';
+    if (totalUpgrades > 0 && deployedTower) {
+      const maxPips = Math.min(totalUpgrades, 5);
+      pipsHtml = '<div class="tp-upgrades">';
+      for (let i = 0; i < maxPips; i++)
+        pipsHtml += `<div class="tp-upg-pip ${i < upgradeLevel ? 'done' : 'empty'}"></div>`;
+      pipsHtml += '</div>';
+    }
+
+    let abilHtml = '';
+    if (abilityReady)
+      abilHtml = `<span class="tp-ability ready">⚡ ${I18N.t('hud_ability_ready')}</span>`;
+    else if (abilityCharging)
+      abilHtml = `<span class="tp-ability charging">${Math.ceil(abilityTimer)}s</span>`;
+
+    const row3Html = (pipsHtml || abilHtml)
+      ? `<div class="tp-row3">${pipsHtml}${abilHtml}</div>` : '';
+
+    const copyHtml = copies > 0
+      ? `<span class="tp-copies ${atLimit ? 'maxed' : 'ok'}">${copies}/${maxCopies}</span>` : '';
+
+    const prestigeHtml = prestige > 0
+      ? `<div class="tp-prestige-badge">✦${prestige}</div>` : '';
+
+    const costLabel = atLimit
+      ? `<span class="tp-cost muted">${I18N.t('hud_max_units')}</span>`
+      : `<span class="tp-cost">${effectiveCost}💰</span>`;
+
     const div = document.createElement('div');
-    div.className = `tp-unit${deployingCharId === charId ? ' deploying' : ''}${(gold < cost || atLimit) ? ' cant-afford' : ''}`;
+    div.className = cls;
+    div.style.borderLeftColor = rarityColor;
     div.dataset.charId = charId;
-    const copyLabel = copies > 0 ? ` <span style="color:${atLimit?'#f87171':'#fbbf24'};font-size:9px">${copies}/${maxCopies}</span>` : '';
     div.innerHTML = `
-      <div class="tp-icon" style="background:${RARITY_COLORS[char.rarity]}">${charIconInner(char)}</div>
-      <div class="tp-name">${char.name}${copyLabel}</div>
-      <div class="tp-cost">${atLimit ? I18N.t('hud_max_units') : `${cost}💰 Lv${unitData?.nivel||1}`}</div>`;
+      <div class="tp-icon" style="background:${rarityColor}">
+        ${charIconInner(char)}${prestigeHtml}
+      </div>
+      <div class="tp-info">
+        <div class="tp-row1">
+          <div class="tp-name">${char.name}</div>${copyHtml}
+        </div>
+        <div class="tp-row2">
+          <span class="tp-level">Lv${unitData?.nivel || 1}</span>${costLabel}
+        </div>
+        ${row3Html}
+      </div>`;
+
     div.addEventListener('click', () => {
-      if (_hudCtx.gold < cost) { UI.toast(I18N.t('err_gold')); return; } // lê ouro atual, não closure
+      if (atLimit) { UI.toast(I18N.t('hud_max_units')); return; }
+      if (_hudCtx.gold < effectiveCost) { UI.toast(I18N.t('err_gold')); return; }
       _hudCtx.deployingCharId = _hudCtx.deployingCharId === charId ? null : charId;
       renderTeamPanel();
       _hudCtx.selectedTowerIdx = -1;
       closeUpgradePanel();
-      UI.toast(_hudCtx.deployingCharId ? I18N.t('hud_click_slot', { name: char.name }) : I18N.t('hud_cancel_select'));
+      UI.toast(_hudCtx.deployingCharId
+        ? I18N.t('hud_click_slot', { name: char.name })
+        : I18N.t('hud_cancel_select'));
     });
     panel.appendChild(div);
   });
